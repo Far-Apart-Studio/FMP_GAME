@@ -2,13 +2,18 @@
 
 #include "PW_CharacterController.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 APW_CharacterController::APW_CharacterController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
 	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	_cameraComponent->SetupAttachment(RootComponent);
 	_cameraComponent->bUsePawnControlRotation = true;
+
+	_weaponHolder = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponHolder"));
+	_weaponHolder->SetupAttachment(RootComponent);
 }
 
 void APW_CharacterController::BeginPlay()
@@ -26,6 +31,7 @@ void APW_CharacterController::SetupPlayerInputComponent(UInputComponent* PlayerI
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APW_CharacterController::Jump);
+	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_CharacterController::ToggleSprint);
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_CharacterController::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_CharacterController::MoveRight);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_CharacterController::LookRight);
@@ -39,14 +45,23 @@ void APW_CharacterController::Jump()
 
 void APW_CharacterController::MoveForward(float value)
 {
-	const FVector forward = GetActorForwardVector();
-	AddMovementInput(forward, value);
+	const FVector moveDirection = GetActorForwardVector();
+	AddMovementInput(moveDirection, value);
 }
 
 void APW_CharacterController::MoveRight(float value)
 {
-	const FVector right = GetActorRightVector();
-	AddMovementInput(right, value);
+	const FVector moveDirection = GetActorRightVector();
+	AddMovementInput(moveDirection, value);
+}
+
+void APW_CharacterController::ToggleSprint()
+{
+	_isSprinting = !_isSprinting;
+	
+	_isSprinting ?
+		GetCharacterMovement()->MaxWalkSpeed *= _sprintMultiplier :
+		GetCharacterMovement()->MaxWalkSpeed /= _sprintMultiplier;
 }
 
 void APW_CharacterController::LookRight(float value)
@@ -58,6 +73,8 @@ void APW_CharacterController::LookUp(float value)
 {
 	AddControllerPitchInput(value);
 }
+
+
 
 
 

@@ -13,8 +13,19 @@ class PROJECT_WEST_API APW_CharacterController : public ACharacter
 
 
 private:
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	class USceneComponent* _weaponHolder;
+	
 	UPROPERTY(EditAnywhere, Category = "Character")
 	class UCameraComponent* _cameraComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float _sprintMultiplier = 1.50f;
+	
+	bool _isSprinting = false;
+	float _externalForces = 0.0f;
+	
 
 public:
 	APW_CharacterController();
@@ -28,6 +39,7 @@ public:
 	virtual void Jump() override;
 	void MoveForward(float value);
 	void MoveRight(float value);
+	void ToggleSprint();
 	void LookRight(float value);
 	void LookUp(float value);
 };
