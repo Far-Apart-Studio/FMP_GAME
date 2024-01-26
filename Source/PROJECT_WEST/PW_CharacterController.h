@@ -15,6 +15,9 @@ class PROJECT_WEST_API APW_CharacterController : public ACharacter
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Character")
+	class UPW_WeaponHandlerComponent* _weaponHandlerComponent;
+	
+	UPROPERTY(EditAnywhere, Category = "Character")
 	class USceneComponent* _weaponHolder;
 	
 	UPROPERTY(EditAnywhere, Category = "Character")
@@ -24,8 +27,6 @@ private:
 	float _sprintMultiplier = 1.50f;
 	
 	bool _isSprinting = false;
-	float _externalForces = 0.0f;
-	
 
 public:
 	APW_CharacterController();
@@ -37,6 +38,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
+	void Crouch();
 	void MoveForward(float value);
 	void MoveRight(float value);
 	void ToggleSprint();
