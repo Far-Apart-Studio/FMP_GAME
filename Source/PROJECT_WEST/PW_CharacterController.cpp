@@ -39,12 +39,14 @@ void APW_CharacterController::Jump()
 
 void APW_CharacterController::MoveForward(float value)
 {
-	AddMovementInput(GetActorForwardVector(), value);
+	const FVector forward = GetActorForwardVector();
+	AddMovementInput(forward, value);
 }
 
 void APW_CharacterController::MoveRight(float value)
 {
-	AddMovementInput(GetActorRightVector(), value);
+	const FVector right = GetActorRightVector();
+	AddMovementInput(right, value);
 }
 
 void APW_CharacterController::LookRight(float value)
