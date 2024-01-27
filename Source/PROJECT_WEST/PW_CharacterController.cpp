@@ -3,6 +3,8 @@
 #include "PW_CharacterController.h"
 
 #include "PW_Utilities.h"
+#include "PW_Weapon.h"
+#include "PW_WeaponData.h"
 #include "PW_WeaponHandlerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -29,8 +31,7 @@ void APW_CharacterController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// MOVE TO WEAPON HANDLER COMPONENT LATER
-// ------------------ Weapon Handler Component ------------------ //
+// >>> ------------------ Weapon Handler Component ------------------ >>> //
 
 void APW_CharacterController::CastBulletRay()
 {
@@ -68,8 +69,13 @@ bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
 	return true;
 }
 
+void APW_CharacterController::EquipWeapon(APW_Weapon* weaponObject)
+{
+	UPW_WeaponData* weaponData = weaponObject->GetWeaponData();
+	
+}
 
-//------------------ Weapon Handler Component ------------------//
+// <<< ------------------ Weapon Handler Component ------------------ <<< //
 
 
 void APW_CharacterController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

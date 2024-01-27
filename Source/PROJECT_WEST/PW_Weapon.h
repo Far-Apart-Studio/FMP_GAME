@@ -10,17 +10,22 @@ UCLASS()
 class PROJECT_WEST_API APW_Weapon : public AActor
 {
 	GENERATED_BODY()
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	class UPW_WeaponData* _weaponData;
 	
 public:	
-	// Sets default values for this actor's properties
 	APW_Weapon();
 
+	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }
+	FORCEINLINE void SetWeaponData(UPW_WeaponData* weaponData) { _weaponData = weaponData; }
+	
+
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };
