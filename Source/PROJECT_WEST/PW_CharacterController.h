@@ -28,7 +28,7 @@ private:
 
 	// >>> ------------------ Weapon Handler Component ------------------ >>> //
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
+	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	class APW_Weapon* _currentWeapon;
 	
 public:
@@ -45,6 +45,7 @@ public:
 	void CastBulletRay();
 	bool CastRay(FVector rayStart, FVector rayDestination, FCollisionQueryParams collisionQueryParams, FHitResult hitResult);
 	void ReloadWeapon();
+	void AttachDefaultWeapon();
 	void FireWeapon();
 
 	FORCEINLINE APW_Weapon* GetCurrentWeapon() const { return _currentWeapon; }

@@ -95,6 +95,36 @@ void APW_CharacterController::ReloadWeapon()
 	PW_Utilities::Log("Reloading Weapon!");
 }
 
+//Debug Function <<<
+void APW_CharacterController::AttachDefaultWeapon()
+{
+
+	//FOR JAKE WHEN HE WAKES UP IN THE MORNING NEEDS TO BE TESTED!
+	//THIS IS WHAT YOU WERE WORKING ON BEFORE YOU SLEPT TY.
+	//TY GOODNIGHT ME
+	
+	UWorld* currentWorld = GetWorld();
+	FActorSpawnParameters spawnParameters;
+	spawnParameters.Owner = this;
+	spawnParameters.Instigator = this;
+
+	const FVector spawnLocation = _weaponHolder->GetComponentLocation();
+	const FRotator spawnRotation = _weaponHolder->GetComponentRotation();
+
+	APW_Weapon* defaultWeapon = currentWorld->SpawnActor<APW_Weapon>(spawnLocation, spawnRotation, spawnParameters);
+
+	if (defaultWeapon == nullptr)
+	{
+		PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!");
+		return;
+	}
+	
+	SetCurrentWeapon(defaultWeapon);
+	defaultWeapon->AttachToComponent(_weaponHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	defaultWeapon->InitialiseWeapon();
+}
+// Debug Function >>>
+
 // <<< ------------------ Weapon Handler Component ------------------ <<< //
 
 
