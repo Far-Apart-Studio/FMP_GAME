@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PW_Weapon.h"
-#include "PW_WeaponData.h"
 #include "GameFramework/Character.h"
 #include "PW_CharacterController.generated.h"
 
@@ -30,9 +28,8 @@ private:
 
 	// >>> ------------------ Weapon Handler Component ------------------ >>> //
 
-	int _currentAmmo = 0;
-	int _currentReserveAmmo = 0;
-	
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
+	class APW_Weapon* _currentWeapon;
 	
 public:
 	APW_CharacterController();
@@ -42,9 +39,19 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+	// >>> ------------------ Weapon Handler Component ------------------ >>> //
+	
 	void CastBulletRay();
 	bool CastRay(FVector rayStart, FVector rayDestination, FCollisionQueryParams collisionQueryParams, FHitResult hitResult);
-	void EquipWeapon(APW_Weapon* weaponObject);
+	void ReloadWeapon();
+	void FireWeapon();
+
+	FORCEINLINE APW_Weapon* GetCurrentWeapon() const { return _currentWeapon; }
+	FORCEINLINE void SetCurrentWeapon(APW_Weapon* currentWeapon) { _currentWeapon = currentWeapon; }
+
+	// >>> ------------------ Character Component ------------------ >>> //
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
 	void Crouch();

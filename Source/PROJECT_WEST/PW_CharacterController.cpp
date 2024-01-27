@@ -4,8 +4,6 @@
 
 #include "PW_Utilities.h"
 #include "PW_Weapon.h"
-#include "PW_WeaponData.h"
-#include "PW_WeaponHandlerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -69,10 +67,32 @@ bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
 	return true;
 }
 
-void APW_CharacterController::EquipWeapon(APW_Weapon* weaponObject)
+void APW_CharacterController::FireWeapon()
 {
-	UPW_WeaponData* weaponData = weaponObject->GetWeaponData();
-	
+	PW_Utilities::Log("Weapon Fired!");
+
+	APW_Weapon* currentWeapon = GetCurrentWeapon();
+
+	if (currentWeapon == nullptr)
+	{
+		PW_Utilities::Log("No Weapon Equipped!");
+		return;
+	}
+
+	if (currentWeapon->IsAmmoEmpty())
+	{
+		PW_Utilities::Log("No Remaining Ammo! Reloading!");
+		ReloadWeapon();
+		return;
+	}
+
+	CastBulletRay();
+	currentWeapon->SubtractCurrentAmmo(1);
+}
+
+void APW_CharacterController::ReloadWeapon()
+{
+	PW_Utilities::Log("Reloading Weapon!");
 }
 
 // <<< ------------------ Weapon Handler Component ------------------ <<< //
