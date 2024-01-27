@@ -36,18 +36,22 @@ void APW_CharacterController::CastBulletRay()
 {
 	FVector rayDirection = _cameraComponent->GetForwardVector();
 	FVector rayStart = _cameraComponent->GetComponentLocation();
-	FVector rayEnd = rayStart + (rayDirection * 10000.0f);
+	FVector rayDestination = rayStart + (rayDirection * 10000.0f);
 	
 	FCollisionQueryParams collisionQueryParams;
 	collisionQueryParams.AddIgnoredActor(this);
 	FHitResult hitResult;
 
-	bool isActorHit = CastRay(rayStart, rayEnd, collisionQueryParams, hitResult);
+	bool isActorHit = CastRay(rayStart, rayDestination, collisionQueryParams, hitResult);
 
+	// Debug >>>
 	if (isActorHit)
-		PW_Utilities::Log("Hit Actor");
+		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Green,
+			false, 2.0f, 0, 2.0f);
 	else
-		PW_Utilities::Log("Hit Nothing");
+		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Red,
+			false, 2.0f, 0, 2.0f);
+	// Debug <<<
 }
 
 bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
@@ -55,7 +59,7 @@ bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
 {
 	GetWorld()->LineTraceSingleByChannel(hitResult, rayStart, rayDestination,
 		ECC_Visibility, collisionQueryParams);
-
+	
 	if (!hitResult.bBlockingHit)
 	{
 		hitResult.Location = rayDestination;
