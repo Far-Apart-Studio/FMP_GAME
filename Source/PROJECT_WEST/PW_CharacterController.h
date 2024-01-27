@@ -11,11 +11,7 @@ class PROJECT_WEST_API APW_CharacterController : public ACharacter
 {
 	GENERATED_BODY()
 
-
 private:
-
-	UPROPERTY(EditAnywhere, Category = "Character")
-	class UPW_WeaponHandlerComponent* _weaponHandlerComponent;
 	
 	UPROPERTY(EditAnywhere, Category = "Character")
 	class USceneComponent* _weaponHolder;
@@ -36,6 +32,9 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+	void CastBulletRay();
+	bool CastRay(FVector rayStart, FVector rayDestination, FCollisionQueryParams collisionQueryParams,
+	             FHitResult hitResult);
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
 	void Crouch();
