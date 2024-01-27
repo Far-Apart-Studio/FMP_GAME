@@ -2,6 +2,7 @@
 
 #include "PW_CharacterController.h"
 
+#include "PW_Utilities.h"
 #include "PW_WeaponHandlerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -44,13 +45,9 @@ void APW_CharacterController::CastBulletRay()
 	bool isActorHit = CastRay(rayStart, rayEnd, collisionQueryParams, hitResult);
 
 	if (isActorHit)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit Actor"));
-	}
+		PW_Utilities::Log("Hit Actor");
 	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Actor Hit"));
-	}
+		PW_Utilities::Log("Hit Nothing");
 }
 
 bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
