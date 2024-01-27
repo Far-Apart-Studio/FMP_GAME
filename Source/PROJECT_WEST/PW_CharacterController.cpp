@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_CharacterController.h"
+
+#include "PW_WeaponHandlerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -25,6 +27,49 @@ void APW_CharacterController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+// MOVE TO WEAPON HANDLER COMPONENT LATER
+// ------------------ Weapon Handler Component ------------------ //
+
+void APW_CharacterController::CastBulletRay()
+{
+	FVector rayDirection = _cameraComponent->GetForwardVector();
+	FVector rayStart = _cameraComponent->GetComponentLocation();
+	FVector rayEnd = rayStart + (rayDirection * 10000.0f);
+	
+	FCollisionQueryParams collisionQueryParams;
+	collisionQueryParams.AddIgnoredActor(this);
+	FHitResult hitResult;
+
+	bool isActorHit = CastRay(rayStart, rayEnd, collisionQueryParams, hitResult);
+
+	if (isActorHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit Actor"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Actor Hit"));
+	}
+}
+
+bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
+	FCollisionQueryParams collisionQueryParams, FHitResult hitResult)
+{
+	GetWorld()->LineTraceSingleByChannel(hitResult, rayStart, rayDestination,
+		ECC_Visibility, collisionQueryParams);
+
+	if (!hitResult.bBlockingHit)
+	{
+		hitResult.Location = rayDestination;
+		return false;
+	}
+	return true;
+}
+
+
+//------------------ Weapon Handler Component ------------------//
+
 
 void APW_CharacterController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -78,6 +123,8 @@ void APW_CharacterController::Jump()
 void APW_CharacterController::Crouch()
 {
 	Super::Crouch();
+	UE_LOG(LogTemp, Warning, TEXT("Crouch"));
+	CastBulletRay();
 }
 
 

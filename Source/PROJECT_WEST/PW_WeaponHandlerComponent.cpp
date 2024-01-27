@@ -13,7 +13,6 @@ void UPW_WeaponHandlerComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-
 void UPW_WeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
