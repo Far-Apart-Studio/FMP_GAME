@@ -22,6 +22,9 @@ APW_CharacterController::APW_CharacterController()
 void APW_CharacterController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FTimerHandle timerHandle;
+	GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &APW_CharacterController::AttachDefaultWeapon, 5.0f, false);
 }
 
 void APW_CharacterController::Tick(float DeltaTime)
@@ -69,19 +72,12 @@ bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
 
 void APW_CharacterController::FireWeapon()
 {
-	PW_Utilities::Log("Weapon Fired!");
-
 	APW_Weapon* currentWeapon = GetCurrentWeapon();
-
 	if (currentWeapon == nullptr)
-	{
-		PW_Utilities::Log("No Weapon Equipped!");
-		return;
-	}
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 
 	if (currentWeapon->IsAmmoEmpty())
 	{
-		PW_Utilities::Log("No Remaining Ammo! Reloading!");
 		ReloadWeapon();
 		return;
 	}
@@ -92,17 +88,35 @@ void APW_CharacterController::FireWeapon()
 
 void APW_CharacterController::ReloadWeapon()
 {
-	PW_Utilities::Log("Reloading Weapon!");
+	if (_currentWeapon == nullptr)
+	{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	
+	if (_currentWeapon->IsReloading())
+		return;
+	
+	_currentWeapon->SetReloading(true);
+
+	const UPW_WeaponData* weaponData = _currentWeapon->GetWeaponData();
+
+	if (weaponData == nullptr)
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+	
+	const float reloadTime = weaponData->GetWeaponReloadTime();
+	
+	FTimerHandle reloadTimerHandle;
+	FTimerDelegate reloadTimerDelegate;
+	reloadTimerDelegate.BindLambda([this]
+	{
+		_currentWeapon->SetReloading(false);
+		_currentWeapon->TransferReserveAmmo();
+	});
+
+	GetWorldTimerManager().SetTimer(reloadTimerHandle, reloadTimerDelegate, reloadTime, false);
 }
 
 //Debug Function <<<
 void APW_CharacterController::AttachDefaultWeapon()
 {
-
-	//FOR JAKE WHEN HE WAKES UP IN THE MORNING NEEDS TO BE TESTED!
-	//THIS IS WHAT YOU WERE WORKING ON BEFORE YOU SLEPT TY.
-	//TY GOODNIGHT ME
-	
 	UWorld* currentWorld = GetWorld();
 	FActorSpawnParameters spawnParameters;
 	spawnParameters.Owner = this;
@@ -111,17 +125,14 @@ void APW_CharacterController::AttachDefaultWeapon()
 	const FVector spawnLocation = _weaponHolder->GetComponentLocation();
 	const FRotator spawnRotation = _weaponHolder->GetComponentRotation();
 
-	APW_Weapon* defaultWeapon = currentWorld->SpawnActor<APW_Weapon>(spawnLocation, spawnRotation, spawnParameters);
+	_currentWeapon = currentWorld->SpawnActor<APW_Weapon>(spawnLocation, spawnRotation, spawnParameters);
 
-	if (defaultWeapon == nullptr)
-	{
-		PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!");
-		return;
-	}
+	if (_currentWeapon == nullptr)
+		{ PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!"); return; }
 	
-	SetCurrentWeapon(defaultWeapon);
-	defaultWeapon->AttachToComponent(_weaponHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	defaultWeapon->InitialiseWeapon();
+	SetCurrentWeapon(_currentWeapon);
+	_currentWeapon->AttachToComponent(_weaponHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	_currentWeapon->InitialiseWeapon(_defaultWeaponData);
 }
 // Debug Function >>>
 
@@ -134,6 +145,8 @@ void APW_CharacterController::SetupPlayerInputComponent(UInputComponent* PlayerI
 	
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APW_CharacterController::Jump);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APW_CharacterController::Crouch);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APW_CharacterController::FireWeapon);
+	
 	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_CharacterController::ToggleSprint);
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_CharacterController::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_CharacterController::MoveRight);
@@ -180,8 +193,6 @@ void APW_CharacterController::Jump()
 void APW_CharacterController::Crouch()
 {
 	Super::Crouch();
-	UE_LOG(LogTemp, Warning, TEXT("Crouch"));
-	CastBulletRay();
 }
 
 

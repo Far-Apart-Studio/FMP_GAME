@@ -28,7 +28,11 @@ private:
 
 	// >>> ------------------ Weapon Handler Component ------------------ >>> //
 
+
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	class UPW_WeaponData* _defaultWeaponData;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
 	class APW_Weapon* _currentWeapon;
 	
 public:
