@@ -34,6 +34,11 @@ private:
 public:	
 	APW_Weapon();
 
+
+	// These Getters won't be used in the final product, but they are useful for debugging.
+	// Most of the weapon data will be handled internally through functions like FireWeapon() and ReloadWeapon().
+	// Current Design is for debugging and simplicity.
+	
 	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }
 	FORCEINLINE void SetWeaponData(UPW_WeaponData* weaponData) { _weaponData = weaponData; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return _weaponMesh; }
@@ -52,6 +57,8 @@ public:
 	FORCEINLINE bool IsReserveAmmoFull() const { return _currentReserveAmmo == _weaponData->GetWeaponReserveAmmunition(); }
 	FORCEINLINE bool IsReloading() const { return _isReloading; }
 	FORCEINLINE void SetReloading(bool isReloading) { _isReloading = isReloading; }
+	FORCEINLINE bool CanFire() const { return _canFire; }
+	FORCEINLINE void SetCanFire(bool canFire) { _canFire = canFire; }
 
 	void TransferReserveAmmo();
 	void InitialiseWeapon(UPW_WeaponData* weaponData);
