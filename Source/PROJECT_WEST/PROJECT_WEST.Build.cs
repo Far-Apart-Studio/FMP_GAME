@@ -8,7 +8,8 @@ public class PROJECT_WEST : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "OnlineSubsystem", "OnlineSubsystemSteam" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "OnlineSubsystem", "OnlineSubsystemSteam",
+        "UMG","Slate", "SlateCore", "AIModule", "GameplayCameras" , "NavigationSystem", "CableComponent", "Niagara" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
