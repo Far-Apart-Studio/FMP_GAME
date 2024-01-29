@@ -12,6 +12,8 @@ class PROJECT_WEST_API APW_CharacterController : public ACharacter
 	GENERATED_BODY()
 
 private:
+
+	// >>> ------------------ Character Component ------------------ >>> //
 	
 	UPROPERTY(EditAnywhere, Category = "Character")
 	class USceneComponent* _weaponHolder;
@@ -24,6 +26,15 @@ private:
 	
 	bool _isSprinting = false;
 
+	// >>> ------------------ Weapon Handler Component ------------------ >>> //
+
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	class UPW_WeaponData* _defaultWeaponData;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
+	class APW_Weapon* _currentWeapon;
+	
 public:
 	APW_CharacterController();
 
@@ -32,9 +43,20 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+	// >>> ------------------ Weapon Handler Component ------------------ >>> //
+	
 	void CastBulletRay();
-	bool CastRay(FVector rayStart, FVector rayDestination, FCollisionQueryParams collisionQueryParams,
-	             FHitResult hitResult);
+	bool CastRay(FVector rayStart, FVector rayDestination, FCollisionQueryParams collisionQueryParams, FHitResult hitResult);
+	void ReloadWeapon();
+	void AttachDefaultWeapon();
+	void FireWeapon();
+
+	FORCEINLINE APW_Weapon* GetCurrentWeapon() const { return _currentWeapon; }
+	FORCEINLINE void SetCurrentWeapon(APW_Weapon* currentWeapon) { _currentWeapon = currentWeapon; }
+
+	// >>> ------------------ Character Component ------------------ >>> //
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
 	void Crouch();

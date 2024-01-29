@@ -21,6 +21,8 @@ class PROJECT_WEST_API UPW_WeaponData : public UDataAsset
 {
 	GENERATED_BODY()
 
+private:
+	
 	UPROPERTY(EditAnywhere, Category = "General Weapon Data")
 	float _weaponMagazineCapacity;
 
@@ -63,4 +65,22 @@ class PROJECT_WEST_API UPW_WeaponData : public UDataAsset
 
 	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
 	float _aWeaponAccuracy;
+
+
+public:
+	FORCEINLINE float GetWeaponMagazineCapacity() const { return _weaponMagazineCapacity; }
+	FORCEINLINE float GetWeaponReserveAmmunition() const { return _weaponReserveAmmunition; }
+	FORCEINLINE float GetWeaponReloadTime() const { return _weaponReloadTime; }
+
+	FORCEINLINE EFireType GetHipWeaponFireType() const { return _hWeaponFireType; }
+	FORCEINLINE float GetHipWeaponDamage() const { return _hWeaponDamage; }
+	FORCEINLINE float GetHipWeaponFireRate() const { return _hWeaponFireRate; }
+	FORCEINLINE FVector2D GetHipWeaponRecoil() const { return _hWeaponRecoil; }
+	FORCEINLINE float GetHipWeaponAccuracy() const { return _hWeaponAccuracy; }
+
+	FORCEINLINE EFireType GetAimedWeaponFireType() const { return _aWeaponFireType; }
+	FORCEINLINE float GetAimedWeaponDamage() const { return _aWeaponDamage; }
+	FORCEINLINE float GetAimedWeaponFireRate() const { return _aWeaponFireRate; }
+	FORCEINLINE FVector2D GetAimedWeaponRecoil() const { return _aWeaponRecoil; }
+	FORCEINLINE float GetAimedWeaponAccuracy() const { return _aWeaponAccuracy; }
 };

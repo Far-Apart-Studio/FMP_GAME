@@ -3,7 +3,7 @@
 #include "PW_CharacterController.h"
 
 #include "PW_Utilities.h"
-#include "PW_WeaponHandlerComponent.h"
+#include "PW_Weapon.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -22,6 +22,9 @@ APW_CharacterController::APW_CharacterController()
 void APW_CharacterController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FTimerHandle timerHandle;
+	GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &APW_CharacterController::AttachDefaultWeapon, 5.0f, false);
 }
 
 void APW_CharacterController::Tick(float DeltaTime)
@@ -29,25 +32,28 @@ void APW_CharacterController::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// MOVE TO WEAPON HANDLER COMPONENT LATER
-// ------------------ Weapon Handler Component ------------------ //
+// >>> ------------------ Weapon Handler Component ------------------ >>> //
 
 void APW_CharacterController::CastBulletRay()
 {
 	FVector rayDirection = _cameraComponent->GetForwardVector();
 	FVector rayStart = _cameraComponent->GetComponentLocation();
-	FVector rayEnd = rayStart + (rayDirection * 10000.0f);
+	FVector rayDestination = rayStart + (rayDirection * 10000.0f);
 	
 	FCollisionQueryParams collisionQueryParams;
 	collisionQueryParams.AddIgnoredActor(this);
 	FHitResult hitResult;
 
-	bool isActorHit = CastRay(rayStart, rayEnd, collisionQueryParams, hitResult);
+	bool isActorHit = CastRay(rayStart, rayDestination, collisionQueryParams, hitResult);
 
+	// Debug >>>
 	if (isActorHit)
-		PW_Utilities::Log("Hit Actor");
+		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Green,
+			false, 2.0f, 0, 2.0f);
 	else
-		PW_Utilities::Log("Hit Nothing");
+		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Red,
+			false, 2.0f, 0, 2.0f);
+	// Debug <<<
 }
 
 bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
@@ -55,7 +61,7 @@ bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
 {
 	GetWorld()->LineTraceSingleByChannel(hitResult, rayStart, rayDestination,
 		ECC_Visibility, collisionQueryParams);
-
+	
 	if (!hitResult.bBlockingHit)
 	{
 		hitResult.Location = rayDestination;
@@ -64,8 +70,73 @@ bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
 	return true;
 }
 
+void APW_CharacterController::FireWeapon()
+{
+	APW_Weapon* currentWeapon = GetCurrentWeapon();
+	if (currentWeapon == nullptr)
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 
-//------------------ Weapon Handler Component ------------------//
+	if (currentWeapon->IsAmmoEmpty())
+	{
+		ReloadWeapon();
+		return;
+	}
+
+	CastBulletRay();
+	currentWeapon->SubtractCurrentAmmo(1);
+}
+
+void APW_CharacterController::ReloadWeapon()
+{
+	if (_currentWeapon == nullptr)
+	{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	
+	if (_currentWeapon->IsReloading())
+		return;
+	
+	_currentWeapon->SetReloading(true);
+
+	const UPW_WeaponData* weaponData = _currentWeapon->GetWeaponData();
+
+	if (weaponData == nullptr)
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+	
+	const float reloadTime = weaponData->GetWeaponReloadTime();
+	
+	FTimerHandle reloadTimerHandle;
+	FTimerDelegate reloadTimerDelegate;
+	reloadTimerDelegate.BindLambda([this]
+	{
+		_currentWeapon->SetReloading(false);
+		_currentWeapon->TransferReserveAmmo();
+	});
+
+	GetWorldTimerManager().SetTimer(reloadTimerHandle, reloadTimerDelegate, reloadTime, false);
+}
+
+//Debug Function <<<
+void APW_CharacterController::AttachDefaultWeapon()
+{
+	UWorld* currentWorld = GetWorld();
+	FActorSpawnParameters spawnParameters;
+	spawnParameters.Owner = this;
+	spawnParameters.Instigator = this;
+
+	const FVector spawnLocation = _weaponHolder->GetComponentLocation();
+	const FRotator spawnRotation = _weaponHolder->GetComponentRotation();
+
+	_currentWeapon = currentWorld->SpawnActor<APW_Weapon>(spawnLocation, spawnRotation, spawnParameters);
+
+	if (_currentWeapon == nullptr)
+		{ PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!"); return; }
+	
+	SetCurrentWeapon(_currentWeapon);
+	_currentWeapon->AttachToComponent(_weaponHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	_currentWeapon->InitialiseWeapon(_defaultWeaponData);
+}
+// Debug Function >>>
+
+// <<< ------------------ Weapon Handler Component ------------------ <<< //
 
 
 void APW_CharacterController::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -74,6 +145,8 @@ void APW_CharacterController::SetupPlayerInputComponent(UInputComponent* PlayerI
 	
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APW_CharacterController::Jump);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APW_CharacterController::Crouch);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APW_CharacterController::FireWeapon);
+	
 	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_CharacterController::ToggleSprint);
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_CharacterController::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_CharacterController::MoveRight);
@@ -120,8 +193,6 @@ void APW_CharacterController::Jump()
 void APW_CharacterController::Crouch()
 {
 	Super::Crouch();
-	UE_LOG(LogTemp, Warning, TEXT("Crouch"));
-	CastBulletRay();
 }
 
 
