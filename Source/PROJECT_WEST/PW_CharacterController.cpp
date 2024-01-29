@@ -72,24 +72,23 @@ bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
 
 void APW_CharacterController::FireWeapon()
 {
-	APW_Weapon* currentWeapon = GetCurrentWeapon();
-	if (currentWeapon == nullptr)
+	if (_currentWeapon == nullptr)
 		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 
-	if (currentWeapon->IsAmmoEmpty())
+	if (_currentWeapon->IsAmmoEmpty())
 	{
 		ReloadWeapon();
 		return;
 	}
 
 	CastBulletRay();
-	currentWeapon->SubtractCurrentAmmo(1);
-}
+	_currentWeapon->SubtractCurrentAmmo(1);
+} 
 
 void APW_CharacterController::ReloadWeapon()
 {
 	if (_currentWeapon == nullptr)
-	{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 	
 	if (_currentWeapon->IsReloading())
 		return;
