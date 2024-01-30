@@ -145,8 +145,8 @@ void APW_CharacterController::SetupPlayerInputComponent(UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APW_CharacterController::Jump);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APW_CharacterController::Crouch);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APW_CharacterController::FireWeapon);
-	
 	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_CharacterController::ToggleSprint);
+	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_CharacterController::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_CharacterController::MoveRight);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_CharacterController::LookRight);
