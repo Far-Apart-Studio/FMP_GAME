@@ -2,9 +2,11 @@
 
 #include "PW_CharacterController.h"
 
+#include "PWMath.h"
 #include "PW_Utilities.h"
 #include "PW_Weapon.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 APW_CharacterController::APW_CharacterController()
@@ -22,14 +24,16 @@ APW_CharacterController::APW_CharacterController()
 void APW_CharacterController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	FTimerHandle timerHandle;
-	GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &APW_CharacterController::AttachDefaultWeapon, 5.0f, false);
+	AttachDefaultWeapon();
 }
 
 void APW_CharacterController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// >>> ------------------ Weapon Handler Component ------------------ >>> //
+	_lastFiredTime += DeltaTime;
+	// <<< ------------------ Weapon Handler Component ------------------ <<< //
 }
 
 // >>> ------------------ Weapon Handler Component ------------------ >>> //
@@ -54,10 +58,12 @@ void APW_CharacterController::CastBulletRay()
 		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Red,
 			false, 2.0f, 0, 2.0f);
 	// Debug <<<
+
+	ApplyDamage(hitResult);
 }
 
-bool APW_CharacterController::CastRay(FVector rayStart, FVector rayDestination,
-	FCollisionQueryParams collisionQueryParams, FHitResult hitResult)
+bool APW_CharacterController::CastRay(const FVector& rayStart, const FVector& rayDestination,
+	const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const
 {
 	GetWorld()->LineTraceSingleByChannel(hitResult, rayStart, rayDestination,
 		ECC_Visibility, collisionQueryParams);
@@ -76,13 +82,15 @@ void APW_CharacterController::FireWeapon()
 		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 
 	if (_currentWeapon->IsAmmoEmpty())
-	{
-		ReloadWeapon();
-		return;
-	}
+		{ ReloadWeapon(); return; }
 
-	CastBulletRay();
-	_currentWeapon->SubtractCurrentAmmo(1);
+	const bool canFire = CalculateFireStatus();
+	
+	if (canFire)
+	{
+		CastBulletRay();
+		_currentWeapon->SubtractCurrentAmmo(1);
+	}
 } 
 
 void APW_CharacterController::ReloadWeapon()
@@ -134,6 +142,49 @@ void APW_CharacterController::AttachDefaultWeapon()
 	_currentWeapon->InitialiseWeapon(_defaultWeaponData);
 }
 // Debug Function >>>
+
+void APW_CharacterController::ApplyDamage(const FHitResult& hitResult)
+{
+	AActor* hitActor = hitResult.GetActor();
+
+	if (hitActor == nullptr)
+		{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
+
+	const float calculatedDamage = CalculateDamage(hitResult);
+	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
+		GetController(), this);
+}
+
+float APW_CharacterController::CalculateDamage(const FHitResult& hitResult) const
+{
+	const float shotDistance = hitResult.Location.Distance(hitResult.TraceStart, hitResult.ImpactPoint);
+
+	PW_Utilities::Log("Shot Distance: ", shotDistance);
+	
+	float normalisedDamage = 1.0f - (shotDistance / _maximumWeaponFallOffRange);
+	normalisedDamage = PWMath::Clamp01(normalisedDamage);
+
+	const UPW_WeaponData* weaponData = _currentWeapon->GetWeaponData();
+	const float weaponDamage = weaponData->GetHipWeaponDamage();
+
+	PW_Utilities::Log("Normalised Damage: ", normalisedDamage);
+	
+	return  weaponDamage * normalisedDamage;
+}
+
+bool APW_CharacterController::CalculateFireStatus()
+{
+	const UPW_WeaponData* weaponData = _currentWeapon->GetWeaponData();
+
+	if (weaponData == nullptr)
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return false; }
+	
+	if (_lastFiredTime < weaponData->GetHipWeaponFireRate())
+		return false;
+
+	_lastFiredTime = 0.0f;
+	return true;
+}
 
 // <<< ------------------ Weapon Handler Component ------------------ <<< //
 

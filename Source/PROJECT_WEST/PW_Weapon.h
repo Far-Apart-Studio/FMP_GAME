@@ -24,12 +24,13 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	int _currentReserveAmmo;
-
+	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	bool _isReloading = false;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	bool _canFire = true;
+	
 	
 public:	
 	APW_Weapon();

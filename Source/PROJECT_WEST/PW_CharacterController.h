@@ -36,7 +36,10 @@ private:
 	class APW_Weapon* _currentWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
-	float _weaponAttachDelay = 0.0f;
+	float _maximumWeaponFallOffRange = 10000.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	float _lastFiredTime = 0.0f;
 	
 public:
 	APW_CharacterController();
@@ -50,9 +53,12 @@ public:
 	// >>> ------------------ Weapon Handler Component ------------------ >>> //
 	
 	void CastBulletRay();
-	bool CastRay(FVector rayStart, FVector rayDestination, FCollisionQueryParams collisionQueryParams, FHitResult hitResult);
+	bool CastRay(const FVector& rayStart, const FVector& rayDestination, const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const;
 	void ReloadWeapon();
 	void AttachDefaultWeapon();
+	void ApplyDamage(const FHitResult& hitResult);
+	float CalculateDamage(const FHitResult& hitResult) const;
+	bool CalculateFireStatus();
 	void FireWeapon();
 
 	FORCEINLINE APW_Weapon* GetCurrentWeapon() const { return _currentWeapon; }

@@ -35,6 +35,7 @@ void APW_Weapon::TransferReserveAmmo()
 	_currentReserveAmmo -= ammoToTransfer;
 }
 
+
 void APW_Weapon::InitialiseWeapon(UPW_WeaponData* weaponData)
 {
 	_weaponData = weaponData;
@@ -43,4 +44,5 @@ void APW_Weapon::InitialiseWeapon(UPW_WeaponData* weaponData)
 		{ PW_Utilities::Log("FAILED TO LOAD WEAPON DATA"); return; }
 	
 	_currentAmmo = _weaponData->GetWeaponMagazineCapacity();
+	_currentReserveAmmo = _weaponData->GetWeaponReserveAmmunition();
 }
