@@ -23,8 +23,7 @@ struct FSessionInfo
 
 	UPROPERTY (EditAnywhere, BlueprintReadWrite, Category = Stats, meta = (AllowPrivateAccess = "true"))
 	int _maxNumberOfConnection;
-
-
+	
 	FSessionInfo ()
 	{
 		m_sessionName = "";
@@ -79,16 +78,14 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void FindActivePublicSessionTrigger();
-	void FindActivePublicSessiontDone(bool success);
+	void FindActivePublicSessionDone(bool success);
 	bool _isSeachingForActivePublicSession;
 	
-
 	FString _sessionToDestroyName;
 	FString _serverNameToFind;
 	int32 _numberOfConnectionToCreate;
 	bool _isPublic;
 	
-
 	TSharedPtr<class FOnlineSessionSearch> _sessionSearch;
 
 	UPROPERTY(BlueprintAssignable)
