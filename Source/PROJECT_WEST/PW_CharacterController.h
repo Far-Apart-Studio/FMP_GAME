@@ -34,6 +34,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
 	class APW_Weapon* _currentWeapon;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	float _weaponAttachDelay = 0.0f;
 	
 public:
 	APW_CharacterController();
