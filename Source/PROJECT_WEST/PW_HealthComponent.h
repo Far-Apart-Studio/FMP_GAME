@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PW_HealthHandlerComponent.generated.h"
+#include "PW_HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReachedHealthThreshold);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHealthChanged);
@@ -23,7 +23,7 @@ struct FHealthMilestone
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_WEST_API UPW_HealthHandlerComponent : public UActorComponent
+class PROJECT_WEST_API UPW_HealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -63,15 +63,14 @@ public:
 	FOnHealthChanged OnHealthChanged;
 
 public:	
-	UPW_HealthHandlerComponent();
+	UPW_HealthComponent();
 
 protected:
 	virtual void BeginPlay() override;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void RestoreHealth(float amount);
-	void ReduceHealth(float amount);
+
+	UFUNCTION()
 	void TakeDamage(AActor* DamageActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
-	void SubscribeToDeathDelegate(FOnDeath delegate);
 };
