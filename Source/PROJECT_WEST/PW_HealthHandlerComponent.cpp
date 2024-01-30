@@ -30,5 +30,7 @@ void UPW_HealthHandlerComponent::TakeDamage(AActor* damageActor, float damageAmo
 		return;
 
 	_currentHealth = FMath::Clamp(_currentHealth - damageAmount, _minimumHealth, _maxHealth);
-	
+
+	if (_currentHealth == _minimumHealth)
+		OnDeath.Broadcast();
 }
