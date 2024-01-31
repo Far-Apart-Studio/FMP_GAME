@@ -23,6 +23,9 @@ public:
 	
 	virtual void Logout(AController* Exiting) override;
 
+	void EnemyEliminated(APW_CharacterController* AttackerCharacter, APW_PlayerController* AttackerController);
+	
+
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
 	FString _mapPath;
 };
