@@ -32,10 +32,4 @@ class PROJECT_WEST_API UPW_BountyData : public UDataAsset
 
 	UPROPERTY(EditAnywhere, Category = "Bounty Data")
 	FString _bountyDescription;
-
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	float _bountyReward;
-
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	float _bountyCost;
 };

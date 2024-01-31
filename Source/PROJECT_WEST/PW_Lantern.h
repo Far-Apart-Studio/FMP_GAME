@@ -26,6 +26,9 @@ public:
 public:
 
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
+	class USceneComponent* _root;
+	
+	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
 	class UStaticMeshComponent* _mesh;
 
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
