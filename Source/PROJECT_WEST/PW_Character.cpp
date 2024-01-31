@@ -41,6 +41,36 @@ void APW_Character::ReceiveDamage(AActor* DamagedActor, float Damage, const UDam
 	
 }
 
+void APW_Character::EquipButtonPressed()
+{
+	ServerEquipButtonPressed();
+}
+
+void APW_Character::DropButtonPressed()
+{
+	ServerDropButtonPressed();
+}
+
+void APW_Character::ServerEquipButtonPressed_Implementation()
+{
+	if (_overlappingItem)
+	{
+		if (_itemInHand)
+		{
+			DropItem();
+		}
+		EquipItem(_overlappingItem);
+		_overlappingItem = nullptr;
+	}
+}
+void APW_Character::ServerDropButtonPressed_Implementation()
+{
+	if (_itemInHand)
+	{
+		DropItem();
+	}
+}
+
 void APW_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -223,6 +253,9 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRight);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookRight);
 	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookUp);
+
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APW_Character::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 }
 
 void APW_Character::MoveForward(float value)
@@ -272,6 +305,24 @@ void APW_Character::SetOverlappingItem(APW_Item* Item)
 	}
 }
 
+// Move to item Handler Component
+void APW_Character::EquipItem(APW_Item* Apw_Item)
+{
+	_itemInHand = Apw_Item;
+	Apw_Item->SetItemState(EItemState::EIS_Equipped);
+	Apw_Item->SetOwner(this);
+	Apw_Item->AttachToComponent(_weaponHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+}
+
+void APW_Character::DropItem()
+{
+	if(!_itemInHand) return;
+	_itemInHand->SetItemState(EItemState::EIS_Dropped);
+	_itemInHand->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	_itemInHand->SetOwner(nullptr);
+	_itemInHand = nullptr;
+}
+
 void APW_Character::Jump()
 {
 	Super::Jump();
@@ -294,7 +345,6 @@ void APW_Character::OnRep_OverlappinItem(APW_Item* lastItem)
 		lastItem->ShowPickupWidget(false);
 	}
 }
-
 
 
 

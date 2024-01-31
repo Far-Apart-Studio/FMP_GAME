@@ -7,6 +7,11 @@
 #include "Items/PW_Item.h"
 #include "PW_Character.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShootButtonDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReloadButtonDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipButtonDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDropButtonDelegate);
+
 UCLASS()
 class PROJECT_WEST_API APW_Character : public ACharacter
 {
@@ -45,12 +50,22 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	float _lastFiredTime = 0.0f;
 
+	// Move to Item Handler Component
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem)
 	class APW_Item* _overlappingItem;
+
+	// Move to Item Handler Component
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem)
+	class APW_Item* _itemInHand;
 	
 	UFUNCTION()
 	void OnRep_OverlappinItem(APW_Item* LastWeapon);
 
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDropButtonPressed();
 	
 public:
 	APW_Character();
@@ -61,7 +76,8 @@ protected:
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
-
+	void EquipButtonPressed();
+	void DropButtonPressed();
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -93,4 +109,6 @@ public:
 	void LookRight(float value);
 	void LookUp(float value);
 	void SetOverlappingItem(class APW_Item* Item);
+	void EquipItem(APW_Item* Apw_Item);
+	void DropItem();
 };

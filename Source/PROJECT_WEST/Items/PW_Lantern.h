@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "PW_Item.h"
 #include "PW_Lantern.generated.h"
 
 UCLASS()
-class PROJECT_WEST_API APW_Lantern : public AActor
+class PROJECT_WEST_API APW_Lantern : public APW_Item
 {
 	GENERATED_BODY()
 	
@@ -24,9 +25,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* _mesh;
 
 	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* _lightBeamMesh;

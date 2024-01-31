@@ -10,15 +10,12 @@ APW_Lantern::APW_Lantern()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
-	_mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	SetRootComponent(_mesh);
 
 	_lightBeamMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightBeamMesh"));
-	_lightBeamMesh->SetupAttachment(_mesh);
+	_lightBeamMesh->SetupAttachment(_itemMesh);
 	
 	_pointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
-	_pointLight->SetupAttachment(_mesh);
+	_pointLight->SetupAttachment(_itemMesh);
 
 	_currentLightIntensity = _minLightIntensity = 1000.0f;
 	_maxLightIntensity = 10000.0f;
