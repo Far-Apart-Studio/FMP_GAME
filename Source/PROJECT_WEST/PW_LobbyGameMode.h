@@ -22,7 +22,8 @@ public:
 	
 	virtual void Logout(AController* Exiting) override;
 
-	void ServerTravel();
+	UFUNCTION(BlueprintCallable)
+	void ServerTravel (FString mapPath);
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
 	FString _mapPath;

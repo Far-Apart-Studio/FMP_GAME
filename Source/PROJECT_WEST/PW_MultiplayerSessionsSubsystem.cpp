@@ -295,7 +295,6 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 				FString serverName = "No Name";
 				result.Session.SessionSettings.Get(FName("SERVER_NAME"), serverName);
 				sessionInfos.Add(FSessionInfo(serverName, result.Session.NumOpenPublicConnections, result.Session.SessionSettings.NumPublicConnections));
-				PrintString(serverName);
 			}
 		}
 
@@ -307,6 +306,15 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 		PrintString("No Sessions Found : FindActivePublicSessionDone");
 	}
 	_sessionSearch->SearchResults.Empty();
+}
+
+void UPW_MultiplayerSessionsSubsystem::UpdateSessionInfo()
+{
+	FOnlineSessionSettings sessionSettings = FOnlineSessionSettings();
+	sessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
+	sessionSettings.NumPublicConnections = 0;
+	sessionSettings.NumPrivateConnections = 0;
+	sessionInterface->UpdateSession(NAME_GameSession, sessionSettings);
 }
 
 
