@@ -39,9 +39,9 @@ protected:
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex);
 
 	UPROPERTY()
-	class APW_Character* _OwnerCharacter;
+	class APW_Character* _ownerCharacter;
 	UPROPERTY()
-	class APW_PlayerController* _OwnerPlayerController;
+	class APW_PlayerController* _ownerPlayerController;
 
 	UFUNCTION()
 	void OnPingTooHigh(bool bPingTooHigh);
@@ -51,10 +51,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnRep_Owner() override;
-	virtual void PickepUp();
 	virtual void Dropped();
 	void ShowPickupWidget(bool bShowWidget);
 	void EnableCustomDepth(bool bEnable);
+
+	void SetItemState(EItemState State);
+	
+	FORCEINLINE class USphereComponent* GetAreaSphere() const { return _areaSphere; }
+	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return _itemMesh; }
+	FORCEINLINE class UWidgetComponent* GetPickupWidget() const { return _pickupWidget; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Item Properties")

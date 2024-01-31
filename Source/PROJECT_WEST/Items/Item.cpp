@@ -22,7 +22,7 @@ AItem::AItem()
 	SetRootComponent(_itemMesh);
 
 	_itemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	_itemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	//_itemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	EnableCustomDepth(true);
@@ -62,7 +62,6 @@ void AItem::Tick(float DeltaTime)
 
 }
 
-
 void AItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -76,7 +75,7 @@ void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController)
 	{
-		//characterController->SetOverlappingItem(this);
+		characterController->SetOverlappingItem(this);
 	}
 }
 
@@ -85,7 +84,7 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController)
 	{
-		//characterController->SetOverlappingItem(nullptr);
+		characterController->SetOverlappingItem(nullptr);
 	}
 }
 
@@ -116,13 +115,13 @@ void AItem::OnEquipped()
 	
 	EnableCustomDepth(false);
 
-	_OwnerCharacter = _OwnerCharacter == nullptr ? Cast<APW_Character>(GetOwner()) : _OwnerCharacter;
-	if (_OwnerCharacter && _bUseServerSideRewind)
+	_ownerCharacter = _ownerCharacter == nullptr ? Cast<APW_Character>(GetOwner()) : _ownerCharacter;
+	if (_ownerCharacter && _bUseServerSideRewind)
 	{
-		_OwnerPlayerController = _OwnerPlayerController == nullptr ? Cast<APW_PlayerController>(_OwnerCharacter->Controller) : _OwnerPlayerController;
-		if (_OwnerPlayerController && HasAuthority() && !_OwnerPlayerController->HighPingDelegate.IsBound())
+		_ownerPlayerController = _ownerPlayerController == nullptr ? Cast<APW_PlayerController>(_ownerCharacter->Controller) : _ownerPlayerController;
+		if (_ownerPlayerController && HasAuthority() && !_ownerPlayerController->HighPingDelegate.IsBound())
 		{
-			_OwnerPlayerController->HighPingDelegate.AddDynamic(this, &AItem::OnPingTooHigh);
+			_ownerPlayerController->HighPingDelegate.AddDynamic(this, &AItem::OnPingTooHigh);
 		}
 	}
 }
@@ -145,13 +144,13 @@ void AItem::OnDropped()
 	_itemMesh->MarkRenderStateDirty();
 	EnableCustomDepth(true);
 
-	_OwnerCharacter = _OwnerCharacter == nullptr ? Cast<APW_Character>(GetOwner()) : _OwnerCharacter;
-	if (_OwnerCharacter)
+	_ownerCharacter = _ownerCharacter == nullptr ? Cast<APW_Character>(GetOwner()) : _ownerCharacter;
+	if (_ownerCharacter)
 	{
-		_OwnerPlayerController = _OwnerPlayerController == nullptr ? Cast<APW_PlayerController>(_OwnerCharacter->Controller) : _OwnerPlayerController;
-		if (_OwnerPlayerController && HasAuthority() && _OwnerPlayerController->HighPingDelegate.IsBound())
+		_ownerPlayerController = _ownerPlayerController == nullptr ? Cast<APW_PlayerController>(_ownerCharacter->Controller) : _ownerPlayerController;
+		if (_ownerPlayerController && HasAuthority() && _ownerPlayerController->HighPingDelegate.IsBound())
 		{
-			_OwnerPlayerController->HighPingDelegate.AddDynamic(this, &AItem::OnPingTooHigh);
+			_ownerPlayerController->HighPingDelegate.AddDynamic(this, &AItem::OnPingTooHigh);
 		}
 	}
 }
@@ -168,12 +167,12 @@ void AItem::OnRep_Owner()
 	Super::OnRep_Owner();
 	if (Owner == nullptr)
 	{
-		_OwnerCharacter = nullptr;
-		_OwnerPlayerController = nullptr;
+		_ownerCharacter = nullptr;
+		_ownerPlayerController = nullptr;
 	}
 	else
 	{
-		_OwnerCharacter = _OwnerCharacter == nullptr ? Cast<APW_Character>(Owner) : _OwnerCharacter;
+		_ownerCharacter = _ownerCharacter == nullptr ? Cast<APW_Character>(Owner) : _ownerCharacter;
 		//if (_OwnerCharacter && _OwnerCharacter->GetEquippedWeapon() && _OwnerCharacter->GetEquippedWeapon() == this)
 		//{
 		//	SetHUDAmmo();
@@ -181,19 +180,22 @@ void AItem::OnRep_Owner()
 	}
 }
 
-void AItem::PickepUp()
-{
-	
-}
-
 void AItem::Dropped()
 {
-	
+	SetItemState(EItemState::EIS_Dropped);
+	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
+	_itemMesh->DetachFromComponent(DetachRules);
+	SetOwner(nullptr);
+	_ownerCharacter = nullptr;
+	_ownerPlayerController = nullptr;
 }
 
 void AItem::ShowPickupWidget(bool bShowWidget)
 {
-	
+	if (_pickupWidget)
+	{
+		_pickupWidget->SetVisibility(bShowWidget);
+	}
 }
 
 void AItem::EnableCustomDepth(bool bEnable)
@@ -202,6 +204,12 @@ void AItem::EnableCustomDepth(bool bEnable)
 	{
 		_itemMesh->SetRenderCustomDepth(bEnable);
 	}
+}
+
+void AItem::SetItemState(EItemState State)
+{
+	_itemState = State;
+	OnItemStateSet();
 }
 
 void AItem::OnRep_ItemState()

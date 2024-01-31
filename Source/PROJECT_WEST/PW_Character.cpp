@@ -8,6 +8,12 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
+#include "PROJECT_WEST/Items/Item.h"
+#include "Components/WidgetComponent.h"
 
 APW_Character::APW_Character()
 {
@@ -19,12 +25,20 @@ APW_Character::APW_Character()
 
 	_weaponHolder = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponHolder"));
 	_weaponHolder->SetupAttachment(RootComponent);
+
+	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	_overheadWidget->SetupAttachment(RootComponent);
 }
 
 void APW_Character::BeginPlay()
 {
 	Super::BeginPlay();
 	AttachDefaultWeapon();
+}
+
+void APW_Character::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,AController* InstigatorController, AActor* DamageCauser)
+{
+	
 }
 
 void APW_Character::Tick(float DeltaTime)
@@ -235,6 +249,22 @@ void APW_Character::LookUp(float value)
 	AddControllerPitchInput(value);
 }
 
+void APW_Character::SetOverlappingItem(AItem* Item)
+{
+	if (_overlappingItem)
+	{
+		_overlappingItem->ShowPickupWidget(false);
+	}
+	_overlappingItem = Item;
+	if (IsLocallyControlled())
+	{
+		if (_overlappingItem)
+		{
+			_overlappingItem->ShowPickupWidget(true);
+		}
+	}
+}
+
 void APW_Character::Jump()
 {
 	Super::Jump();
@@ -245,6 +275,18 @@ void APW_Character::Crouch()
 	Super::Crouch();
 }
 
+void APW_Character::OnRep_OverlappinItem(AItem* lastItem)
+{
+	if (_overlappingItem)
+	{
+		_overlappingItem->ShowPickupWidget(true);
+	}
+	
+	if (lastItem)
+	{
+		lastItem->ShowPickupWidget(false);
+	}
+}
 
 
 

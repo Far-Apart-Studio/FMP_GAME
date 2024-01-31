@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Items/Item.h"
 #include "PW_Character.generated.h"
 
 UCLASS()
@@ -23,6 +24,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Character")
 	float _sprintMultiplier = 1.50f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* _overheadWidget;
 	
 	bool _isSprinting = false;
 
@@ -40,12 +44,23 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	float _lastFiredTime = 0.0f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem)
+	class AItem* _overlappingItem;
+	
+	UFUNCTION()
+	void OnRep_OverlappinItem(AItem* LastWeapon);
+
 	
 public:
 	APW_Character();
 
 protected:
+
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -63,6 +78,7 @@ public:
 
 	FORCEINLINE APW_Weapon* GetCurrentWeapon() const { return _currentWeapon; }
 	FORCEINLINE void SetCurrentWeapon(APW_Weapon* currentWeapon) { _currentWeapon = currentWeapon; }
+	FORCEINLINE UWidgetComponent* GetOverheadWidget() const { return _overheadWidget; }
 
 	// >>> ------------------ Character Component ------------------ >>> //
 	
@@ -74,4 +90,5 @@ public:
 	void ToggleSprint();
 	void LookRight(float value);
 	void LookUp(float value);
+	void SetOverlappingItem(class AItem* Item);
 };
