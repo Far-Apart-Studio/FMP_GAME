@@ -43,6 +43,8 @@ void APW_Lantern::Tick(float DeltaTime)
 
 void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
+	if(!_target) return;
+	
 	// Use the foward vector og the player instead of the lantern
 	const float dotProduct = FVector::DotProduct (GetActorForwardVector (), _target->GetActorForwardVector ());
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
