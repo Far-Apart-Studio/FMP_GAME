@@ -66,6 +66,8 @@ void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType)
 {
+	if (!HasAuthority()) return;
+	
 	APW_CharacterController* characterController = Cast<APW_CharacterController>(OtherActor);
 	if (characterController)
 	{
@@ -81,6 +83,8 @@ void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void APW_BountyBoard::DetectOverlap()
 {
+	if (!HasAuthority()) return;
+	
 	if(_isOverlapping)
 	{
 		return;
