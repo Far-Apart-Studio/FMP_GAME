@@ -5,8 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
-#include "PW_CharacterController.h"
-#include "DebugMacros.h"
+#include "PROJECT_WEST/PW_CharacterController.h"
+#include "PROJECT_WEST/DebugMacros.h"
 
 // Sets default values
 APW_BountyBoard::APW_BountyBoard()
