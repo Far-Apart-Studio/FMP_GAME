@@ -13,5 +13,8 @@ UCLASS()
 class PROJECT_WEST_API UPW_CharacterOverlayWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+	void SetHealth(float health, float maxHealth);
+	void SetScore(float score);
 };

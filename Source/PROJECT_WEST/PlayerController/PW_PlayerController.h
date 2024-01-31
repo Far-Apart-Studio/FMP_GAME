@@ -35,4 +35,7 @@ public:
 
 void SetHUDHealth(float health, float maxHealth);
 void SetHUDScore(float score);
+
+private:
+	class APW_HUD* _hud;
 };

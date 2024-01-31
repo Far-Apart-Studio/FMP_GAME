@@ -15,9 +15,8 @@ class PROJECT_WEST_API APW_PlayerState : public APlayerState
 	GENERATED_BODY()
 public:
 
-	// Score
-	virtual void OnRep_Score() override;
 	void AddToScore(int32 scoreAmount);
+	virtual void OnRep_Score() override;
 
 private:
 	class APW_CharacterController* _character;
