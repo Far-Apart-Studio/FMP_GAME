@@ -12,7 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
-#include "PROJECT_WEST/Items/Item.h"
+#include "PROJECT_WEST/Items/PW_Item.h"
 #include "Components/WidgetComponent.h"
 
 APW_Character::APW_Character()
@@ -48,6 +48,13 @@ void APW_Character::Tick(float DeltaTime)
 	// >>> ------------------ Weapon Handler Component ------------------ >>> //
 	_lastFiredTime += DeltaTime;
 	// <<< ------------------ Weapon Handler Component ------------------ <<< //
+}
+
+void APW_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
+	
+	DOREPLIFETIME(APW_Character, _overlappingItem);
 }
 
 // >>> ------------------ Weapon Handler Component ------------------ >>> //
@@ -249,7 +256,7 @@ void APW_Character::LookUp(float value)
 	AddControllerPitchInput(value);
 }
 
-void APW_Character::SetOverlappingItem(AItem* Item)
+void APW_Character::SetOverlappingItem(APW_Item* Item)
 {
 	if (_overlappingItem)
 	{
@@ -275,7 +282,7 @@ void APW_Character::Crouch()
 	Super::Crouch();
 }
 
-void APW_Character::OnRep_OverlappinItem(AItem* lastItem)
+void APW_Character::OnRep_OverlappinItem(APW_Item* lastItem)
 {
 	if (_overlappingItem)
 	{

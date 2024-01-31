@@ -21,7 +21,7 @@ void UPW_MultiplayerSessionsSubsystem::Initialize(FSubsystemCollectionBase& Coll
 	if (onlineSubsystem)
 	{
 		FString subsystemName = onlineSubsystem->GetSubsystemName().ToString();
-		PrintString(subsystemName);
+		DEBUG_STRING(subsystemName);
 
 		sessionInterface = onlineSubsystem->GetSessionInterface();
 		if (sessionInterface.IsValid())
@@ -85,7 +85,7 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 	
 	if (numberOfConnection == 0)
 	{
-		PrintString("numberOfConnection is 0");
+		DEBUG_STRING("numberOfConnection is 0");
 		_sessionCreateDelegate.Broadcast(false);
 		return;
 	}
@@ -93,14 +93,14 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	const FString& serverName = localPlayer->GetNickname() +  FString::FromInt(FMath::RandRange(0, 99));
 
-	PrintString(serverName);
+	DEBUG_STRING(serverName);
 	
 	_numberOfConnectionToCreate = numberOfConnection;
 	
 	FNamedOnlineSession *ExistingSession =  sessionInterface->GetNamedSession(NAME_GameSession);
 	if (ExistingSession)
 	{
-		PrintString( "Session Already Exists" );
+		DEBUG_STRING( "Session Already Exists" );
 		_createSessionAfterDestroy = true;
 		_sessionToDestroyName = serverName;
 		DestroySessionTrigger();
@@ -133,7 +133,7 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionDone(bool success)
 	
 	if (success)
 	{
-		PrintString ("Session Created");
+		DEBUG_STRING ("Session Created");
 		FString path = "/Game/ThirdPerson/Maps/ThirdPersonMap";
 		if (_mapPath.IsEmpty())
 		{
@@ -155,7 +155,7 @@ void UPW_MultiplayerSessionsSubsystem::JoinSessionDone(FName sessionName, bool s
 
 	if(!success)
 	{
-		PrintString("Join Session Failed: " + sessionName.ToString());
+		DEBUG_STRING("Join Session Failed: " + sessionName.ToString());
 		return;
 	}
 	
@@ -171,17 +171,17 @@ void UPW_MultiplayerSessionsSubsystem::JoinSessionDone(FName sessionName, bool s
 	}
 	else
 	{
-		PrintString("Could Not Get Connect String");
+		DEBUG_STRING("Could Not Get Connect String");
 	}
 }
 
 void UPW_MultiplayerSessionsSubsystem::FindSessionTrigger(const FString& serverName)
 {
-	PrintString ("Find Server Called : " + serverName);
+	DEBUG_STRING ("Find Server Called : " + serverName);
 
 	if (serverName.IsEmpty())
 	{
-		PrintString("Server Name is Empty");
+		DEBUG_STRING("Server Name is Empty");
 		_sessionJoinDelegate.Broadcast(false);
 		return;
 	}
@@ -201,7 +201,7 @@ void UPW_MultiplayerSessionsSubsystem::FindSessionDone(bool success)
 {
 	if (!success || _serverNameToFind.IsEmpty())
 	{
-		PrintString("Find Session Failed - FindSessionDone");
+		DEBUG_STRING("Find Session Failed - FindSessionDone");
 		_sessionJoinDelegate.Broadcast(false);
 		return;
 	}
@@ -233,13 +233,13 @@ void UPW_MultiplayerSessionsSubsystem::FindSessionDone(bool success)
 		}
 		else
 		{
-			PrintString("Correct Session Not Found");
+			DEBUG_STRING("Correct Session Not Found");
 			_sessionJoinDelegate.Broadcast(false);
 		}
 	}
 	else
 	{
-		PrintString("No Sessions Found");
+		DEBUG_STRING("No Sessions Found");
 		_sessionJoinDelegate.Broadcast(false);
 	}
 	_sessionSearch->SearchResults.Empty();
@@ -252,7 +252,7 @@ void UPW_MultiplayerSessionsSubsystem::DestroySessionTrigger()
 
 void UPW_MultiplayerSessionsSubsystem::DestroySessionDone(bool success)
 {
-	PrintString ("Session Destroyed");
+	DEBUG_STRING ("Session Destroyed");
 	if (success && _createSessionAfterDestroy)
 	{
 		_createSessionAfterDestroy = false;
@@ -262,7 +262,7 @@ void UPW_MultiplayerSessionsSubsystem::DestroySessionDone(bool success)
 
 void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionTrigger()
 {
-	PrintString( "Find Active Public Session Called" );
+	DEBUG_STRING( "Find Active Public Session Called" );
 	
 	_sessionFindDelegate.Broadcast(false, TArray<FSessionInfo>());
 	
@@ -280,7 +280,7 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 {
 	if (!success)
 	{
-		PrintString("Find Session Failed - FindActivePublicSessiontDone");
+		DEBUG_STRING("Find Session Failed - FindActivePublicSessiontDone");
 		_sessionFindDelegate.Broadcast(false, TArray<FSessionInfo>());
 		return;
 	}
@@ -313,7 +313,7 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 	else
 	{
 		_sessionFindDelegate.Broadcast(false,sessionInfos);
-		PrintString("No Sessions Found : FindActivePublicSessionDone");
+		DEBUG_STRING("No Sessions Found : FindActivePublicSessionDone");
 	}
 	_sessionSearch->SearchResults.Empty();
 }

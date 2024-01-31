@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Items/Item.h"
+#include "Items/PW_Item.h"
 #include "PW_Character.generated.h"
 
 UCLASS()
@@ -46,10 +46,10 @@ private:
 	float _lastFiredTime = 0.0f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem)
-	class AItem* _overlappingItem;
+	class APW_Item* _overlappingItem;
 	
 	UFUNCTION()
-	void OnRep_OverlappinItem(AItem* LastWeapon);
+	void OnRep_OverlappinItem(APW_Item* LastWeapon);
 
 	
 public:
@@ -64,6 +64,8 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 
 	// >>> ------------------ Weapon Handler Component ------------------ >>> //
 	
@@ -90,5 +92,5 @@ public:
 	void ToggleSprint();
 	void LookRight(float value);
 	void LookUp(float value);
-	void SetOverlappingItem(class AItem* Item);
+	void SetOverlappingItem(class APW_Item* Item);
 };

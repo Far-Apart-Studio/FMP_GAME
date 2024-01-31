@@ -19,4 +19,4 @@ DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, -1.f, 
 DrawDebugPoint(GetWorld(), EndLocation, 15.f, FColor::Red, false, -1.f); \
 }
 
-#define PrintString(InString) if(GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, InString);
+#define DEBUG_STRING(InString) if(GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, InString);

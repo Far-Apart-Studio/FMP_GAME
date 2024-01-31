@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Item.generated.h"
+#include "PW_Item.generated.h"
 
 UENUM(BlueprintType)
 enum class EItemState : uint8
@@ -17,13 +17,13 @@ enum class EItemState : uint8
 };
 
 UCLASS()
-class PROJECT_WEST_API AItem : public AActor
+class PROJECT_WEST_API APW_Item : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 
-	AItem();
+	APW_Item();
 
 protected:
 

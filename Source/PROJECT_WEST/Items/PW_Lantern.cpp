@@ -3,7 +3,7 @@
 
 #include "PW_Lantern.h"
 #include "Components/PointLightComponent.h"
-#include "DebugMacros.h"
+#include "PROJECT_WEST/DebugMacros.h"
 
 // Sets default values
 APW_Lantern::APW_Lantern()
@@ -58,7 +58,7 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 
 	const float distance = FVector::Dist (GetActorLocation (), _target->GetActorLocation ());
 
-	PrintString ("Distance: " + FString::SanitizeFloat (distance));
+	DEBUG_STRING ("Distance: " + FString::SanitizeFloat (distance));
 	
 	if (distance > _currentSearchDistance)
 	{
@@ -72,7 +72,7 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
 	const float normalisedAngle =  angle / 180.0f;
 
-	PrintString ("normalisedAngle: " + FString::SanitizeFloat (normalisedAngle));
+	DEBUG_STRING ("normalisedAngle: " + FString::SanitizeFloat (normalisedAngle));
 	
 	HandleLightIntensity (normalisedAngle);
 	HandleLightBeamScale (normalisedAngle);

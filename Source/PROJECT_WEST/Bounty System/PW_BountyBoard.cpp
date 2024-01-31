@@ -55,7 +55,7 @@ void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController && characterController->IsLocallyControlled())
 	{
-		PrintString( "OnOverlapBegin Player");
+		DEBUG_STRING( "OnOverlapBegin Player");
 		APlayerController* playerController = characterController->GetController<APlayerController>();
 		if (playerController)
 		{
@@ -73,7 +73,7 @@ void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* 
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController && characterController->IsLocallyControlled())
 	{
-		PrintString( " OnOverlapEnd Player");
+		DEBUG_STRING( " OnOverlapEnd Player");
 		APlayerController* playerController = characterController->GetController<APlayerController>();
 		if (playerController)
 		{
@@ -101,7 +101,7 @@ void APW_BountyBoard::DetectOverlap()
 		APW_Character* characterController = Cast<APW_Character>(overlappingActors[0]);
 		if (characterController)
 		{
-			PrintString( " Overlap Begin Player");
+			DEBUG_STRING( " Overlap Begin Player");
 			APlayerController* playerController = characterController->GetController<APlayerController>();
 			playerController->bShowMouseCursor = true;
 		}

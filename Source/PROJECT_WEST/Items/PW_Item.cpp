@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item.h"
+#include "PW_Item.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 #include "Components/SphereComponent.h"
@@ -12,7 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
-AItem::AItem()
+APW_Item::APW_Item()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
@@ -40,14 +40,14 @@ AItem::AItem()
 }
 
 // Called when the game starts or when spawned
-void AItem::BeginPlay()
+void APW_Item::BeginPlay()
 {
 	Super::BeginPlay();
 
 	_areaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	_areaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-	_areaSphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
-	_areaSphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
+	_areaSphere->OnComponentBeginOverlap.AddDynamic(this, &APW_Item::OnSphereOverlap);
+	_areaSphere->OnComponentEndOverlap.AddDynamic(this, &APW_Item::OnSphereEndOverlap);
 
 	if (_pickupWidget)
 	{
@@ -56,21 +56,21 @@ void AItem::BeginPlay()
 }
 
 // Called every frame
-void AItem::Tick(float DeltaTime)
+void APW_Item::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-void AItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void APW_Item::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AItem, _itemState);
-	DOREPLIFETIME_CONDITION(AItem, _bUseServerSideRewind, COND_OwnerOnly);
+	DOREPLIFETIME(APW_Item, _itemState);
+	DOREPLIFETIME_CONDITION(APW_Item, _bUseServerSideRewind, COND_OwnerOnly);
 }
 
-void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void APW_Item::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController)
@@ -79,7 +79,7 @@ void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	}
 }
 
-void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void APW_Item::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController)
@@ -88,7 +88,7 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	}
 }
 
-void AItem::OnItemStateSet()
+void APW_Item::OnItemStateSet()
 {
 	switch (_itemState)
 	{
@@ -101,7 +101,7 @@ void AItem::OnItemStateSet()
 	}
 }
 
-void AItem::OnEquipped()
+void APW_Item::OnEquipped()
 {
 	ShowPickupWidget(false);
 	_areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -121,12 +121,12 @@ void AItem::OnEquipped()
 		_ownerPlayerController = _ownerPlayerController == nullptr ? Cast<APW_PlayerController>(_ownerCharacter->Controller) : _ownerPlayerController;
 		if (_ownerPlayerController && HasAuthority() && !_ownerPlayerController->HighPingDelegate.IsBound())
 		{
-			_ownerPlayerController->HighPingDelegate.AddDynamic(this, &AItem::OnPingTooHigh);
+			_ownerPlayerController->HighPingDelegate.AddDynamic(this, &APW_Item::OnPingTooHigh);
 		}
 	}
 }
 
-void AItem::OnDropped()
+void APW_Item::OnDropped()
 {
 	if (HasAuthority())
 	{
@@ -150,17 +150,17 @@ void AItem::OnDropped()
 		_ownerPlayerController = _ownerPlayerController == nullptr ? Cast<APW_PlayerController>(_ownerCharacter->Controller) : _ownerPlayerController;
 		if (_ownerPlayerController && HasAuthority() && _ownerPlayerController->HighPingDelegate.IsBound())
 		{
-			_ownerPlayerController->HighPingDelegate.AddDynamic(this, &AItem::OnPingTooHigh);
+			_ownerPlayerController->HighPingDelegate.AddDynamic(this, &APW_Item::OnPingTooHigh);
 		}
 	}
 }
 
-void AItem::OnPingTooHigh(bool bPingTooHigh)
+void APW_Item::OnPingTooHigh(bool bPingTooHigh)
 {
 	_bUseServerSideRewind = !bPingTooHigh;
 }
 
-void AItem::OnRep_Owner()
+void APW_Item::OnRep_Owner()
 {
 	Super::OnRep_Owner();
 	
@@ -180,7 +180,7 @@ void AItem::OnRep_Owner()
 	}
 }
 
-void AItem::Dropped()
+void APW_Item::Dropped()
 {
 	SetItemState(EItemState::EIS_Dropped);
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
@@ -190,7 +190,7 @@ void AItem::Dropped()
 	_ownerPlayerController = nullptr;
 }
 
-void AItem::ShowPickupWidget(bool bShowWidget)
+void APW_Item::ShowPickupWidget(bool bShowWidget)
 {
 	if (_pickupWidget)
 	{
@@ -198,7 +198,7 @@ void AItem::ShowPickupWidget(bool bShowWidget)
 	}
 }
 
-void AItem::EnableCustomDepth(bool bEnable)
+void APW_Item::EnableCustomDepth(bool bEnable)
 {
 	if(_itemMesh)
 	{
@@ -206,13 +206,13 @@ void AItem::EnableCustomDepth(bool bEnable)
 	}
 }
 
-void AItem::SetItemState(EItemState State)
+void APW_Item::SetItemState(EItemState State)
 {
 	_itemState = State;
 	OnItemStateSet();
 }
 
-void AItem::OnRep_ItemState()
+void APW_Item::OnRep_ItemState()
 {
 	OnItemStateSet();
 }
