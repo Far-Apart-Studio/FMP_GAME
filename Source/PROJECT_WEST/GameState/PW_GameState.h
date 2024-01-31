@@ -20,6 +20,8 @@ public:
 
 	APW_GameState();
 
+	virtual void BeginPlay() override;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void UpdateTopScore(class APW_PlayerState* scoringPlayer);
 
