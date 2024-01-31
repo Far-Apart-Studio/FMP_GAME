@@ -51,9 +51,9 @@ void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!HasAuthority()) return;
-	
+
 	APW_CharacterController* characterController = Cast<APW_CharacterController>(OtherActor);
-	if (characterController)
+	if (characterController && characterController->IsLocallyControlled())
 	{
 		PrintString( "OnOverlapBegin Player");
 		APlayerController* playerController = characterController->GetController<APlayerController>();
@@ -71,7 +71,7 @@ void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* 
 	if (!HasAuthority()) return;
 	
 	APW_CharacterController* characterController = Cast<APW_CharacterController>(OtherActor);
-	if (characterController)
+	if (characterController && characterController->IsLocallyControlled())
 	{
 		PrintString( " OnOverlapEnd Player");
 		APlayerController* playerController = characterController->GetController<APlayerController>();
