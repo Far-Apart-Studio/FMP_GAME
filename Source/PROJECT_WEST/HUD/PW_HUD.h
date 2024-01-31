@@ -6,6 +6,21 @@
 #include "GameFramework/HUD.h"
 #include "PW_HUD.generated.h"
 
+USTRUCT(BlueprintType)
+struct FHUDPackage
+{
+	GENERATED_BODY()
+public:
+	class UTexture2D* _crosshairsCenter;
+	UTexture2D* _crosshairsLeft;
+	UTexture2D* _crosshairsRight;
+	UTexture2D* CrosshairsTop;
+	UTexture2D* _crosshairsBottom;
+	float _crosshairSpread;
+	FLinearColor _crosshairsColor;
+};
+
+
 /**
  * 
  */

@@ -2,8 +2,47 @@
 
 
 #include "PM_GameMode.h"
+#include "GameFramework/GameState.h"
+#include "GameFramework/PlayerState.h"
 
 APM_GameMode::APM_GameMode()
+{
+	bUseSeamlessTravel = true;
+}
+
+void APM_GameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	if(!GameState) return;
+	
+	int32 numPlayers = GameState.Get()->PlayerArray.Num();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers));
+
+	APlayerState* playerState = NewPlayer->GetPlayerState<APlayerState>();
+	if (playerState)
+	{
+		FString playerName = playerState->GetPlayerName();	
+		GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf (TEXT ("%s has joined" ), *playerName));
+	}
+}
+
+void APM_GameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+	
+	APlayerState* playerState = Exiting->GetPlayerState<APlayerState>();
+	if (playerState)
+	{
+		FString playerName = playerState->GetPlayerName();
+		GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf (TEXT ("%s has left" ), *playerName));
+	}
+
+	int32 numPlayers = GameState.Get()->PlayerArray.Num();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers - 1));
+}
+
+void APM_GameMode::ServerTravel(FString MapPath)
 {
 }
 

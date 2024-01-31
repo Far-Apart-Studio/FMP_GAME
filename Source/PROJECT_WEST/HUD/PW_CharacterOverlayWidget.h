@@ -14,6 +14,15 @@ class PROJECT_WEST_API UPW_CharacterOverlayWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+private:
+	
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* _healthBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* _healthText;
+	
+
 public:
 	void SetHealth(float health, float maxHealth);
 	void SetScore(float score);

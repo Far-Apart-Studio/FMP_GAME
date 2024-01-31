@@ -16,6 +16,10 @@ class PROJECT_WEST_API APM_GameMode : public AGameMode
 
 public:
 	APM_GameMode();
+	
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void Logout(AController* Exiting) override;
+	void ServerTravel(FString MapPath);
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void PlayerEliminated(class APW_CharacterController* ElimmedCharacter, class APW_PlayerController* VictimController, APlayerController* AttackerController);
@@ -24,24 +28,25 @@ public:
 	void PlayerLeftGame(class APW_PlayerState* PlayerLeaving);
 	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 	
-	UPROPERTY(EditDefaultsOnly)
-	float WarmupTime = 10.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float MatchTime = 120.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float CooldownTime = 10.f;
-
-	float LevelStartingTime = 0.f;
-
-	bool bTeamsMatch = false;
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;
-
-private:
+	
 	float CountdownTime = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	float WarmupTime = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	float MatchTime = 120.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	float CooldownTime = 10.f;
+	
+	float LevelStartingTime = 0.f;
+
+	bool bTeamsMatch = false;
+	
 public:
 	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 };

@@ -16,40 +16,9 @@ APW_BountyGameMode::APW_BountyGameMode()
 void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
-	if(!GameState) return;
-	
-	int32 numPlayers = GameState.Get()->PlayerArray.Num();
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers));
-
-	APlayerState* playerState = NewPlayer->GetPlayerState<APlayerState>();
-	if (playerState)
-	{
-		FString playerName = playerState->GetPlayerName();	
-		GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf (TEXT ("%s has joined" ), *playerName));
-	}
 }
 
 void APW_BountyGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-
-	APlayerState* playerState = Exiting->GetPlayerState<APlayerState>();
-	if (playerState)
-	{
-		FString playerName = playerState->GetPlayerName();
-		GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf (TEXT ("%s has left" ), *playerName));
-	}
-
-	int32 numPlayers = GameState.Get()->PlayerArray.Num();
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers - 1));
-}
-
-void APW_BountyGameMode::ServerTravel()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		World->ServerTravel( _mapPath + "?listen" );
-	}
 }
