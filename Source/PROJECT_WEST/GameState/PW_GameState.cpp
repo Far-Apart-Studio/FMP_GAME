@@ -4,11 +4,19 @@
 #include "PW_GameState.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
-
+#include "DrawDebugHelpers.h"
+#include "PROJECT_WEST/DebugMacros.h"
 
 APW_GameState::APW_GameState()
 {
 	_topScore = 0.0f;
+}
+
+void APW_GameState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//PrintString("GameState Constructor");
 }
 
 void APW_GameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

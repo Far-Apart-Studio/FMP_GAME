@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PW_BountyData.h"
 #include "BountySystemComponent.generated.h"
 
 
@@ -16,6 +17,7 @@ public:
 	// Sets default values for this component's properties
 	UBountySystemComponent();
 
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -26,4 +28,10 @@ public:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
 	TArray<class UPW_BountyData*> _bountyDataList;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
+	FBountyMapData _bountyMapData;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
+	FBountyDifficultyData _bountyDifficultyData;
 };
