@@ -40,6 +40,7 @@ protected:
 
 	UPROPERTY()
 	class APW_Character* _ownerCharacter;
+	
 	UPROPERTY()
 	class APW_PlayerController* _ownerPlayerController;
 

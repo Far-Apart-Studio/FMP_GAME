@@ -28,6 +28,8 @@ APW_Lantern::APW_Lantern()
 	
 	_maxFuel = 100.0f;
 
+	// TODO: Remove this
+	_currentFuel = _maxFuel;
 	_fuelDrainRate = 10.0f;
 }
 
@@ -43,13 +45,13 @@ void APW_Lantern::BeginPlay()
 void APW_Lantern::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	HandleDrainFuel (DeltaTime);
+	//HandleDrainFuel (DeltaTime);
 	HandleTargetDetection (DeltaTime);
 }
 
 void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
-	if(!_target) return;
+	if(!_target  || _itemState != EItemState::EIS_Equipped) return;
 
 	_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
 
@@ -64,8 +66,9 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 		return;
 	}
 	
-	// Use the foward vector of the player instead of the lantern
-	const float dotProduct = FVector::DotProduct (GetActorForwardVector (), _target->GetActorForwardVector ());
+	AActor* player = GetOwner ();
+	if (!player) return;
+	const float dotProduct = FVector::DotProduct (player->GetActorForwardVector (), _target->GetActorForwardVector ());
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
 	const float normalisedAngle =  angle / 180.0f;
 
