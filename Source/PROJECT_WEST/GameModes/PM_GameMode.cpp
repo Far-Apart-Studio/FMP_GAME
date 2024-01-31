@@ -4,6 +4,8 @@
 #include "PM_GameMode.h"
 #include "GameFramework/GameState.h"
 #include "GameFramework/PlayerState.h"
+#include  "PROJECT_WEST/PlayerState/PW_PlayerState.h"
+#include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 APM_GameMode::APM_GameMode()
 {
@@ -53,6 +55,12 @@ void APM_GameMode::Tick(float DeltaTime)
 
 void APM_GameMode::PlayerEliminated(APW_CharacterController* ElimmedCharacter, APW_PlayerController* VictimController,APlayerController* AttackerController)
 {
+	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
+
+	if (ElimmedCharacter)
+	{
+		// ElimmedCharacter->OnEliminated();
+	}
 }
 
 void APM_GameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)

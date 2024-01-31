@@ -16,7 +16,7 @@ void APW_PlayerState::AddToScore(int32 scoreAmount)
 		_playerController = _playerController == nullptr ? Cast<APW_PlayerController>(_character->Controller) : _playerController;
 		if (_playerController != nullptr)
 		{
-			_playerController->SetHUDScore(scoreAmount);
+			_playerController->SetHUDScore(GetScore());
 		}
 	}
 }
