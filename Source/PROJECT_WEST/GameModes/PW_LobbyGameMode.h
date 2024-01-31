@@ -4,26 +4,30 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
-#include "PW_BountyGameMode.generated.h"
+#include "PW_LobbyGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_WEST_API APW_BountyGameMode : public AGameMode
+class PROJECT_WEST_API APW_LobbyGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
 public:
-
-	APW_BountyGameMode();
 	
+	APW_LobbyGameMode();
+
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	
 	virtual void Logout(AController* Exiting) override;
 
-	void ServerTravel();
+	UFUNCTION(BlueprintCallable)
+	void ServerTravel (FString mapPath);
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
 	FString _mapPath;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	int32 _playersNeeded;
 };

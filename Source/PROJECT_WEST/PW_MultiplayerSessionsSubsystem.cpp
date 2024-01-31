@@ -80,6 +80,8 @@ void UPW_MultiplayerSessionsSubsystem::OnDestroySessionComplete(FName sessionNam
 void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnection, bool isPublic)
 {
 	_isPublic = isPublic;
+
+	const FString& sessionType = isPublic ? "Public" : "Private";
 	
 	if (numberOfConnection == 0)
 	{
@@ -109,8 +111,7 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 
 	sessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
 	
-	sessionSettings.NumPublicConnections = isPublic ? _numberOfConnectionToCreate : 0;
-	sessionSettings.NumPrivateConnections = isPublic ? 0 : _numberOfConnectionToCreate;
+	sessionSettings.NumPublicConnections = _numberOfConnectionToCreate;
 	
 	sessionSettings.bAllowJoinInProgress = true;
 	sessionSettings.bAllowJoinViaPresence = true;
@@ -120,8 +121,8 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 	sessionSettings.bUsesPresence = true;
 	sessionSettings.BuildUniqueId = 1;
 
-	//sessionSettings.Set(FName("Session_Type"), "Bounty", EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-	sessionSettings.Set(FName("SERVER_NAME"), serverName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	sessionSettings.Set(FName("Session_Type"), sessionType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	sessionSettings.Set(FName("Session_Name"), serverName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	
 	sessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, sessionSettings);
 }
@@ -192,7 +193,8 @@ void UPW_MultiplayerSessionsSubsystem::FindSessionTrigger(const FString& serverN
 
 	_serverNameToFind = serverName;
 	_isSeachingForSingleSession = true;
-	sessionInterface->FindSessions(0, _sessionSearch.ToSharedRef());
+	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+	sessionInterface->FindSessions(*localPlayer->GetPreferredUniqueNetId(), _sessionSearch.ToSharedRef());
 }
 
 void UPW_MultiplayerSessionsSubsystem::FindSessionDone(bool success)
@@ -214,7 +216,7 @@ void UPW_MultiplayerSessionsSubsystem::FindSessionDone(bool success)
 			if (result.IsValid())
 			{
 				FString serverName = "No Name";
-				result.Session.SessionSettings.Get(FName("SERVER_NAME"), serverName);
+				result.Session.SessionSettings.Get(FName("Session_Name"), serverName);
 
 				if (serverName.Equals(_serverNameToFind))
 				{
@@ -293,9 +295,16 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 			if (result.IsValid())
 			{
 				FString serverName = "No Name";
-				result.Session.SessionSettings.Get(FName("SERVER_NAME"), serverName);
+				FString sessionType = "No Type";
+				result.Session.SessionSettings.Get(FName("Session_Name"), serverName);
+				result.Session.SessionSettings.Get(FName("Session_Type"), sessionType);
+
+				if (sessionType.Equals("Private"))
+				{
+					continue;
+				}
+
 				sessionInfos.Add(FSessionInfo(serverName, result.Session.NumOpenPublicConnections, result.Session.SessionSettings.NumPublicConnections));
-				PrintString(serverName);
 			}
 		}
 
@@ -307,6 +316,15 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 		PrintString("No Sessions Found : FindActivePublicSessionDone");
 	}
 	_sessionSearch->SearchResults.Empty();
+}
+
+void UPW_MultiplayerSessionsSubsystem::UpdateSessionInfo()
+{
+	FOnlineSessionSettings sessionSettings = FOnlineSessionSettings();
+	sessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
+	sessionSettings.NumPublicConnections = 0;
+	sessionSettings.NumPrivateConnections = 0;
+	sessionInterface->UpdateSession(NAME_GameSession, sessionSettings);
 }
 
 

@@ -80,6 +80,8 @@ public:
 	void FindActivePublicSessionTrigger();
 	void FindActivePublicSessionDone(bool success);
 	bool _isSeachingForActivePublicSession;
+
+	void UpdateSessionInfo();
 	
 	FString _sessionToDestroyName;
 	FString _serverNameToFind;

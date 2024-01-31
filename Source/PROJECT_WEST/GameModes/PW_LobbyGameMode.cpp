@@ -30,7 +30,7 @@ void APW_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
 
 	if (numPlayers >= _playersNeeded)
 	{
-		ServerTravel();
+		//ServerTravel( _mapPath );
 	}
 	else
 	{
@@ -53,11 +53,11 @@ void APW_LobbyGameMode::Logout(AController* Exiting)
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers - 1));
 }
 
-void APW_LobbyGameMode::ServerTravel()
+void APW_LobbyGameMode::ServerTravel(FString mapPath)
 {
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		World->ServerTravel( _mapPath + "?listen" );
+		World->ServerTravel( mapPath + "?listen" );
 	}
 }

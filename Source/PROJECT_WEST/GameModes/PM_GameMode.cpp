@@ -1,19 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PW_BountyGameMode.h"
+#include "PM_GameMode.h"
 #include "GameFramework/GameState.h"
 #include "GameFramework/PlayerState.h"
+#include  "PROJECT_WEST/PlayerState/PW_PlayerState.h"
+#include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
-APW_BountyGameMode::APW_BountyGameMode()
+APM_GameMode::APM_GameMode()
 {
 	bUseSeamlessTravel = true;
-	_mapPath = "";
-
-	//bDelayedStart = true;
 }
 
-void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
+void APM_GameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
@@ -30,10 +29,10 @@ void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 }
 
-void APW_BountyGameMode::Logout(AController* Exiting)
+void APM_GameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-
+	
 	APlayerState* playerState = Exiting->GetPlayerState<APlayerState>();
 	if (playerState)
 	{
@@ -45,11 +44,44 @@ void APW_BountyGameMode::Logout(AController* Exiting)
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers - 1));
 }
 
-void APW_BountyGameMode::ServerTravel()
+void APM_GameMode::ServerTravel(FString MapPath)
 {
-	UWorld* World = GetWorld();
-	if (World)
+}
+
+void APM_GameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void APM_GameMode::PlayerEliminated(APW_CharacterController* ElimmedCharacter, APW_PlayerController* VictimController,APlayerController* AttackerController)
+{
+	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
+
+	if (ElimmedCharacter)
 	{
-		World->ServerTravel( _mapPath + "?listen" );
+		// ElimmedCharacter->OnEliminated();
 	}
+}
+
+void APM_GameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)
+{
+}
+
+void APM_GameMode::PlayerLeftGame(APW_PlayerState* PlayerLeaving)
+{
+}
+
+float APM_GameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+{
+	return 0;
+}
+
+void APM_GameMode::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void APM_GameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
 }
