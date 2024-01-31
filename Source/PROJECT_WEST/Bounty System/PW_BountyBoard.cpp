@@ -50,6 +50,8 @@ void APW_BountyBoard::Tick(float DeltaTime)
 void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!HasAuthority()) return;
+	
 	APW_CharacterController* characterController = Cast<APW_CharacterController>(OtherActor);
 	if (characterController)
 	{
