@@ -2,14 +2,14 @@
 
 
 #include "PW_PlayerState.h"
-#include "PROJECT_WEST/PW_CharacterController.h"
+#include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 
 void APW_PlayerState::AddToScore(int32 scoreAmount)
 {
 	SetScore( GetScore() + scoreAmount );
-	_character  = _character == nullptr ? Cast<APW_CharacterController>(GetPawn()) : _character;
+	_character  = _character == nullptr ? Cast<APW_Character>(GetPawn()) : _character;
 
 	if (_character != nullptr)
 	{
@@ -24,7 +24,7 @@ void APW_PlayerState::AddToScore(int32 scoreAmount)
 void APW_PlayerState::OnRep_Score()
 {
 	Super::OnRep_Score();
-	_character  = _character == nullptr ? Cast<APW_CharacterController>(GetPawn()) : _character;
+	_character  = _character == nullptr ? Cast<APW_Character>(GetPawn()) : _character;
 
 	if (_character != nullptr)
 	{

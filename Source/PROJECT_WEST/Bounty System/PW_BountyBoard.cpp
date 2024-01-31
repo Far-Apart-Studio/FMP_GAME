@@ -5,7 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
-#include "PROJECT_WEST/PW_CharacterController.h"
+#include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/DebugMacros.h"
 
 // Sets default values
@@ -52,7 +52,7 @@ void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 {
 	if (!HasAuthority()) return;
 
-	APW_CharacterController* characterController = Cast<APW_CharacterController>(OtherActor);
+	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController && characterController->IsLocallyControlled())
 	{
 		PrintString( "OnOverlapBegin Player");
@@ -70,7 +70,7 @@ void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* 
 {
 	if (!HasAuthority()) return;
 	
-	APW_CharacterController* characterController = Cast<APW_CharacterController>(OtherActor);
+	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController && characterController->IsLocallyControlled())
 	{
 		PrintString( " OnOverlapEnd Player");
@@ -93,12 +93,12 @@ void APW_BountyBoard::DetectOverlap()
 	}
 	
 	TArray<AActor*> overlappingActors;
-	_triggerBox->GetOverlappingActors(overlappingActors, APW_CharacterController::StaticClass());
+	_triggerBox->GetOverlappingActors(overlappingActors, APW_Character::StaticClass());
 
 	if (overlappingActors.Num() > 0)
 	{
 		_isOverlapping = true;
-		APW_CharacterController* characterController = Cast<APW_CharacterController>(overlappingActors[0]);
+		APW_Character* characterController = Cast<APW_Character>(overlappingActors[0]);
 		if (characterController)
 		{
 			PrintString( " Overlap Begin Player");

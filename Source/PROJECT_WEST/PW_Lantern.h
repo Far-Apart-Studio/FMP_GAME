@@ -22,45 +22,66 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-public:
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
-	class USceneComponent* _root;
+private:
 	
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
+	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* _mesh;
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
+	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* _lightBeamMesh;
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
+	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UPointLightComponent* _pointLight;
 
-	UPROPERTY (EditAnywhere, BlueprintReadWrite, Category = "Lantern" )
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	AActor* _target;
 
-	UPROPERTY (EditAnywhere, BlueprintReadWrite, Category = "Lantern" )
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxLightIntensity;
 
-	UPROPERTY ( EditAnywhere, BlueprintReadWrite, Category = "Lantern" )
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _minLightIntensity;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
+	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _currentLightIntensity;
 
-	UPROPERTY ( EditAnywhere, BlueprintReadWrite, Category = "Lantern" )
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _minBeamScale;
 
-	UPROPERTY ( EditAnywhere, BlueprintReadWrite, Category = "Lantern" )
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxBeamScale;
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" )
+	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _currentBeamScale;
 
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _maxSearchDistance;
+
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _minSearchDistance;
+
+	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _currentSearchDistance;
+
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _maxFuel;
+	
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _currentFuel;
+
+	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _fuelDrainRate;
+	
+public:
+	
 	void HandleTargetDetection(float DeltaTime);
 	void HandleLightIntensity(float normalisedAngle);
 	void HandleLightBeamScale(float normalisedAngle);
 
+	void ChargeFuel(float amount);
+	void HandleDrainFuel(float DeltaTime);
+
 	FORCEINLINE void SetTarget(AActor* target) { _target = target; }
+	FORCEINLINE float GetNormalisedFuel() const { return _currentFuel / _maxFuel; }
 };

@@ -19,6 +19,6 @@ public:
 	virtual void OnRep_Score() override;
 
 private:
-	class APW_CharacterController* _character;
+	class APW_Character* _character;
 	class APW_PlayerController* _playerController;
 };
