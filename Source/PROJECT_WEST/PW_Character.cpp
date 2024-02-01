@@ -335,7 +335,6 @@ void APW_Character::DropItem()
 	if(!_itemInHand) return;
 	_itemInHand->SetItemState(EItemState::EIS_Dropped);
 	_itemInHand->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	_itemInHand->Dropped();
 	_itemInHand->SetOwner(nullptr);
 	_itemInHand = nullptr;
 }
@@ -350,8 +349,16 @@ void APW_Character::Crouch()
 	Super::Crouch();
 }
 
-void APW_Character::OnRep_EquippedWeapon()
+void APW_Character::OnRep_WeaponChange(APW_Item* LastWeapon)
 {
+	if (LastWeapon)
+	{
+		LastWeapon->SetItemState(EItemState::EIS_Dropped);
+		LastWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		LastWeapon->Dropped();
+		LastWeapon->SetOwner(nullptr);
+	}
+	
 	if (_itemInHand)
 	{
 		_itemInHand->SetItemState(EItemState::EIS_Equipped);

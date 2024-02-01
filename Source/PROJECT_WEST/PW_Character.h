@@ -58,11 +58,11 @@ private:
 	class APW_Item* _overlappingItem;
 
 	// Move to Item Handler Component
-	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponChange)
 	class APW_Item* _itemInHand;
 	
 	UFUNCTION()
-	void OnRep_EquippedWeapon();
+	void OnRep_WeaponChange(APW_Item* LastWeapon);
 	
 	UFUNCTION()
 	void OnRep_OverlappinItem(APW_Item* LastWeapon);
