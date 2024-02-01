@@ -119,7 +119,7 @@ void UPW_WeaponHandlerComponent::ReloadWeapon()
 
 void UPW_WeaponHandlerComponent::AttachDefaultWeapon()
 {
-	USceneComponent* weaponHolder = _ownerCharacter->GetObjectHolder();
+	USceneComponent* weaponHolder = _ownerCharacter->GetItemHolder();
 	
 	UWorld* currentWorld = GetWorld();
 	FActorSpawnParameters spawnParameters;

@@ -109,6 +109,7 @@ public:
 
 public:
 	FORCEINLINE USceneComponent* GetObjectHolder() const { return _objectHolder; }
+	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
 	
 };

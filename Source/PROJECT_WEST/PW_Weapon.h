@@ -14,7 +14,7 @@ class PROJECT_WEST_API APW_Weapon : public AActor
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Weapon")
-	class UPW_WeaponData* _weaponData;
+	UPW_WeaponData* _weaponData;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	USkeletalMeshComponent* _weaponMesh;

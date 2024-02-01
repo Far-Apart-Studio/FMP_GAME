@@ -22,7 +22,7 @@ APW_Character::APW_Character()
 	_cameraComponent->bUsePawnControlRotation = true;
 
 	_objectHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ObjectHolder"));
-	_objectHolder->SetupAttachment(RootComponent);
+	_objectHolder->SetupAttachment(_cameraComponent);
 
 	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	_overheadWidget->SetupAttachment(RootComponent);
