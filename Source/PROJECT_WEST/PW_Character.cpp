@@ -1,11 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
-#include "PWMath.h"
-#include "PW_Utilities.h"
-#include "PW_Weapon.h"
 #include "Camera/CameraComponent.h"
-#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -144,8 +140,6 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 	}
 }
 
-// Move to item Handler Component
-
 void APW_Character::SetOverlappingItem(APW_Item* Item)
 {
 	if (_overlappingItem)
@@ -202,6 +196,7 @@ void APW_Character::ServerEquipButtonPressed_Implementation()
 		_overlappingItem = nullptr;
 	}
 }
+
 void APW_Character::ServerDropButtonPressed_Implementation()
 {
 	if (_itemInHand)
