@@ -48,6 +48,8 @@ void APW_GameMode::Logout(AController* Exiting)
 	{
 		DEBUG_STRING( "Player Logout Drop Item");
 		character->Elim(true);
+		character->ServerLeaveGame();
+		character->Destroy();
 	}
 
 	int32 numPlayers = GameState.Get()->PlayerArray.Num();

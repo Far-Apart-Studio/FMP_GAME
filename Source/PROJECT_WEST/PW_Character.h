@@ -81,14 +81,14 @@ private:
 
 	FOnLeftGameDelegate _onLeftGameDelegate;
 	
-	UFUNCTION(Server, Reliable)
-	void ServerLeaveGame();
-	
 public:
 	
 	APW_Character();
 	
 	void Elim(bool leftGame);
+
+	UFUNCTION(Server, Reliable)
+	void ServerLeaveGame();
 
 protected:
 
