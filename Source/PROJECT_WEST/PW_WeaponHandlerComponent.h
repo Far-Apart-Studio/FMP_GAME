@@ -15,6 +15,9 @@ class PROJECT_WEST_API UPW_WeaponHandlerComponent : public UActorComponent
 private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	class UPW_WeaponData* _defaultWeaponData;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	class UPW_WeaponVisualData* _defaultWeaponVisualData;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
 	class APW_Weapon* _currentWeapon;
@@ -27,7 +30,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	class APW_Character* _ownerCharacter;
-
 
 public:	
 	UPW_WeaponHandlerComponent();

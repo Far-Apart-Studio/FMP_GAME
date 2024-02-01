@@ -133,9 +133,8 @@ void UPW_WeaponHandlerComponent::AttachDefaultWeapon()
 	if (_currentWeapon == nullptr)
 		{ PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!"); return; }
 	
-	SetCurrentWeapon(_currentWeapon);
 	_currentWeapon->AttachToComponent(weaponHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	_currentWeapon->InitialiseWeapon(_defaultWeaponData);
+	_currentWeapon->InitialiseWeapon(_defaultWeaponData, _defaultWeaponVisualData);
 }
 
 void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult) const

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PW_WeaponData.h"
+#include "PW_WeaponVisualData.h"
 #include "GameFramework/Actor.h"
 #include "PW_Weapon.generated.h"
 
@@ -17,7 +18,13 @@ private:
 	UPW_WeaponData* _weaponData;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
-	USkeletalMeshComponent* _weaponMesh;
+	UPW_WeaponVisualData* _weaponVisualData;
+	
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	USkeletalMeshComponent* _currentWeaponMesh;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UParticleSystemComponent* _currentMuzzleEffect;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	int _currentAmmo;
@@ -31,19 +38,15 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	bool _canFire = true;
 	
-	
 public:	
 	APW_Weapon();
-
-
-	// These Getters won't be used in the final product, but they are useful for debugging.
-	// Most of the weapon data will be handled internally through functions like FireWeapon() and ReloadWeapon().
-	// Current Design is for debugging and simplicity.
 	
 	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }
 	FORCEINLINE void SetWeaponData(UPW_WeaponData* weaponData) { _weaponData = weaponData; }
-	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return _weaponMesh; }
-	FORCEINLINE void SetWeaponMesh(USkeletalMeshComponent* weaponMesh) { _weaponMesh = weaponMesh; }
+	FORCEINLINE UPW_WeaponVisualData* GetWeaponVisualData() const { return _weaponVisualData; }
+	FORCEINLINE void SetWeaponVisualData(UPW_WeaponVisualData* weaponVisualData) { _weaponVisualData = weaponVisualData; }
+	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return _currentWeaponMesh; }
+	FORCEINLINE void SetWeaponMesh(USkeletalMeshComponent* weaponMesh) { _currentWeaponMesh = weaponMesh; }
 	FORCEINLINE int GetCurrentAmmo() const { return _currentAmmo; }
 	FORCEINLINE void SetCurrentAmmo(int currentAmmo) { _currentAmmo = currentAmmo; }
 	FORCEINLINE void SubtractCurrentAmmo(int amount) { _currentAmmo -= amount; }
@@ -62,7 +65,9 @@ public:
 	FORCEINLINE void SetCanFire(bool canFire) { _canFire = canFire; }
 
 	void TransferReserveAmmo();
-	void InitialiseWeapon(UPW_WeaponData* weaponData);
+	void InitialiseWeapon(UPW_WeaponData* weaponData, UPW_WeaponVisualData* weaponVisualData);
+	void InitialiseWeaponVisualData(UPW_WeaponVisualData* weaponVisualData);
+	void InitialiseWeaponData(UPW_WeaponData* weaponData);
 
 protected:
 	virtual void BeginPlay() override;
