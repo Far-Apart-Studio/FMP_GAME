@@ -7,6 +7,7 @@
 #include  "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 #include "PROJECT_WEST/PW_Character.h"
+#include "PROJECT_WEST/DebugMacros.h"
 
 APM_GameMode::APM_GameMode()
 {
@@ -45,6 +46,7 @@ void APM_GameMode::Logout(AController* Exiting)
 	APW_Character * character = Exiting ? Cast<APW_Character>(Exiting->GetPawn()) : nullptr;
 	if (character)
 	{
+		DEBUG_STRING( "Player Logout Drop Item");
 		character->DropButtonPressed();
 	}
 
@@ -80,6 +82,7 @@ void APM_GameMode::PlayerLeftGame(APW_PlayerState* PlayerLeaving)
 	APW_Character * character = PlayerLeaving ? Cast<APW_Character>(PlayerLeaving->GetPawn()) : nullptr;
 	if (character)
 	{
+		DEBUG_STRING( "Player left game Drop Item");
 		 character->DropButtonPressed();
 	}
 }

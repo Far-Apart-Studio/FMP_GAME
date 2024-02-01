@@ -47,36 +47,6 @@ void APW_Character::ReceiveDamage(AActor* DamagedActor, float Damage, const UDam
 	
 }
 
-void APW_Character::EquipButtonPressed()
-{
-	ServerEquipButtonPressed();
-}
-
-void APW_Character::DropButtonPressed()
-{
-	ServerDropButtonPressed();
-}
-
-void APW_Character::ServerEquipButtonPressed_Implementation()
-{
-	if (_overlappingItem)
-	{
-		if (_itemInHand)
-		{
-			DropItem();
-		}
-		EquipItem(_overlappingItem);
-		_overlappingItem = nullptr;
-	}
-}
-void APW_Character::ServerDropButtonPressed_Implementation()
-{
-	if (_itemInHand)
-	{
-		DropItem();
-	}
-}
-
 void APW_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -295,6 +265,17 @@ void APW_Character::LookUp(float value)
 {
 	AddControllerPitchInput(value);
 }
+
+void APW_Character::Jump()
+{
+	Super::Jump();
+}
+
+void APW_Character::Crouch()
+{
+	Super::Crouch();
+}
+
 void APW_Character::ServerLeaveGame_Implementation()
 {
 	APW_BountyGameMode * gameMode = Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -304,6 +285,8 @@ void APW_Character::ServerLeaveGame_Implementation()
 		gameMode->PlayerLeftGame(playerState);
 	}
 }
+
+// Move to item Handler Component
 
 void APW_Character::SetOverlappingItem(APW_Item* Item)
 {
@@ -321,7 +304,6 @@ void APW_Character::SetOverlappingItem(APW_Item* Item)
 	}
 }
 
-// Move to item Handler Component
 void APW_Character::EquipItem(APW_Item* Apw_Item)
 {
 	_itemInHand = Apw_Item;
@@ -339,14 +321,35 @@ void APW_Character::DropItem()
 	_itemInHand = nullptr;
 }
 
-void APW_Character::Jump()
+void APW_Character::EquipButtonPressed()
 {
-	Super::Jump();
+	ServerEquipButtonPressed();
 }
 
-void APW_Character::Crouch()
+void APW_Character::DropButtonPressed()
 {
-	Super::Crouch();
+	ServerDropButtonPressed();
+}
+
+void APW_Character::ServerEquipButtonPressed_Implementation()
+{
+	if (_overlappingItem)
+	{
+		if (_itemInHand)
+		{
+			DropButtonPressed();
+		}
+		
+		EquipItem(_overlappingItem);
+		_overlappingItem = nullptr;
+	}
+}
+void APW_Character::ServerDropButtonPressed_Implementation()
+{
+	if (_itemInHand)
+	{
+		DropItem();
+	}
 }
 
 void APW_Character::OnRep_WeaponChange(APW_Item* LastWeapon)
@@ -355,7 +358,6 @@ void APW_Character::OnRep_WeaponChange(APW_Item* LastWeapon)
 	{
 		LastWeapon->SetItemState(EItemState::EIS_Dropped);
 		LastWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		LastWeapon->Dropped();
 		LastWeapon->SetOwner(nullptr);
 	}
 	

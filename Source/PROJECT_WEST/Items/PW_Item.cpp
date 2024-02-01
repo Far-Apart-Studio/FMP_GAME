@@ -20,6 +20,7 @@ APW_Item::APW_Item()
 
 	_itemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemMesh"));
 	SetRootComponent(_itemMesh);
+	_itemMesh->SetIsReplicated(true);
 
 	_itemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	//_itemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
