@@ -47,6 +47,8 @@ public:
 	FORCEINLINE void SetWeaponVisualData(UPW_WeaponVisualData* weaponVisualData) { _weaponVisualData = weaponVisualData; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return _currentWeaponMesh; }
 	FORCEINLINE void SetWeaponMesh(USkeletalMeshComponent* weaponMesh) { _currentWeaponMesh = weaponMesh; }
+	FORCEINLINE UParticleSystemComponent* GetMuzzleEffect() const { return _currentMuzzleEffect; }
+	FORCEINLINE void SetMuzzleEffect(UParticleSystemComponent* muzzleEffect) { _currentMuzzleEffect = muzzleEffect; }
 	FORCEINLINE int GetCurrentAmmo() const { return _currentAmmo; }
 	FORCEINLINE void SetCurrentAmmo(int currentAmmo) { _currentAmmo = currentAmmo; }
 	FORCEINLINE void SubtractCurrentAmmo(int amount) { _currentAmmo -= amount; }

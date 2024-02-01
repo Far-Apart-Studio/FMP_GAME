@@ -30,6 +30,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Visual Data")
 	FVector _weaponMeshScale;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Visual Data")
+	FVector _muzzleFlashOffset;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Visual Data")
+	FVector _muzzleFlashScale;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Visual Data")
+	FRotator _muzzleFlashRotation;
+
 	
 public:
 	FORCEINLINE USkeletalMesh* GetWeaponMesh() const { return _weaponMesh; }
@@ -37,4 +46,7 @@ public:
 	FORCEINLINE FVector GetWeaponMeshOffset() const { return _weaponMeshOffset; }
 	FORCEINLINE FVector GetWeaponMeshScale() const { return _weaponMeshScale; }
 	FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return _muzzleFlash; }
+	FORCEINLINE FVector GetMuzzleFlashOffset() const { return _muzzleFlashOffset; }
+	FORCEINLINE FVector GetMuzzleFlashScale() const { return _muzzleFlashScale; }
+	FORCEINLINE FRotator GetMuzzleFlashRotation() const { return _muzzleFlashRotation; }
 };

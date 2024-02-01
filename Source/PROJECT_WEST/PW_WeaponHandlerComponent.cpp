@@ -8,12 +8,14 @@
 #include "PW_Weapon.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
+#include "Particles/ParticleSystemComponent.h"
 
 UPW_WeaponHandlerComponent::UPW_WeaponHandlerComponent()
 {
 	_defaultWeaponData = nullptr;
 	_currentWeapon = nullptr;
 	_ownerCharacter = nullptr;
+	_defaultWeaponVisualData = nullptr;
 	
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -85,8 +87,9 @@ void UPW_WeaponHandlerComponent::FireWeapon()
 	{
 		CastBulletRay();
 		_currentWeapon->SubtractCurrentAmmo(1);
+		FireWeaponVisual();
 	}
-} 
+}
 
 void UPW_WeaponHandlerComponent::ReloadWeapon()
 {
@@ -200,5 +203,18 @@ void UPW_WeaponHandlerComponent::AssignInputActions()
 
 	_ownerCharacter->OnReloadButtonPressed.AddDynamic
 		(this, &UPW_WeaponHandlerComponent::ReloadWeapon);
+}
+
+// I DON'T ENJOY CLOSELY COUPLING THE VISUALS AND DATA OF THE WEAPON
+// FUNCTIONS BELOW ARE VISUAL FUNCTIONS ONLY
+
+void UPW_WeaponHandlerComponent::FireWeaponVisual()
+{
+	_currentWeapon->GetMuzzleEffect()->ActivateSystem();
+}
+
+void UPW_WeaponHandlerComponent::ReloadWeaponVisual()
+{
+	
 }
 

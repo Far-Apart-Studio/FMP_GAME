@@ -57,7 +57,10 @@ void APW_Weapon::InitialiseWeaponVisualData(UPW_WeaponVisualData* weaponVisualDa
 	_currentWeaponMesh->SetRelativeRotation(_weaponVisualData->GetWeaponMeshRotation());
 	_currentWeaponMesh->SetRelativeLocation(_weaponVisualData->GetWeaponMeshOffset());
 	_currentWeaponMesh->SetRelativeScale3D(_weaponVisualData->GetWeaponMeshScale());
+	
 	_currentMuzzleEffect->SetTemplate(_weaponVisualData->GetMuzzleFlash());
+	_currentMuzzleEffect->SetRelativeScale3D(_weaponVisualData->GetMuzzleFlashScale());
+	_currentMuzzleEffect->SetRelativeLocation(_weaponVisualData->GetMuzzleFlashOffset());
 }
 
 void APW_Weapon::InitialiseWeaponData(UPW_WeaponData* weaponData)

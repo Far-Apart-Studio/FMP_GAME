@@ -50,6 +50,8 @@ public:
 
 	UFUNCTION() void ReloadWeapon();
 	UFUNCTION() void FireWeapon();
+	void FireWeaponVisual();
+	void ReloadWeaponVisual();
 	FORCEINLINE APW_Weapon* GetCurrentWeapon() const { return _currentWeapon; }
 	FORCEINLINE void SetCurrentWeapon(APW_Weapon* currentWeapon) { _currentWeapon = currentWeapon; }
 };
