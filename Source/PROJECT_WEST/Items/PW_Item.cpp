@@ -8,8 +8,10 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PROJECT_WEST/DebugMacros.h"
 
 // Sets default values
 APW_Item::APW_Item()
@@ -18,12 +20,12 @@ APW_Item::APW_Item()
 	bReplicates = true;
 	SetReplicateMovement(true);
 
-	_itemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemMesh"));
+	_itemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
 	SetRootComponent(_itemMesh);
 	_itemMesh->SetIsReplicated(true);
 
 	_itemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	//_itemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	_itemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	EnableCustomDepth(true);
@@ -68,7 +70,7 @@ void APW_Item::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APW_Item, _itemState);
-	DOREPLIFETIME_CONDITION(APW_Item, _bUseServerSideRewind, COND_OwnerOnly);
+	//DOREPLIFETIME_CONDITION(APW_Item, _bUseServerSideRewind, COND_OwnerOnly);
 }
 
 void APW_Item::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -93,26 +95,23 @@ void APW_Item::OnItemStateSet()
 {
 	switch (_itemState)
 	{
-	case EItemState::EIS_Equipped:
-		OnEquipped();
-		break;
-	case EItemState::EIS_Dropped:
-		OnDropped();
-		break;
+		case EItemState::EIS_Equipped:
+			OnEquipped();
+			break;
+		case EItemState::EIS_Dropped:
+			OnDropped();
+			break;
 	}
 }
 
 void APW_Item::OnEquipped()
 {
 	ShowPickupWidget(false);
+	
 	_areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	_itemMesh->SetSimulatePhysics(false);
 	_itemMesh->SetEnableGravity(false);
 	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	//_itemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//_itemMesh->SetEnableGravity(true);
-	//_itemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	
 	EnableCustomDepth(false);
 

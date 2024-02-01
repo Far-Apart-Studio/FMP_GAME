@@ -59,13 +59,13 @@ public:
 	void SetItemState(EItemState State);
 	
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return _areaSphere; }
-	FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return _itemMesh; }
+	//FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return _itemMesh; }
 	FORCEINLINE class UWidgetComponent* GetPickupWidget() const { return _pickupWidget; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Item Properties")
-	USkeletalMeshComponent* _itemMesh;
-
+	UStaticMeshComponent* _itemMesh;
+	
 	UPROPERTY(VisibleAnywhere, Category = "Item Properties")
 	class USphereComponent* _areaSphere;
 

@@ -30,12 +30,32 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	
+	void StartHighPingWarning();
+	void StopHighPingWarning();
+	void HandleCheckPing(float DeltaTime);
 
 public:
 
-void SetHUDHealth(float health, float maxHealth);
-void SetHUDScore(float score);
+	void SetHUDHealth(float health, float maxHealth);
+	void SetHUDScore(float score);
+
 
 private:
+	
 	class APW_HUD* _hud;
+
+	// To show a warning when ping is too high
+	float _highPingRunningTime;
+	float _pingAnimationRunningTime;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ping", meta = (AllowPrivateAccess = "true"))
+	float _highPingDuration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ping", meta = (AllowPrivateAccess = "true"))
+	float _checkPingFrequency;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ping", meta = (AllowPrivateAccess = "true"))
+	float _highPingThreshold;
+	
 };
