@@ -65,7 +65,7 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	if (distance > _currentSearchDistance)
 	{
 		HandleLightIntensity (0.0f);
-		HandleLightBeamScale (0.0f);
+		HandleLightBeamScale (1);
 		return;
 	}
 	
