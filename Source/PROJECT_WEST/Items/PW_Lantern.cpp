@@ -80,7 +80,7 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	toTarget.Normalize();
 	const float dotProduct = FVector::DotProduct (playerForward, toTarget);
 
-	DEBUG_STRING( "Dot Product: " + FString::SanitizeFloat(dotProduct) );
+	//DEBUG_STRING( "Dot Product: " + FString::SanitizeFloat(dotProduct) );
 	
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
 	

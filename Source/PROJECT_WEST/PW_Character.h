@@ -7,6 +7,7 @@
 #include "Items/PW_Item.h"
 #include "PW_Character.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGameDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShootButtonDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReloadButtonDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipButtonDelegate);
@@ -72,12 +73,22 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerDropButtonPressed();
+
+	bool _LeftGame = false;
+
+	UFUNCTION( NetMulticast, Reliable )
+	void MultiCastElim (bool leftGame);
+
+	FOnLeftGameDelegate _onLeftGameDelegate;
 	
 	UFUNCTION(Server, Reliable)
 	void ServerLeaveGame();
 	
 public:
+	
 	APW_Character();
+	
+	void Elim(bool leftGame);
 
 protected:
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PM_GameMode.h"
+#include "PW_GameMode.h"
 #include "GameFramework/GameState.h"
 #include "GameFramework/PlayerState.h"
 #include  "PROJECT_WEST/PlayerState/PW_PlayerState.h"
@@ -9,12 +9,12 @@
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/DebugMacros.h"
 
-APM_GameMode::APM_GameMode()
+APW_GameMode::APW_GameMode()
 {
 	bUseSeamlessTravel = true;
 }
 
-void APM_GameMode::PostLogin(APlayerController* NewPlayer)
+void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
@@ -31,7 +31,7 @@ void APM_GameMode::PostLogin(APlayerController* NewPlayer)
 	}
 }
 
-void APM_GameMode::Logout(AController* Exiting)
+void APW_GameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
 	
@@ -47,23 +47,23 @@ void APM_GameMode::Logout(AController* Exiting)
 	if (character)
 	{
 		DEBUG_STRING( "Player Logout Drop Item");
-		character->DropButtonPressed();
+		character->Elim(true);
 	}
 
 	int32 numPlayers = GameState.Get()->PlayerArray.Num();
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers - 1));
 }
 
-void APM_GameMode::ServerTravel(FString MapPath)
+void APW_GameMode::ServerTravel(FString MapPath)
 {
 }
 
-void APM_GameMode::Tick(float DeltaTime)
+void APW_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void APM_GameMode::PlayerEliminated(APW_CharacterController* ElimmedCharacter, APW_PlayerController* VictimController,APlayerController* AttackerController)
+void APW_GameMode::PlayerEliminated(APW_CharacterController* ElimmedCharacter, APW_PlayerController* VictimController,APlayerController* AttackerController)
 {
 	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
 
@@ -73,31 +73,33 @@ void APM_GameMode::PlayerEliminated(APW_CharacterController* ElimmedCharacter, A
 	}
 }
 
-void APM_GameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)
+void APW_GameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)
 {
 }
 
-void APM_GameMode::PlayerLeftGame(APW_PlayerState* PlayerLeaving)
+void APW_GameMode::PlayerLeftGame(APW_PlayerState* PlayerLeaving)
 {
+	if (!PlayerLeaving) return;
+	
 	APW_Character * character = PlayerLeaving ? Cast<APW_Character>(PlayerLeaving->GetPawn()) : nullptr;
 	if (character)
 	{
 		DEBUG_STRING( "Player left game Drop Item");
-		 character->DropButtonPressed();
+		 character->Elim(true);
 	}
 }
 
-float APM_GameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+float APW_GameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
 {
 	return 0;
 }
 
-void APM_GameMode::BeginPlay()
+void APW_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void APM_GameMode::OnMatchStateSet()
+void APW_GameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
 }

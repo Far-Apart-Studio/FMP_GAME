@@ -56,6 +56,8 @@ void APW_Item::BeginPlay()
 	{
 		_pickupWidget->SetVisibility(false);
 	}
+
+	SetItemState(EItemState::EIS_Dropped);
 }
 
 // Called every frame

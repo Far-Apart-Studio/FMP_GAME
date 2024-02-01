@@ -14,6 +14,7 @@
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/Items/PW_Item.h"
 #include "Components/WidgetComponent.h"
+#include "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 
@@ -283,6 +284,24 @@ void APW_Character::ServerLeaveGame_Implementation()
 	if (gameMode && playerState)
 	{
 		gameMode->PlayerLeftGame(playerState);
+	}
+}
+
+void APW_Character::Elim(bool leftGame)
+{
+	DropItem();
+	MultiCastElim(leftGame);
+}
+
+void APW_Character::MultiCastElim_Implementation(bool leftGame)
+{
+	_LeftGame = leftGame;
+
+	APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	
+	if (_LeftGame && IsLocallyControlled())
+	{
+		_onLeftGameDelegate.Broadcast();
 	}
 }
 

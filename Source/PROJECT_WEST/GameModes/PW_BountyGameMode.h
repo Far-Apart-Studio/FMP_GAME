@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
-#include "PM_GameMode.h"
+#include "PW_GameMode.h"
 #include "PW_BountyGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_WEST_API APW_BountyGameMode : public APM_GameMode
+class PROJECT_WEST_API APW_BountyGameMode : public APW_GameMode
 {
 	GENERATED_BODY()
 
