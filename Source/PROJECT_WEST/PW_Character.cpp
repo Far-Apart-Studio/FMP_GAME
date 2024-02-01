@@ -91,6 +91,7 @@ void APW_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
 	
 	DOREPLIFETIME(APW_Character, _overlappingItem);
+	DOREPLIFETIME(APW_Character, _itemInHand);
 }
 
 // >>> ------------------ Weapon Handler Component ------------------ >>> //

@@ -59,8 +59,8 @@ private:
 
 	// Move to Item Handler Component
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
-	
 	class APW_Item* _itemInHand;
+	
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 	
