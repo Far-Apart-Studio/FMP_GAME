@@ -11,14 +11,16 @@ APW_Lantern::APW_Lantern()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	_mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	SetRootComponent(_mesh);
-
+	bReplicates = true;
+	SetReplicateMovement(true);
+	
 	_lightBeamMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightBeamMesh"));
-	_lightBeamMesh->SetupAttachment(_mesh);
+	_lightBeamMesh->SetupAttachment(_itemMesh);
+	_lightBeamMesh->SetIsReplicated(true);
 	
 	_pointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
-	_pointLight->SetupAttachment(_mesh);
+	_pointLight->SetupAttachment(_itemMesh);
+	_pointLight->SetIsReplicated(true);
 
 	_currentLightIntensity = _minLightIntensity = 1000.0f;
 	_maxLightIntensity = 10000.0f;
@@ -31,6 +33,8 @@ APW_Lantern::APW_Lantern()
 	
 	_maxFuel = 100.0f;
 
+	// TODO: Remove this
+	_currentFuel = _maxFuel;
 	_fuelDrainRate = 10.0f;
 }
 
@@ -46,33 +50,30 @@ void APW_Lantern::BeginPlay()
 void APW_Lantern::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	HandleDrainFuel (DeltaTime);
+	//HandleDrainFuel (DeltaTime);
 	HandleTargetDetection (DeltaTime);
 }
 
 void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
-	if(!_target) return;
+	if(!_target  || _itemState != EItemState::EIS_Equipped) return;
 
 	_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
 
 	const float distance = FVector::Dist (GetActorLocation (), _target->GetActorLocation ());
-
-	DEBUG_STRING ("Distance: " + FString::SanitizeFloat (distance));
 	
 	if (distance > _currentSearchDistance)
 	{
 		HandleLightIntensity (0.0f);
-		HandleLightBeamScale (0.0f);
+		HandleLightBeamScale (1);
 		return;
 	}
 	
-	// Use the foward vector of the player instead of the lantern
-	const float dotProduct = FVector::DotProduct (GetActorForwardVector (), _target->GetActorForwardVector ());
+	AActor* player = GetOwner ();
+	if (!player) return;
+	const float dotProduct = FVector::DotProduct (player->GetActorForwardVector (), _target->GetActorForwardVector ());
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
 	const float normalisedAngle =  angle / 180.0f;
-
-	DEBUG_STRING ("normalisedAngle: " + FString::SanitizeFloat (normalisedAngle));
 	
 	HandleLightIntensity (normalisedAngle);
 	HandleLightBeamScale (normalisedAngle);

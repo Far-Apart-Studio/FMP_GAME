@@ -14,6 +14,9 @@
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/Items/PW_Item.h"
 #include "Components/WidgetComponent.h"
+#include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
+#include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
+
 
 APW_Character::APW_Character()
 {
@@ -28,6 +31,9 @@ APW_Character::APW_Character()
 
 	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	_overheadWidget->SetupAttachment(RootComponent);
+
+	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
+	_itemHolder->SetupAttachment(_cameraComponent);
 }
 
 void APW_Character::BeginPlay()
@@ -55,6 +61,7 @@ void APW_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
 	
 	DOREPLIFETIME(APW_Character, _overlappingItem);
+	DOREPLIFETIME(APW_Character, _itemInHand);
 }
 
 // >>> ------------------ Weapon Handler Component ------------------ >>> //
@@ -223,6 +230,9 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRight);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookRight);
 	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookUp);
+
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APW_Character::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 }
 
 void APW_Character::MoveForward(float value)
@@ -256,6 +266,28 @@ void APW_Character::LookUp(float value)
 	AddControllerPitchInput(value);
 }
 
+void APW_Character::Jump()
+{
+	Super::Jump();
+}
+
+void APW_Character::Crouch()
+{
+	Super::Crouch();
+}
+
+void APW_Character::ServerLeaveGame_Implementation()
+{
+	APW_BountyGameMode * gameMode = Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	APW_PlayerState* playerState = GetPlayerState<APW_PlayerState>();
+	if (gameMode && playerState)
+	{
+		gameMode->PlayerLeftGame(playerState);
+	}
+}
+
+// Move to item Handler Component
+
 void APW_Character::SetOverlappingItem(APW_Item* Item)
 {
 	if (_overlappingItem)
@@ -272,14 +304,69 @@ void APW_Character::SetOverlappingItem(APW_Item* Item)
 	}
 }
 
-void APW_Character::Jump()
+void APW_Character::EquipItem(APW_Item* Apw_Item)
 {
-	Super::Jump();
+	_itemInHand = Apw_Item;
+	Apw_Item->SetItemState(EItemState::EIS_Equipped);
+	Apw_Item->SetOwner(this);
+	Apw_Item->AttachToComponent(_itemHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
 
-void APW_Character::Crouch()
+void APW_Character::DropItem()
 {
-	Super::Crouch();
+	if(!_itemInHand) return;
+	_itemInHand->SetItemState(EItemState::EIS_Dropped);
+	_itemInHand->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	_itemInHand->SetOwner(nullptr);
+	_itemInHand = nullptr;
+}
+
+void APW_Character::EquipButtonPressed()
+{
+	ServerEquipButtonPressed();
+}
+
+void APW_Character::DropButtonPressed()
+{
+	ServerDropButtonPressed();
+}
+
+void APW_Character::ServerEquipButtonPressed_Implementation()
+{
+	if (_overlappingItem)
+	{
+		if (_itemInHand)
+		{
+			DropButtonPressed();
+		}
+		
+		EquipItem(_overlappingItem);
+		_overlappingItem = nullptr;
+	}
+}
+void APW_Character::ServerDropButtonPressed_Implementation()
+{
+	if (_itemInHand)
+	{
+		DropItem();
+	}
+}
+
+void APW_Character::OnRep_WeaponChange(APW_Item* LastWeapon)
+{
+	if (LastWeapon)
+	{
+		LastWeapon->SetItemState(EItemState::EIS_Dropped);
+		LastWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		LastWeapon->SetOwner(nullptr);
+	}
+	
+	if (_itemInHand)
+	{
+		_itemInHand->SetItemState(EItemState::EIS_Equipped);
+		_itemInHand->SetOwner(this);
+		_itemInHand->AttachToComponent(_itemHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
 }
 
 void APW_Character::OnRep_OverlappinItem(APW_Item* lastItem)
@@ -294,7 +381,6 @@ void APW_Character::OnRep_OverlappinItem(APW_Item* lastItem)
 		lastItem->ShowPickupWidget(false);
 	}
 }
-
 
 
 
