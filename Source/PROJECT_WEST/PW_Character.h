@@ -23,6 +23,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Character")
 	class USceneComponent* _weaponHolder;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	class USceneComponent* _itemHolder;
 	
 	UPROPERTY(EditAnywhere, Category = "Character")
 	class UCameraComponent* _cameraComponent;
@@ -67,6 +70,9 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerDropButtonPressed();
 	
+	UFUNCTION(Server, Reliable)
+	void ServerLeaveGame();
+	
 public:
 	APW_Character();
 
@@ -77,7 +83,7 @@ protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 	void EquipButtonPressed();
-	void DropButtonPressed();
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -108,7 +114,9 @@ public:
 	void ToggleSprint();
 	void LookRight(float value);
 	void LookUp(float value);
+	
 	void SetOverlappingItem(class APW_Item* Item);
 	void EquipItem(APW_Item* Apw_Item);
 	void DropItem();
+	void DropButtonPressed();
 };

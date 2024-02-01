@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include  "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
+#include "PROJECT_WEST/PW_Character.h"
 
 APM_GameMode::APM_GameMode()
 {
@@ -40,6 +41,13 @@ void APM_GameMode::Logout(AController* Exiting)
 		GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf (TEXT ("%s has left" ), *playerName));
 	}
 
+	// TODO: Drop item if player is holding one
+	APW_Character * character = Exiting ? Cast<APW_Character>(Exiting->GetPawn()) : nullptr;
+	if (character)
+	{
+		character->DropButtonPressed();
+	}
+
 	int32 numPlayers = GameState.Get()->PlayerArray.Num();
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers - 1));
 }
@@ -69,6 +77,11 @@ void APM_GameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* Eli
 
 void APM_GameMode::PlayerLeftGame(APW_PlayerState* PlayerLeaving)
 {
+	APW_Character * character = PlayerLeaving ? Cast<APW_Character>(PlayerLeaving->GetPawn()) : nullptr;
+	if (character)
+	{
+		 character->DropButtonPressed();
+	}
 }
 
 float APM_GameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)

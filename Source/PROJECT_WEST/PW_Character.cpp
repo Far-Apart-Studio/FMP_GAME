@@ -14,6 +14,9 @@
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/Items/PW_Item.h"
 #include "Components/WidgetComponent.h"
+#include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
+#include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
+
 
 APW_Character::APW_Character()
 {
@@ -28,6 +31,9 @@ APW_Character::APW_Character()
 
 	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	_overheadWidget->SetupAttachment(RootComponent);
+
+	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
+	_itemHolder->SetupAttachment(_cameraComponent);
 }
 
 void APW_Character::BeginPlay()
@@ -288,6 +294,15 @@ void APW_Character::LookUp(float value)
 {
 	AddControllerPitchInput(value);
 }
+void APW_Character::ServerLeaveGame_Implementation()
+{
+	APW_BountyGameMode * gameMode = Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	APW_PlayerState* playerState = GetPlayerState<APW_PlayerState>();
+	if (gameMode && playerState)
+	{
+		gameMode->PlayerLeftGame(playerState);
+	}
+}
 
 void APW_Character::SetOverlappingItem(APW_Item* Item)
 {
@@ -311,7 +326,7 @@ void APW_Character::EquipItem(APW_Item* Apw_Item)
 	_itemInHand = Apw_Item;
 	Apw_Item->SetItemState(EItemState::EIS_Equipped);
 	Apw_Item->SetOwner(this);
-	Apw_Item->AttachToComponent(_weaponHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Apw_Item->AttachToComponent(_itemHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
 
 void APW_Character::DropItem()
