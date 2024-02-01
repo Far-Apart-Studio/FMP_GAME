@@ -335,6 +335,7 @@ void APW_Character::DropItem()
 	if(!_itemInHand) return;
 	_itemInHand->SetItemState(EItemState::EIS_Dropped);
 	_itemInHand->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	_itemInHand->Dropped();
 	_itemInHand->SetOwner(nullptr);
 	_itemInHand = nullptr;
 }
