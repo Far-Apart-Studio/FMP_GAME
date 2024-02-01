@@ -61,8 +61,6 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
 
 	const float distance = FVector::Dist (GetActorLocation (), _target->GetActorLocation ());
-
-	DEBUG_STRING ("Distance: " + FString::SanitizeFloat (distance));
 	
 	if (distance > _currentSearchDistance)
 	{
@@ -76,8 +74,6 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	const float dotProduct = FVector::DotProduct (player->GetActorForwardVector (), _target->GetActorForwardVector ());
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
 	const float normalisedAngle =  angle / 180.0f;
-
-	DEBUG_STRING ("normalisedAngle: " + FString::SanitizeFloat (normalisedAngle));
 	
 	HandleLightIntensity (normalisedAngle);
 	HandleLightBeamScale (normalisedAngle);
