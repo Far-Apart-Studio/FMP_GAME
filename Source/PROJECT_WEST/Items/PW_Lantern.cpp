@@ -25,8 +25,8 @@ APW_Lantern::APW_Lantern()
 	_currentLightIntensity = _minLightIntensity = 1000.0f;
 	_maxLightIntensity = 10000.0f;
 
-	_currentBeamScale = _minBeamScale = 1.0f;
-	_maxBeamScale = 10.0f;
+	_currentBeamScale = _minBeamScale = .5f;
+	_maxBeamScale = 2.0f;
 
 	_maxSearchDistance = 1000.0f;
 	_minSearchDistance = 100.0f;
@@ -71,8 +71,19 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	
 	AActor* player = GetOwner ();
 	if (!player) return;
-	const float dotProduct = FVector::DotProduct (player->GetActorForwardVector (), _target->GetActorForwardVector ());
+	
+	//const float dotProduct = FVector::DotProduct (player->GetActorForwardVector (), _target->GetActorForwardVector ());
+	
+	FVector playerForward = player->GetActorForwardVector();
+	FVector toTarget = _target->GetActorLocation() - player->GetActorLocation();
+	playerForward.Normalize();
+	toTarget.Normalize();
+	const float dotProduct = FVector::DotProduct (playerForward, toTarget);
+
+	DEBUG_STRING( "Dot Product: " + FString::SanitizeFloat(dotProduct) );
+	
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
+	
 	const float normalisedAngle =  angle / 180.0f;
 	
 	HandleLightIntensity (normalisedAngle);

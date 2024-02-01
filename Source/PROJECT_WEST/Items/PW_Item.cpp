@@ -70,7 +70,7 @@ void APW_Item::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APW_Item, _itemState);
-	//DOREPLIFETIME_CONDITION(APW_Item, _bUseServerSideRewind, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(APW_Item, _bUseServerSideRewind, COND_OwnerOnly);
 }
 
 void APW_Item::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
