@@ -348,6 +348,16 @@ void APW_Character::Crouch()
 	Super::Crouch();
 }
 
+void APW_Character::OnRep_EquippedWeapon()
+{
+	if (_itemInHand)
+	{
+		_itemInHand->SetItemState(EItemState::EIS_Equipped);
+		_itemInHand->SetOwner(this);
+		_itemInHand->AttachToComponent(_itemHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+}
+
 void APW_Character::OnRep_OverlappinItem(APW_Item* lastItem)
 {
 	if (_overlappingItem)
