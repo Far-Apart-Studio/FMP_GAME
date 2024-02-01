@@ -18,11 +18,12 @@ public:
 	APW_GameMode();
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
 	virtual void Logout(AController* Exiting) override;
 
 	virtual void Tick(float DeltaTime) override;
 	
-	virtual void PlayerEliminated(class APW_CharacterController* ElimmedCharacter, class APW_PlayerController* VictimController, APlayerController* AttackerController);
+	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, APlayerController* AttackerController);
 	
 	virtual void RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController);
 

@@ -26,7 +26,7 @@ void APW_BountyGameMode::Logout(AController* Exiting)
 	Super::Logout(Exiting);
 }
 
-void APW_BountyGameMode::EnemyEliminated(APW_CharacterController* AttackerCharacter, APW_PlayerController* AttackerController)
+void APW_BountyGameMode::EnemyEliminated(APW_Character* AttackerCharacter, APW_PlayerController* AttackerController)
 {
 	APW_PlayerState* attackerState = AttackerController ? Cast<APW_PlayerState>(AttackerController->PlayerState) : nullptr;
 

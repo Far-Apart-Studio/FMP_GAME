@@ -72,6 +72,8 @@ private:
 	float _fuelDrainRate;
 	
 public:
+
+	void OnItemStateSet() override;
 	
 	void HandleTargetDetection(float DeltaTime);
 	void HandleLightIntensity(float normalisedAngle);
@@ -79,6 +81,8 @@ public:
 
 	void ChargeFuel(float amount);
 	void HandleDrainFuel(float DeltaTime);
+
+	void ToggleLightVisibility(bool visible);
 
 	FORCEINLINE void SetTarget(AActor* target) { _target = target; }
 	FORCEINLINE float GetNormalisedFuel() const { return _currentFuel / _maxFuel; }

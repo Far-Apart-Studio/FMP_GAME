@@ -54,6 +54,12 @@ void APW_Lantern::Tick(float DeltaTime)
 	HandleTargetDetection (DeltaTime);
 }
 
+void APW_Lantern::OnItemStateSet()
+{
+	Super::OnItemStateSet();
+	ToggleLightVisibility(_itemState == EItemState::EIS_Equipped);
+}
+
 void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
 	if(!_target  || _itemState != EItemState::EIS_Equipped) return;
@@ -61,11 +67,13 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
 
 	const float distance = FVector::Dist (GetActorLocation (), _target->GetActorLocation ());
+
+	bool inRange = distance < _currentSearchDistance;
+
+	ToggleLightVisibility (inRange);
 	
-	if (distance > _currentSearchDistance)
+	if (!inRange)
 	{
-		HandleLightIntensity (0.0f);
-		HandleLightBeamScale (1);
 		return;
 	}
 	
@@ -115,4 +123,10 @@ void APW_Lantern::HandleDrainFuel(float DeltaTime)
 {
 	if (_currentFuel <= 0.0f) return;
 	_currentFuel -= _fuelDrainRate * DeltaTime;
+}
+
+void APW_Lantern::ToggleLightVisibility(bool visible)
+{
+	_lightBeamMesh->SetVisibility(visible);
+	_pointLight->SetVisibility(visible);
 }

@@ -40,16 +40,20 @@ void APW_GameMode::Logout(AController* Exiting)
 	{
 		FString playerName = playerState->GetPlayerName();
 		GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf (TEXT ("%s has left" ), *playerName));
-	}
-
-	// TODO: Drop item if player is holding one
-	APW_Character * character = Exiting ? Cast<APW_Character>(Exiting->GetPawn()) : nullptr;
-	if (character)
-	{
-		DEBUG_STRING( "Player Logout Drop Item");
-		character->Elim(true);
-		character->ServerLeaveGame();
-		character->Destroy();
+		
+		// TODO: Drop item if player is holding one
+		APW_Character * character = Exiting ? Cast<APW_Character>(playerState->GetPawn()) : nullptr;
+		if (character)
+		{
+			DEBUG_STRING( "Player Logout Drop Item");
+			character->Elim(true);
+			character->ServerLeaveGame();
+			character->Destroy();
+		}
+		else
+		{
+			DEBUG_STRING( "Player Logout No Character");
+		}
 	}
 
 	int32 numPlayers = GameState.Get()->PlayerArray.Num();
@@ -58,6 +62,11 @@ void APW_GameMode::Logout(AController* Exiting)
 
 void APW_GameMode::ServerTravel(FString MapPath)
 {
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->ServerTravel( MapPath + "?listen" );
+	}
 }
 
 void APW_GameMode::Tick(float DeltaTime)
@@ -65,7 +74,7 @@ void APW_GameMode::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void APW_GameMode::PlayerEliminated(APW_CharacterController* ElimmedCharacter, APW_PlayerController* VictimController,APlayerController* AttackerController)
+void APW_GameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController,APlayerController* AttackerController)
 {
 	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
 
