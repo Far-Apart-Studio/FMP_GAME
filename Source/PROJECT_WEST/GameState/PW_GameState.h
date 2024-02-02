@@ -27,6 +27,9 @@ public:
 
 	UPROPERTY( Replicated)
 	TArray<class APW_PlayerState*> _topScoringPlayers;
-
+	
+	UFUNCTION(BlueprintCallable)
+	class APW_PlayerController* GetLocalPlayerController();
+	
 	float _topScore;
 };
