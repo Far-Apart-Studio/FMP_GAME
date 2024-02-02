@@ -53,6 +53,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnRep_Owner() override;
 	virtual void Dropped();
+	virtual void SetVisibility(bool bIsVisible);
+	
 	void ShowPickupWidget(bool bShowWidget);
 	void EnableCustomDepth(bool bEnable);
 

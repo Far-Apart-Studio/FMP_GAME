@@ -4,6 +4,7 @@
 #include "PW_Item.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
+#include "PROJECT_WEST/PW_ItemHandlerComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -80,7 +81,11 @@ void APW_Item::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController)
 	{
-		characterController->SetOverlappingItem(this);
+		UPW_ItemHandlerComponent * itemHandler =  Cast<UPW_ItemHandlerComponent>(characterController->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
+		if (itemHandler)
+		{
+			itemHandler->SetOverlappingItem(this);
+		}
 	}
 }
 
@@ -89,7 +94,11 @@ void APW_Item::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController)
 	{
-		characterController->SetOverlappingItem(nullptr);
+		UPW_ItemHandlerComponent * itemHandler =  Cast<UPW_ItemHandlerComponent>(characterController->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
+		if (itemHandler)
+		{
+			itemHandler->SetOverlappingItem(nullptr);
+		}
 	}
 }
 
@@ -109,6 +118,8 @@ void APW_Item::OnItemStateSet()
 void APW_Item::OnEquipped()
 {
 	ShowPickupWidget(false);
+
+	_itemMesh->SetVisibility(true);
 	
 	_areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	_itemMesh->SetSimulatePhysics(false);
@@ -190,6 +201,11 @@ void APW_Item::Dropped()
 	SetOwner(nullptr);
 	_ownerCharacter = nullptr;
 	_ownerPlayerController = nullptr;
+}
+
+void APW_Item::SetVisibility(bool bIsVisible)
+{
+	_itemMesh->SetVisibility(bIsVisible);
 }
 
 void APW_Item::ShowPickupWidget(bool bShowWidget)

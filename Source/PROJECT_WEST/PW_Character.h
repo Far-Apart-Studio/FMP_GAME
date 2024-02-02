@@ -39,6 +39,9 @@ private:
 	class UCameraComponent* _cameraComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
+	class UPW_ItemHandlerComponent* _itemHandlerComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
 	float _sprintMultiplier = 1.50f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -46,26 +49,6 @@ private:
 	
 	bool _isSprinting = false;
 	
-	// >>> ------------------ Item Handler Component ------------------ >>> //
-	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem)
-	class APW_Item* _overlappingItem;
-	
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponChange)
-	class APW_Item* _itemInHand;
-	// <<< ------------------ Item Handler Component ------------------ <<< //
-	
-	UFUNCTION()
-	void OnRep_WeaponChange(APW_Item* LastWeapon);
-	
-	UFUNCTION()
-	void OnRep_OverlappinItem(APW_Item* LastWeapon);
-
-	UFUNCTION(Server, Reliable)
-	void ServerEquipButtonPressed();
-
-	UFUNCTION(Server, Reliable)
-	void ServerDropButtonPressed();
-
 	bool _LeftGame = false;
 
 	UFUNCTION( NetMulticast, Reliable )
@@ -88,7 +71,7 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
-	void EquipButtonPressed();
+	void PickUpButtonPressed();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -102,9 +85,6 @@ public:
 	void SprintButtonPressed();
 	void LookRightAxisPressed(float value);
 	void LookUpAxisPressed(float value);
-	void SetOverlappingItem(class APW_Item* Item);
-	void EquipItem(APW_Item* Apw_Item);
-	void DropItem();
 	void DropButtonPressed();
 
 public:
