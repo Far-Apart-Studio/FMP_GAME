@@ -5,18 +5,40 @@
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "PW_CharacterOverlayWidget.h"
+#include "Engine/Canvas.h"
+#include "Engine/Texture2D.h"
+#include "TextureResource.h"
+#include "CanvasItem.h"
+#include "UObject/ConstructorHelpers.h"
 
 void APW_HUD::DrawHUD()
 {
 	Super::DrawHUD();
 
 	// Draw crosshair
+	HandleScreenPosition();
+	HandleCrosshairCentre();
+	
+	DrawMiddleCrosshair();
+	DrawTopCrosshair();
+	DrawBottomCrosshair();
+	DrawLeftCrosshair();
+	DrawRightCrosshair();
+}
+
+APW_HUD::APW_HUD()
+{
+	crosshairHalfWidth = 32.0f;
+	crosshairHalfHeight = 32.0f;
+	crosshairSpreadMax = 16.0f;
 }
 
 void APW_HUD::BeginPlay()
 {
 	Super::BeginPlay();
 	AddCharacterOverlayWidget();
+
+	crosshairSpreadMultiplier = 1;
 }
 
 void APW_HUD::AddCharacterOverlayWidget()
@@ -30,4 +52,61 @@ void APW_HUD::AddCharacterOverlayWidget()
 			_characterOverlayWidget->AddToViewport();
 		}
 	}
+}
+
+void APW_HUD::HandleScreenPosition()
+{
+	screenCentre = FVector2D(Canvas->ClipX / 2, Canvas->ClipY / 2);
+}
+
+void APW_HUD::HandleCrosshairCentre()
+{
+	crosshairCentre = FVector2D(screenCentre.X - crosshairHalfWidth, screenCentre.Y - crosshairHalfHeight);
+}
+
+void APW_HUD::DrawMiddleCrosshair()
+{
+	if(!hudPackage._crosshairsCenter) return;
+	const FVector2D drawPosition(FVector2D(crosshairCentre.X , crosshairCentre.Y));
+	DrawTexture(hudPackage._crosshairsCenter, drawPosition.X, drawPosition.Y, crosshairHalfWidth * 2, crosshairHalfHeight * 2, 0, 0, 1, 1);
+}
+
+void APW_HUD::DrawTopCrosshair()
+{
+	if(!hudPackage._crosshairsTop) return;
+	const FVector2D drawPosition(FVector2D(crosshairCentre.X, crosshairCentre.Y - ( crosshairSpreadMax * crosshairSpreadMultiplier)));
+	DrawTexture (hudPackage._crosshairsTop, drawPosition.X, drawPosition.Y, crosshairHalfWidth * 2, crosshairHalfHeight * 2, 0, 0, 1, 1);
+}
+
+void APW_HUD::DrawBottomCrosshair()
+{
+	if(!hudPackage._crosshairsBottom) return;
+	const FVector2D drawPosition(FVector2D(crosshairCentre.X, crosshairCentre.Y + (crosshairSpreadMax * crosshairSpreadMultiplier)));
+	DrawTexture(hudPackage._crosshairsBottom, drawPosition.X, drawPosition.Y, crosshairHalfWidth * 2, crosshairHalfHeight * 2, 0, 0, 1, 1);
+}
+
+void APW_HUD::DrawLeftCrosshair()
+{
+	if(!hudPackage._crosshairsLeft) return;
+	const FVector2D drawPosition(FVector2D(crosshairCentre.X - (crosshairSpreadMax * crosshairSpreadMultiplier), crosshairCentre.Y));
+	DrawTexture(hudPackage._crosshairsLeft, drawPosition.X, drawPosition.Y, crosshairHalfWidth * 2, crosshairHalfHeight * 2, 0, 0, 1, 1);
+}
+
+void APW_HUD::DrawRightCrosshair()
+{
+	if(!hudPackage._crosshairsRight) return;
+	const FVector2D drawPosition(FVector2D(crosshairCentre.X + (crosshairSpreadMax * crosshairSpreadMultiplier), crosshairCentre.Y));
+	DrawTexture(hudPackage._crosshairsRight, drawPosition.X, drawPosition.Y, crosshairHalfWidth * 2, crosshairHalfHeight * 2, 0, 0, 1, 1);
+}
+
+void APW_HUD::TriggerHitMarker()
+{
+}
+
+void APW_HUD::DrawHitMarker()
+{
+}
+
+void APW_HUD::ResetHitMarker()
+{
 }

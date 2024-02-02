@@ -11,15 +11,27 @@ struct FHUDPackage
 {
 	GENERATED_BODY()
 public:
-	class UTexture2D* _crosshairsCenter;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshairs")
+	UTexture2D* _crosshairsCenter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshairs")
 	UTexture2D* _crosshairsLeft;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshairs")
 	UTexture2D* _crosshairsRight;
-	UTexture2D* CrosshairsTop;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshairs")
+	UTexture2D* _crosshairsTop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshairs")
 	UTexture2D* _crosshairsBottom;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshairs")
 	float _crosshairSpread;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crosshairs")
 	FLinearColor _crosshairsColor;
 };
-
 
 /**
  * 
@@ -43,6 +55,46 @@ public:
 	FORCEINLINE class UPW_CharacterOverlayWidget* GetCharacterOverlayWidget() const { return _characterOverlayWidget; }
 
 protected:
+
+	APW_HUD();
 	virtual void BeginPlay() override;
 	void AddCharacterOverlayWidget();
+
+private:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	FHUDPackage hudPackage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	class UTexture2D* hitMarker;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float crosshairSpreadMax;
+
+	class AFPS_Character* character;
+
+	FVector2D screenCentre;
+	FVector2D crosshairCentre;
+	float crosshairSpreadMultiplier;
+	float crosshairHalfWidth;
+	float crosshairHalfHeight;
+	
+	FTimerHandle hitMarkerTimer;
+	float hitMarkerDuration;
+	bool showHitMarker;
+
+private:
+
+	void HandleScreenPosition();
+	void HandleCrosshairCentre();
+
+	void DrawMiddleCrosshair();	
+	void DrawTopCrosshair();
+	void DrawBottomCrosshair();
+	void DrawLeftCrosshair();
+	void DrawRightCrosshair();
+
+	void TriggerHitMarker();
+	void DrawHitMarker();
+	void ResetHitMarker();
 };
