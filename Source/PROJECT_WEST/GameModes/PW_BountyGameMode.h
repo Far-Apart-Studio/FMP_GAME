@@ -19,11 +19,11 @@ public:
 
 	APW_BountyGameMode();
 	
-	virtual void PostLogin(APlayerController* NewPlayer) override;
+	void PostLogin(APlayerController* NewPlayer) override;
 	
-	virtual void Logout(AController* Exiting) override;
+	void Logout(AController* Exiting) override;
 
-	void EnemyEliminated(APW_CharacterController* AttackerCharacter, APW_PlayerController* AttackerController);
+	void EnemyEliminated(APW_Character* AttackerCharacter, APW_PlayerController* AttackerController);
 	
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
