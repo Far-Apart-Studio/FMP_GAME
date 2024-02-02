@@ -28,13 +28,13 @@ class PROJECT_WEST_API UPW_HealthComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Health Handler")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _maxHealth = 100.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Health Handler")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _minimumHealth = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Health Handler")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _currentHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")

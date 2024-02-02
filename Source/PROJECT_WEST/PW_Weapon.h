@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PW_WeaponData.h"
+#include "PW_WeaponVisualData.h"
 #include "GameFramework/Actor.h"
 #include "PW_Weapon.generated.h"
 
@@ -13,37 +14,41 @@ class PROJECT_WEST_API APW_Weapon : public AActor
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	class UPW_WeaponData* _weaponData;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UPW_WeaponData* _weaponData;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	USkeletalMeshComponent* _weaponMesh;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	int _currentAmmo;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	int _currentReserveAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UPW_WeaponVisualData* _weaponVisualData;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* _currentWeaponMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UParticleSystemComponent* _currentMuzzleEffect;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	bool _isReloading = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	bool _canFire = true;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	int _currentAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	int _currentReserveAmmo;
 	
 public:	
 	APW_Weapon();
-
-
-	// These Getters won't be used in the final product, but they are useful for debugging.
-	// Most of the weapon data will be handled internally through functions like FireWeapon() and ReloadWeapon().
-	// Current Design is for debugging and simplicity.
 	
 	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }
 	FORCEINLINE void SetWeaponData(UPW_WeaponData* weaponData) { _weaponData = weaponData; }
-	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return _weaponMesh; }
-	FORCEINLINE void SetWeaponMesh(USkeletalMeshComponent* weaponMesh) { _weaponMesh = weaponMesh; }
+	FORCEINLINE UPW_WeaponVisualData* GetWeaponVisualData() const { return _weaponVisualData; }
+	FORCEINLINE void SetWeaponVisualData(UPW_WeaponVisualData* weaponVisualData) { _weaponVisualData = weaponVisualData; }
+	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return _currentWeaponMesh; }
+	FORCEINLINE void SetWeaponMesh(USkeletalMeshComponent* weaponMesh) { _currentWeaponMesh = weaponMesh; }
+	FORCEINLINE UParticleSystemComponent* GetMuzzleEffect() const { return _currentMuzzleEffect; }
+	FORCEINLINE void SetMuzzleEffect(UParticleSystemComponent* muzzleEffect) { _currentMuzzleEffect = muzzleEffect; }
 	FORCEINLINE int GetCurrentAmmo() const { return _currentAmmo; }
 	FORCEINLINE void SetCurrentAmmo(int currentAmmo) { _currentAmmo = currentAmmo; }
 	FORCEINLINE void SubtractCurrentAmmo(int amount) { _currentAmmo -= amount; }
@@ -62,7 +67,9 @@ public:
 	FORCEINLINE void SetCanFire(bool canFire) { _canFire = canFire; }
 
 	void TransferReserveAmmo();
-	void InitialiseWeapon(UPW_WeaponData* weaponData);
+	void InitialiseWeapon(UPW_WeaponData* weaponData, UPW_WeaponVisualData* weaponVisualData);
+	void InitialiseWeaponVisualData(UPW_WeaponVisualData* weaponVisualData);
+	void InitialiseWeaponData(UPW_WeaponData* weaponData);
 
 protected:
 	virtual void BeginPlay() override;
