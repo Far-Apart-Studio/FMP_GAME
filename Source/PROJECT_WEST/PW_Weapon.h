@@ -14,29 +14,29 @@ class PROJECT_WEST_API APW_Weapon : public AActor
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UPW_WeaponData* _weaponData;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UPW_WeaponVisualData* _weaponVisualData;
 	
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* _currentWeaponMesh;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UParticleSystemComponent* _currentMuzzleEffect;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	int _currentAmmo;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	int _currentReserveAmmo;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	bool _isReloading = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	bool _canFire = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	int _currentAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	int _currentReserveAmmo;
 	
 public:	
 	APW_Weapon();

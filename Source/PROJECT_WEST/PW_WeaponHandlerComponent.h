@@ -13,13 +13,13 @@ class PROJECT_WEST_API UPW_WeaponHandlerComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
 	class UPW_WeaponData* _defaultWeaponData;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
 	class UPW_WeaponVisualData* _defaultWeaponVisualData;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
 	class APW_Weapon* _currentWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
