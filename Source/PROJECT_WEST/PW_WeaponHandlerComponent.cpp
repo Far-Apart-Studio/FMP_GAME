@@ -131,7 +131,11 @@ void UPW_WeaponHandlerComponent::AttachDefaultWeapon()
 	const FVector spawnLocation = weaponHolder->GetComponentLocation();
 	const FRotator spawnRotation = weaponHolder->GetComponentRotation();
 
-	_currentWeapon = currentWorld->SpawnActor<APW_Weapon>(spawnLocation, spawnRotation, spawnParameters);
+	if (_weaponBlueprint == nullptr)
+		{ PW_Utilities::Log("NO WEAPON BLUEPRINT FOUND!"); return; }
+	
+	AActor* weaponActor = currentWorld->SpawnActor(_weaponBlueprint, &spawnLocation, &spawnRotation, spawnParameters);
+	_currentWeapon = Cast<APW_Weapon>(weaponActor);
 
 	if (_currentWeapon == nullptr)
 		{ PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!"); return; }
