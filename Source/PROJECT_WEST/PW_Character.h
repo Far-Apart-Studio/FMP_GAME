@@ -15,8 +15,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMoveRightAxisDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookRightAxisDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookUpAxisDelegate);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPickUpButtonDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDropButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEquipButtonDelegate);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShootButtonDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReloadButtonDelegate);
@@ -61,6 +61,10 @@ public:
 
 	FShootButtonDelegate OnShootButtonPressed;
 	FReloadButtonDelegate OnReloadButtonPressed;
+
+	FPickUpButtonDelegate OnPickUpButtonPressed;
+	FDropButtonDelegate OnDropButtonPressed;
+	
 	FOnLeftGameDelegate OnLeftGameDelegate;
 	
 	void Elim(bool leftGame);

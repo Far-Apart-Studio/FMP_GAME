@@ -30,7 +30,7 @@ APW_Character::APW_Character()
 	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
 	_itemHolder->SetupAttachment(_cameraComponent);
 
-	_itemHandlerComponent = CreateDefaultSubobject<UPW_ItemHandlerComponent>(TEXT("WeaponHandlerComponent"));
+	_itemHandlerComponent = CreateDefaultSubobject<UPW_ItemHandlerComponent>(TEXT("Item Handler"));
 }
 
 void APW_Character::BeginPlay()
@@ -143,10 +143,10 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 
 void APW_Character::PickUpButtonPressed()
 {
-	_itemHandlerComponent->DoPickUp();
+	OnPickUpButtonPressed.Broadcast();
 }
 
 void APW_Character::DropButtonPressed()
 {
-	_itemHandlerComponent->DoDrop();
+	OnDropButtonPressed.Broadcast();
 }

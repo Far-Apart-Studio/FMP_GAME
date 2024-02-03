@@ -5,33 +5,24 @@
 #include "PROJECT_WEST/Items/PW_Item.h"
 #include "PROJECT_WEST/PW_Character.h"
 
-// Sets default values for this component's properties
 UPW_ItemHandlerComponent::UPW_ItemHandlerComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
 }
 
-
-// Called when the game starts
 void UPW_ItemHandlerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
+	_ownerCharacter->OnPickUpButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::DoPickUp);
+	_ownerCharacter->OnDropButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::DoDrop);
 }
 
-
-// Called every frame
 void UPW_ItemHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
 void UPW_ItemHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

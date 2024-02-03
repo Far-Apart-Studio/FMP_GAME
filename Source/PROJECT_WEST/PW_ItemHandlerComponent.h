@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "PW_ItemHandlerComponent.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_ItemHandlerComponent : public UActorComponent
 {
@@ -26,9 +25,14 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void SetOverlappingItem(class APW_Item* Item);
-
+	
+	UFUNCTION() 
 	void DoPickUp();
+
+	UFUNCTION() 
 	void DoSwitchItem();
+
+	UFUNCTION() 
 	void DoDrop();
 	
 	void EquipItem(APW_Item* Apw_Item);
@@ -54,6 +58,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Item")
 	TArray<APW_Item*> _itemsInInventory;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
+	class APW_Character* _ownerCharacter;
 
 	UFUNCTION()
 	void OnRep_ItemChange(APW_Item* lastItem);
