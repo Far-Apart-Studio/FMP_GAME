@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "PW_WeaponData.h"
 #include "PW_WeaponVisualData.h"
+#include "PROJECT_WEST/Items/PW_Item.h"
 #include "GameFramework/Actor.h"
 #include "PW_Weapon.generated.h"
 
 UCLASS()
-class PROJECT_WEST_API APW_Weapon : public AActor
+class PROJECT_WEST_API APW_Weapon : public APW_Item
 {
 	GENERATED_BODY()
 
@@ -40,7 +41,7 @@ private:
 	
 public:	
 	APW_Weapon();
-	
+	void OnPicked() override;
 	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }
 	FORCEINLINE void SetWeaponData(UPW_WeaponData* weaponData) { _weaponData = weaponData; }
 	FORCEINLINE UPW_WeaponVisualData* GetWeaponVisualData() const { return _weaponVisualData; }
@@ -73,7 +74,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	void OnVisibilityChange(bool bIsVisible) override; 
+	
 public:	
 	virtual void Tick(float DeltaTime) override;
 

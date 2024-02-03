@@ -9,7 +9,10 @@
 APW_Weapon::APW_Weapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+	
+	bReplicates = true;
+	SetReplicateMovement(true);
+	
 	_currentWeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	_currentWeaponMesh->SetupAttachment(RootComponent);
 
@@ -17,9 +20,21 @@ APW_Weapon::APW_Weapon()
 	_currentMuzzleEffect->SetupAttachment(_currentWeaponMesh);
 }
 
+void APW_Weapon::OnPicked()
+{
+	Super::OnPicked();
+	InitialiseWeapon (_weaponData, _weaponVisualData);
+}
+
 void APW_Weapon::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void APW_Weapon::OnVisibilityChange(bool bIsVisible)
+{
+	//Super::OnVisibilityChange(bIsVisible);
+	_currentWeaponMesh->SetVisibility(bIsVisible);
 }
 
 void APW_Weapon::Tick(float DeltaTime)
@@ -57,10 +72,13 @@ void APW_Weapon::InitialiseWeaponVisualData(UPW_WeaponVisualData* weaponVisualDa
 	_currentWeaponMesh->SetRelativeRotation(_weaponVisualData->GetWeaponMeshRotation());
 	_currentWeaponMesh->SetRelativeLocation(_weaponVisualData->GetWeaponMeshOffset());
 	_currentWeaponMesh->SetRelativeScale3D(_weaponVisualData->GetWeaponMeshScale());
-	
-	_currentMuzzleEffect->SetTemplate(_weaponVisualData->GetMuzzleFlash());
-	_currentMuzzleEffect->SetRelativeScale3D(_weaponVisualData->GetMuzzleFlashScale());
-	_currentMuzzleEffect->SetRelativeLocation(_weaponVisualData->GetMuzzleFlashOffset());
+
+	if(_currentMuzzleEffect)
+	{
+		_currentMuzzleEffect->SetTemplate(_weaponVisualData->GetMuzzleFlash());
+		_currentMuzzleEffect->SetRelativeScale3D(_weaponVisualData->GetMuzzleFlashScale());
+		_currentMuzzleEffect->SetRelativeLocation(_weaponVisualData->GetMuzzleFlashOffset());
+	}
 }
 
 void APW_Weapon::InitialiseWeaponData(UPW_WeaponData* weaponData)

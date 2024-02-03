@@ -11,7 +11,8 @@
 #include "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
-
+#include "PW_ItemHandlerComponent.h"
+#include "PW_WeaponHandlerComponent.h"
 
 APW_Character::APW_Character()
 {
@@ -20,20 +21,36 @@ APW_Character::APW_Character()
 	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	_cameraComponent->SetupAttachment(RootComponent);
 	_cameraComponent->bUsePawnControlRotation = true;
-
-	_objectHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ObjectHolder"));
-	_objectHolder->SetupAttachment(_cameraComponent);
-
+	
 	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	_overheadWidget->SetupAttachment(RootComponent);
 
 	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
 	_itemHolder->SetupAttachment(_cameraComponent);
+
+	//_itemHandlerComponent = CreateDefaultSubobject<UPW_ItemHandlerComponent>(TEXT("Item Handler"));
 }
 
 void APW_Character::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void APW_Character::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	UPW_WeaponHandlerComponent* weaponHandler = FindComponentByClass<UPW_WeaponHandlerComponent>();
+	if (weaponHandler)
+	{
+		weaponHandler->SetOwnerCharacter(this);
+	}
+
+	UPW_ItemHandlerComponent* itemHandler = FindComponentByClass<UPW_ItemHandlerComponent>();
+	if (itemHandler)
+	{
+		itemHandler->SetOwnerCharacter(this);
+	}
 }
 
 void APW_Character::Tick(float DeltaTime)
@@ -44,9 +61,6 @@ void APW_Character::Tick(float DeltaTime)
 void APW_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
-	
-	DOREPLIFETIME(APW_Character, _overlappingItem);
-	DOREPLIFETIME(APW_Character, _itemInHand);
 }
 
 void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -57,8 +71,10 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APW_Character::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APW_Character::UseButtonPressed);
 	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_Character::SprintButtonPressed);
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &APW_Character::EquipButtonPressed);
+	
+	PlayerInputComponent->BindAction("PickUp", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
+	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_Character::MoveForwardAxisPressed);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
@@ -124,7 +140,7 @@ void APW_Character::ServerLeaveGame_Implementation()
 
 void APW_Character::Elim(bool leftGame)
 {
-	DropItem();
+	//_itemHandlerComponent->DropItem();
 	MultiCastElim(leftGame);
 }
 
@@ -140,102 +156,17 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 	}
 }
 
-void APW_Character::SetOverlappingItem(APW_Item* Item)
+void APW_Character::PickUpButtonPressed()
 {
-	if (_overlappingItem)
-	{
-		_overlappingItem->ShowPickupWidget(false);
-	}
-	_overlappingItem = Item;
-	if (IsLocallyControlled())
-	{
-		if (_overlappingItem)
-		{
-			_overlappingItem->ShowPickupWidget(true);
-		}
-	}
+	OnPickUpButtonPressed.Broadcast();
 }
 
-void APW_Character::EquipItem(APW_Item* Apw_Item)
+void APW_Character::SwitchItemButtonPressed()
 {
-	_itemInHand = Apw_Item;
-	Apw_Item->SetItemState(EItemState::EIS_Equipped);
-	Apw_Item->SetOwner(this);
-	Apw_Item->AttachToComponent(_itemHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-}
-
-void APW_Character::DropItem()
-{
-	if(!_itemInHand) return;
-	_itemInHand->SetItemState(EItemState::EIS_Dropped);
-	_itemInHand->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	_itemInHand->SetOwner(nullptr);
-	_itemInHand = nullptr;
-}
-
-void APW_Character::EquipButtonPressed()
-{
-	ServerEquipButtonPressed();
+	OnSwitchItemButtonPressed.Broadcast();
 }
 
 void APW_Character::DropButtonPressed()
 {
-	ServerDropButtonPressed();
+	OnDropButtonPressed.Broadcast();
 }
-
-void APW_Character::ServerEquipButtonPressed_Implementation()
-{
-	if (_overlappingItem)
-	{
-		if (_itemInHand)
-		{
-			DropButtonPressed();
-		}
-		
-		EquipItem(_overlappingItem);
-		_overlappingItem = nullptr;
-	}
-}
-
-void APW_Character::ServerDropButtonPressed_Implementation()
-{
-	if (_itemInHand)
-	{
-		DropItem();
-	}
-}
-
-void APW_Character::OnRep_WeaponChange(APW_Item* LastWeapon)
-{
-	if (LastWeapon)
-	{
-		LastWeapon->SetItemState(EItemState::EIS_Dropped);
-		LastWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		LastWeapon->SetOwner(nullptr);
-	}
-	
-	if (_itemInHand)
-	{
-		_itemInHand->SetItemState(EItemState::EIS_Equipped);
-		_itemInHand->SetOwner(this);
-		_itemInHand->AttachToComponent(_itemHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	}
-}
-
-void APW_Character::OnRep_OverlappinItem(APW_Item* lastItem)
-{
-	if (_overlappingItem)
-	{
-		_overlappingItem->ShowPickupWidget(true);
-	}
-	
-	if (lastItem)
-	{
-		lastItem->ShowPickupWidget(false);
-	}
-}
-
-
-
-
-
