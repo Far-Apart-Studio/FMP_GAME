@@ -202,25 +202,6 @@ void UPW_ItemHandlerComponent::DropItem(APW_Item* item)
 	}
 }
 
-void UPW_ItemHandlerComponent::OnRep_ItemChange(APW_Item* lastItem)
-{
-	if (lastItem)
-	{
-		//DEBUG_STRING( "OnRep_ItemChange  lastItem: DROPPING ITEM!" );
-		//lastItem->SetItemState(EItemState::EIS_Dropped);
-		//lastItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		//lastItem->SetOwner(nullptr);
-	}
-	
-	if (_itemInHand)
-	{
-		//DEBUG_STRING( "OnRep_ItemChange  _itemInHand: PICKING UP ITEM!" );
-		//_itemInHand->SetItemState(EItemState::EIS_Pickup);
-		//_itemInHand->SetOwner(GetOwner());
-		//_itemInHand->AttachToComponent(_ownerCharacter->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	}
-}
-
 void UPW_ItemHandlerComponent::OnRep_OverlappinItem(APW_Item* lastItem)
 {
 	if (_overlappingItem)

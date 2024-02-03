@@ -52,7 +52,7 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem, VisibleAnywhere, Category = "Item")
 	class APW_Item* _overlappingItem;
 	
-	UPROPERTY(ReplicatedUsing = OnRep_ItemChange, VisibleAnywhere, Category = "Item")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Item")
 	class APW_Item* _itemInHand;
 
 	UPROPERTY(Replicated,  VisibleAnywhere, Category = "Item")
@@ -60,9 +60,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
 	class APW_Character* _ownerCharacter;
-
-	UFUNCTION()
-	void OnRep_ItemChange(APW_Item* lastItem);
 	
 	UFUNCTION()
 	void OnRep_OverlappinItem(APW_Item* lastItem);
