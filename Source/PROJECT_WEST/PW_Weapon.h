@@ -41,8 +41,7 @@ private:
 	
 public:	
 	APW_Weapon();
-	void OnItemStateSet() override;
-	
+	void OnPicked() override;
 	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }
 	FORCEINLINE void SetWeaponData(UPW_WeaponData* weaponData) { _weaponData = weaponData; }
 	FORCEINLINE UPW_WeaponVisualData* GetWeaponVisualData() const { return _weaponVisualData; }

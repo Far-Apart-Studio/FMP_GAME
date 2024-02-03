@@ -20,9 +20,10 @@ APW_Weapon::APW_Weapon()
 	_currentMuzzleEffect->SetupAttachment(_currentWeaponMesh);
 }
 
-void APW_Weapon::OnItemStateSet()
+void APW_Weapon::OnPicked()
 {
-	Super::OnItemStateSet();
+	Super::OnPicked();
+	InitialiseWeapon (_weaponData, _weaponVisualData);
 }
 
 void APW_Weapon::BeginPlay()

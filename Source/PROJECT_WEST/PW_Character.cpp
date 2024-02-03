@@ -12,6 +12,7 @@
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PW_ItemHandlerComponent.h"
+#include "PW_WeaponHandlerComponent.h"
 
 APW_Character::APW_Character()
 {
@@ -38,6 +39,18 @@ void APW_Character::BeginPlay()
 void APW_Character::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	UPW_WeaponHandlerComponent* weaponHandler = FindComponentByClass<UPW_WeaponHandlerComponent>();
+	if (weaponHandler)
+	{
+		weaponHandler->SetOwnerCharacter(this);
+	}
+
+	UPW_ItemHandlerComponent* itemHandler = FindComponentByClass<UPW_ItemHandlerComponent>();
+	if (itemHandler)
+	{
+		itemHandler->SetOwnerCharacter(this);
+	}
 }
 
 void APW_Character::Tick(float DeltaTime)

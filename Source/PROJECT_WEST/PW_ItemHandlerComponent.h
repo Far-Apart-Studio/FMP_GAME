@@ -46,7 +46,7 @@ public:
 	
 	FORCEINLINE APW_Item* GetOverlappingItem() const { return _overlappingItem; }
 	FORCEINLINE APW_Item* GetItemInHand() const { return _itemInHand; }
-
+	FORCEINLINE void SetOwnerCharacter(class APW_Character* ownerCharacter) { _ownerCharacter = ownerCharacter; }
 private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem, VisibleAnywhere, Category = "Item")

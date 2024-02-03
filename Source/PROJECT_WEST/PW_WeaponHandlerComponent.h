@@ -22,8 +22,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class APW_Weapon> _defaultWeaponClass;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
-	class APW_Weapon* _currentWeapon;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
+	//class APW_Weapon* _currentWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	float _maximumWeaponFallOffRange = 10000.0f;
@@ -45,6 +45,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerRPCSpawnDefaultWeapon();
 
+	APW_Weapon* TryGetCurrentWeapon();
+
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -55,8 +57,8 @@ public:
 	void AttachDefaultWeapon();
 	void SpawnDefaultWeapon();
 	
-	void ApplyDamage(const FHitResult& hitResult) const;
-	float CalculateDamage(const FHitResult& hitResult) const;
+	void ApplyDamage(const FHitResult& hitResult);
+	float CalculateDamage(const FHitResult& hitResult);
 	bool CalculateFireStatus();
 	void GetOwnerCharacter();
 	void AssignInputActions();
@@ -65,7 +67,6 @@ public:
 	UFUNCTION() void FireWeapon();
 	void FireWeaponVisual();
 	void ReloadWeaponVisual();
-	FORCEINLINE APW_Weapon* GetCurrentWeapon() const { return _currentWeapon; }
-	FORCEINLINE void SetCurrentWeapon(APW_Weapon* currentWeapon) { _currentWeapon = currentWeapon; }
+	FORCEINLINE void SetOwnerCharacter(APW_Character* ownerCharacter) { _ownerCharacter = ownerCharacter; }
 };
 
