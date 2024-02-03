@@ -152,6 +152,7 @@ void UPW_WeaponHandlerComponent::ReloadWeapon()
 	FTimerDelegate reloadTimerDelegate;
 	reloadTimerDelegate.BindLambda([this]
 	{
+		if (TryGetCurrentWeapon() == nullptr) return;
 		TryGetCurrentWeapon()->SetReloading(false);
 		TryGetCurrentWeapon()->TransferReserveAmmo();
 	});

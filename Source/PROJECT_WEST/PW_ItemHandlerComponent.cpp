@@ -173,8 +173,6 @@ void UPW_ItemHandlerComponent::EquipItem(APW_Item* item)
 
 void UPW_ItemHandlerComponent::UnEquipItem(APW_Item* item)
 {
-	//item->OnVisibilityChange( false );
-
 	if(!item) return;
 	
 	if (GetOwner()->HasAuthority())
