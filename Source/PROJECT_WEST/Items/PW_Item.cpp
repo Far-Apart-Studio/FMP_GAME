@@ -33,7 +33,6 @@ APW_Item::APW_Item()
 	//_itemMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
 	//_itemMesh->MarkRenderStateDirty();
 
-
 	_areaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	_areaSphere->SetupAttachment(RootComponent);
 	_areaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -41,6 +40,8 @@ APW_Item::APW_Item()
 
 	_pickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	_pickupWidget->SetupAttachment(RootComponent);
+
+	_isVisible = true;
 }
 
 // Called when the game starts or when spawned
@@ -74,6 +75,7 @@ void APW_Item::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 
 	DOREPLIFETIME(APW_Item, _itemState);
 	DOREPLIFETIME_CONDITION(APW_Item, _bUseServerSideRewind, COND_OwnerOnly);
+	//DOREPLIFETIME(APW_Item, _isVisible);
 }
 
 void APW_Item::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -106,8 +108,8 @@ void APW_Item::OnItemStateSet()
 {
 	switch (_itemState)
 	{
-		case EItemState::EIS_Equipped:
-			OnEquipped();
+		case EItemState::EIS_Pickup:
+			OnPicked();
 			break;
 		case EItemState::EIS_Dropped:
 			OnDropped();
@@ -115,11 +117,9 @@ void APW_Item::OnItemStateSet()
 	}
 }
 
-void APW_Item::OnEquipped()
+void APW_Item::OnPicked()
 {
 	ShowPickupWidget(false);
-
-	_itemMesh->SetVisibility(true);
 	
 	_areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	_itemMesh->SetSimulatePhysics(false);
@@ -141,10 +141,11 @@ void APW_Item::OnEquipped()
 
 void APW_Item::OnDropped()
 {
-	if (HasAuthority())
-	{
-		_areaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	}
+	_areaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
+	_itemMesh->DetachFromComponent(DetachRules);
+	SetOwner(nullptr);
 	
 	_itemMesh->SetSimulatePhysics(true);
 	_itemMesh->SetEnableGravity(true);
@@ -166,6 +167,9 @@ void APW_Item::OnDropped()
 			_ownerPlayerController->HighPingDelegate.AddDynamic(this, &APW_Item::OnPingTooHigh);
 		}
 	}
+
+	_ownerCharacter = nullptr;
+	_ownerPlayerController = nullptr;
 }
 
 void APW_Item::OnPingTooHigh(bool bPingTooHigh)
@@ -177,7 +181,6 @@ void APW_Item::OnRep_Owner()
 {
 	Super::OnRep_Owner();
 	
-	Super::OnRep_Owner();
 	if (Owner == nullptr)
 	{
 		_ownerCharacter = nullptr;
@@ -186,24 +189,11 @@ void APW_Item::OnRep_Owner()
 	else
 	{
 		_ownerCharacter = _ownerCharacter == nullptr ? Cast<APW_Character>(Owner) : _ownerCharacter;
-		//if (_OwnerCharacter && _OwnerCharacter->GetEquippedWeapon() && _OwnerCharacter->GetEquippedWeapon() == this)
-		//{
-		//	SetHUDAmmo();
-		//}
+		_ownerPlayerController = _ownerPlayerController == nullptr ? Cast<APW_PlayerController>(_ownerCharacter->Controller) : _ownerPlayerController;
 	}
 }
 
-void APW_Item::Dropped()
-{
-	SetItemState(EItemState::EIS_Dropped);
-	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
-	_itemMesh->DetachFromComponent(DetachRules);
-	SetOwner(nullptr);
-	_ownerCharacter = nullptr;
-	_ownerPlayerController = nullptr;
-}
-
-void APW_Item::SetVisibility(bool bIsVisible)
+void APW_Item::OnVisibilityChange(bool bIsVisible)
 {
 	_itemMesh->SetVisibility(bIsVisible);
 }
@@ -232,5 +222,12 @@ void APW_Item::SetItemState(EItemState State)
 
 void APW_Item::OnRep_ItemState()
 {
+	//DEBUG_STRING("OnRep_ItemState : " + FString::FromInt((int)_itemState));
 	OnItemStateSet();
+}
+
+void APW_Item::OnRep_VisibilityChange()
+{
+	//DEBUG_STRING( "OnRep_VisibilityChange : " + FString::FromInt(_isVisible) );
+	OnVisibilityChange(_isVisible);
 }

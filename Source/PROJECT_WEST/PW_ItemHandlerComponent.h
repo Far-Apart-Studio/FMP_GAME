@@ -27,36 +27,35 @@ public:
 	void SetOverlappingItem(class APW_Item* Item);
 	
 	UFUNCTION() 
-	void DoPickUp();
+	void TryPickUpItemNearBy();
 
 	UFUNCTION() 
 	void DoSwitchItem();
 
-	UFUNCTION() 
-	void DoDrop();
-	
-	void EquipItem(APW_Item* Apw_Item);
-	void UnEquipItem(APW_Item* Apw_Item);
-	void DropItem();
+	void DoPickUp( APW_Item* item );
+	void DoEquip( APW_Item* item );
 
-	int _currentItemIndex = 0;
+	UFUNCTION() 
+	void TryDropItemHeld();
+
+	void PickUpItem(APW_Item* item);
+	void EquipItem(APW_Item* item);
+	void UnEquipItem(APW_Item* item);
+	
+	void DropItem(APW_Item* item);
 	
 	FORCEINLINE APW_Item* GetOverlappingItem() const { return _overlappingItem; }
 	FORCEINLINE APW_Item* GetItemInHand() const { return _itemInHand; }
-	FORCEINLINE void SetItemHolder(USceneComponent* itemHolder) { _itemHolder = itemHolder; }
 
 private:
 
-	UPROPERTY(VisibleAnywhere, Category = "Character")
-	USceneComponent* _itemHolder;
-
-	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem)
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem, VisibleAnywhere, Category = "Item")
 	class APW_Item* _overlappingItem;
 	
-	UPROPERTY(ReplicatedUsing = OnRep_ItemChange)
+	UPROPERTY(ReplicatedUsing = OnRep_ItemChange, VisibleAnywhere, Category = "Item")
 	class APW_Item* _itemInHand;
 
-	UPROPERTY(VisibleAnywhere, Category = "Item")
+	UPROPERTY(Replicated,  VisibleAnywhere, Category = "Item")
 	TArray<APW_Item*> _itemsInInventory;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
@@ -69,11 +68,14 @@ private:
 	void OnRep_OverlappinItem(APW_Item* lastItem);
 
 	UFUNCTION(Server, Reliable)
-	void ServerPickUp();
+	void ServerPickUp(APW_Item* Apw_Item);
 
 	UFUNCTION(Server, Reliable)
-	void ServerEquip();
+	void ServerEquip(APW_Item* item);
 
 	UFUNCTION(Server, Reliable)
-	void ServerDrop();
+	void ServerUnEquip(APW_Item* item);
+
+	UFUNCTION(Server, Reliable)
+	void ServerDrop(APW_Item* item);
 };

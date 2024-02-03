@@ -46,6 +46,13 @@ void APW_Lantern::BeginPlay()
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
 }
 
+void APW_Lantern::OnVisibilityChange(bool bIsVisible)
+{
+	Super::OnVisibilityChange(bIsVisible);
+	_lightBeamMesh->SetVisibility(bIsVisible);
+	_pointLight->SetVisibility(bIsVisible);
+}
+
 // Called every frame
 void APW_Lantern::Tick(float DeltaTime)
 {
@@ -57,12 +64,12 @@ void APW_Lantern::Tick(float DeltaTime)
 void APW_Lantern::OnItemStateSet()
 {
 	Super::OnItemStateSet();
-	ToggleLightVisibility(_itemState == EItemState::EIS_Equipped);
+	ToggleLightVisibility(_isVisible);
 }
 
 void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
-	if(!_target  || _itemState != EItemState::EIS_Equipped) return;
+	if(!_target  || !_isVisible) return;
 
 	_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
 

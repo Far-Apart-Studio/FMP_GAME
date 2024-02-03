@@ -20,24 +20,24 @@ APW_Character::APW_Character()
 	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	_cameraComponent->SetupAttachment(RootComponent);
 	_cameraComponent->bUsePawnControlRotation = true;
-
-	_objectHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ObjectHolder"));
-	_objectHolder->SetupAttachment(_cameraComponent);
-
+	
 	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	_overheadWidget->SetupAttachment(RootComponent);
 
 	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
 	_itemHolder->SetupAttachment(_cameraComponent);
 
-	_itemHandlerComponent = CreateDefaultSubobject<UPW_ItemHandlerComponent>(TEXT("Item Handler"));
+	//_itemHandlerComponent = CreateDefaultSubobject<UPW_ItemHandlerComponent>(TEXT("Item Handler"));
 }
 
 void APW_Character::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	_itemHandlerComponent->SetItemHolder(_itemHolder);
+void APW_Character::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
 }
 
 void APW_Character::Tick(float DeltaTime)
@@ -58,8 +58,10 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APW_Character::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APW_Character::UseButtonPressed);
 	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_Character::SprintButtonPressed);
+	
 	PlayerInputComponent->BindAction("PickUp", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
+	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_Character::MoveForwardAxisPressed);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
@@ -125,7 +127,7 @@ void APW_Character::ServerLeaveGame_Implementation()
 
 void APW_Character::Elim(bool leftGame)
 {
-	_itemHandlerComponent->DropItem();
+	//_itemHandlerComponent->DropItem();
 	MultiCastElim(leftGame);
 }
 
@@ -144,6 +146,11 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 void APW_Character::PickUpButtonPressed()
 {
 	OnPickUpButtonPressed.Broadcast();
+}
+
+void APW_Character::SwitchItemButtonPressed()
+{
+	OnSwitchItemButtonPressed.Broadcast();
 }
 
 void APW_Character::DropButtonPressed()

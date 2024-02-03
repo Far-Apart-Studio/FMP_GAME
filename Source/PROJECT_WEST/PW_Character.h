@@ -17,6 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookUpAxisDelegate);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPickUpButtonDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDropButtonDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSwitchItemButtonDelegate);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShootButtonDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReloadButtonDelegate);
@@ -29,8 +30,6 @@ class PROJECT_WEST_API APW_Character : public ACharacter
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Character")
-	USceneComponent* _objectHolder;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
 	USceneComponent* _itemHolder;
@@ -64,6 +63,7 @@ public:
 
 	FPickUpButtonDelegate OnPickUpButtonPressed;
 	FDropButtonDelegate OnDropButtonPressed;
+	FSwitchItemButtonDelegate OnSwitchItemButtonPressed;
 	
 	FOnLeftGameDelegate OnLeftGameDelegate;
 	
@@ -75,8 +75,9 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 	void PickUpButtonPressed();
-
+	void SwitchItemButtonPressed();
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -92,8 +93,6 @@ public:
 	void DropButtonPressed();
 
 public:
-	FORCEINLINE USceneComponent* GetObjectHolder() const { return _objectHolder; }
 	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
-	
 };

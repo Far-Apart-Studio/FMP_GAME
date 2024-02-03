@@ -9,6 +9,9 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PW_ItemHandlerComponent.h"
+#include "DebugMacros.h"
+#include "Net/UnrealNetwork.h"
 
 UPW_WeaponHandlerComponent::UPW_WeaponHandlerComponent()
 {
@@ -24,9 +27,26 @@ void UPW_WeaponHandlerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetIsReplicated( true );
+	
+	if (GetOwner()->HasAuthority())
+	{
+		//DEBUG_STRING("HasAuthority : UPW_WeaponHandlerComponent::BeginPlay()");
+	}
+	else
+	{
+		//DEBUG_STRING("HasNoAuthority : UPW_WeaponHandlerComponent::BeginPlay()");
+	}
+
 	GetOwnerCharacter();
-	AssignInputActions();
-	AttachDefaultWeapon();
+
+	if(_ownerCharacter->IsLocallyControlled())
+	{
+		AssignInputActions();
+	}
+
+	//AttachDefaultWeapon();
+	
 }
 
 void UPW_WeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -35,8 +55,19 @@ void UPW_WeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	_lastFiredTime += DeltaTime;
 }
 
+void UPW_WeaponHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
 void UPW_WeaponHandlerComponent::CastBulletRay()
 {
+	if(!_ownerCharacter)
+	{
+		DEBUG_STRING( "Owner Character Not Found!")
+		return;
+	}
+	
 	UCameraComponent* cameraComponent = _ownerCharacter->GetCameraComponent();
 	
 	FVector rayDirection = cameraComponent->GetForwardVector();
@@ -76,7 +107,10 @@ bool UPW_WeaponHandlerComponent::CastRay(const FVector& rayStart, const FVector&
 void UPW_WeaponHandlerComponent::FireWeapon()
 {
 	if (_currentWeapon == nullptr)
-		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	{
+		PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!");
+		return;
+	}
 
 	if (_currentWeapon->IsAmmoEmpty())
 		{ ReloadWeapon(); return; }
@@ -87,7 +121,7 @@ void UPW_WeaponHandlerComponent::FireWeapon()
 	{
 		CastBulletRay();
 		_currentWeapon->SubtractCurrentAmmo(1);
-		FireWeaponVisual();
+		//FireWeaponVisual();
 	}
 }
 
@@ -122,6 +156,22 @@ void UPW_WeaponHandlerComponent::ReloadWeapon()
 
 void UPW_WeaponHandlerComponent::AttachDefaultWeapon()
 {
+	if (GetOwner()->HasAuthority())
+	{
+		//DEBUG_STRING ("HasAuthority : SPAWNING DEFAULT WEAPON!");
+		SpawnDefaultWeapon();
+	}
+	else
+	{
+		//DEBUG_STRING ("HasNoAuthority : CALLING SERVER RPC SPAWN DEFAULT WEAPON!");
+		ServerRPCSpawnDefaultWeapon();
+	}
+}
+
+void UPW_WeaponHandlerComponent::SpawnDefaultWeapon()
+{
+	//DEBUG_STRING("SpawnDefaultWeapon : SPAWNING DEFAULT WEAPON!");
+	
 	USceneComponent* weaponHolder = _ownerCharacter->GetItemHolder();
 	
 	UWorld* currentWorld = GetWorld();
@@ -131,13 +181,24 @@ void UPW_WeaponHandlerComponent::AttachDefaultWeapon()
 	const FVector spawnLocation = weaponHolder->GetComponentLocation();
 	const FRotator spawnRotation = weaponHolder->GetComponentRotation();
 
-	_currentWeapon = currentWorld->SpawnActor<APW_Weapon>(spawnLocation, spawnRotation, spawnParameters);
+	_currentWeapon = currentWorld->SpawnActor<APW_Weapon>(_defaultWeaponClass, spawnLocation, spawnRotation, spawnParameters);
 
-	if (_currentWeapon == nullptr)
-		{ PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!"); return; }
+	if (!_currentWeapon)
+	{
+		PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!");
+		return; 
+	}
 	
-	_currentWeapon->AttachToComponent(weaponHolder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	_currentWeapon->InitialiseWeapon(_defaultWeaponData, _defaultWeaponVisualData);
+
+	_itemHandlerComponent->DoPickUp(_currentWeapon);
+}
+
+void UPW_WeaponHandlerComponent::ServerRPCSpawnDefaultWeapon_Implementation()
+{
+	if (!GetOwner()->HasAuthority()) return;
+	//DEBUG_STRING("ServerRPCSpawnDefaultWeapon_Implementation : SPAWNING DEFAULT WEAPON!");
+	SpawnDefaultWeapon();
 }
 
 void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult) const
@@ -191,6 +252,7 @@ void UPW_WeaponHandlerComponent::GetOwnerCharacter()
 		{ PW_Utilities::Log("OWNER ACTOR NOT FOUND!"); return; }
 
 	_ownerCharacter = Cast<APW_Character>(ownerActor);
+	_itemHandlerComponent = Cast< UPW_ItemHandlerComponent >(_ownerCharacter->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
 
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }

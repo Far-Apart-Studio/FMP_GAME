@@ -9,8 +9,8 @@
 UENUM(BlueprintType)
 enum class EItemState : uint8
 {
-	EIS_Initial UMETA(DisplayName = "Initial State"),
-	EIS_Equipped UMETA(DisplayName = "Equipped"),
+	EIS_Init UMETA(DisplayName = "Init"),
+	EIS_Pickup UMETA(DisplayName = "Pickup"),
 	EIS_Dropped UMETA(DisplayName = "Dropped"),
 
 	EWS_MAX UMETA(DisplayName = "DefaultMAX")
@@ -28,10 +28,13 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+
+	virtual void OnRep_Owner() override;
 	virtual void OnItemStateSet();
-	virtual void OnEquipped();
+	virtual void OnPicked();
 	virtual void OnDropped();
 
+	
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult);
 
@@ -51,18 +54,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void OnRep_Owner() override;
-	virtual void Dropped();
-	virtual void SetVisibility(bool bIsVisible);
 	
 	void ShowPickupWidget(bool bShowWidget);
 	void EnableCustomDepth(bool bEnable);
-
+	virtual void OnVisibilityChange(bool bIsVisible);
 	void SetItemState(EItemState State);
 	
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return _areaSphere; }
 	//FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return _itemMesh; }
 	FORCEINLINE class UWidgetComponent* GetPickupWidget() const { return _pickupWidget; }
+	FORCEINLINE void SetVisibility(bool bIsVisible) { _isVisible = bIsVisible; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Item Properties")
@@ -74,13 +75,18 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_ItemState, VisibleAnywhere, Category = "Item Properties")
 	EItemState _itemState;
 
+	UPROPERTY(ReplicatedUsing = OnRep_VisibilityChange, VisibleAnywhere, Category = "Item Properties")
+	bool _isVisible;
+
 	UFUNCTION()
 	void OnRep_ItemState();
+
+	UFUNCTION()
+	void OnRep_VisibilityChange();
 
 	UPROPERTY(Replicated, EditAnywhere)
 	bool _bUseServerSideRewind = false;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* _pickupWidget;
-	
 };
