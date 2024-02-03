@@ -68,7 +68,7 @@ private:
 	void OnRep_OverlappinItem(APW_Item* lastItem);
 
 	UFUNCTION(Server, Reliable)
-	void ServerPickUp(APW_Item* Apw_Item);
+	void ServerPickUp(APW_Item* Item);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquip(APW_Item* item);

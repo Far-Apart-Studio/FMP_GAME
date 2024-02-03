@@ -69,6 +69,8 @@ void UPW_ItemHandlerComponent::TryPickUpItemNearBy()
 
 void UPW_ItemHandlerComponent::DoSwitchItem()
 {
+	if  ( _itemsInInventory.Num() == 0 ) return;
+	
 	if (_itemInHand)
 	{
 		if (GetOwner()->HasAuthority())
@@ -77,7 +79,7 @@ void UPW_ItemHandlerComponent::DoSwitchItem()
 		}
 		else
 		{
-			ServerEquip(_itemInHand);
+			ServerUnEquip(_itemInHand);
 		}
 	}
 
@@ -114,27 +116,23 @@ void UPW_ItemHandlerComponent::DoEquip(APW_Item* item)
 {
 	if (GetOwner()->HasAuthority())
 	{
-		ServerEquip(item);
+		EquipItem(item);
 	}
 	else
 	{
-		EquipItem(item);
+		ServerEquip(item);
 	}
 }
 
 void UPW_ItemHandlerComponent::TryDropItemHeld()
 {
-	//DropItem(_itemInHand);
-
-	ServerDrop( _itemInHand );
-	
 	if (GetOwner()->HasAuthority())
 	{
-		//ServerDrop( _itemInHand );
+		DropItem(_itemInHand);
 	}
 	else
 	{
-		//DropItem(_itemInHand);
+		ServerDrop( _itemInHand );
 	}
 }
 
@@ -189,11 +187,11 @@ void UPW_ItemHandlerComponent::UnEquipItem(APW_Item* item)
 
 void UPW_ItemHandlerComponent::DropItem(APW_Item* item)
 {
-	if(!_itemInHand) return;
+	if(!item) return;
 
-	_itemsInInventory.Remove(_itemInHand);
+	_itemsInInventory.Remove(item);
 	
-	_itemInHand->SetItemState( EItemState::EIS_Dropped );
+	item->SetItemState( EItemState::EIS_Dropped );
 	_itemInHand = nullptr;
 }
 
@@ -201,7 +199,7 @@ void UPW_ItemHandlerComponent::OnRep_ItemChange(APW_Item* lastItem)
 {
 	if (lastItem)
 	{
-		DEBUG_STRING( "OnRep_ItemChange  lastItem: DROPPING ITEM!" );
+		//DEBUG_STRING( "OnRep_ItemChange  lastItem: DROPPING ITEM!" );
 		//lastItem->SetItemState(EItemState::EIS_Dropped);
 		//lastItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		//lastItem->SetOwner(nullptr);
@@ -209,7 +207,7 @@ void UPW_ItemHandlerComponent::OnRep_ItemChange(APW_Item* lastItem)
 	
 	if (_itemInHand)
 	{
-		DEBUG_STRING( "OnRep_ItemChange  _itemInHand: PICKING UP ITEM!" );
+		//DEBUG_STRING( "OnRep_ItemChange  _itemInHand: PICKING UP ITEM!" );
 		//_itemInHand->SetItemState(EItemState::EIS_Pickup);
 		//_itemInHand->SetOwner(GetOwner());
 		//_itemInHand->AttachToComponent(_ownerCharacter->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
@@ -232,14 +230,8 @@ void UPW_ItemHandlerComponent::OnRep_OverlappinItem(APW_Item* lastItem)
 void UPW_ItemHandlerComponent::ServerPickUp_Implementation(APW_Item* item)
 {
 	if (!GetOwner()->HasAuthority()) return;
-	
-	if (item)
-	{
-		DEBUG_STRING( "ServerPickUp_Implementation : PICKING UP ITEM!" );
-		
-		PickUpItem(item);
-		_overlappingItem = nullptr;
-	}
+	PickUpItem(item);
+	_overlappingItem = nullptr;
 }
 
 void UPW_ItemHandlerComponent::ServerEquip_Implementation(APW_Item* item)

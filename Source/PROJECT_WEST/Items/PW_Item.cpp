@@ -75,7 +75,7 @@ void APW_Item::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 
 	DOREPLIFETIME(APW_Item, _itemState);
 	DOREPLIFETIME_CONDITION(APW_Item, _bUseServerSideRewind, COND_OwnerOnly);
-	//DOREPLIFETIME(APW_Item, _isVisible);
+	DOREPLIFETIME(APW_Item, _isVisible);
 }
 
 void APW_Item::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -228,6 +228,6 @@ void APW_Item::OnRep_ItemState()
 
 void APW_Item::OnRep_VisibilityChange()
 {
-	//DEBUG_STRING( "OnRep_VisibilityChange : " + FString::FromInt(_isVisible) );
+	DEBUG_STRING( "OnRep_VisibilityChange : " + FString::FromInt(_isVisible) );
 	OnVisibilityChange(_isVisible);
 }
