@@ -7,27 +7,6 @@
 #include "Components/Image.h"
 #include "Animation/WidgetAnimation.h"
 
-void UPW_CharacterOverlayWidget::SetHealth(float health, float maxHealth)
-{
-	if(_healthBar)
-	{
-		_healthBar->SetPercent(health / maxHealth);
-	}
-
-	if (_healthText)
-	{
-		_healthText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), health, maxHealth)));
-	}
-}
-
-void UPW_CharacterOverlayWidget::SetScore(float score)
-{
-	if (_scoreText)
-	{
-		_scoreText->SetText(FText::FromString(FString::Printf(TEXT("Score: %.0f"), score)));
-	}
-}
-
 void UPW_CharacterOverlayWidget::StartHighPingWarning()
 {
 	if (_highPingImage && _highPingAnimation)

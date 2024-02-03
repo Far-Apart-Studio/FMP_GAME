@@ -58,7 +58,7 @@ void APW_PlayerController::SetHUDHealth(float health, float maxHealth)
 	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
 	if (_hud && _hud->GetCharacterOverlayWidget())
 	{
-		_hud->GetCharacterOverlayWidget()->SetHealth(health, maxHealth);
+		//_hud->GetCharacterOverlayWidget()->SetHealth(health, maxHealth);
 	}
 }
 
@@ -66,7 +66,7 @@ void APW_PlayerController::SetHUDScore(float score)
 {	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
 	if (_hud && _hud->GetCharacterOverlayWidget())
 	{
-		_hud->GetCharacterOverlayWidget()->SetScore(score);
+		//_hud->GetCharacterOverlayWidget()->SetScore(score);
 	}
 }
 
