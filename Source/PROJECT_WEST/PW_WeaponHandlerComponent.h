@@ -45,6 +45,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerRPCSpawnDefaultWeapon();
 
+	UFUNCTION(BlueprintCallable)
 	APW_Weapon* TryGetCurrentWeapon();
 
 public:	
