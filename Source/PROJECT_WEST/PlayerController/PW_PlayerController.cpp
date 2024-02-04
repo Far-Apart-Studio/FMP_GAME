@@ -7,11 +7,10 @@
 #include "PROJECT_WEST/HUD/PW_HUD.h"
 #include "PROJECT_WEST/HUD/PW_CharacterOverlayWidget.h"
 #include "Net/UnrealNetwork.h"
+#include "PROJECT_WEST/DebugMacros.h"
+#include "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "PROJECT_WEST/DebugMacros.h"
-#include "Net/UnrealNetwork.h"
-#include "PROJECT_WEST/GameModes/PW_GameMode.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -19,6 +18,7 @@ APW_PlayerController::APW_PlayerController()
 	_clientServerDelta = 0;
 	_timeSyncFrequency = 5;
 	_timeSyncRuningTime = 0;
+	_InGameplaySession = false;
 }
 
 void APW_PlayerController::OnPossess(APawn* InPawn)
@@ -41,9 +41,12 @@ void APW_PlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SetHUDTime();
-	SyncTimeWithServer(DeltaTime);
-
+	if(_InGameplaySession)
+	{
+		SetHUDTime();
+		SyncTimeWithServer(DeltaTime);
+	}
+	
 	HandleCheckPing(DeltaTime);
 }
 
@@ -77,24 +80,23 @@ void APW_PlayerController::SetupInputComponent()
 
 void APW_PlayerController::SetHUDHealth(float health, float maxHealth)
 {
-	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
 	{
 		//_hud->GetCharacterOverlayWidget()->SetHealth(health, maxHealth);
 	}
 }
 
 void APW_PlayerController::SetHUDScore(float score)
-{	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
-	if (_hud && _hud->GetCharacterOverlayWidget())
+{
+	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
 	{
 		//_hud->GetCharacterOverlayWidget()->SetScore(score);
 	}
 }
 
 void APW_PlayerController::SetMatchCountdown(float time)
-{	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
-	if (_hud && _hud->GetCharacterOverlayWidget())
+{
+	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
 	{
 		int32 minutes = FMath::FloorToInt(time / 60);
 		int32 seconds = time - (minutes * 60);
@@ -121,14 +123,39 @@ void APW_PlayerController::OnMatchStateChanged(FName matchState)
 {
 	if (_matchState == MatchState::InProgress)
 	{
-		// add overlay widget
+		_InGameplaySession = true;
+	}
+	else if (_matchState == MatchState::LeavingMap)
+	{
+		_InGameplaySession = false;
+	}
+}
+
+bool APW_PlayerController::IsHUDValid()
+{
+	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
+	return _hud != nullptr;
+}
+
+void APW_PlayerController::TogglePlayerInput(bool bEnable)
+{
+	APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		if (bEnable)
+		{
+			character->EnableInput(this);
+		}
+		else
+		{
+			character->DisableInput(this);
+		}
 	}
 }
 
 void APW_PlayerController::StartHighPingWarning()
 {
-	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
 	{
 		_hud->GetCharacterOverlayWidget()->StartHighPingWarning();
 	}
@@ -136,8 +163,7 @@ void APW_PlayerController::StartHighPingWarning()
 
 void APW_PlayerController::StopHighPingWarning()
 {
-	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
 	{
 		_hud->GetCharacterOverlayWidget()->StopHighPingWarning();
 	}
@@ -160,7 +186,7 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 		_highPingRunningTime = 0;
 	}
 
-	if (_hud && _hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
+	if (IsHUDValid() && _hud->GetCharacterOverlayWidget() && _hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
 	{
 		_pingAnimationRunningTime += DeltaTime;
 		if (_pingAnimationRunningTime >= _highPingDuration)
@@ -173,6 +199,22 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 void APW_PlayerController::SetHUDTime()
 {
 	uint32 secondsLeft = FMath::CeilToInt(_matchTime  - GetServerTime());
+
+	if (HasAuthority())
+	{
+		//if (BlasterGameMode == nullptr)
+		//{
+		//	BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+		//	LevelStartingTime = BlasterGameMode->LevelStartingTime;
+		//}
+		//BlasterGameMode = BlasterGameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : BlasterGameMode;
+		//if (BlasterGameMode)
+		//{
+		//	SecondsLeft = FMath::CeilToInt(BlasterGameMode->GetCountdownTime() + LevelStartingTime);
+		//}
+	}
+
+	
 	if (_countDownInt != secondsLeft)
 	{
 		_countDownInt = secondsLeft;
@@ -208,8 +250,8 @@ void APW_PlayerController::PawnLeavingGame()
 	APW_Character* character = Cast<APW_Character>(GetPawn());
 	if (character)
 	{
-		character->Elim(true);
-		character->ServerLeaveGame();
+		//character->Elim(true);
+		//character->ServerLeaveGame();
 	}
 
 	DEBUG_STRING( "PawnLeavingGame");

@@ -63,7 +63,8 @@ public:
 	void SetMatchCountdown(float time);
 
 	void OnMatchStateSet(FName matchState);
-
+	void TogglePlayerInput(bool bEnable);
+	
 private:
 	
 	class APW_HUD* _hud;
@@ -91,4 +92,8 @@ private:
 	void OnRep_MatchState();
 
 	void OnMatchStateChanged(FName matchState);
+
+	bool IsHUDValid();
+
+	bool _InGameplaySession;
 };

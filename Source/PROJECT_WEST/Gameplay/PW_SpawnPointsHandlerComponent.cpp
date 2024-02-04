@@ -34,6 +34,11 @@ void UPW_SpawnPointsHandlerComponent::TickComponent(float DeltaTime, ELevelTick 
 
 FVector UPW_SpawnPointsHandlerComponent::GetLanternSpawnPoint()
 {
-	return GetComponentLocation() + GetComponentTransform().TransformVector(_lanternSpawnPoint);
+	return ConvertToWorldLocation(_lanternSpawnPoint);
+}
+
+FVector UPW_SpawnPointsHandlerComponent::ConvertToWorldLocation(FVector location)
+{
+	return  GetComponentLocation() + GetComponentTransform().TransformVector(location);
 }
 

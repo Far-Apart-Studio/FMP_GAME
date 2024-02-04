@@ -61,7 +61,6 @@ public:
 	void SetItemState(EItemState State);
 	
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return _areaSphere; }
-	//FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return _itemMesh; }
 	FORCEINLINE class UWidgetComponent* GetPickupWidget() const { return _pickupWidget; }
 	FORCEINLINE void SetVisibility(bool bIsVisible) { _isVisible = bIsVisible; }
 

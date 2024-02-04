@@ -25,15 +25,12 @@ public:
 	
 	void EnemyEliminated(APW_Character* AttackerCharacter, APW_PlayerController* AttackerController);
 
-	UPROPERTY( EditDefaultsOnly, BlueprintReadWrite, Category = "Game" )
-	float _warmUpTime;
-
 	float _matchStartTime;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Game" )
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	FString _mapPath;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Game" )
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<class APW_Lantern > _lanternClass;
 
 	APW_Lantern* _lantern;
@@ -46,8 +43,13 @@ protected:
 
 	class APW_SpawnPointsManager* _spawnPointsManager;
 	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
+
+	void ToggleAllPlayersInput(bool bEnable);
 	
 private:
 
 	float _countDownTime;
+
+	void HandleStateTimer();
+	void GameplayTimerUp();
 };

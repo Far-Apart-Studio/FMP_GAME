@@ -156,3 +156,8 @@ void APW_Lantern::ToggleLightVisibility(bool visible)
 	_lightBeamMesh->SetVisibility(visible);
 	_pointLight->SetVisibility(visible);
 }
+
+float APW_Lantern::GetNormalisedFuel()
+{
+	return _currentFuel / _maxFuel;
+}

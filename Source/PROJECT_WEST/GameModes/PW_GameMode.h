@@ -56,5 +56,6 @@ protected:
 	bool bTeamsMatch = false;
 	
 public:
+	
 	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 };

@@ -30,5 +30,5 @@ public:
 private:
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoints", meta = (AllowPrivateAccess = "true") )
-	UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent; 
+	UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
 };

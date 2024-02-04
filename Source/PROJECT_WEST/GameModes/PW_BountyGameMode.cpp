@@ -17,35 +17,30 @@ APW_BountyGameMode::APW_BountyGameMode()
 {
 	bUseSeamlessTravel = true;
 	_mapPath = "";
-	_warmUpTime = 10.f;
 	_matchStartTime = 0.f;
-	bDelayedStart = true;
+	CooldownTime = 10.f;
+	//bDelayedStart = true; use if you want to delay the start of the game
 }
 
 void APW_BountyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	StartMatch();
+	
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
 	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
 
 	SpawnLantern();
 	
-	_matchStartTime = GetWorld()->GetTimeSeconds() + _warmUpTime;
+	_matchStartTime = GetWorld()->GetTimeSeconds() + WarmupTime;
 }
 
 void APW_BountyGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (MatchState == MatchState::WaitingToStart)
-	{
-		_countDownTime = _warmUpTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
-		if (_countDownTime <= 0)
-		{
-			StartMatch();
-		}
-	}
+	HandleStateTimer();
 	
 	//FString matchStateString = FName::NameToDisplayString( MatchState.ToString(), false );
 	//DEBUG_STRING( "MatchState: " + matchStateString );
@@ -62,6 +57,46 @@ void APW_BountyGameMode::OnMatchStateSet()
 			playerController->OnMatchStateSet( MatchState );
 		}
 	}
+}
+
+void APW_BountyGameMode::ToggleAllPlayersInput(bool bEnable)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			playerController->TogglePlayerInput( bEnable );
+		}
+	}
+}
+
+void APW_BountyGameMode::HandleStateTimer()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		CountdownTime =  MatchTime - GetWorld()->GetTimeSeconds();
+		if (CountdownTime <= 0.f)
+		{
+			SetMatchState(MatchState::LeavingMap);
+			DEBUG_STRING( "Time is up" );
+			GameplayTimerUp();
+		}
+	}
+	else if (MatchState == MatchState::LeavingMap)
+	{
+		CountdownTime = CooldownTime + WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.f)
+		{
+			RestartGame();
+		}
+	}
+}
+
+void APW_BountyGameMode::GameplayTimerUp()
+{
+	ToggleAllPlayersInput(false);
+	ServerTravel(_mapPath);
 }
 
 void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)

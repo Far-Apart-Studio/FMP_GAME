@@ -29,4 +29,8 @@ public:
 	FVector _lanternSpawnPoint;
 
 	FVector GetLanternSpawnPoint();
+
+private:
+
+	FVector ConvertToWorldLocation(FVector location);
 };

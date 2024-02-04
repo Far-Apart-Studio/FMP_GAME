@@ -90,5 +90,7 @@ public:
 	void ToggleLightVisibility(bool visible);
 
 	FORCEINLINE void SetTarget(AActor* target) { _target = target; }
-	FORCEINLINE float GetNormalisedFuel() const { return _currentFuel / _maxFuel; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetNormalisedFuel();
 };
