@@ -35,6 +35,7 @@ protected:
 	void StopHighPingWarning();
 	void HandleCheckPing(float DeltaTime);
 
+	void PawnLeavingGame() override;
 public:
 
 	void SetHUDHealth(float health, float maxHealth);

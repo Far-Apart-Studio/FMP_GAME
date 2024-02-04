@@ -2,13 +2,14 @@
 
 
 #include "PW_PlayerController.h"
-
+#include "PROJECT_WEST/PW_Character.h"
 #include "GameFramework/PlayerState.h"
 #include "PROJECT_WEST/HUD/PW_HUD.h"
 #include "PROJECT_WEST/HUD/PW_CharacterOverlayWidget.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PROJECT_WEST/DebugMacros.h"
 
 void APW_PlayerController::OnPossess(APawn* InPawn)
 {
@@ -113,4 +114,18 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 			StopHighPingWarning();
 		}
 	}
+}
+
+void APW_PlayerController::PawnLeavingGame()
+{
+	APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		character->Elim(true);
+		character->ServerLeaveGame();
+	}
+
+	DEBUG_STRING( "PawnLeavingGame");
+
+	Super::PawnLeavingGame();
 }

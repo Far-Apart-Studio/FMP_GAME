@@ -31,7 +31,8 @@ public:
 
 	void PlayerLeftGame(class APW_PlayerState* PlayerLeaving);
 
-	void ServerTravel(FString MapPath);
+	UFUNCTION(BlueprintCallable)
+	void ServerTravel (FString mapPath);
 	
 protected:
 	

@@ -136,6 +136,8 @@ void APW_Character::ServerLeaveGame_Implementation()
 	{
 		gameMode->PlayerLeftGame(playerState);
 	}
+
+	_itemHandlerComponent->DropAllItems();
 }
 
 void APW_Character::Elim(bool leftGame)

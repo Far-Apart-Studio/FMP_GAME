@@ -56,7 +56,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	void ShowPickupWidget(bool bShowWidget);
-	void EnableCustomDepth(bool bEnable);
+	void EnableCustomDepth(bool bEnable); 
 	virtual void OnVisibilityChange(bool bIsVisible);
 	void SetItemState(EItemState State);
 	
@@ -83,7 +83,7 @@ protected:
 
 	UFUNCTION()
 	void OnRep_VisibilityChange();
-
+	
 	UPROPERTY(Replicated, EditAnywhere)
 	bool _bUseServerSideRewind = false;
 

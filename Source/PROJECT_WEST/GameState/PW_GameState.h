@@ -23,9 +23,10 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	void UpdateTopScore(class APW_PlayerState* scoringPlayer);
 
-	UPROPERTY( Replicated)
+	UPROPERTY(Replicated)
 	TArray<class APW_PlayerState*> _topScoringPlayers;
 	
 	UFUNCTION(BlueprintCallable)

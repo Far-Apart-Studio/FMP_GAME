@@ -39,10 +39,9 @@ void APW_GameMode::Logout(AController* Exiting)
 	if (playerState)
 	{
 		FString playerName = playerState->GetPlayerName();
-		GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf (TEXT ("%s has left" ), *playerName));
+		DEBUG_STRING (FString::Printf (TEXT ("%s has left sesson " ), *playerName));
 		
-		// TODO: Drop item if player is holding one
-		APW_Character * character = Exiting ? Cast<APW_Character>(playerState->GetPawn()) : nullptr;
+		APW_Character * character = Cast<APW_Character>(playerState->GetPawn());
 		if (character)
 		{
 			DEBUG_STRING( "Player Logout Drop Item");
@@ -52,12 +51,16 @@ void APW_GameMode::Logout(AController* Exiting)
 		}
 		else
 		{
-			DEBUG_STRING( "Player Logout No Character");
+			DEBUG_STRING( "Player Logout No APW_Character");
 		}
+	}
+	else
+	{
+		DEBUG_STRING( "Player Logout No PlayerState");
 	}
 
 	int32 numPlayers = GameState.Get()->PlayerArray.Num();
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers - 1));
+	DEBUG_STRING (FString::Printf (TEXT ("Num Players: %d"), numPlayers));
 }
 
 void APW_GameMode::ServerTravel(FString MapPath)
