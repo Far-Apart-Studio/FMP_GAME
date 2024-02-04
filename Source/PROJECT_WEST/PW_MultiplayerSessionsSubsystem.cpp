@@ -106,25 +106,25 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 		DestroySessionTrigger();
 		return;	
 	}
-	
-	FOnlineSessionSettings sessionSettings;
 
-	sessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
-	
-	sessionSettings.NumPublicConnections = _numberOfConnectionToCreate;
-	
-	sessionSettings.bAllowJoinInProgress = true;
-	sessionSettings.bAllowJoinViaPresence = true;
-	sessionSettings.bIsDedicated = false;
-	sessionSettings.bShouldAdvertise = true;
-	sessionSettings.bUseLobbiesIfAvailable = true;
-	sessionSettings.bUsesPresence = true;
-	sessionSettings.BuildUniqueId = 1;
+	_lastSessionSettings = MakeShareable(new FOnlineSessionSettings());
 
-	sessionSettings.Set(FName("Session_Type"), sessionType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-	sessionSettings.Set(FName("Session_Name"), serverName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	_lastSessionSettings->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
 	
-	sessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, sessionSettings);
+	_lastSessionSettings->NumPublicConnections = _numberOfConnectionToCreate;
+	
+	_lastSessionSettings->bAllowJoinInProgress = true;
+	_lastSessionSettings->bAllowJoinViaPresence = true;
+	_lastSessionSettings->bIsDedicated = false;
+	_lastSessionSettings->bShouldAdvertise = true;
+	_lastSessionSettings->bUseLobbiesIfAvailable = true;
+	_lastSessionSettings->bUsesPresence = true;
+	_lastSessionSettings->BuildUniqueId = 1;
+
+	_lastSessionSettings->Set(FName("Session_Type"), sessionType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	_lastSessionSettings->Set(FName("Session_Name"), serverName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	
+	sessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *_lastSessionSettings);
 }
 
 void UPW_MultiplayerSessionsSubsystem::CreateSessionDone(bool success)
@@ -320,11 +320,12 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 
 void UPW_MultiplayerSessionsSubsystem::UpdateSessionInfo()
 {
-	FOnlineSessionSettings sessionSettings = FOnlineSessionSettings();
-	sessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
-	sessionSettings.NumPublicConnections = 0;
-	sessionSettings.NumPrivateConnections = 0;
-	sessionInterface->UpdateSession(NAME_GameSession, sessionSettings);
+	_lastSessionSettings = MakeShareable(new FOnlineSessionSettings());
+	
+	const FString& sessionType =  "Private";
+	_lastSessionSettings->Set(FName("Session_Type"), sessionType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+
+	sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
 }
 
 

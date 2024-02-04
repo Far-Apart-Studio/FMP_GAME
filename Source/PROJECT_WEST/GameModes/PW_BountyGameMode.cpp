@@ -7,13 +7,61 @@
 #include "PROJECT_WEST/GameState/PW_GameState.h"
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
+#include "PROJECT_WEST/Items/PW_Lantern.h"
+#include "PROJECT_WEST/DebugMacros.h"
+#include "PROJECT_WEST/Gameplay/PW_SpawnPointsManager.h"
+#include "PROJECT_WEST/Gameplay/PW_SpawnPointsHandlerComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 APW_BountyGameMode::APW_BountyGameMode()
 {
 	bUseSeamlessTravel = true;
 	_mapPath = "";
+	_warmUpTime = 10.f;
+	_matchStartTime = 0.f;
+	bDelayedStart = true;
+}
 
-	//bDelayedStart = true;
+void APW_BountyGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
+	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
+
+	SpawnLantern();
+	
+	_matchStartTime = GetWorld()->GetTimeSeconds() + _warmUpTime;
+}
+
+void APW_BountyGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		_countDownTime = _warmUpTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
+		if (_countDownTime <= 0)
+		{
+			StartMatch();
+		}
+	}
+	
+	//FString matchStateString = FName::NameToDisplayString( MatchState.ToString(), false );
+	//DEBUG_STRING( "MatchState: " + matchStateString );
+}
+void APW_BountyGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			playerController->OnMatchStateSet( MatchState );
+		}
+	}
 }
 
 void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
@@ -34,5 +82,18 @@ void APW_BountyGameMode::EnemyEliminated(APW_Character* AttackerCharacter, APW_P
 	if (gameState)
 	{
 		gameState->UpdateTopScore(AttackerController->GetPlayerState<APW_PlayerState>());
+	}
+}
+
+void APW_BountyGameMode::SpawnLantern()
+{
+	if(!_spawnPointsHandlerComponent) return;
+	_lantern = GetWorld()->SpawnActor<APW_Lantern>(_lanternClass);
+	if (_lantern)
+	{
+		_lantern->SetActorLocation(_spawnPointsHandlerComponent->GetLanternSpawnPoint());
+		_lantern->SetActorRotation(FRotator(0, 0, 0));
+		_lantern->SetOwner(nullptr);
+		_lantern->SetTarget( _spawnPointsManager);
 	}
 }

@@ -59,6 +59,8 @@ public:
 	void OnDestroySessionComplete(FName sessionName, bool success);
 	
 	IOnlineSessionPtr sessionInterface;
+
+	TSharedPtr<FOnlineSessionSettings> _lastSessionSettings;
 	
 	UFUNCTION(BlueprintCallable)
 	void CreateSessionTrigger(int32 numberOfConnection, bool isPublic);
