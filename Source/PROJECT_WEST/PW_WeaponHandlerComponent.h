@@ -26,6 +26,9 @@ private:
 	//class APW_Weapon* _currentWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	TSubclassOf<APW_Weapon> _weaponBlueprint;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	float _maximumWeaponFallOffRange = 10000.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")

@@ -7,6 +7,7 @@
 #include "PW_WeaponVisualData.h"
 #include "PROJECT_WEST/Items/PW_Item.h"
 #include "GameFramework/Actor.h"
+#include "Items/PW_Item.h"
 #include "PW_Weapon.generated.h"
 
 UCLASS()
