@@ -78,6 +78,7 @@ protected:
 	virtual void PostInitializeComponents() override;
 	void PickUpButtonPressed();
 	void SwitchItemButtonPressed();
+	
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

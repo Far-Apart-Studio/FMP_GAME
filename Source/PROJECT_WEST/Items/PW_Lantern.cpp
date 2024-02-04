@@ -4,6 +4,7 @@
 #include "PW_Lantern.h"
 #include "Components/PointLightComponent.h"
 #include "PROJECT_WEST/DebugMacros.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 APW_Lantern::APW_Lantern()
@@ -44,6 +45,15 @@ void APW_Lantern::BeginPlay()
 	Super::BeginPlay();
 	_pointLight->SetIntensity(_currentLightIntensity);
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
+	ToggleLightVisibility(false);
+}
+
+void APW_Lantern::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APW_Lantern, _target);
+	DOREPLIFETIME(APW_Lantern, _currentFuel);
 }
 
 void APW_Lantern::OnVisibilityChange(bool bIsVisible)
@@ -57,19 +67,23 @@ void APW_Lantern::OnVisibilityChange(bool bIsVisible)
 void APW_Lantern::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//HandleDrainFuel (DeltaTime);
 	HandleTargetDetection (DeltaTime);
+
+	if (HasAuthority())
+	{
+		//HandleDrainFuel(DeltaTime);
+	}
 }
 
 void APW_Lantern::OnItemStateSet()
 {
 	Super::OnItemStateSet();
-	ToggleLightVisibility(_isVisible);
+	ToggleLightVisibility(_isVisible && _itemState == EItemState::EIS_Pickup);
 }
 
 void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
-	if(!_target  || !_isVisible) return;
+	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
 
 	_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
 
@@ -126,6 +140,11 @@ void APW_Lantern::ChargeFuel(float amount)
 	}
 }
 
+void APW_Lantern::ServerChargeFuel_Implementation(float amount)
+{
+	ChargeFuel(amount);
+}
+
 void APW_Lantern::HandleDrainFuel(float DeltaTime)
 {
 	if (_currentFuel <= 0.0f) return;
@@ -136,4 +155,9 @@ void APW_Lantern::ToggleLightVisibility(bool visible)
 {
 	_lightBeamMesh->SetVisibility(visible);
 	_pointLight->SetVisibility(visible);
+}
+
+float APW_Lantern::GetNormalisedFuel()
+{
+	return _currentFuel / _maxFuel;
 }

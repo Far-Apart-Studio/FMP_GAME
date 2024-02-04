@@ -19,6 +19,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void OnVisibilityChange(bool bIsVisible) override; 
 public:	
 	// Called every frame
@@ -26,51 +27,51 @@ public:
 
 private:
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (VisibleAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* _lightBeamMesh;
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (VisibleAnywhere , Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UPointLightComponent* _pointLight;
-
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
-	AActor* _target;
-
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxLightIntensity;
 
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _minLightIntensity;
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (VisibleAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _currentLightIntensity;
 
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _minBeamScale;
 
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxBeamScale;
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (VisibleAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _currentBeamScale;
 
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxSearchDistance;
 
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _minSearchDistance;
 
-	UPROPERTY (VisibleAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (VisibleAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _currentSearchDistance;
 
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxFuel;
 	
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
-	float _currentFuel;
-
-	UPROPERTY (EditAnywhere, BlueprintReadOnly, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _fuelDrainRate;
 	
+	UPROPERTY (Replicated, EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	AActor* _target;
+	
+	UPROPERTY (Replicated, EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _currentFuel;
+
 public:
 
 	void OnItemStateSet() override;
@@ -80,10 +81,16 @@ public:
 	void HandleLightBeamScale(float normalisedAngle);
 
 	void ChargeFuel(float amount);
+
+	UFUNCTION( Server, Reliable )
+	void ServerChargeFuel(float amount);
+	
 	void HandleDrainFuel(float DeltaTime);
 
 	void ToggleLightVisibility(bool visible);
 
 	FORCEINLINE void SetTarget(AActor* target) { _target = target; }
-	FORCEINLINE float GetNormalisedFuel() const { return _currentFuel / _maxFuel; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetNormalisedFuel();
 };

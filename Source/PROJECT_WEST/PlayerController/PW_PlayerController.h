@@ -18,6 +18,7 @@ class PROJECT_WEST_API APW_PlayerController : public APlayerController
 
 
 public:
+	APW_PlayerController();
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -28,6 +29,7 @@ public:
 	FHighPingDelegate HighPingDelegate;
 
 protected:
+	
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 	
@@ -35,12 +37,34 @@ protected:
 	void StopHighPingWarning();
 	void HandleCheckPing(float DeltaTime);
 
+
+	void SetHUDTime();
+	void SyncTimeWithServer(float deltaTime);
+
+	UFUNCTION( Server, Reliable )
+	void ServerRequestTime(float timeOfClientRequest); // Request server time
+
+	UFUNCTION( Client, Reliable )
+	void ClientReportServerTime(float timeOfClientRequest, float serverTime); // Report the current server time to the client in response to a request
+
+	float _clientServerDelta; // Difference between client and server time
+
+	UPROPERTY(EditAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	float _timeSyncFrequency; // How often to sync client and server time
+
+	UPROPERTY(VisibleAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))
+	float _timeSyncRuningTime;
+
+	void PawnLeavingGame() override;
 public:
 
 	void SetHUDHealth(float health, float maxHealth);
 	void SetHUDScore(float score);
+	void SetMatchCountdown(float time);
 
-
+	void OnMatchStateSet(FName matchState);
+	void TogglePlayerInput(bool bEnable);
+	
 private:
 	
 	class APW_HUD* _hud;
@@ -58,4 +82,18 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ping", meta = (AllowPrivateAccess = "true"))
 	float _highPingThreshold;
 	
+	float _matchTime;
+	uint32 _countDownInt;
+
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
+	FName _matchState;
+
+	UFUNCTION()
+	void OnRep_MatchState();
+
+	void OnMatchStateChanged(FName matchState);
+
+	bool IsHUDValid();
+
+	bool _InGameplaySession;
 };

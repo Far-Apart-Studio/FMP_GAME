@@ -36,7 +36,8 @@ void UPW_ItemHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 void UPW_ItemHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	//DOREPLIFETIME(UPW_ItemHandlerComponent, _overlappingItem);
+	
+	DOREPLIFETIME(UPW_ItemHandlerComponent, _overlappingItem);
 	DOREPLIFETIME(UPW_ItemHandlerComponent, _itemInHand);
 	DOREPLIFETIME(UPW_ItemHandlerComponent, _itemsInInventory);
 }
@@ -101,12 +102,10 @@ void UPW_ItemHandlerComponent::DoPickUp(APW_Item* item)
 {
 	if (GetOwner()->HasAuthority())
 	{
-		DEBUG_STRING( "HasAuthority : PICKING UP ITEM!" );
 		PickUpItem(item);
 	}
 	else
 	{
-		DEBUG_STRING( "NoAuthority : PICKING UP ITEM!" );
 		ServerPickUp(item);
 	}
 }
@@ -123,16 +122,33 @@ void UPW_ItemHandlerComponent::DoEquip(APW_Item* item)
 	}
 }
 
-void UPW_ItemHandlerComponent::TryDropItemHeld()
+void UPW_ItemHandlerComponent::DoDrop(APW_Item* item)
 {
 	if (GetOwner()->HasAuthority())
 	{
-		DropItem(_itemInHand);
+		DropItem(item);
 	}
 	else
 	{
-		ServerDrop( _itemInHand );
+		ServerDrop( item );
 	}
+}
+
+void UPW_ItemHandlerComponent::DoDropAllItems()
+{
+	if (GetOwner()->HasAuthority())
+	{
+		DropAllItems();
+	}
+	else
+	{
+		ServerDropAllItems();
+	}
+}
+
+void UPW_ItemHandlerComponent::TryDropItemHeld()
+{
+	DoDrop (_itemInHand);
 }
 
 void UPW_ItemHandlerComponent::PickUpItem(APW_Item* item)
@@ -145,7 +161,6 @@ void UPW_ItemHandlerComponent::PickUpItem(APW_Item* item)
 	
 	if (_itemInHand)
 	{
-		DEBUG_STRING( "PickUpItem : UnEquipItem!" );
 		UnEquipItem( _itemInHand );
 	}
 	
@@ -154,7 +169,6 @@ void UPW_ItemHandlerComponent::PickUpItem(APW_Item* item)
 	_itemInHand->SetOwner(GetOwner());
 	_itemInHand->SetItemState(EItemState::EIS_Pickup);
 	_itemInHand->AttachToComponent(Cast<APW_Character>(GetOwner())->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	DEBUG_STRING( "PickUpItem : _itemInHand : " + Cast<APW_Character>(GetOwner())->GetItemHolder()->GetName() );
 }
 
 void UPW_ItemHandlerComponent::EquipItem(APW_Item* item)
@@ -200,6 +214,15 @@ void UPW_ItemHandlerComponent::DropItem(APW_Item* item)
 	}
 }
 
+void UPW_ItemHandlerComponent::DropAllItems()
+{
+	for (auto item : _itemsInInventory)
+	{
+		DropItem(item);
+	}
+	_itemInHand = nullptr;
+}
+
 void UPW_ItemHandlerComponent::OnRep_OverlappinItem(APW_Item* lastItem)
 {
 	if (_overlappingItem)
@@ -237,6 +260,12 @@ void UPW_ItemHandlerComponent::ServerDrop_Implementation(APW_Item* item)
 {
 	if (!GetOwner()->HasAuthority()) return;
 	DropItem(item);
+}
+
+void UPW_ItemHandlerComponent::ServerDropAllItems_Implementation()
+{
+	if (!GetOwner()->HasAuthority()) return;
+	DropAllItems();
 }
 
 

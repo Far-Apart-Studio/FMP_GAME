@@ -31,7 +31,8 @@ public:
 
 	void PlayerLeftGame(class APW_PlayerState* PlayerLeaving);
 
-	void ServerTravel(FString MapPath);
+	UFUNCTION(BlueprintCallable)
+	void ServerTravel (FString mapPath);
 	
 protected:
 	
@@ -55,5 +56,6 @@ protected:
 	bool bTeamsMatch = false;
 	
 public:
+	
 	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 };

@@ -195,23 +195,20 @@ void APW_Item::OnRep_Owner()
 
 void APW_Item::OnVisibilityChange(bool bIsVisible)
 {
-	_itemMesh->SetVisibility(bIsVisible);
+	if(_itemMesh)
+		_itemMesh->SetVisibility(bIsVisible);
 }
 
 void APW_Item::ShowPickupWidget(bool bShowWidget)
 {
 	if (_pickupWidget)
-	{
 		_pickupWidget->SetVisibility(bShowWidget);
-	}
 }
 
 void APW_Item::EnableCustomDepth(bool bEnable)
 {
 	if(_itemMesh)
-	{
 		_itemMesh->SetRenderCustomDepth(bEnable);
-	}
 }
 
 void APW_Item::SetItemState(EItemState State)
@@ -228,6 +225,6 @@ void APW_Item::OnRep_ItemState()
 
 void APW_Item::OnRep_VisibilityChange()
 {
-	DEBUG_STRING( "OnRep_VisibilityChange : " + FString::FromInt(_isVisible) );
+	//DEBUG_STRING( "OnRep_VisibilityChange : " + FString::FromInt(_isVisible) );
 	OnVisibilityChange(_isVisible);
 }

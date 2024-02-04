@@ -34,6 +34,8 @@ public:
 
 	void DoPickUp( APW_Item* item );
 	void DoEquip( APW_Item* item );
+	void DoDrop( APW_Item* item );
+	void DoDropAllItems();
 
 	UFUNCTION() 
 	void TryDropItemHeld();
@@ -43,6 +45,7 @@ public:
 	void UnEquipItem(APW_Item* item);
 	
 	void DropItem(APW_Item* item);
+	void DropAllItems();
 	
 	FORCEINLINE APW_Item* GetOverlappingItem() const { return _overlappingItem; }
 	FORCEINLINE APW_Item* GetItemInHand() const { return _itemInHand; }
@@ -75,4 +78,7 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerDrop(APW_Item* item);
+
+	UFUNCTION(Server, Reliable)
+	void ServerDropAllItems();
 };

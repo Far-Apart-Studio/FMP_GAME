@@ -56,12 +56,11 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	void ShowPickupWidget(bool bShowWidget);
-	void EnableCustomDepth(bool bEnable);
+	void EnableCustomDepth(bool bEnable); 
 	virtual void OnVisibilityChange(bool bIsVisible);
 	void SetItemState(EItemState State);
 	
 	FORCEINLINE class USphereComponent* GetAreaSphere() const { return _areaSphere; }
-	//FORCEINLINE class USkeletalMeshComponent* GetWeaponMesh() const { return _itemMesh; }
 	FORCEINLINE class UWidgetComponent* GetPickupWidget() const { return _pickupWidget; }
 	FORCEINLINE void SetVisibility(bool bIsVisible) { _isVisible = bIsVisible; }
 
@@ -83,7 +82,7 @@ protected:
 
 	UFUNCTION()
 	void OnRep_VisibilityChange();
-
+	
 	UPROPERTY(Replicated, EditAnywhere)
 	bool _bUseServerSideRewind = false;
 
