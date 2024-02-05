@@ -43,6 +43,17 @@ void APW_BountyGameMode::BeginPlay()
 	SpawnLantern();
 	
 	_matchStartTime = GetWorld()->GetTimeSeconds();
+
+	DEBUG_STRING( "APW_BountyGameMode::BeginPlay" );
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			playerController->ClientJoinMidGame(MatchState, _matchTime, _levelStartTime, _mathEndCooldownTime);
+		}
+	}
 }
 
 void APW_BountyGameMode::Tick(float DeltaSeconds)
@@ -80,7 +91,7 @@ void APW_BountyGameMode::ToggleAllPlayersInput(bool bEnable)
 		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
 		if (playerController)
 		{
-			playerController->TogglePlayerInput( bEnable );
+			playerController->ClientTogglePlayerInput( bEnable );
 		}
 	}
 }
@@ -126,24 +137,12 @@ void APW_BountyGameMode::BountyFailed()
 void APW_BountyGameMode::TestSpectator()
 {
 	//ToggleAllPlayersInput(false);
-
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
-		if (playerController && playerController->GetPawn())
-		{
-			if (playerController->GetPawn()->HasAuthority())
-			{
-				DEBUG_STRING( "Test Spectator HasAuthority" );
-			}
-		}
-	}
 	
 	APW_PlayerController* host = Cast<APW_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	APW_PlayerController* playerController = Cast<APW_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 1));
 	if (host && playerController)
 	{
-		playerController->TogglePlayerInput(false);
+		playerController->ClientTogglePlayerInput(false);
 		playerController->SpectatePlayer(host);
 	}
 }

@@ -63,7 +63,11 @@ public:
 	void SetMatchEndCountdown(float time);
 
 	void OnMatchStateSet(FName matchState);
+	
 	void TogglePlayerInput(bool bEnable);
+	
+	UFUNCTION( Client, Reliable )
+	void ClientTogglePlayerInput(bool bEnable);
 
 	virtual float GetServerTime(); // Synced with server world clock
 

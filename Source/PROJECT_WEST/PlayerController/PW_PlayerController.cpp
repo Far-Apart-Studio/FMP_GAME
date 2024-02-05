@@ -146,7 +146,7 @@ void APW_PlayerController::SetMatchCountdown(float time)
 			// set text to empty
 		}
 		
-		//DEBUG_STRING ( ConvertToTime(time) );
+		DEBUG_STRING ( ConvertToTime(time) );
 		
 		//_hud->GetCharacterOverlayWidget()->SetScore(score);
 	}
@@ -162,7 +162,7 @@ void APW_PlayerController::SetMatchEndCountdown(float time)
 			// set text to empty
 		}
 		
-		//DEBUG_STRING( ConvertToTime(time) );
+		DEBUG_STRING( ConvertToTime(time) );
 		
 		//_hud->GetCharacterOverlayWidget()->SetScore(score);
 	}
@@ -225,7 +225,7 @@ void APW_PlayerController::DropAllItems()
 
 bool APW_PlayerController::IsHUDValid()
 {
-	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
+	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
 	return _hud != nullptr;
 }
 
@@ -251,6 +251,11 @@ void APW_PlayerController::TogglePlayerInput(bool bEnable)
 			character->DisableInput(this);
 		}
 	}
+}
+
+void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
+{
+	TogglePlayerInput(bEnable);
 }
 
 void APW_PlayerController::StartHighPingWarning()

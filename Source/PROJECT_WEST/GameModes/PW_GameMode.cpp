@@ -27,7 +27,7 @@ void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 	if (playerState)
 	{
 		FString playerName = playerState->GetPlayerName();	
-		//DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
+		DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
 	}
 }
 
@@ -39,7 +39,7 @@ void APW_GameMode::Logout(AController* Exiting)
 	if (playerState)
 	{
 		FString playerName = playerState->GetPlayerName();
-		//DEBUG_STRING (FString::Printf (TEXT ("%s has left sesson " ), *playerName));
+		DEBUG_STRING (FString::Printf (TEXT ("%s has left sesson " ), *playerName));
 		
 		APW_Character * character = Cast<APW_Character>(playerState->GetPawn());
 		if (character)
