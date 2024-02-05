@@ -63,7 +63,11 @@ public:
 	void SetMatchEndCountdown(float time);
 
 	void OnMatchStateSet(FName matchState);
+	
 	void TogglePlayerInput(bool bEnable);
+	
+	UFUNCTION( Client, Reliable )
+	void ClientTogglePlayerInput(bool bEnable);
 
 	virtual float GetServerTime(); // Synced with server world clock
 
@@ -72,6 +76,8 @@ public:
 
 	UFUNCTION( Client, Reliable )
 	void ClientJoinMidGame(FName stateOfMatch, float matchTime, float levelStartTime, float endMatchCountdown);
+
+	void SpectatePlayer (APW_PlayerController* playerController);
 	
 private:
 	
@@ -108,6 +114,7 @@ private:
 	void HandleMatchStarted();
 	void HandleMatchCooldown();
 	void HandleMatchEnded();
+	void DropAllItems();
 
 	bool IsHUDValid();
 	FString ConvertToTime(float time);
