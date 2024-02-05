@@ -53,6 +53,8 @@ void UPW_HealthComponent::TakeDamage(AActor* damageActor, float damageAmount, co
 
 	_currentHealth = FMath::Clamp(_currentHealth - damageAmount, _minimumHealth, _maxHealth);
 
+	OnHealthChanged.Broadcast();
+
 	if (_currentHealth == _minimumHealth)
 	{
 		OnDeath.Broadcast(damageCauser, instigatedBy );
