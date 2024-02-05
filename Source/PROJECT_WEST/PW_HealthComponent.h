@@ -34,7 +34,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _minimumHealth = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_OnHealthChange, EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _currentHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
@@ -59,7 +59,10 @@ private:
 	TArray<FHealthMilestone> _healthMilestones;
 	
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDeath OnDeath;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnHealthChanged OnHealthChanged;
 
 public:	
@@ -67,6 +70,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_OnHealthChange();
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

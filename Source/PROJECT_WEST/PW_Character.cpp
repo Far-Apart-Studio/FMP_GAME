@@ -5,14 +5,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
-#include "Net/UnrealNetwork.h"
-#include "PROJECT_WEST/Items/PW_Item.h"
 #include "Components/WidgetComponent.h"
 #include "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PW_ItemHandlerComponent.h"
 #include "PW_WeaponHandlerComponent.h"
+#include "Engine/DamageEvents.h"
 
 APW_Character::APW_Character()
 {
@@ -34,6 +33,7 @@ APW_Character::APW_Character()
 void APW_Character::BeginPlay()
 {
 	Super::BeginPlay();
+	TakeDamage(10, FDamageEvent(), nullptr, nullptr);
 }
 
 void APW_Character::PostInitializeComponents()

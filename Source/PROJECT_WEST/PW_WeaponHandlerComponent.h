@@ -62,6 +62,11 @@ public:
 	void SpawnDefaultWeapon();
 	
 	void ApplyDamage(const FHitResult& hitResult);
+	void DoApplyDamage(const FHitResult& hitResult);
+
+	UFUNCTION(Server, Reliable)
+	void ServerApplyDamage(const FHitResult& hitResult);
+	
 	float CalculateDamage(const FHitResult& hitResult);
 	bool CalculateFireStatus();
 	void GetOwnerCharacter();
