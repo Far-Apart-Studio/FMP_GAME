@@ -87,12 +87,20 @@ void UPW_WeaponHandlerComponent::CastBulletRay()
 	bool isActorHit = CastRay(rayStart, rayDestination, collisionQueryParams, hitResult);
 	
 	if (isActorHit)
+	{
 		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Green,
 			false, 2.0f, 0, 2.0f);
+		//PW_Utilities::Log("Hit Actor: ", hitResult.GetActor()->GetName());
+		DEBUG_STRING("Hit Actor: " + hitResult.GetActor()->GetName());
+	}
 	else
+	{
 		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Red,
 			false, 2.0f, 0, 2.0f);
-
+		//PW_Utilities::Log("No Actor Hit!");
+		DEBUG_STRING("Hit Actor:");
+	}
+	
 	ApplyDamage(hitResult);
 }
 
@@ -175,8 +183,6 @@ void UPW_WeaponHandlerComponent::AttachDefaultWeapon()
 
 void UPW_WeaponHandlerComponent::SpawnDefaultWeapon()
 {
-	//DEBUG_STRING("SpawnDefaultWeapon : SPAWNING DEFAULT WEAPON!");
-	
 	USceneComponent* weaponHolder = _ownerCharacter->GetItemHolder();
 	
 	UWorld* currentWorld = GetWorld();
@@ -214,7 +220,23 @@ void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult)
 
 	const float calculatedDamage = CalculateDamage(hitResult);
 	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
-		_ownerCharacter->GetController(), _ownerCharacter);
+	_ownerCharacter->GetController(), _ownerCharacter);
+}
+
+void UPW_WeaponHandlerComponent::DoApplyDamage(const FHitResult& hitResult)
+{
+	if (GetOwner()->HasAuthority())
+		ApplyDamage(hitResult);
+	else
+		ServerApplyDamage(hitResult);
+}
+
+void UPW_WeaponHandlerComponent::ServerApplyDamage_Implementation(const FHitResult& hitResult)
+{
+	if (!GetOwner()->HasAuthority())
+		return;
+	
+	ApplyDamage(hitResult);
 }
 
 float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult)
@@ -256,7 +278,7 @@ void UPW_WeaponHandlerComponent::GetOwnerCharacter()
 		{ PW_Utilities::Log("OWNER ACTOR NOT FOUND!"); return; }
 
 	_ownerCharacter = Cast<APW_Character>(ownerActor);
-	_itemHandlerComponent = Cast< UPW_ItemHandlerComponent >(_ownerCharacter->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
+	_itemHandlerComponent = Cast<UPW_ItemHandlerComponent>(_ownerCharacter->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
 
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
@@ -270,9 +292,6 @@ void UPW_WeaponHandlerComponent::AssignInputActions()
 	_ownerCharacter->OnReloadButtonPressed.AddDynamic
 		(this, &UPW_WeaponHandlerComponent::ReloadWeapon);
 }
-
-// I DON'T ENJOY CLOSELY COUPLING THE VISUALS AND DATA OF THE WEAPON
-// FUNCTIONS BELOW ARE VISUAL FUNCTIONS ONLY
 
 void UPW_WeaponHandlerComponent::FireWeaponVisual()
 {
