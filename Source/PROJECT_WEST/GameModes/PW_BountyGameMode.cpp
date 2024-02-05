@@ -24,7 +24,7 @@ APW_BountyGameMode::APW_BountyGameMode()
 	_mapPath = "";
 	_matchStartTime = 0.f;
 	_matchTime = 120.f;
-	_cooldownTime = 10.f;
+	_mathEndCooldownTime = 10.f;
 
 	//bDelayedStart = true; use if you want to delay the start of the game
 }
@@ -90,6 +90,14 @@ void APW_BountyGameMode::HandleStateTimer()
 	if (MatchState == MatchState::InProgress)
 	{
 		_countdownTime =  _matchTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
+
+		if (_countdownTime <= _matchTime - 10.f && !_bountySuccessful)
+		{
+			DEBUG_STRING( "Test Spectator" );
+			TestSpectator();
+			_bountySuccessful = true;
+		}
+		
 		if (_countdownTime <= 0.f)
 		{
 			DEBUG_STRING( "Time is up" );
@@ -98,11 +106,12 @@ void APW_BountyGameMode::HandleStateTimer()
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
-		_countdownTime = _cooldownTime + _matchTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
+		_countdownTime = _mathEndCooldownTime + _matchTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
 		if (_countdownTime <= 0.f)
 		{
 			DEBUG_STRING( "Cooldown is up" );
 			SetMatchState(MatchState::LeavingMap);
+			//RestartGame();
 		}
 	}
 }
@@ -114,9 +123,46 @@ void APW_BountyGameMode::BountyFailed()
 	SetMatchState(MatchState::Cooldown);
 }
 
+void APW_BountyGameMode::TestSpectator()
+{
+	//ToggleAllPlayersInput(false);
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController && playerController->GetPawn())
+		{
+			if (playerController->GetPawn()->HasAuthority())
+			{
+				DEBUG_STRING( "Test Spectator HasAuthority" );
+			}
+		}
+	}
+	
+	APW_PlayerController* host = Cast<APW_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	APW_PlayerController* playerController = Cast<APW_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 1));
+	if (host && playerController)
+	{
+		playerController->TogglePlayerInput(false);
+		playerController->SpectatePlayer(host);
+	}
+}
+
 void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+	APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer);
+	if (playerController)
+	{
+		//DEBUG_STRING( "APW_BountyGameMode::PostLogin: playerController is valid" );
+		playerController->ClientJoinMidGame(MatchState, _matchTime, _levelStartTime, _mathEndCooldownTime);
+	}
+	else
+	{
+		//DEBUG_STRING( "APW_BountyGameMode::PostLogin: playerController is nullptr" );
+	}
+
+	DEBUG_STRING( "APW_BountyGameMode::PostLogin: " + NewPlayer->GetName() );
 }
 
 void APW_BountyGameMode::Logout(AController* Exiting)

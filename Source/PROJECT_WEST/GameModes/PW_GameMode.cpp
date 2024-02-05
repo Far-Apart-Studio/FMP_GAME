@@ -21,13 +21,13 @@ void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 	if(!GameState) return;
 	
 	int32 numPlayers = GameState.Get()->PlayerArray.Num();
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Num Players: %d"), numPlayers));
+	// DEBUG_STRING (FString::Printf (TEXT ("Num Players: %d"), numPlayers));
 
 	APlayerState* playerState = NewPlayer->GetPlayerState<APlayerState>();
 	if (playerState)
 	{
 		FString playerName = playerState->GetPlayerName();	
-		GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf (TEXT ("%s has joined" ), *playerName));
+		//DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
 	}
 }
 
@@ -39,7 +39,7 @@ void APW_GameMode::Logout(AController* Exiting)
 	if (playerState)
 	{
 		FString playerName = playerState->GetPlayerName();
-		DEBUG_STRING (FString::Printf (TEXT ("%s has left sesson " ), *playerName));
+		//DEBUG_STRING (FString::Printf (TEXT ("%s has left sesson " ), *playerName));
 		
 		APW_Character * character = Cast<APW_Character>(playerState->GetPawn());
 		if (character)
@@ -56,11 +56,11 @@ void APW_GameMode::Logout(AController* Exiting)
 	}
 	else
 	{
-		DEBUG_STRING( "Player Logout No PlayerState");
+		//DEBUG_STRING( "Player Logout No PlayerState");
 	}
 
 	int32 numPlayers = GameState.Get()->PlayerArray.Num();
-	DEBUG_STRING (FString::Printf (TEXT ("Num Players: %d"), numPlayers));
+	//DEBUG_STRING (FString::Printf (TEXT ("Num Players: %d"), numPlayers));
 }
 
 void APW_GameMode::ServerTravel(FString MapPath)

@@ -72,6 +72,8 @@ public:
 
 	UFUNCTION( Client, Reliable )
 	void ClientJoinMidGame(FName stateOfMatch, float matchTime, float levelStartTime, float endMatchCountdown);
+
+	void SpectatePlayer (APW_PlayerController* playerController);
 	
 private:
 	
@@ -108,6 +110,7 @@ private:
 	void HandleMatchStarted();
 	void HandleMatchCooldown();
 	void HandleMatchEnded();
+	void DropAllItems();
 
 	bool IsHUDValid();
 	FString ConvertToTime(float time);

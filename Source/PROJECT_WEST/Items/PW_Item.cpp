@@ -141,6 +141,8 @@ void APW_Item::OnPicked()
 
 void APW_Item::OnDropped()
 {
+	OnVisibilityChange(true);
+	
 	_areaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);

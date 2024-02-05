@@ -45,7 +45,7 @@ public:
 	void SpawnLantern();
 
 	FORCEINLINE float GetMatchTime() const { return _matchTime; }
-	FORCEINLINE float GetEndMatchCooldownTime() const { return _cooldownTime; }
+	FORCEINLINE float GetEndMatchCooldownTime() const { return _mathEndCooldownTime; }
 	FORCEINLINE float GetLevelStartTime() const { return _levelStartTime; }
 	FORCEINLINE float GetCountdownTime() const { return _countdownTime; }
 	
@@ -67,7 +67,7 @@ protected:
 	float _matchTime;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	float _cooldownTime;
+	float _mathEndCooldownTime;
 
 	bool _bountySuccessful = false;
 	
@@ -77,4 +77,5 @@ private:
 
 	void HandleStateTimer();
 	void BountyFailed();
+	void TestSpectator();
 };

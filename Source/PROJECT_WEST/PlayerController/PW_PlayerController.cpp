@@ -12,13 +12,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
+#include "PROJECT_WEST/PW_ItemHandlerComponent.h"
 
 APW_PlayerController::APW_PlayerController()
 {
-	_matchTime = 120.f;
+	_matchTime = 0.f;
 	_clientServerDelta = 0;
 	_timeSyncFrequency = 5;
 	_timeSyncRuningTime = 0;
+
+	DEBUG_STRING( "APW_PlayerController is created" );
 }
 
 void APW_PlayerController::OnPossess(APawn* InPawn)
@@ -30,7 +33,9 @@ void APW_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ServerCheckMatchState();
+	DEBUG_STRING( "APW_PlayerController BeginPlay" );
+
+	//ServerCheckMatchState();
 
 	_hud = Cast<APW_HUD>(GetHUD());
 	_highPingRunningTime = 0;
@@ -65,6 +70,12 @@ float APW_PlayerController::GetServerTime()
 	else return GetWorld()->GetTimeSeconds() + _clientServerDelta;
 }
 
+void APW_PlayerController::SpectatePlayer(APW_PlayerController* playerController)
+{
+	DropAllItems();
+	SetViewTargetWithBlend( playerController->GetPawn(), 0.5f, EViewTargetBlendFunction::VTBlend_Cubic );
+}
+
 void APW_PlayerController::ClientJoinMidGame_Implementation(FName stateOfMatch, float matchTime, float levelStartTime,float endMatchCountdown)
 {
 	_matchState = stateOfMatch;
@@ -79,11 +90,18 @@ void APW_PlayerController::ServerCheckMatchState_Implementation()
 	APW_BountyGameMode* gameMode = Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(this));
 	if (gameMode)
 	{
+		DEBUG_STRING( "ServerCheckMatchState" );
+		
 		_matchTime = gameMode->GetMatchTime();
 		_matchState = gameMode->GetMatchState();
 		_levelStartTime = gameMode->GetLevelStartTime();
 		_endMatchCountdown = gameMode->GetEndMatchCooldownTime();
-		ClientJoinMidGame_Implementation(_matchState, _matchTime, _levelStartTime, _endMatchCountdown);
+		
+		ClientJoinMidGame(_matchState, _matchTime, _levelStartTime, _endMatchCountdown);
+	}
+	else
+	{
+		DEBUG_STRING( "ServerCheckMatchState: No GameMode" );
 	}
 }
 
@@ -128,7 +146,7 @@ void APW_PlayerController::SetMatchCountdown(float time)
 			// set text to empty
 		}
 		
-		DEBUG_STRING( ConvertToTime(time) );
+		//DEBUG_STRING ( ConvertToTime(time) );
 		
 		//_hud->GetCharacterOverlayWidget()->SetScore(score);
 	}
@@ -144,7 +162,7 @@ void APW_PlayerController::SetMatchEndCountdown(float time)
 			// set text to empty
 		}
 		
-		DEBUG_STRING( ConvertToTime(time) );
+		//DEBUG_STRING( ConvertToTime(time) );
 		
 		//_hud->GetCharacterOverlayWidget()->SetScore(score);
 	}
@@ -190,6 +208,19 @@ void APW_PlayerController::HandleMatchCooldown()
 void APW_PlayerController::HandleMatchEnded()
 {
 	
+}
+
+void APW_PlayerController::DropAllItems()
+{
+	APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		UPW_ItemHandlerComponent* itemHandlerComponent = Cast<UPW_ItemHandlerComponent>( character->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
+		if (itemHandlerComponent)
+		{
+			itemHandlerComponent->DoDropAllItems();
+		}
+	}
 }
 
 bool APW_PlayerController::IsHUDValid()
@@ -292,6 +323,8 @@ void APW_PlayerController::SetHUDTime()
 	
 	if (_countDownInt != secondsLeft)
 	{
+		//DEBUG_STRING(FString::Printf(TEXT("Match Time: %f"), _matchTime));
+		
 		_countDownInt = secondsLeft;
 		if (_matchState == MatchState::InProgress)
 		{
