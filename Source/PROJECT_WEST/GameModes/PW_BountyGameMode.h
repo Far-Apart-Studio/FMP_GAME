@@ -7,6 +7,11 @@
 #include "PW_GameMode.h"
 #include "PW_BountyGameMode.generated.h"
 
+namespace MatchState
+{
+	extern PROJECT_WEST_API const FName Cooldown; // cooldown before match ends
+}
+
 /**
  * 
  */
@@ -25,6 +30,8 @@ public:
 	
 	void EnemyEliminated(APW_Character* AttackerCharacter, APW_PlayerController* AttackerController);
 
+	void BountySuccessful();
+
 	float _matchStartTime;
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
@@ -36,6 +43,12 @@ public:
 	APW_Lantern* _lantern;
 
 	void SpawnLantern();
+
+	FORCEINLINE float GetMatchTime() const { return _matchTime; }
+	FORCEINLINE float GetEndMatchCooldownTime() const { return _cooldownTime; }
+	FORCEINLINE float GetLevelStartTime() const { return _levelStartTime; }
+	FORCEINLINE float GetCountdownTime() const { return _countdownTime; }
+	
 protected:
 	
 	virtual void BeginPlay() override;
@@ -45,11 +58,23 @@ protected:
 	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
 
 	void ToggleAllPlayersInput(bool bEnable);
+
+	float _countdownTime = 0.f;
+
+	float _levelStartTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	float _matchTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	float _cooldownTime;
+
+	bool _bountySuccessful = false;
 	
 private:
 
 	float _countDownTime;
 
 	void HandleStateTimer();
-	void GameplayTimerUp();
+	void BountyFailed();
 };

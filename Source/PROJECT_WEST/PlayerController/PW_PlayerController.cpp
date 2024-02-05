@@ -11,6 +11,7 @@
 #include "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -18,7 +19,6 @@ APW_PlayerController::APW_PlayerController()
 	_clientServerDelta = 0;
 	_timeSyncFrequency = 5;
 	_timeSyncRuningTime = 0;
-	_InGameplaySession = false;
 }
 
 void APW_PlayerController::OnPossess(APawn* InPawn)
@@ -29,6 +29,8 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 void APW_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ServerCheckMatchState();
 
 	_hud = Cast<APW_HUD>(GetHUD());
 	_highPingRunningTime = 0;
@@ -41,7 +43,7 @@ void APW_PlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(_InGameplaySession)
+	if(_matchState == MatchState::InProgress || _matchState == MatchState::Cooldown)
 	{
 		SetHUDTime();
 		SyncTimeWithServer(DeltaTime);
@@ -61,6 +63,28 @@ float APW_PlayerController::GetServerTime()
 {
 	if (HasAuthority()) return  GetWorld()->GetTimeSeconds();
 	else return GetWorld()->GetTimeSeconds() + _clientServerDelta;
+}
+
+void APW_PlayerController::ClientJoinMidGame_Implementation(FName stateOfMatch, float matchTime, float levelStartTime,float endMatchCountdown)
+{
+	_matchState = stateOfMatch;
+	_matchTime = matchTime;
+	_levelStartTime = levelStartTime;
+	_endMatchCountdown = endMatchCountdown;
+	OnMatchStateChanged();
+}
+
+void APW_PlayerController::ServerCheckMatchState_Implementation()
+{
+	APW_BountyGameMode* gameMode = Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(this));
+	if (gameMode)
+	{
+		_matchTime = gameMode->GetMatchTime();
+		_matchState = gameMode->GetMatchState();
+		_levelStartTime = gameMode->GetLevelStartTime();
+		_endMatchCountdown = gameMode->GetEndMatchCooldownTime();
+		ClientJoinMidGame_Implementation(_matchState, _matchTime, _levelStartTime, _endMatchCountdown);
+	}
 }
 
 void APW_PlayerController::ReceivedPlayer()
@@ -98,11 +122,29 @@ void APW_PlayerController::SetMatchCountdown(float time)
 {
 	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
 	{
-		int32 minutes = FMath::FloorToInt(time / 60);
-		int32 seconds = time - (minutes * 60);
-		FString timeString = FString::Printf(TEXT("%02d:%02d"), minutes, seconds);
+		if (time < 0)
+		{
+			time = 0;
+			// set text to empty
+		}
+		
+		DEBUG_STRING( ConvertToTime(time) );
+		
+		//_hud->GetCharacterOverlayWidget()->SetScore(score);
+	}
+}
 
-		DEBUG_STRING( timeString);
+void APW_PlayerController::SetMatchEndCountdown(float time)
+{
+	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
+	{
+		if (time < 0)
+		{
+			time = 0;
+			// set text to empty
+		}
+		
+		DEBUG_STRING( ConvertToTime(time) );
 		
 		//_hud->GetCharacterOverlayWidget()->SetScore(score);
 	}
@@ -111,30 +153,57 @@ void APW_PlayerController::SetMatchCountdown(float time)
 void APW_PlayerController::OnMatchStateSet(FName matchState) // Ran Only on Server
 {
 	_matchState = matchState;
-	OnMatchStateChanged(_matchState);
+	OnMatchStateChanged();
 }
 
 void APW_PlayerController::OnRep_MatchState() // Ran Only on Clients
 {
-	OnMatchStateChanged(_matchState);
+	OnMatchStateChanged();
 }
 
-void APW_PlayerController::OnMatchStateChanged(FName matchState)
+void APW_PlayerController::OnMatchStateChanged()
 {
 	if (_matchState == MatchState::InProgress)
 	{
-		_InGameplaySession = true;
+		HandleMatchStarted();
+	}
+	else if (_matchState == MatchState::Cooldown)
+	{
+		HandleMatchCooldown();
 	}
 	else if (_matchState == MatchState::LeavingMap)
 	{
-		_InGameplaySession = false;
+		HandleMatchEnded();
 	}
+}
+
+void APW_PlayerController::HandleMatchStarted()
+{
+	// show match started screen
+}
+
+void APW_PlayerController::HandleMatchCooldown()
+{
+	// show cooldown screen
+}
+
+void APW_PlayerController::HandleMatchEnded()
+{
+	
 }
 
 bool APW_PlayerController::IsHUDValid()
 {
 	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
 	return _hud != nullptr;
+}
+
+FString APW_PlayerController::ConvertToTime(float time)
+{
+	int32 minutes = FMath::FloorToInt(time / 60);
+	int32 seconds = time - (minutes * 60);
+	FString timeString = FString::Printf(TEXT("%02d:%02d"), minutes, seconds);
+	return timeString;
 }
 
 void APW_PlayerController::TogglePlayerInput(bool bEnable)
@@ -177,7 +246,7 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState>() : PlayerState;
 		if (PlayerState)
 		{
-			if (PlayerState->GetPing() * 4 >= _highPingThreshold) //  ping is compressed, so we need to multiply it by 4
+			if (PlayerState->GetPingInMilliseconds() * 4 >= _highPingThreshold) //  ping is compressed, so we need to multiply it by 4
 			{
 				StartHighPingWarning();
 				_pingAnimationRunningTime = 0;
@@ -198,27 +267,40 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 
 void APW_PlayerController::SetHUDTime()
 {
-	uint32 secondsLeft = FMath::CeilToInt(_matchTime  - GetServerTime());
-
-	if (HasAuthority())
+	float timeleft = 0;
+	
+	if (_matchState == MatchState::InProgress)
 	{
-		//if (BlasterGameMode == nullptr)
-		//{
-		//	BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
-		//	LevelStartingTime = BlasterGameMode->LevelStartingTime;
-		//}
-		//BlasterGameMode = BlasterGameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : BlasterGameMode;
-		//if (BlasterGameMode)
-		//{
-		//	SecondsLeft = FMath::CeilToInt(BlasterGameMode->GetCountdownTime() + LevelStartingTime);
-		//}
+		timeleft = _matchTime - GetServerTime() + _levelStartTime;
+	}
+	else if (_matchState == MatchState::Cooldown)
+	{
+		timeleft = _endMatchCountdown + _matchTime - GetServerTime() + _levelStartTime;
 	}
 
+	uint32 secondsLeft = FMath::CeilToInt(timeleft);
+	
+	if (HasAuthority())
+	{
+		_bountyGameMode = _bountyGameMode ? Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
+		if (_bountyGameMode)
+		{
+			_levelStartTime = _bountyGameMode->GetLevelStartTime();
+			secondsLeft = FMath::CeilToInt(_bountyGameMode->GetCountdownTime() + _levelStartTime);
+		}
+	}
 	
 	if (_countDownInt != secondsLeft)
 	{
 		_countDownInt = secondsLeft;
-		SetMatchCountdown(secondsLeft);
+		if (_matchState == MatchState::InProgress)
+		{
+			SetMatchCountdown(secondsLeft);
+		}
+		else if (_matchState == MatchState::Cooldown)
+		{
+			SetMatchEndCountdown( secondsLeft );
+		}
 	}
 }
 

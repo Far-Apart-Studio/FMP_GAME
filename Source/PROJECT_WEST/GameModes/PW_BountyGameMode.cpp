@@ -13,18 +13,27 @@
 #include "PROJECT_WEST/Gameplay/PW_SpawnPointsHandlerComponent.h"
 #include "Kismet/GameplayStatics.h"
 
+namespace MatchState
+{
+	const FName Cooldown = FName("Cooldown");
+}
+
 APW_BountyGameMode::APW_BountyGameMode()
 {
 	bUseSeamlessTravel = true;
 	_mapPath = "";
 	_matchStartTime = 0.f;
-	CooldownTime = 10.f;
+	_matchTime = 120.f;
+	_cooldownTime = 10.f;
+
 	//bDelayedStart = true; use if you want to delay the start of the game
 }
 
 void APW_BountyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	_levelStartTime = GetWorld()->GetTimeSeconds();
 	
 	StartMatch();
 	
@@ -33,7 +42,7 @@ void APW_BountyGameMode::BeginPlay()
 
 	SpawnLantern();
 	
-	_matchStartTime = GetWorld()->GetTimeSeconds() + WarmupTime;
+	_matchStartTime = GetWorld()->GetTimeSeconds();
 }
 
 void APW_BountyGameMode::Tick(float DeltaSeconds)
@@ -57,6 +66,11 @@ void APW_BountyGameMode::OnMatchStateSet()
 			playerController->OnMatchStateSet( MatchState );
 		}
 	}
+
+	if (MatchState == MatchState::LeavingMap)
+	{
+		ServerTravel(_mapPath);
+	}
 }
 
 void APW_BountyGameMode::ToggleAllPlayersInput(bool bEnable)
@@ -75,28 +89,29 @@ void APW_BountyGameMode::HandleStateTimer()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		CountdownTime =  MatchTime - GetWorld()->GetTimeSeconds();
-		if (CountdownTime <= 0.f)
+		_countdownTime =  _matchTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
+		if (_countdownTime <= 0.f)
 		{
-			SetMatchState(MatchState::LeavingMap);
 			DEBUG_STRING( "Time is up" );
-			GameplayTimerUp();
+			BountyFailed();
 		}
 	}
-	else if (MatchState == MatchState::LeavingMap)
+	else if (MatchState == MatchState::Cooldown)
 	{
-		CountdownTime = CooldownTime + WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
-		if (CountdownTime <= 0.f)
+		_countdownTime = _cooldownTime + _matchTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
+		if (_countdownTime <= 0.f)
 		{
-			RestartGame();
+			DEBUG_STRING( "Cooldown is up" );
+			SetMatchState(MatchState::LeavingMap);
 		}
 	}
 }
 
-void APW_BountyGameMode::GameplayTimerUp()
+void APW_BountyGameMode::BountyFailed()
 {
+	_bountySuccessful = false;
 	ToggleAllPlayersInput(false);
-	ServerTravel(_mapPath);
+	SetMatchState(MatchState::Cooldown);
 }
 
 void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
@@ -118,6 +133,13 @@ void APW_BountyGameMode::EnemyEliminated(APW_Character* AttackerCharacter, APW_P
 	{
 		gameState->UpdateTopScore(AttackerController->GetPlayerState<APW_PlayerState>());
 	}
+}
+
+void APW_BountyGameMode::BountySuccessful()
+{
+	_bountySuccessful = true;
+	ToggleAllPlayersInput(false);
+	SetMatchState(MatchState::Cooldown);
 }
 
 void APW_BountyGameMode::SpawnLantern()

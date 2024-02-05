@@ -39,23 +39,4 @@ protected:
 	virtual void BeginPlay() override;
 	
 	virtual void OnMatchStateSet() override;
-	
-	float CountdownTime = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	float WarmupTime = 10.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	float MatchTime = 120.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	float CooldownTime = 10.f;
-	
-	float LevelStartingTime = 0.f;
-
-	bool bTeamsMatch = false;
-	
-public:
-	
-	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 };

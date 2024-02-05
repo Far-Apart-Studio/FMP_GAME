@@ -23,7 +23,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	virtual float GetServerTime(); // Synced with server world clock
 	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
 
 	FHighPingDelegate HighPingDelegate;
@@ -61,9 +60,18 @@ public:
 	void SetHUDHealth(float health, float maxHealth);
 	void SetHUDScore(float score);
 	void SetMatchCountdown(float time);
+	void SetMatchEndCountdown(float time);
 
 	void OnMatchStateSet(FName matchState);
 	void TogglePlayerInput(bool bEnable);
+
+	virtual float GetServerTime(); // Synced with server world clock
+
+	UFUNCTION( Server, Reliable )
+	void ServerCheckMatchState();
+
+	UFUNCTION( Client, Reliable )
+	void ClientJoinMidGame(FName stateOfMatch, float matchTime, float levelStartTime, float endMatchCountdown);
 	
 private:
 	
@@ -81,9 +89,14 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ping", meta = (AllowPrivateAccess = "true"))
 	float _highPingThreshold;
-	
+
+	float _levelStartTime;
 	float _matchTime;
+	float _endMatchCountdown;
+	
 	uint32 _countDownInt;
+
+	class APW_BountyGameMode* _bountyGameMode;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 	FName _matchState;
@@ -91,9 +104,11 @@ private:
 	UFUNCTION()
 	void OnRep_MatchState();
 
-	void OnMatchStateChanged(FName matchState);
+	void OnMatchStateChanged();
+	void HandleMatchStarted();
+	void HandleMatchCooldown();
+	void HandleMatchEnded();
 
 	bool IsHUDValid();
-
-	bool _InGameplaySession;
+	FString ConvertToTime(float time);
 };
