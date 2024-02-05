@@ -104,9 +104,9 @@ void APW_BountyGameMode::HandleStateTimer()
 
 		if (_countdownTime <= _matchTime - 10.f && !_bountySuccessful)
 		{
-			DEBUG_STRING( "Test Spectator" );
-			TestSpectator();
-			_bountySuccessful = true;
+			//DEBUG_STRING( "Test Spectator" );
+			//TestSpectator();
+			//_bountySuccessful = true;
 		}
 		
 		if (_countdownTime <= 0.f)
