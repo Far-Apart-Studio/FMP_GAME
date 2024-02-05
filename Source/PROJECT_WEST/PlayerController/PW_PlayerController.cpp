@@ -260,7 +260,8 @@ void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
 
 void APW_PlayerController::StartHighPingWarning()
 {
-	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
+	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
+	if (_hud && _hud->GetCharacterOverlayWidget())
 	{
 		_hud->GetCharacterOverlayWidget()->StartHighPingWarning();
 	}
@@ -268,7 +269,8 @@ void APW_PlayerController::StartHighPingWarning()
 
 void APW_PlayerController::StopHighPingWarning()
 {
-	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
+	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
+	if (_hud && _hud->GetCharacterOverlayWidget())
 	{
 		_hud->GetCharacterOverlayWidget()->StopHighPingWarning();
 	}
@@ -291,7 +293,8 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 		_highPingRunningTime = 0;
 	}
 
-	if (IsHUDValid() &&
+	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
+	if (_hud &&
 		_hud->GetCharacterOverlayWidget() &&
 		_hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
 	{
