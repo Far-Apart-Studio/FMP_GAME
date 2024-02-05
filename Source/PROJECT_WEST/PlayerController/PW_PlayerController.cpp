@@ -291,7 +291,9 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 		_highPingRunningTime = 0;
 	}
 
-	if (IsHUDValid() && _hud->GetCharacterOverlayWidget() && _hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
+	if (IsHUDValid() &&
+		_hud->GetCharacterOverlayWidget() &&
+		_hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
 	{
 		_pingAnimationRunningTime += DeltaTime;
 		if (_pingAnimationRunningTime >= _highPingDuration)
