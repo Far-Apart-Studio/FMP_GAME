@@ -105,7 +105,10 @@ public:
 	void LookRightAxisPressed(float value);
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
+	
+	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
+	
 public:
 	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
