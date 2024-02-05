@@ -77,14 +77,9 @@ void APW_GameMode::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void APW_GameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController,APlayerController* AttackerController)
+void APW_GameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController,AController* AttackerController)
 {
-	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
 
-	if (ElimmedCharacter)
-	{
-		// ElimmedCharacter->OnEliminated();
-	}
 }
 
 void APW_GameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)

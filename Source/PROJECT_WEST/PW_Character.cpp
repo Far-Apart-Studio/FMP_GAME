@@ -12,6 +12,9 @@
 #include "PW_ItemHandlerComponent.h"
 #include "PW_WeaponHandlerComponent.h"
 #include "Engine/DamageEvents.h"
+#include "PROJECT_WEST/PW_HealthComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 APW_Character::APW_Character()
 {
@@ -33,7 +36,21 @@ APW_Character::APW_Character()
 void APW_Character::BeginPlay()
 {
 	Super::BeginPlay();
-	TakeDamage(10, FDamageEvent(), nullptr, nullptr);
+}
+
+void APW_Character::OnDeath(AActor* DamageCauser, AController* DamageCauserController)
+{
+	_bountyGameMode = _bountyGameMode == nullptr ? GetWorld()->GetAuthGameMode<APW_BountyGameMode>() : _bountyGameMode;
+	if (_bountyGameMode)
+	{
+		_playerController = _playerController == nullptr ? Cast<APW_PlayerController>(GetController()) : _playerController;
+		_bountyGameMode->PlayerEliminated( this, _playerController, DamageCauserController );
+	}
+}
+
+void APW_Character::OnHealthChanged()
+{
+	
 }
 
 void APW_Character::PostInitializeComponents()
@@ -46,10 +63,20 @@ void APW_Character::PostInitializeComponents()
 		weaponHandler->SetOwnerCharacter(this);
 	}
 
-	UPW_ItemHandlerComponent* itemHandler = FindComponentByClass<UPW_ItemHandlerComponent>();
-	if (itemHandler)
+	_itemHandlerComponent = FindComponentByClass<UPW_ItemHandlerComponent>();
+	if (_itemHandlerComponent)
 	{
-		itemHandler->SetOwnerCharacter(this);
+		_itemHandlerComponent->SetOwnerCharacter(this);
+	}
+
+	if (HasAuthority())
+	{
+		_healthComponent = FindComponentByClass<UPW_HealthComponent>();
+		if (_healthComponent)
+		{
+			_healthComponent->OnHealthChanged.AddDynamic(this, &APW_Character::OnHealthChanged);
+			_healthComponent->OnDeath.AddDynamic(this, &APW_Character::OnDeath);
+		}
 	}
 }
 
@@ -171,4 +198,9 @@ void APW_Character::SwitchItemButtonPressed()
 void APW_Character::DropButtonPressed()
 {
 	OnDropButtonPressed.Broadcast();
+}
+
+bool APW_Character::IsAlive() const
+{
+	return  _healthComponent ? _healthComponent->IsAlive() : false;
 }

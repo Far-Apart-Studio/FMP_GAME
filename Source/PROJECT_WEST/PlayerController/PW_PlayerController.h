@@ -78,6 +78,8 @@ public:
 	void ClientJoinMidGame(FName stateOfMatch, float matchTime, float levelStartTime, float endMatchCountdown);
 
 	void SpectatePlayer (APW_PlayerController* playerController);
+
+	bool IsAlive();
 	
 private:
 	

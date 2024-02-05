@@ -42,10 +42,9 @@ void UPW_WeaponHandlerComponent::BeginPlay()
 
 	if(_ownerCharacter->IsLocallyControlled())
 	{
-
+		AssignInputActions();
 	}
-
-	AssignInputActions();
+	
 	//AttachDefaultWeapon();
 }
 
@@ -58,7 +57,11 @@ APW_Weapon* UPW_WeaponHandlerComponent::TryGetCurrentWeapon()
 void UPW_WeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	_lastFiredTime += DeltaTime;
+	
+	if (_ownerCharacter && _ownerCharacter->IsLocallyControlled())
+	{
+		_lastFiredTime += DeltaTime;
+	}
 }
 
 void UPW_WeaponHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -91,17 +94,17 @@ void UPW_WeaponHandlerComponent::CastBulletRay()
 		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Green,
 			false, 2.0f, 0, 2.0f);
 		//PW_Utilities::Log("Hit Actor: ", hitResult.GetActor()->GetName());
-		DEBUG_STRING("Hit Actor: " + hitResult.GetActor()->GetName());
+		//DEBUG_STRING("Hit Actor: " + hitResult.GetActor()->GetName());
 	}
 	else
 	{
 		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Red,
 			false, 2.0f, 0, 2.0f);
 		//PW_Utilities::Log("No Actor Hit!");
-		DEBUG_STRING("Hit Actor:");
+		//DEBUG_STRING("Hit Actor:");
 	}
 	
-	ApplyDamage(hitResult);
+	DoApplyDamage(hitResult);
 }
 
 bool UPW_WeaponHandlerComponent::CastRay(const FVector& rayStart, const FVector& rayDestination,
@@ -211,18 +214,6 @@ void UPW_WeaponHandlerComponent::ServerRPCSpawnDefaultWeapon_Implementation()
 	SpawnDefaultWeapon();
 }
 
-void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult)
-{
-	AActor* hitActor = hitResult.GetActor();
-
-	if (hitActor == nullptr)
-		{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
-
-	const float calculatedDamage = CalculateDamage(hitResult);
-	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
-	_ownerCharacter->GetController(), _ownerCharacter);
-}
-
 void UPW_WeaponHandlerComponent::DoApplyDamage(const FHitResult& hitResult)
 {
 	if (GetOwner()->HasAuthority())
@@ -235,8 +226,19 @@ void UPW_WeaponHandlerComponent::ServerApplyDamage_Implementation(const FHitResu
 {
 	if (!GetOwner()->HasAuthority())
 		return;
-	
 	ApplyDamage(hitResult);
+}
+
+void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult)
+{
+	AActor* hitActor = hitResult.GetActor();
+
+	if (hitActor == nullptr)
+	{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
+
+	const float calculatedDamage = CalculateDamage(hitResult);
+	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
+	_ownerCharacter->GetController(), _ownerCharacter);
 }
 
 float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult)

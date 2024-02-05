@@ -101,13 +101,6 @@ void APW_BountyGameMode::HandleStateTimer()
 	if (MatchState == MatchState::InProgress)
 	{
 		_countdownTime =  _matchTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
-
-		if (_countdownTime <= _matchTime - 10.f && !_bountySuccessful)
-		{
-			//DEBUG_STRING( "Test Spectator" );
-			//TestSpectator();
-			//_bountySuccessful = true;
-		}
 		
 		if (_countdownTime <= 0.f)
 		{
@@ -147,6 +140,20 @@ void APW_BountyGameMode::TestSpectator()
 	}
 }
 
+APW_PlayerController* APW_BountyGameMode::GetAnyPlayerAlive()
+{
+	APW_PlayerController* playerAlive = nullptr;
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController && playerController->IsAlive())
+		{
+			playerAlive = playerController; 
+		}
+	}
+	return playerAlive;
+}
+
 void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
@@ -167,6 +174,28 @@ void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
 void APW_BountyGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
+}
+
+void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController, AController* AttackerController)
+{
+	Super::PlayerEliminated(ElimmedCharacter, VictimController, AttackerController);
+
+	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
+
+	if (ElimmedCharacter)
+	{
+		
+		APW_PlayerController* host = GetAnyPlayerAlive();
+		if (host && VictimController)
+		{
+			VictimController->ClientTogglePlayerInput(false);
+			VictimController->SpectatePlayer(host);
+		}
+		else
+		{
+			DEBUG_STRING( "No player alive" );
+		}
+	}
 }
 
 void APW_BountyGameMode::EnemyEliminated(APW_Character* AttackerCharacter, APW_PlayerController* AttackerController)

@@ -13,6 +13,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 #include "PROJECT_WEST/PW_ItemHandlerComponent.h"
+#include "PROJECT_WEST/PW_HealthComponent.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -74,6 +75,16 @@ void APW_PlayerController::SpectatePlayer(APW_PlayerController* playerController
 {
 	DropAllItems();
 	SetViewTargetWithBlend( playerController->GetPawn(), 0.5f, EViewTargetBlendFunction::VTBlend_Cubic );
+}
+
+bool APW_PlayerController::IsAlive()
+{
+	APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		return character->IsAlive();
+	}
+	return false;
 }
 
 void APW_PlayerController::ClientJoinMidGame_Implementation(FName stateOfMatch, float matchTime, float levelStartTime,float endMatchCountdown)

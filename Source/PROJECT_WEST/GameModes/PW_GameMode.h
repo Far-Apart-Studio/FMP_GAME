@@ -23,7 +23,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	
-	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, APlayerController* AttackerController);
+	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController);
 	
 	virtual void RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController);
 

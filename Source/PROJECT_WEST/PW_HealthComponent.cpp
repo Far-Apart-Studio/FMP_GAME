@@ -9,6 +9,7 @@
 UPW_HealthComponent::UPW_HealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicated( true );
 }
 
 void UPW_HealthComponent::BeginPlay()
@@ -17,10 +18,11 @@ void UPW_HealthComponent::BeginPlay()
 	_currentHealth = _defaultHealth;
 	AActor* ownerActor = GetOwner();
 
-	if (ownerActor)
+	if (ownerActor && ownerActor->HasAuthority())
 	{
 		ownerActor->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
-		PW_Utilities::Log("Health Component Successfully Initialized");
+		//PW_Utilities::Log("Health Component Successfully Initialized");
+		//DEBUG_STRING( "Health Component Successfully Initialized" );
 	}
 }
 
@@ -28,15 +30,15 @@ void UPW_HealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UPW_HealthComponent, _currentHealth);
+	DOREPLIFETIME(UPW_HealthComponent, _isAlive);
 }
 
-void UPW_HealthComponent::OnRep_OnHealthChange()
+void UPW_HealthComponent::OnRep_OnHealthChange(float lastHealth)
 {
-	FString healthString = GetOwner()->HasAuthority() ? "Server" : "Client";
-	DEBUG_STRING("HEALTH CHANGED!" + healthString);
-
-	if (_currentHealth <= _minimumHealth)
-		OnDeath.Broadcast();
+	if (_currentHealth < lastHealth)
+	{
+		OnHealthChanged.Broadcast();
+	}
 }
 
 void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,17 +46,16 @@ void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UPW_HealthComponent::TakeDamage(AActor* damageActor, float damageAmount, const UDamageType*
-	damageType, AController* instigatedBy, AActor* damageCauser)
+void UPW_HealthComponent::TakeDamage(AActor* damageActor, float damageAmount, const UDamageType*damageType, AController* instigatedBy, AActor* damageCauser)
 {
-	FString healthString = GetOwner()->HasAuthority() ? "Server" : "Client";
-	DEBUG_STRING("HEALTH CHANGED!" + healthString);
-	
-	if (damageAmount <= 0.0f)
+	if (damageAmount <= 0.0f || !_isAlive)
 		return;
 
 	_currentHealth = FMath::Clamp(_currentHealth - damageAmount, _minimumHealth, _maxHealth);
 
 	if (_currentHealth == _minimumHealth)
-		OnDeath.Broadcast();
+	{
+		OnDeath.Broadcast(damageCauser, instigatedBy );
+		_isAlive = false;
+	}
 }

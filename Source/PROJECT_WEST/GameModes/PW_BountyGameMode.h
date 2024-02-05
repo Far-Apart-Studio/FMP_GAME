@@ -27,7 +27,8 @@ public:
 	
 	void PostLogin(APlayerController* NewPlayer) override;
 	void Logout(AController* Exiting) override;
-	
+
+	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController) override;
 	void EnemyEliminated(APW_Character* AttackerCharacter, APW_PlayerController* AttackerController);
 
 	void BountySuccessful();
@@ -78,4 +79,5 @@ private:
 	void HandleStateTimer();
 	void BountyFailed();
 	void TestSpectator();
+	APW_PlayerController* GetAnyPlayerAlive();
 };

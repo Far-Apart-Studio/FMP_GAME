@@ -36,8 +36,12 @@ APW_BountyBoard::APW_BountyBoard()
 void APW_BountyBoard::BeginPlay()
 {
 	Super::BeginPlay();
-	_triggerBox->OnComponentBeginOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapBegin);
-	_triggerBox->OnComponentEndOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapEnd);
+
+	if(HasAuthority())
+	{
+		_triggerBox->OnComponentBeginOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapBegin);
+		_triggerBox->OnComponentEndOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapEnd);
+	}
 }
 
 // Called every frame

@@ -8,7 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReachedHealthThreshold);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHealthChanged);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDeath, AActor*, DamageCauser,AController*, DamageCauserController);
 
 USTRUCT()
 struct FHealthMilestone
@@ -52,18 +52,18 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Health Handler")
 	bool _canRecoverHealth = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Health Handler")
-	bool _canReceiveDamage = true;
+	UPROPERTY(Replicated,VisibleAnywhere, Category = "Health Handler")
+	bool _isAlive = true;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
 	TArray<FHealthMilestone> _healthMilestones;
 	
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
-	FOnDeath OnDeath;
-
-	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnHealthChanged OnHealthChanged;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDeath OnDeath;
 
 public:	
 	UPW_HealthComponent();
@@ -73,11 +73,13 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
-	void OnRep_OnHealthChange();
+	void OnRep_OnHealthChange(float lastHealth);
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
 	void TakeDamage(AActor* DamageActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+	FORCEINLINE bool IsAlive() const { return _isAlive; }
 };

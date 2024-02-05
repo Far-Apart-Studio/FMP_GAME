@@ -37,14 +37,20 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Character")
 	class UCameraComponent* _cameraComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(VisibleAnywhere, Category = "Character")
 	class UPW_ItemHandlerComponent* _itemHandlerComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Character")
+	class UPW_HealthComponent* _healthComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
 	float _sprintMultiplier = 1.50f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _overheadWidget;
+
+	class APW_PlayerController* _playerController;
+	class APW_BountyGameMode* _bountyGameMode;
 	
 	bool _isSprinting = false;
 	
@@ -75,6 +81,13 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+	
+	UFUNCTION()
+	void OnDeath(AActor* DamageCauser, AController* DamageCauserController);
+	
+	UFUNCTION()
+	void OnHealthChanged();
+	
 	virtual void PostInitializeComponents() override;
 	void PickUpButtonPressed();
 	void SwitchItemButtonPressed();
@@ -92,7 +105,7 @@ public:
 	void LookRightAxisPressed(float value);
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
-
+	bool IsAlive() const;
 public:
 	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
