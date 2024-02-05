@@ -55,7 +55,7 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappinItem, VisibleAnywhere, Category = "Item")
 	class APW_Item* _overlappingItem;
 	
-	UPROPERTY(Replicated, VisibleAnywhere, Category = "Item")
+	UPROPERTY(Replicated, VisibleAnywhere,BlueprintReadOnly, Category = "Item", meta = (AllowPrivateAccess = "true"))
 	class APW_Item* _itemInHand;
 
 	UPROPERTY(Replicated,  VisibleAnywhere, Category = "Item")
