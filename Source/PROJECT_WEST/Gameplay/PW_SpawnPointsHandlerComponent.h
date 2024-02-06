@@ -6,6 +6,29 @@
 #include "Components/SceneComponent.h"
 #include "PW_SpawnPointsHandlerComponent.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSpawnPointSet
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, Category = "SpawnPoints", Meta = (MakeEditWidget = true))
+	TArray<FVector>  spawnPoints;
+
+	FVector GetRandomSpawnPoint()
+	{
+		if (spawnPoints.Num() > 0)
+		{
+			return spawnPoints[FMath::RandRange(0, spawnPoints.Num() - 1)];
+		}
+		else
+		{
+			return FVector::ZeroVector;
+		}
+	}
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_SpawnPointsHandlerComponent : public USceneComponent
@@ -23,12 +46,16 @@ protected:
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	UPROPERTY(EditAnywhere, Category = "SpawnPoints")
+	FSpawnPointSet _lanternSpawnPoint;
 
-	// make _lanternSpawnPoint moveable in editor with a gizmo
-	UPROPERTY(EditAnywhere, Category = "SpawnPoints", Meta = (MakeEditWidget = true))
-	FVector _lanternSpawnPoint;
+	UPROPERTY(EditAnywhere, Category = "SpawnPoints")
+	FSpawnPointSet _bountySpawnPoint;
 
 	FVector GetLanternSpawnPoint();
+
+	FVector GetBountySpawnPoint();
 
 private:
 

@@ -40,6 +40,8 @@ void APW_BountyGameMode::BeginPlay()
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
 	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
 
+	
+	SpawnBountyEnemy();
 	SpawnLantern();
 	
 	_matchStartTime = GetWorld()->GetTimeSeconds();
@@ -213,13 +215,35 @@ void APW_BountyGameMode::BountySuccessful()
 
 void APW_BountyGameMode::SpawnLantern()
 {
-	if(!_spawnPointsHandlerComponent) return;
+	if(!_spawnPointsHandlerComponent || !_lanternClass) return;
 	_lantern = GetWorld()->SpawnActor<APW_Lantern>(_lanternClass);
 	if (_lantern)
 	{
 		_lantern->SetActorLocation(_spawnPointsHandlerComponent->GetLanternSpawnPoint());
 		_lantern->SetActorRotation(FRotator(0, 0, 0));
 		_lantern->SetOwner(nullptr);
-		_lantern->SetTarget( _spawnPointsManager);
+
+		if (_bountyEnemy)
+		{
+			_lantern->SetTarget( _bountyEnemy);
+			DEBUG_STRING ( "Lantern spawned and set target" );
+		}
+		else
+		{
+			DEBUG_STRING ( "Lantern spawned but no target" );
+		}
+	}
+}
+
+void APW_BountyGameMode::SpawnBountyEnemy()
+{
+	if (!_spawnPointsHandlerComponent || !_bountyEnemyClass) return;
+	_bountyEnemy = GetWorld()->SpawnActor<AActor>(_bountyEnemyClass);
+	if (_bountyEnemy)
+	{
+		_bountyEnemy->SetActorLocation(_spawnPointsHandlerComponent->GetBountySpawnPoint());
+		_bountyEnemy->SetActorRotation(FRotator(0, 0, 0));
+		_bountyEnemy->SetOwner(nullptr);
+		DEBUG_STRING( "Bounty enemy spawned" );
 	}
 }

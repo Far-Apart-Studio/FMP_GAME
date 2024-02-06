@@ -41,9 +41,15 @@ public:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<class APW_Lantern > _lanternClass;
 
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
+	TSubclassOf<AActor > _bountyEnemyClass;
+
 	APW_Lantern* _lantern;
 
+	AActor* _bountyEnemy;
+
 	void SpawnLantern();
+	void SpawnBountyEnemy();
 
 	FORCEINLINE float GetMatchTime() const { return _matchTime; }
 	FORCEINLINE float GetEndMatchCooldownTime() const { return _mathEndCooldownTime; }
