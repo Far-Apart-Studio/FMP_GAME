@@ -139,6 +139,11 @@ void UPW_WeaponHandlerComponent::FireWeapon()
 		CastBulletRay();
 		TryGetCurrentWeapon()->SubtractCurrentAmmo(1);
 	}
+
+	const FString ammoString = FString::FromInt(TryGetCurrentWeapon()->GetCurrentAmmo());
+	const FString reserveAmmoString = FString::FromInt(TryGetCurrentWeapon()->GetCurrentReserveAmmo());
+	
+	DEBUG_STRING("Current Ammo: " + ammoString + " Reserve Ammo: " + reserveAmmoString);
 }
 
 void UPW_WeaponHandlerComponent::ReloadWeapon()
