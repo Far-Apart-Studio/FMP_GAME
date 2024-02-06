@@ -44,12 +44,21 @@ public:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<AActor > _bountyEnemyClass;
 
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
+	TSubclassOf<AActor > _bountyHeadClass;
+
 	APW_Lantern* _lantern;
 
 	AActor* _bountyEnemy;
 
+	AActor* _bountyHead;
+
 	void SpawnLantern();
+	
+	UFUNCTION()
+	void OnBountyDead(AActor* DamageCauser, AController* DamageCauserController);
 	void SpawnBountyEnemy();
+	void SpawnBountyHead();
 
 	FORCEINLINE float GetMatchTime() const { return _matchTime; }
 	FORCEINLINE float GetEndMatchCooldownTime() const { return _mathEndCooldownTime; }

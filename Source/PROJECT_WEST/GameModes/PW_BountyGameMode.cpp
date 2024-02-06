@@ -12,6 +12,7 @@
 #include "PROJECT_WEST/Gameplay/PW_SpawnPointsManager.h"
 #include "PROJECT_WEST/Gameplay/PW_SpawnPointsHandlerComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PROJECT_WEST/PW_HealthComponent.h"
 
 namespace MatchState
 {
@@ -235,6 +236,12 @@ void APW_BountyGameMode::SpawnLantern()
 	}
 }
 
+void APW_BountyGameMode::OnBountyDead(AActor* DamageCauser, AController* DamageCauserController)
+{
+	if (_bountySuccessful) return;
+	SpawnBountyHead();
+}
+
 void APW_BountyGameMode::SpawnBountyEnemy()
 {
 	if (!_spawnPointsHandlerComponent || !_bountyEnemyClass) return;
@@ -244,6 +251,26 @@ void APW_BountyGameMode::SpawnBountyEnemy()
 		_bountyEnemy->SetActorLocation(_spawnPointsHandlerComponent->GetBountySpawnPoint());
 		_bountyEnemy->SetActorRotation(FRotator(0, 0, 0));
 		_bountyEnemy->SetOwner(nullptr);
-		DEBUG_STRING( "Bounty enemy spawned" );
+
+		UPW_HealthComponent* healthComponent = _bountyEnemy->FindComponentByClass<UPW_HealthComponent>();
+		if (healthComponent)
+		{
+			DEBUG_STRING( "Bounty enemy spawned and health component found" );
+			healthComponent->OnDeath.AddDynamic(this, &APW_BountyGameMode::OnBountyDead);
+		}
+
+	}
+}
+
+void APW_BountyGameMode::SpawnBountyHead()
+{
+	if (!_bountyHeadClass) return;
+	_bountyHead = GetWorld()->SpawnActor<AActor>(_bountyHeadClass);
+	if (_bountyHead)
+	{
+		_bountyHead->SetActorLocation(_bountyEnemy->GetActorLocation());
+		_bountyHead->SetActorRotation(FRotator(0, 0, 0));
+		_bountyHead->SetOwner(nullptr);
+		DEBUG_STRING( "Bounty head spawned" );
 	}
 }
