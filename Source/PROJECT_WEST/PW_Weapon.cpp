@@ -4,14 +4,12 @@
 
 #include "PW_Utilities.h"
 #include "PW_WeaponData.h"
+#include "Net/UnrealNetwork.h"
 #include "Particles/ParticleSystemComponent.h"
 
 APW_Weapon::APW_Weapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
-	bReplicates = true;
-	SetReplicateMovement(true);
 	
 	_currentWeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	_currentWeaponMesh->SetupAttachment(RootComponent);
@@ -23,18 +21,28 @@ APW_Weapon::APW_Weapon()
 void APW_Weapon::OnPicked()
 {
 	Super::OnPicked();
-	InitialiseWeapon (_weaponData, _weaponVisualData);
+	InitialiseWeaponVisualData(_weaponVisualData);
 }
 
 void APW_Weapon::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	SetReplicateMovement(true);
+	SetReplicates(true);
 }
 
 void APW_Weapon::OnVisibilityChange(bool bIsVisible)
 {
-	//Super::OnVisibilityChange(bIsVisible);
 	_currentWeaponMesh->SetVisibility(bIsVisible);
+}
+
+void APW_Weapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APW_Weapon, _currentAmmo);
+	DOREPLIFETIME(APW_Weapon, _currentReserveAmmo);
+	DOREPLIFETIME(APW_Weapon, _canFire);
 }
 
 void APW_Weapon::Tick(float DeltaTime)
