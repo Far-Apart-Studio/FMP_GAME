@@ -78,6 +78,5 @@ private:
 
 	void HandleStateTimer();
 	void BountyFailed();
-	void TestSpectator();
 	APW_PlayerController* GetAnyPlayerAlive();
 };

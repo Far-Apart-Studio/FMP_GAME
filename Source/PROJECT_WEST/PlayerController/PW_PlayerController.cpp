@@ -213,6 +213,7 @@ void APW_PlayerController::HandleMatchStarted()
 
 void APW_PlayerController::HandleMatchCooldown()
 {
+	_endMatchCountdown += GetServerTime();
 	// show cooldown screen
 }
 
@@ -327,7 +328,7 @@ void APW_PlayerController::SetHUDTime()
 	}
 	else if (_matchState == MatchState::Cooldown)
 	{
-		timeleft = _endMatchCountdown + _matchTime - GetServerTime() + _levelStartTime;
+		timeleft = _endMatchCountdown - GetServerTime() + _levelStartTime;
 	}
 
 	uint32 secondsLeft = FMath::CeilToInt(timeleft);

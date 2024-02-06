@@ -110,7 +110,7 @@ void APW_BountyGameMode::HandleStateTimer()
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
-		_countdownTime = _mathEndCooldownTime + _matchTime - GetWorld()->GetTimeSeconds() + _matchStartTime;
+		_countdownTime = _mathEndCooldownTime  - GetWorld()->GetTimeSeconds() + _matchStartTime;
 		if (_countdownTime <= 0.f)
 		{
 			DEBUG_STRING( "Cooldown is up" );
@@ -122,22 +122,11 @@ void APW_BountyGameMode::HandleStateTimer()
 
 void APW_BountyGameMode::BountyFailed()
 {
+	_mathEndCooldownTime += GetWorld()->GetTimeSeconds();
 	_bountySuccessful = false;
 	ToggleAllPlayersInput(false);
 	SetMatchState(MatchState::Cooldown);
-}
-
-void APW_BountyGameMode::TestSpectator()
-{
-	//ToggleAllPlayersInput(false);
-	
-	APW_PlayerController* host = Cast<APW_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	APW_PlayerController* playerController = Cast<APW_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 1));
-	if (host && playerController)
-	{
-		playerController->ClientTogglePlayerInput(false);
-		playerController->SpectatePlayer(host);
-	}
+	DEBUG_STRING( "BountyFailed"  + MatchState.ToString() );
 }
 
 APW_PlayerController* APW_BountyGameMode::GetAnyPlayerAlive()
@@ -186,14 +175,20 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 	{
 		
 		APW_PlayerController* host = GetAnyPlayerAlive();
-		if (host && VictimController)
+
+		if(host)
 		{
-			VictimController->ClientTogglePlayerInput(false);
-			VictimController->SpectatePlayer(host);
+			DEBUG_STRING( "Player alive"  + host->GetName() );
+			if (VictimController)
+			{
+				VictimController->ClientTogglePlayerInput(false);
+				VictimController->SpectatePlayer(host);
+			}
 		}
 		else
 		{
 			DEBUG_STRING( "No player alive" );
+			BountyFailed();
 		}
 	}
 }

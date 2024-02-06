@@ -57,7 +57,7 @@ void UPW_HealthComponent::TakeDamage(AActor* damageActor, float damageAmount, co
 
 	if (_currentHealth == _minimumHealth)
 	{
-		OnDeath.Broadcast(damageCauser, instigatedBy );
 		_isAlive = false;
+		OnDeath.Broadcast(damageCauser, instigatedBy );
 	}
 }

@@ -138,7 +138,6 @@ void UPW_WeaponHandlerComponent::FireWeapon()
 	{
 		CastBulletRay();
 		TryGetCurrentWeapon()->SubtractCurrentAmmo(1);
-		//FireWeaponVisual();
 	}
 }
 
@@ -187,6 +186,8 @@ void UPW_WeaponHandlerComponent::AttachDefaultWeapon()
 void UPW_WeaponHandlerComponent::SpawnDefaultWeapon()
 {
 	USceneComponent* weaponHolder = _ownerCharacter->GetItemHolder();
+
+	FireWeaponVisual();
 	
 	UWorld* currentWorld = GetWorld();
 	FActorSpawnParameters spawnParameters;
