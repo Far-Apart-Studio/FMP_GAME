@@ -47,11 +47,17 @@ public:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<AActor > _bountyHeadClass;
 
+	
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
+	TSubclassOf<class APW_ExtractionPoint > _extractionPointClass;
+
 	APW_Lantern* _lantern;
 
 	AActor* _bountyEnemy;
 
 	AActor* _bountyHead;
+
+	APW_ExtractionPoint* _extractionPoint;
 
 	void SpawnLantern();
 	
@@ -59,6 +65,9 @@ public:
 	void OnBountyDead(AActor* DamageCauser, AController* DamageCauserController);
 	void SpawnBountyEnemy();
 	void SpawnBountyHead();
+	UFUNCTION()
+	void OnActivateExtrationPoint(bool bWinCondition);
+	void SpawnExtractionPoint();
 
 	FORCEINLINE float GetMatchTime() const { return _matchTime; }
 	FORCEINLINE float GetEndMatchCooldownTime() const { return _mathEndCooldownTime; }

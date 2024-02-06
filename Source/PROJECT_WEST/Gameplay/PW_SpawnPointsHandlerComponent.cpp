@@ -42,6 +42,11 @@ FVector UPW_SpawnPointsHandlerComponent::GetBountySpawnPoint()
 	return ConvertToWorldLocation(_bountySpawnPoint.GetRandomSpawnPoint());
 }
 
+FVector UPW_SpawnPointsHandlerComponent::GetExtractionSpawnPoint()
+{
+	return ConvertToWorldLocation(_extractionPoint.GetRandomSpawnPoint());
+}
+
 FVector UPW_SpawnPointsHandlerComponent::ConvertToWorldLocation(FVector location)
 {
 	return  GetComponentLocation() + GetComponentTransform().TransformVector(location);

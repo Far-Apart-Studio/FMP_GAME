@@ -53,9 +53,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "SpawnPoints")
 	FSpawnPointSet _bountySpawnPoint;
 
+	UPROPERTY(EditAnywhere, Category = "SpawnPoints")
+	FSpawnPointSet _extractionPoint;
+
 	FVector GetLanternSpawnPoint();
 
 	FVector GetBountySpawnPoint();
+
+	FVector GetExtractionSpawnPoint();
 
 private:
 

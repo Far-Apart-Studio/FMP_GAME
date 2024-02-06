@@ -46,6 +46,9 @@ public:
 	
 	void DropItem(APW_Item* item);
 	void DropAllItems();
+
+	template<class T>
+	bool HasItemType ();
 	
 	FORCEINLINE APW_Item* GetOverlappingItem() const { return _overlappingItem; }
 	FORCEINLINE APW_Item* GetItemInHand() const { return _itemInHand; }
@@ -82,3 +85,16 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerDropAllItems();
 };
+
+template <class T>
+bool UPW_ItemHandlerComponent::HasItemType()
+{
+	for (APW_Item* itemInInventory : _itemsInInventory)
+	{
+		if (itemInInventory->IsA(T::StaticClass()))
+		{
+			return true;
+		}
+	}
+	return false;
+}

@@ -13,6 +13,8 @@
 #include "PROJECT_WEST/Gameplay/PW_SpawnPointsHandlerComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
+#include "PROJECT_WEST/Items/PW_BountyHead.h"
+#include "PROJECT_WEST/Bounty System/PW_ExtractionPoint.h"
 
 namespace MatchState
 {
@@ -44,6 +46,7 @@ void APW_BountyGameMode::BeginPlay()
 	
 	SpawnBountyEnemy();
 	SpawnLantern();
+	SpawnExtractionPoint();
 	
 	_matchStartTime = GetWorld()->GetTimeSeconds();
 
@@ -258,7 +261,6 @@ void APW_BountyGameMode::SpawnBountyEnemy()
 			DEBUG_STRING( "Bounty enemy spawned and health component found" );
 			healthComponent->OnDeath.AddDynamic(this, &APW_BountyGameMode::OnBountyDead);
 		}
-
 	}
 }
 
@@ -272,5 +274,31 @@ void APW_BountyGameMode::SpawnBountyHead()
 		_bountyHead->SetActorRotation(FRotator(0, 0, 0));
 		_bountyHead->SetOwner(nullptr);
 		DEBUG_STRING( "Bounty head spawned" );
+	}
+}
+
+void APW_BountyGameMode::OnActivateExtrationPoint(bool bWinCondition)
+{
+	if (bWinCondition)
+	{
+		BountySuccessful();
+	}
+	else
+	{
+		BountyFailed();
+	}
+}
+
+void APW_BountyGameMode::SpawnExtractionPoint()
+{
+	if (!_spawnPointsHandlerComponent || !_extractionPointClass) return;
+	_extractionPoint = GetWorld()->SpawnActor<APW_ExtractionPoint>(_extractionPointClass);
+	if (_extractionPoint)
+	{
+		_extractionPoint->SetActorLocation(_spawnPointsHandlerComponent->GetExtractionSpawnPoint());
+		_extractionPoint->SetActorRotation(FRotator(0, 0, 0));
+		_extractionPoint->SetOwner(nullptr);
+		_extractionPoint->OnWinConditionMet.AddDynamic(this, &APW_BountyGameMode::OnActivateExtrationPoint);
+		DEBUG_STRING( "Extraction point spawned" );
 	}
 }
