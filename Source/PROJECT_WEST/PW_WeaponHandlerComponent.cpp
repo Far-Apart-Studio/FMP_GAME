@@ -130,26 +130,39 @@ void UPW_WeaponHandlerComponent::FireWeapon()
 	}
 
 	if (TryGetCurrentWeapon()->IsAmmoEmpty())
-		{ ReloadWeapon(); return; }
+	{
+		DoReloadWeapon(); return;
+	}
 
 	const bool canFire = CalculateFireStatus();
 	
 	if (canFire)
 	{
+		FireWeaponVisual();
 		CastBulletRay();
-		TryGetCurrentWeapon()->SubtractCurrentAmmo(1);
 	}
+}
 
-	const FString ammoString = FString::FromInt(TryGetCurrentWeapon()->GetCurrentAmmo());
-	const FString reserveAmmoString = FString::FromInt(TryGetCurrentWeapon()->GetCurrentReserveAmmo());
+void UPW_WeaponHandlerComponent::DoReloadWeapon()
+{
+	if (GetOwner()->HasAuthority())
+		ReloadWeapon();
+	else
+		ServerReloadWeapon();
+}
+
+void UPW_WeaponHandlerComponent::ServerReloadWeapon_Implementation()
+{
+	if (!GetOwner()->HasAuthority())
+		return;
 	
-	DEBUG_STRING("Current Ammo: " + ammoString + " Reserve Ammo: " + reserveAmmoString);
+	ReloadWeapon();
 }
 
 void UPW_WeaponHandlerComponent::ReloadWeapon()
 {
 	if (TryGetCurrentWeapon() == nullptr)
-		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 	
 	if (TryGetCurrentWeapon()->IsReloading())
 		return;
@@ -159,65 +172,18 @@ void UPW_WeaponHandlerComponent::ReloadWeapon()
 	const UPW_WeaponData* weaponData = TryGetCurrentWeapon()->GetWeaponData();
 
 	if (weaponData == nullptr)
-		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+	{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
 	const float reloadTime = weaponData->GetWeaponReloadTime();
 	
-	FTimerHandle reloadTimerHandle;
-	FTimerDelegate reloadTimerDelegate;
-	reloadTimerDelegate.BindLambda([this]
-	{
-		if (TryGetCurrentWeapon() == nullptr) return;
-		TryGetCurrentWeapon()->SetReloading(false);
-		TryGetCurrentWeapon()->TransferReserveAmmo();
-	});
-
-	_ownerCharacter->GetWorldTimerManager().SetTimer
-		(reloadTimerHandle, reloadTimerDelegate, reloadTime, false);
+	_ownerCharacter->GetWorldTimerManager().SetTimer (_reloadTimerHandle, this, &UPW_WeaponHandlerComponent::OnReloadWeaponComplete, reloadTime, false);
 }
 
-void UPW_WeaponHandlerComponent::AttachDefaultWeapon()
+void UPW_WeaponHandlerComponent::OnReloadWeaponComplete()
 {
-	if (GetOwner()->HasAuthority())
-	{
-		SpawnDefaultWeapon();
-	}
-	else
-	{
-		ServerRPCSpawnDefaultWeapon();
-	}
-}
-
-void UPW_WeaponHandlerComponent::SpawnDefaultWeapon()
-{
-	USceneComponent* weaponHolder = _ownerCharacter->GetItemHolder();
-
-	FireWeaponVisual();
-	
-	UWorld* currentWorld = GetWorld();
-	FActorSpawnParameters spawnParameters;
-	spawnParameters.Owner = GetOwner();
-
-	const FVector spawnLocation = weaponHolder->GetComponentLocation();
-	const FRotator spawnRotation = weaponHolder->GetComponentRotation();
-
-	//_currentWeapon = currentWorld->SpawnActor<APW_Weapon>(_defaultWeaponClass, spawnLocation, spawnRotation, spawnParameters);
-
-	//if (!_currentWeapon)
-	{
-		PW_Utilities::Log("DEFAULT WEAPON NOT FOUND!");
-		return; 
-	}
-
-	//_currentWeapon->InitialiseWeapon(_defaultWeaponData, _defaultWeaponVisualData);
-	
-	//_itemHandlerComponent->DoPickUp(_currentWeapon);
-}
-
-void UPW_WeaponHandlerComponent::ServerRPCSpawnDefaultWeapon_Implementation()
-{
-	if (GetOwner()->HasAuthority()) return;
-	SpawnDefaultWeapon();
+	if (TryGetCurrentWeapon() == nullptr) return;
+	TryGetCurrentWeapon()->SetReloading(false);
+	TryGetCurrentWeapon()->TransferReserveAmmo();
 }
 
 void UPW_WeaponHandlerComponent::DoApplyDamage(const FHitResult& hitResult)
@@ -232,11 +198,16 @@ void UPW_WeaponHandlerComponent::ServerApplyDamage_Implementation(const FHitResu
 {
 	if (!GetOwner()->HasAuthority())
 		return;
+	
 	ApplyDamage(hitResult);
 }
 
 void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult)
 {
+	FireWeaponVisual();
+	
+	TryGetCurrentWeapon()->SubtractCurrentAmmo(1);
+	
 	AActor* hitActor = hitResult.GetActor();
 
 	if (hitActor == nullptr)
@@ -298,7 +269,7 @@ void UPW_WeaponHandlerComponent::AssignInputActions()
 		(this, &UPW_WeaponHandlerComponent::FireWeapon);
 
 	_ownerCharacter->OnReloadButtonPressed.AddDynamic
-		(this, &UPW_WeaponHandlerComponent::ReloadWeapon);
+		(this, &UPW_WeaponHandlerComponent::DoReloadWeapon);
 }
 
 void UPW_WeaponHandlerComponent::FireWeaponVisual()

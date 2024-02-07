@@ -266,7 +266,7 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionTrigger()
 {
 	DEBUG_STRING( "Find Active Public Session Called" );
 	
-	_sessionFindDelegate.Broadcast(false, TArray<FSessionInfo>());
+	//_sessionFindDelegate.Broadcast(false, TArray<FSessionInfo>());
 	
 	_sessionSearch = MakeShareable(new FOnlineSessionSearch());
 	_sessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;

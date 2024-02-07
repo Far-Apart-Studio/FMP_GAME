@@ -27,9 +27,11 @@ void APW_Weapon::OnPicked()
 void APW_Weapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	_currentMuzzleEffect->SetIsReplicated(true);
 	SetReplicateMovement(true);
 	SetReplicates(true);
+	InitialiseWeapon(_weaponData, _weaponVisualData);
 }
 
 void APW_Weapon::OnVisibilityChange(bool bIsVisible)

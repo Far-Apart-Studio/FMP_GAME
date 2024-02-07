@@ -39,14 +39,13 @@ private:
 
 	class UPW_ItemHandlerComponent* _itemHandlerComponent;
 
+	FTimerHandle _reloadTimerHandle;
+
 public:	
 	UPW_WeaponHandlerComponent();
 
 protected:
 	virtual void BeginPlay() override;
-
-	UFUNCTION(Server, Reliable)
-	void ServerRPCSpawnDefaultWeapon();
 
 	UFUNCTION(BlueprintCallable)
 	APW_Weapon* TryGetCurrentWeapon();
@@ -57,9 +56,6 @@ public:
 	
 	void CastBulletRay();
 	bool CastRay(const FVector& rayStart, const FVector& rayDestination, const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const;
-	
-	void AttachDefaultWeapon();
-	void SpawnDefaultWeapon();
 
 	void DoApplyDamage(const FHitResult& hitResult);
 	void ApplyDamage(const FHitResult& hitResult);
@@ -72,9 +68,19 @@ public:
 	void GetOwnerCharacter();
 	void AssignInputActions();
 
-	UFUNCTION() void ReloadWeapon();
-	UFUNCTION() void FireWeapon();
+	UFUNCTION()
+	void DoReloadWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void ServerReloadWeapon();
+	void ReloadWeapon();
+	void OnReloadWeaponComplete();
+	
+	UFUNCTION()
+	void FireWeapon();
+	
 	void FireWeaponVisual();
+	
 	void ReloadWeaponVisual();
 	FORCEINLINE void SetOwnerCharacter(APW_Character* ownerCharacter) { _ownerCharacter = ownerCharacter; }
 };
