@@ -50,6 +50,7 @@ void APW_BountyGameMode::BeginPlay()
 	SpawnLantern();
 	SpawnExtractionPoint();
 	SpawnEnemies();
+	SpawnWeapons();
 	
 	_matchStartTime = GetWorld()->GetTimeSeconds();
 
@@ -297,6 +298,23 @@ void APW_BountyGameMode::SpawnExtractionPoint()
 		_extractionPoint->SetOwner(nullptr);
 		_extractionPoint->OnWinConditionMet.AddDynamic(this, &APW_BountyGameMode::OnActivateExtrationPoint);
 		DEBUG_STRING( "Extraction point spawned" );
+	}
+}
+
+void APW_BountyGameMode::SpawnWeapons()
+{
+	int32 numberOfPlayers = GetNumPlayers();
+	for (int i = 0; i < numberOfPlayers; i++)
+	{
+		if (!_spawnPointsHandlerComponent || !_weaponClass) return;
+		FVector weaponSpawnPoint = _spawnPointsHandlerComponent->GetLanternSpawnPoint();
+		AActor* weapon = GetWorld()->SpawnActor<AActor>(_weaponClass);
+		if (weapon)
+		{
+			weapon->SetActorLocation(weaponSpawnPoint);
+			weapon->SetActorRotation(FRotator(0, 0, 0));
+			weapon->SetOwner(nullptr);
+		}
 	}
 }
 

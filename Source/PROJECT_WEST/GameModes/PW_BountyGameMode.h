@@ -52,6 +52,9 @@ public:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<AActor > _enemyClass;
 
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
+	TSubclassOf<AActor > _weaponClass;
+
 	APW_Lantern* _lantern;
 
 	AActor* _bountyEnemy;
@@ -71,6 +74,8 @@ public:
 	void OnActivateExtrationPoint(bool bWinCondition);
 	
 	void SpawnExtractionPoint();
+
+	void SpawnWeapons();
 
 	UFUNCTION()
 	void EnemyEliminated(AActor* DamageCauser, AController* DamageCauserController);
