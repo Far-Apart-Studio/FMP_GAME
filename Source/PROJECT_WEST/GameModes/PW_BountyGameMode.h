@@ -29,7 +29,6 @@ public:
 	void Logout(AController* Exiting) override;
 
 	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController) override;
-	void EnemyEliminated(APW_Character* AttackerCharacter, APW_PlayerController* AttackerController);
 
 	void BountySuccessful();
 
@@ -46,10 +45,12 @@ public:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<AActor > _bountyHeadClass;
-
 	
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<class APW_ExtractionPoint > _extractionPointClass;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
+	TSubclassOf<AActor > _enemyClass;
 
 	APW_Lantern* _lantern;
 
@@ -65,9 +66,18 @@ public:
 	void OnBountyDead(AActor* DamageCauser, AController* DamageCauserController);
 	void SpawnBountyEnemy();
 	void SpawnBountyHead();
+	
 	UFUNCTION()
 	void OnActivateExtrationPoint(bool bWinCondition);
+	
 	void SpawnExtractionPoint();
+
+	UFUNCTION()
+	void EnemyEliminated(AActor* DamageCauser, AController* DamageCauserController);
+	void SpawnEnemies();
+
+	int _enemyCount = 0;
+	int _numOfenemiesPerPoint = 3;
 
 	FORCEINLINE float GetMatchTime() const { return _matchTime; }
 	FORCEINLINE float GetEndMatchCooldownTime() const { return _mathEndCooldownTime; }

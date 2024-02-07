@@ -62,6 +62,9 @@ private:
 
 	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxFuel;
+
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _fuelPerCharge;
 	
 	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _fuelDrainRate;
@@ -79,6 +82,8 @@ public:
 	void HandleTargetDetection(float DeltaTime);
 	void HandleLightIntensity(float normalisedAngle);
 	void HandleLightBeamScale(float normalisedAngle);
+
+	void AddFuel();
 
 	void ChargeFuel(float amount);
 

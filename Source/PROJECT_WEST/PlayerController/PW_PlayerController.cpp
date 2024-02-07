@@ -54,8 +54,8 @@ void APW_PlayerController::Tick(float DeltaTime)
 		SetHUDTime();
 		SyncTimeWithServer(DeltaTime);
 	}
-	
-	HandleCheckPing(DeltaTime);
+
+	//HandleCheckPing(DeltaTime);
 }
 
 void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -124,6 +124,13 @@ void APW_PlayerController::ReceivedPlayer()
 	{
 		ServerRequestTime(GetWorld()->GetTimeSeconds());
 	}
+}
+
+void APW_PlayerController::Destroyed()
+{
+	// Drop all items when player controller is destroyed
+	DropAllItems();
+	Super::Destroyed();
 }
 
 void APW_PlayerController::SetupInputComponent()

@@ -33,9 +33,7 @@ APW_Lantern::APW_Lantern()
 	_minSearchDistance = 100.0f;
 	
 	_maxFuel = 100.0f;
-
-	// TODO: Remove this
-	_currentFuel = _maxFuel;
+	_fuelPerCharge = 10.0f;
 	_fuelDrainRate = 10.0f;
 }
 
@@ -46,6 +44,7 @@ void APW_Lantern::BeginPlay()
 	_pointLight->SetIntensity(_currentLightIntensity);
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
 	ToggleLightVisibility(false);
+	_currentFuel = 0.0f;
 }
 
 void APW_Lantern::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -128,11 +127,18 @@ void APW_Lantern::HandleLightIntensity(float normalisedAngle)
 void APW_Lantern::HandleLightBeamScale(float normalisedAngle)
 {
 	_currentBeamScale = FMath::Lerp (_minBeamScale, _maxBeamScale, normalisedAngle);
-	_lightBeamMesh -> SetRelativeScale3D (FVector (_currentBeamScale, _currentBeamScale, 1.0f));
+	_lightBeamMesh -> SetRelativeScale3D (FVector (_currentBeamScale, _currentBeamScale, _lightBeamMesh -> GetRelativeScale3D ().Z));
+}
+
+void APW_Lantern::AddFuel()
+{
+	ChargeFuel(_fuelPerCharge);
 }
 
 void APW_Lantern::ChargeFuel(float amount)
 {
+	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
+	
 	_currentFuel += amount;
 	if (_currentFuel > _maxFuel)
 	{

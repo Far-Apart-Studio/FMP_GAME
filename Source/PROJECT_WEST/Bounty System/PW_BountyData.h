@@ -96,7 +96,7 @@ struct FBountyMapData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	TArray<FBountyMapDataEntry> _bountyMapData;
 
-	FBountyMapDataEntry GetRandomBountyMapDataEntry(FString ignoreMap)
+	FBountyMapDataEntry GetRandomBountyMapDataEntry(FString ignoreMap = "")
 	{
 		int32 randomIndex = FMath::RandRange(0, _bountyMapData.Num() - 1);
 		while (_bountyMapData[randomIndex]._bountyMapName == ignoreMap)
@@ -105,6 +105,24 @@ struct FBountyMapData
 		}
 		return _bountyMapData[randomIndex];
 	}
+};
+
+USTRUCT(BlueprintType)
+struct FBountyDataEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	EBountyDifficulty _bountyDifficulty;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	int32 _bountyCost;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	int32 _bountyReward;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	FBountyMapDataEntry _bountyMapDataEntry;
 };
 
 /**
