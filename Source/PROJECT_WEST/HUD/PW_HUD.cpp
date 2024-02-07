@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "PW_CharacterOverlayWidget.h"
+#include "PW_AnnouncementWidget.h"
 #include "Engine/Canvas.h"
 #include "Engine/Texture2D.h"
 #include "TextureResource.h"
@@ -36,9 +37,16 @@ APW_HUD::APW_HUD()
 void APW_HUD::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	AddCharacterOverlayWidget();
 
 	crosshairSpreadMultiplier = 1;
+}
+
+void APW_HUD::Destroyed()
+{
+	HideAccouncement();
+	Super::Destroyed();
 }
 
 void APW_HUD::AddCharacterOverlayWidget()
@@ -51,6 +59,29 @@ void APW_HUD::AddCharacterOverlayWidget()
 		{
 			_characterOverlayWidget->AddToViewport();
 		}
+	}
+}
+
+void APW_HUD::DisplayAccouncement(const FString& message, FColor color, float duration)
+{
+	APlayerController* playerController = GetOwningPlayerController();
+	if (playerController != nullptr)
+	{
+		_announcementWidget = CreateWidget<UPW_AnnouncementWidget>(playerController, _announcementWidgetClass);
+		if (_announcementWidget)
+		{
+			_announcementWidget->SetAnnouncementText(message,color);
+			_announcementWidget->AddToViewport();
+			GetWorldTimerManager().SetTimer(_announcementTimer, this, &APW_HUD::HideAccouncement, duration, false);
+		}
+	}
+}
+
+void APW_HUD::HideAccouncement()
+{
+	if (_announcementWidget != nullptr)
+	{
+		_announcementWidget->RemoveFromViewport();
 	}
 }
 

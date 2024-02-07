@@ -45,19 +45,34 @@ private:
 
 	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<class UUserWidget> _characterOverlayWidgetClass;
-	
-	class UPW_CharacterOverlayWidget*_characterOverlayWidget;
+
+	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivate = "true") )
+	TSubclassOf<class UUserWidget> _announcementWidgetClass;
+
+	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
+	class UPW_CharacterOverlayWidget* _characterOverlayWidget;
+
+	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
+	class UPW_AnnouncementWidget*  _announcementWidget;
+
+	FTimerHandle _announcementTimer;
 	
 public:
 	
 	virtual void DrawHUD() override;
 
 	FORCEINLINE class UPW_CharacterOverlayWidget* GetCharacterOverlayWidget() const { return _characterOverlayWidget; }
+	FORCEINLINE class UPW_AnnouncementWidget* GetAnnouncementWidget() const { return _announcementWidget; }
+
+
+	void DisplayAccouncement(const FString& message,FColor color = FColor::White, float duration = 2.0f);
+	void HideAccouncement();
 
 protected:
 
 	APW_HUD();
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 	void AddCharacterOverlayWidget();
 
 private:

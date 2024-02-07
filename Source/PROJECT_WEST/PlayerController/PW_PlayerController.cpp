@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "PROJECT_WEST/HUD/PW_HUD.h"
 #include "PROJECT_WEST/HUD/PW_CharacterOverlayWidget.h"
+#include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/GameModes/PW_GameMode.h"
@@ -220,6 +221,11 @@ void APW_PlayerController::HandleMatchStarted()
 
 void APW_PlayerController::HandleMatchCooldown()
 {
+	if(IsHUDValid())
+	{
+		_hud->DisplayAccouncement("Match Ended, Returning to Lobby", FColor::Red, _endMatchCountdown);
+	}
+	
 	_endMatchCountdown += GetServerTime();
 	// show cooldown screen
 }
@@ -244,7 +250,7 @@ void APW_PlayerController::DropAllItems()
 
 bool APW_PlayerController::IsHUDValid()
 {
-	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
+	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
 	return _hud != nullptr;
 }
 

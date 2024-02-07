@@ -14,4 +14,10 @@ class PROJECT_WEST_API UPW_AnnouncementWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* _announcementText;
+	
+	void SetAnnouncementText(const FString& String, FColor Color);
 };
