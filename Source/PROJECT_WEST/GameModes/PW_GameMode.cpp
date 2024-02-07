@@ -8,10 +8,16 @@
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/DebugMacros.h"
+#include "PROJECT_WEST/PW_MultiplayerSessionsSubsystem.h"
 
 APW_GameMode::APW_GameMode()
 {
 	bUseSeamlessTravel = true;
+}
+
+void APW_GameMode::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void APW_GameMode::PostLogin(APlayerController* NewPlayer)
@@ -82,10 +88,6 @@ void APW_GameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerC
 
 }
 
-void APW_GameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)
-{
-}
-
 void APW_GameMode::PlayerLeftGame(APW_PlayerState* PlayerLeaving)
 {
 	if (!PlayerLeaving) return;
@@ -98,14 +100,14 @@ void APW_GameMode::PlayerLeftGame(APW_PlayerState* PlayerLeaving)
 	}
 }
 
-float APW_GameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+void APW_GameMode::ToggleSessionLock(bool lock)
 {
-	return 0;
-}
-
-void APW_GameMode::BeginPlay()
-{
-	Super::BeginPlay();
+	UPW_MultiplayerSessionsSubsystem* multiplayerSessionsSubsystem =  Cast<UPW_MultiplayerSessionsSubsystem>(GetGameInstance()->GetSubsystem<UPW_MultiplayerSessionsSubsystem>());
+	if ( multiplayerSessionsSubsystem )
+	{
+		DEBUG_STRING("MultiplayerSessionsSubsystem Found");
+		multiplayerSessionsSubsystem->ToggleSessionStatus(lock);
+	}
 }
 
 void APW_GameMode::OnMatchStateSet()

@@ -15,7 +15,7 @@ class PROJECT_WEST_API APW_LobbyGameMode : public APW_GameMode
 {
 	GENERATED_BODY()
 
-public:
+protected:
 	
 	APW_LobbyGameMode();
 	
@@ -23,5 +23,11 @@ public:
 	FString _mapPath;
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
-	int32 _playersNeeded;
+	class UBountySystemComponent* _bountySystemComponent;
+
+	class APW_BountyBoard* _bountyBoard;
+
+public:
+	void BeginPlay() override;
+	void TestGameInstance();
 };

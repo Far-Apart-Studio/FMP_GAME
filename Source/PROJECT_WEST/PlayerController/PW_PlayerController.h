@@ -24,6 +24,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
+	void Destroyed() override;
 
 	FHighPingDelegate HighPingDelegate;
 

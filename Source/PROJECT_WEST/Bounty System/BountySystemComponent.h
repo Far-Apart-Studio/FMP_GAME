@@ -34,4 +34,6 @@ public:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
 	FBountyDifficultyData _bountyDifficultyData;
+
+	FBountyDataEntry GetBountyDataEntry(EBountyDifficulty _bountyDifficulty);
 };

@@ -47,6 +47,11 @@ FVector UPW_SpawnPointsHandlerComponent::GetExtractionSpawnPoint()
 	return ConvertToWorldLocation(_extractionPoint.GetRandomSpawnPoint());
 }
 
+TArray<FVector> UPW_SpawnPointsHandlerComponent::GetEnemySpawnPoint()
+{
+	return _enemySpawnPoints.spawnPoints;
+}
+
 FVector UPW_SpawnPointsHandlerComponent::ConvertToWorldLocation(FVector location)
 {
 	return  GetComponentLocation() + GetComponentTransform().TransformVector(location);

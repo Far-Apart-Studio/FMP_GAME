@@ -60,7 +60,7 @@ public:
 	
 	IOnlineSessionPtr sessionInterface;
 
-	TSharedPtr<FOnlineSessionSettings> _lastSessionSettings;
+	FOnlineSessionSettings* _lastSessionSettings;
 	
 	UFUNCTION(BlueprintCallable)
 	void CreateSessionTrigger(int32 numberOfConnection, bool isPublic);
@@ -83,7 +83,8 @@ public:
 	void FindActivePublicSessionDone(bool success);
 	bool _isSeachingForActivePublicSession;
 
-	void UpdateSessionInfo();
+	UFUNCTION(BlueprintCallable)
+	void ToggleSessionStatus(bool locked);
 	
 	FString _sessionToDestroyName;
 	FString _serverNameToFind;

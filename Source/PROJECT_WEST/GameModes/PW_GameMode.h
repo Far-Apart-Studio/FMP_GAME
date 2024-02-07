@@ -24,12 +24,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController);
-	
-	virtual void RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController);
-
-	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 
 	void PlayerLeftGame(class APW_PlayerState* PlayerLeaving);
+
+	void ToggleSessionLock(bool lock);
 
 	UFUNCTION(BlueprintCallable)
 	void ServerTravel (FString mapPath);

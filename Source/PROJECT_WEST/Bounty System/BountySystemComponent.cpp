@@ -20,7 +20,6 @@ void UBountySystemComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
 }
 
 
@@ -30,5 +29,15 @@ void UBountySystemComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+FBountyDataEntry UBountySystemComponent::GetBountyDataEntry(EBountyDifficulty _bountyDifficulty)
+{
+	FBountyDataEntry bountyDataEntry = FBountyDataEntry();
+	bountyDataEntry._bountyDifficulty = _bountyDifficulty;
+	bountyDataEntry._bountyCost = _bountyDifficultyData.GetBountyCost(_bountyDifficulty);
+	bountyDataEntry._bountyReward = _bountyDifficultyData.GetBountyReward(_bountyDifficulty);
+	bountyDataEntry._bountyMapDataEntry = _bountyMapData.GetRandomBountyMapDataEntry();
+	return bountyDataEntry;
 }
 

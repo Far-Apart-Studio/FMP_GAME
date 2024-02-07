@@ -92,7 +92,8 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 	
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	const FString& serverName = localPlayer->GetNickname() +  FString::FromInt(FMath::RandRange(0, 99));
-
+	const FString& sessionStatus = "Open";
+	
 	DEBUG_STRING(serverName);
 	
 	_numberOfConnectionToCreate = numberOfConnection;
@@ -107,7 +108,7 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 		return;	
 	}
 
-	_lastSessionSettings = MakeShareable(new FOnlineSessionSettings());
+	_lastSessionSettings = new FOnlineSessionSettings();
 
 	_lastSessionSettings->bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
 	
@@ -123,6 +124,7 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 
 	_lastSessionSettings->Set(FName("Session_Type"), sessionType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	_lastSessionSettings->Set(FName("Session_Name"), serverName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	
 	sessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *_lastSessionSettings);
 }
@@ -296,10 +298,12 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 			{
 				FString serverName = "No Name";
 				FString sessionType = "No Type";
+				FString sessionStatus = "Open";
 				result.Session.SessionSettings.Get(FName("Session_Name"), serverName);
 				result.Session.SessionSettings.Get(FName("Session_Type"), sessionType);
+				result.Session.SessionSettings.Get(FName("Session_Status"), sessionStatus);
 
-				if (sessionType.Equals("Private"))
+				if (serverName.Equals( "No Name") || sessionType.Equals("Private") || sessionStatus.Equals("Closed"))
 				{
 					continue;
 				}
@@ -318,14 +322,15 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 	_sessionSearch->SearchResults.Empty();
 }
 
-void UPW_MultiplayerSessionsSubsystem::UpdateSessionInfo()
+void UPW_MultiplayerSessionsSubsystem::ToggleSessionStatus(bool locked)
 {
-	_lastSessionSettings = MakeShareable(new FOnlineSessionSettings());
-	
-	const FString& sessionType =  "Private";
-	_lastSessionSettings->Set(FName("Session_Type"), sessionType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-
-	sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
+	const FString& sessionStatus = locked ? "Closed" : "Open";
+	if (sessionInterface && _lastSessionSettings)
+	{
+		_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
+	}
 }
+
 
 

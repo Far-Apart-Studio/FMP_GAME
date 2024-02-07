@@ -35,6 +35,8 @@ APW_BountyGameMode::APW_BountyGameMode()
 void APW_BountyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ToggleSessionLock(true);
 	
 	_levelStartTime = GetWorld()->GetTimeSeconds();
 	
@@ -47,6 +49,7 @@ void APW_BountyGameMode::BeginPlay()
 	SpawnBountyEnemy();
 	SpawnLantern();
 	SpawnExtractionPoint();
+	SpawnEnemies();
 	
 	_matchStartTime = GetWorld()->GetTimeSeconds();
 
@@ -168,7 +171,7 @@ void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
 
 void APW_BountyGameMode::Logout(AController* Exiting)
 {
-	Super::Logout(Exiting);
+	//Super::Logout(Exiting);
 }
 
 void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController, AController* AttackerController)
@@ -196,17 +199,6 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 			DEBUG_STRING( "No player alive" );
 			BountyFailed();
 		}
-	}
-}
-
-void APW_BountyGameMode::EnemyEliminated(APW_Character* AttackerCharacter, APW_PlayerController* AttackerController)
-{
-	APW_PlayerState* attackerState = AttackerController ? Cast<APW_PlayerState>(AttackerController->PlayerState) : nullptr;
-
-	APW_GameState* gameState = GetGameState<APW_GameState>();
-	if (gameState)
-	{
-		gameState->UpdateTopScore(AttackerController->GetPlayerState<APW_PlayerState>());
 	}
 }
 
@@ -274,6 +266,9 @@ void APW_BountyGameMode::SpawnBountyHead()
 		_bountyHead->SetActorRotation(FRotator(0, 0, 0));
 		_bountyHead->SetOwner(nullptr);
 		DEBUG_STRING( "Bounty head spawned" );
+
+		// To remove after prototype
+		SpawnEnemies();
 	}
 }
 
@@ -300,5 +295,37 @@ void APW_BountyGameMode::SpawnExtractionPoint()
 		_extractionPoint->SetOwner(nullptr);
 		_extractionPoint->OnWinConditionMet.AddDynamic(this, &APW_BountyGameMode::OnActivateExtrationPoint);
 		DEBUG_STRING( "Extraction point spawned" );
+	}
+}
+
+void APW_BountyGameMode::EnemyEliminated(AActor* DamageCauser, AController* DamageCauserController)
+{
+	_enemyCount--;
+	_lantern->AddFuel();
+}
+
+void APW_BountyGameMode::SpawnEnemies()
+{
+	if (!_spawnPointsHandlerComponent || !_enemyClass) return;
+	TArray<FVector> enemySpawnPoints = _spawnPointsHandlerComponent->GetEnemySpawnPoint();
+	for (FVector spawnPoint : enemySpawnPoints)
+	{
+		for (int i = 0; i < _numOfenemiesPerPoint; i++)
+		{
+			AActor* enemy = GetWorld()->SpawnActor<AActor>(_enemyClass);
+			if (enemy)
+			{
+				enemy->SetActorLocation(spawnPoint);
+				enemy->SetActorRotation(FRotator(0, 0, 0));
+				enemy->SetOwner(nullptr);
+
+				UPW_HealthComponent* healthComponent = enemy->FindComponentByClass<UPW_HealthComponent>();
+				if (healthComponent)
+				{
+					healthComponent->OnDeath.AddDynamic(this, &APW_BountyGameMode::EnemyEliminated);
+				}
+				_enemyCount++;
+			}
+		}
 	}
 }
