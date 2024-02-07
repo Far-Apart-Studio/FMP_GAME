@@ -60,7 +60,9 @@ public:
 	
 	IOnlineSessionPtr sessionInterface;
 
-	FOnlineSessionSettings* _lastSessionSettings;
+	TSharedPtr<FOnlineSessionSettings> _lastSessionSettings;
+	
+	//FOnlineSessionSettings* _lastSessionSettings;
 	
 	UFUNCTION(BlueprintCallable)
 	void CreateSessionTrigger(int32 numberOfConnection, bool isPublic);
