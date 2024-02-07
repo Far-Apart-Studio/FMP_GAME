@@ -9,12 +9,12 @@
 UPW_HealthComponent::UPW_HealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	SetIsReplicated( true );
 }
 
 void UPW_HealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	SetIsReplicated( true );
 	_currentHealth = _defaultHealth;
 	AActor* ownerActor = GetOwner();
 
