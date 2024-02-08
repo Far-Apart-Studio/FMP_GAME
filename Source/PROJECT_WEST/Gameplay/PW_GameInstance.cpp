@@ -3,6 +3,7 @@
 
 #include "PW_GameInstance.h"
 #include "PROJECT_WEST/DebugMacros.h"
+#include "PROJECT_WEST/Bounty System/PW_BountyData.h"
 
 UPW_GameInstance::UPW_GameInstance()
 {
@@ -13,6 +14,9 @@ void UPW_GameInstance::Init()
 {
 	Super::Init();
 	DEBUG_STRING("GameInstance Init");
+	_gameSessionData = FGameSessionData();
+	_gameSessionData._bountyDataEntry._bountyCost = 100;
+	_gameSessionData._bountyDataEntry._bountyReward = 1000;
 }
 
 void UPW_GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)

@@ -9,6 +9,7 @@
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/PW_MultiplayerSessionsSubsystem.h"
+#include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 
 APW_GameMode::APW_GameMode()
 {
@@ -18,6 +19,7 @@ APW_GameMode::APW_GameMode()
 void APW_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	LoadGameSessionData();
 }
 
 void APW_GameMode::PostLogin(APlayerController* NewPlayer)
@@ -83,6 +85,11 @@ void APW_GameMode::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void APW_GameMode::LoadGameSessionData()
+{
+	_gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
+}
+
 void APW_GameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController,AController* AttackerController)
 {
 
@@ -105,7 +112,7 @@ void APW_GameMode::ToggleSessionLock(bool lock)
 	UPW_MultiplayerSessionsSubsystem* multiplayerSessionsSubsystem =  Cast<UPW_MultiplayerSessionsSubsystem>(GetGameInstance()->GetSubsystem<UPW_MultiplayerSessionsSubsystem>());
 	if ( multiplayerSessionsSubsystem )
 	{
-		DEBUG_STRING("MultiplayerSessionsSubsystem Found");
+		//DEBUG_STRING("MultiplayerSessionsSubsystem Found");
 		multiplayerSessionsSubsystem->ToggleSessionStatus(lock);
 	}
 }

@@ -23,7 +23,7 @@ APW_PlayerController::APW_PlayerController()
 	_timeSyncFrequency = 5;
 	_timeSyncRuningTime = 0;
 
-	DEBUG_STRING( "APW_PlayerController is created" );
+	//DEBUG_STRING( "APW_PlayerController is created" );
 }
 
 void APW_PlayerController::OnPossess(APawn* InPawn)
@@ -35,7 +35,7 @@ void APW_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DEBUG_STRING( "APW_PlayerController BeginPlay" );
+	//DEBUG_STRING( "APW_PlayerController BeginPlay" );
 
 	//ServerCheckMatchState();
 
@@ -56,7 +56,7 @@ void APW_PlayerController::Tick(float DeltaTime)
 		SyncTimeWithServer(DeltaTime);
 	}
 
-	//HandleCheckPing(DeltaTime);
+	HandleCheckPing(DeltaTime);
 }
 
 void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -162,12 +162,15 @@ void APW_PlayerController::SetMatchCountdown(float time)
 		if (time < 0)
 		{
 			time = 0;
-			// set text to empty
+			_hud->GetCharacterOverlayWidget()->SetTimeText("00:00");
 		}
 		
-		DEBUG_STRING ( ConvertToTime(time) );
-		
-		//_hud->GetCharacterOverlayWidget()->SetScore(score);
+		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
+		//DEBUG_STRING ( ConvertToTime(time) );
+	}
+	else
+	{
+		DEBUG_STRING( "HUD is not valid" );
 	}
 }
 
@@ -178,12 +181,11 @@ void APW_PlayerController::SetMatchEndCountdown(float time)
 		if (time < 0)
 		{
 			time = 0;
-			// set text to empty
+			_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
 		}
-		
-		DEBUG_STRING( ConvertToTime(time) );
-		
-		//_hud->GetCharacterOverlayWidget()->SetScore(score);
+
+		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
+		//DEBUG_STRING( ConvertToTime(time) );
 	}
 }
 
@@ -303,6 +305,8 @@ void APW_PlayerController::StopHighPingWarning()
 
 void APW_PlayerController::HandleCheckPing(float DeltaTime)
 {
+	if(!IsHUDValid()) return;
+	
 	_highPingRunningTime += DeltaTime;
 	if (_highPingRunningTime >= _checkPingFrequency)
 	{
@@ -317,8 +321,7 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 		}
 		_highPingRunningTime = 0;
 	}
-
-	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
+	
 	if (_hud &&
 		_hud->GetCharacterOverlayWidget() &&
 		_hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
@@ -358,8 +361,6 @@ void APW_PlayerController::SetHUDTime()
 	
 	if (_countDownInt != secondsLeft)
 	{
-		//DEBUG_STRING(FString::Printf(TEXT("Match Time: %f"), _matchTime));
-		
 		_countDownInt = secondsLeft;
 		if (_matchState == MatchState::InProgress)
 		{

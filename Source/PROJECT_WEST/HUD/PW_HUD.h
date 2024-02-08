@@ -71,6 +71,7 @@ public:
 protected:
 
 	APW_HUD();
+	void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 	void AddCharacterOverlayWidget();

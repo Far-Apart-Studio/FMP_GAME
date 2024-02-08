@@ -22,6 +22,8 @@ public:
 	virtual void Logout(AController* Exiting) override;
 
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void LoadGameSessionData();
 	
 	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController);
 
@@ -31,6 +33,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ServerTravel (FString mapPath);
+
+	class UPW_GameInstance* _gameInstance = nullptr;
 	
 protected:
 	

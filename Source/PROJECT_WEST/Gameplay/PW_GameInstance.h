@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "PROJECT_WEST/Bounty System/PW_BountyData.h"
+#include "PROJECT_WEST/Gameplay/GameSessionData.h"
 #include "PW_GameInstance.generated.h"
+
+
+
 
 /**
  * 
@@ -16,8 +19,9 @@ class PROJECT_WEST_API UPW_GameInstance : public UGameInstance
 	GENERATED_BODY()
 
 private:
+	
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Bounty System" , meta = (AllowPrivateAccess = "true") )
-	FBountyDataEntry _bountyDataEntry;
+	FGameSessionData _gameSessionData;
 
 protected:
 
@@ -27,4 +31,7 @@ protected:
 	void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
 	void Shutdown() override;
 
+public:
+
+	FORCENOINLINE FGameSessionData& GetGameSessionData() { return _gameSessionData; }
 };

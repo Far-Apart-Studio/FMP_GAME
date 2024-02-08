@@ -110,6 +110,8 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 	FName _matchState;
 
+	FString _matchTimeString;
+
 	UFUNCTION()
 	void OnRep_MatchState();
 
