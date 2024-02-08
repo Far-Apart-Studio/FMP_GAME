@@ -43,14 +43,14 @@ class PROJECT_WEST_API APW_HUD : public AHUD
 
 private:
 
-	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivateAccess = "true") )
-	TSubclassOf<class UUserWidget> _characterOverlayWidgetClass;
+	// UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivateAccess = "true") )
+	// TSubclassOf<class UUserWidget> _characterOverlayWidgetClass;
 
 	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivate = "true") )
 	TSubclassOf<class UUserWidget> _announcementWidgetClass;
 
-	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
-	class UPW_CharacterOverlayWidget* _characterOverlayWidget;
+	// UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
+	// class UPW_CharacterOverlayWidget* _characterOverlayWidget;
 
 	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
 	class UPW_AnnouncementWidget*  _announcementWidget;
@@ -61,7 +61,7 @@ public:
 	
 	virtual void DrawHUD() override;
 
-	FORCEINLINE class UPW_CharacterOverlayWidget* GetCharacterOverlayWidget() const { return _characterOverlayWidget; }
+	//FORCEINLINE class UPW_CharacterOverlayWidget* GetCharacterOverlayWidget() const { return _characterOverlayWidget; }
 	FORCEINLINE class UPW_AnnouncementWidget* GetAnnouncementWidget() const { return _announcementWidget; }
 
 

@@ -55,6 +55,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	float _timeSyncRuningTime;
 
+
+	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivateAccess = "true") )
+	TSubclassOf<class UUserWidget> _characterOverlayWidgetClass;
+	
+	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
+	class UPW_CharacterOverlayWidget* _characterOverlayWidget;
+
+	void AddCharacterOverlayWidget();
+
 	void PawnLeavingGame() override;
 public:
 

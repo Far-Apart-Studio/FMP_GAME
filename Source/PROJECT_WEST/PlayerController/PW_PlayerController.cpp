@@ -44,6 +44,8 @@ void APW_PlayerController::BeginPlay()
 	_highPingDuration = 5;
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
+
+	AddCharacterOverlayWidget();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
@@ -141,31 +143,25 @@ void APW_PlayerController::SetupInputComponent()
 
 void APW_PlayerController::SetHUDHealth(float health, float maxHealth)
 {
-	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
-	{
-		//_hud->GetCharacterOverlayWidget()->SetHealth(health, maxHealth);
-	}
+
 }
 
 void APW_PlayerController::SetHUDScore(float score)
 {
-	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
-	{
-		//_hud->GetCharacterOverlayWidget()->SetScore(score);
-	}
+
 }
 
 void APW_PlayerController::SetMatchCountdown(float time)
 {
-	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
+	if (_characterOverlayWidget)
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_hud->GetCharacterOverlayWidget()->SetTimeText("00:00");
+			_characterOverlayWidget->SetTimeText("00:00");
 		}
 		
-		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
+		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
 		//DEBUG_STRING ( ConvertToTime(time) );
 	}
 	else
@@ -176,15 +172,15 @@ void APW_PlayerController::SetMatchCountdown(float time)
 
 void APW_PlayerController::SetMatchEndCountdown(float time)
 {
-	if (IsHUDValid() && _hud->GetCharacterOverlayWidget())
+	if (_characterOverlayWidget)
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
+			_characterOverlayWidget->SetTimeText(ConvertToTime(time));
 		}
 
-		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
+		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
 		//DEBUG_STRING( ConvertToTime(time) );
 	}
 }
@@ -288,18 +284,18 @@ void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
 void APW_PlayerController::StartHighPingWarning()
 {
 	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (_characterOverlayWidget)
 	{
-		_hud->GetCharacterOverlayWidget()->StartHighPingWarning();
+		_characterOverlayWidget->StartHighPingWarning();
 	}
 }
 
 void APW_PlayerController::StopHighPingWarning()
 {
 	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (_characterOverlayWidget)
 	{
-		_hud->GetCharacterOverlayWidget()->StopHighPingWarning();
+		_characterOverlayWidget->StopHighPingWarning();
 	}
 }
 
@@ -323,8 +319,8 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 	}
 	
 	if (_hud &&
-		_hud->GetCharacterOverlayWidget() &&
-		_hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
+		_characterOverlayWidget &&
+		_characterOverlayWidget->IsHighPingWarningPlaying())
 	{
 		_pingAnimationRunningTime += DeltaTime;
 		if (_pingAnimationRunningTime >= _highPingDuration)
@@ -394,6 +390,15 @@ void APW_PlayerController::ClientReportServerTime_Implementation(float timeOfCli
 	float roundTripTime = GetWorld()->GetTimeSeconds() - timeOfClientRequest;
 	float currentServerTime = serverTime + (roundTripTime / 2);
 	_clientServerDelta = currentServerTime - GetWorld()->GetTimeSeconds();
+}
+
+void APW_PlayerController::AddCharacterOverlayWidget()
+{
+	_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(this, _characterOverlayWidgetClass);
+	if (_characterOverlayWidget != nullptr)
+	{
+		_characterOverlayWidget->AddToViewport();
+	}
 }
 
 void APW_PlayerController::PawnLeavingGame()

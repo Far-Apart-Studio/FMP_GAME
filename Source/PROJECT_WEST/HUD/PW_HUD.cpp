@@ -37,7 +37,6 @@ APW_HUD::APW_HUD()
 void APW_HUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	AddCharacterOverlayWidget();
 }
 
 void APW_HUD::BeginPlay()
@@ -57,11 +56,11 @@ void APW_HUD::AddCharacterOverlayWidget()
 	APlayerController* playerController = GetOwningPlayerController();
 	if (playerController != nullptr)
 	{
-		_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(playerController, _characterOverlayWidgetClass);
-		if (_characterOverlayWidget != nullptr)
-		{
-			_characterOverlayWidget->AddToViewport();
-		}
+		// _characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(playerController, _characterOverlayWidgetClass);
+		// if (_characterOverlayWidget != nullptr)
+		// {
+		// 	_characterOverlayWidget->AddToViewport();
+		// }
 	}
 }
 
