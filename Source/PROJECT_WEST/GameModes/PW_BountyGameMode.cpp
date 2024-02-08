@@ -321,7 +321,6 @@ void APW_BountyGameMode::SpawnWeapons()
 void APW_BountyGameMode::EnemyEliminated(AActor* DamageCauser, AController* DamageCauserController)
 {
 	_enemyCount--;
-	_lantern->AddFuel();
 }
 
 void APW_BountyGameMode::SpawnEnemies()
@@ -330,7 +329,7 @@ void APW_BountyGameMode::SpawnEnemies()
 	TArray<FVector> enemySpawnPoints = _spawnPointsHandlerComponent->GetEnemySpawnPoint();
 	for (FVector spawnPoint : enemySpawnPoints)
 	{
-		for (int i = 0; i < _numOfenemiesPerPoint; i++)
+		for (int i = 0; i < 1; i++)
 		{
 			AActor* enemy = GetWorld()->SpawnActor<AActor>(_enemyClass);
 			if (enemy)

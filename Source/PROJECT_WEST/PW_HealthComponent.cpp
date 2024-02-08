@@ -21,8 +21,6 @@ void UPW_HealthComponent::BeginPlay()
 	if (ownerActor && ownerActor->HasAuthority())
 	{
 		ownerActor->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
-		//PW_Utilities::Log("Health Component Successfully Initialized");
-		//DEBUG_STRING( "Health Component Successfully Initialized" );
 	}
 }
 
