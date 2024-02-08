@@ -29,6 +29,9 @@ APW_PlayerController::APW_PlayerController()
 void APW_PlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+
+	_hud = Cast<APW_HUD>(GetHUD());
+	//AddCharacterOverlayWidget();
 }
 
 void APW_PlayerController::BeginPlay()
@@ -39,13 +42,11 @@ void APW_PlayerController::BeginPlay()
 
 	//ServerCheckMatchState();
 
-	_hud = Cast<APW_HUD>(GetHUD());
+
 	_highPingRunningTime = 0;
 	_highPingDuration = 5;
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
-
-	AddCharacterOverlayWidget();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
@@ -153,15 +154,15 @@ void APW_PlayerController::SetHUDScore(float score)
 
 void APW_PlayerController::SetMatchCountdown(float time)
 {
-	if (_characterOverlayWidget)
+	if (_hud && _hud->GetCharacterOverlayWidget())
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_characterOverlayWidget->SetTimeText("00:00");
+			_hud->GetCharacterOverlayWidget()->SetTimeText("00:00");
 		}
 		
-		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
 		//DEBUG_STRING ( ConvertToTime(time) );
 	}
 	else
@@ -172,15 +173,15 @@ void APW_PlayerController::SetMatchCountdown(float time)
 
 void APW_PlayerController::SetMatchEndCountdown(float time)
 {
-	if (_characterOverlayWidget)
+	if (_hud && _hud->GetCharacterOverlayWidget())
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+			_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
 		}
 
-		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
 		//DEBUG_STRING( ConvertToTime(time) );
 	}
 }
@@ -219,13 +220,14 @@ void APW_PlayerController::HandleMatchStarted()
 
 void APW_PlayerController::HandleMatchCooldown()
 {
-	if(IsHUDValid())
+	// show cooldown screen
+	
+	if(_hud)
 	{
-	//	_hud->DisplayAccouncement("Match Ended, Returning to Lobby", FColor::Red, _endMatchCountdown);
+		_hud->DisplayAccouncement("Match Ended, Returning to Lobby", FColor::Red, _endMatchCountdown);
 	}
 	
-	_endMatchCountdown += GetServerTime();
-	// show cooldown screen
+	_endMatchCountdown += GetServerTime() - _levelStartTime;
 }
 
 void APW_PlayerController::HandleMatchEnded()
@@ -283,19 +285,17 @@ void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
 
 void APW_PlayerController::StartHighPingWarning()
 {
-	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
-	if (_characterOverlayWidget)
+	if (_hud && _hud->GetCharacterOverlayWidget())
 	{
-		_characterOverlayWidget->StartHighPingWarning();
+		_hud->GetCharacterOverlayWidget()->StartHighPingWarning();
 	}
 }
 
 void APW_PlayerController::StopHighPingWarning()
 {
-	_hud = _hud ?  Cast<APW_HUD>(GetHUD()) : nullptr;
-	if (_characterOverlayWidget)
+	if (_hud && _hud->GetCharacterOverlayWidget())
 	{
-		_characterOverlayWidget->StopHighPingWarning();
+		_hud->GetCharacterOverlayWidget()->StopHighPingWarning();
 	}
 }
 
@@ -319,8 +319,8 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 	}
 	
 	if (_hud &&
-		_characterOverlayWidget &&
-		_characterOverlayWidget->IsHighPingWarningPlaying())
+		 _hud->GetCharacterOverlayWidget() &&
+		 _hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
 	{
 		_pingAnimationRunningTime += DeltaTime;
 		if (_pingAnimationRunningTime >= _highPingDuration)
@@ -390,15 +390,6 @@ void APW_PlayerController::ClientReportServerTime_Implementation(float timeOfCli
 	float roundTripTime = GetWorld()->GetTimeSeconds() - timeOfClientRequest;
 	float currentServerTime = serverTime + (roundTripTime / 2);
 	_clientServerDelta = currentServerTime - GetWorld()->GetTimeSeconds();
-}
-
-void APW_PlayerController::AddCharacterOverlayWidget()
-{
-	_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(this, _characterOverlayWidgetClass);
-	if (_characterOverlayWidget != nullptr)
-	{
-		_characterOverlayWidget->AddToViewport();
-	}
 }
 
 void APW_PlayerController::PawnLeavingGame()

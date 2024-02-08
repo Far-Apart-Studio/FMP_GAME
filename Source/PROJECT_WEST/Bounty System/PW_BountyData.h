@@ -107,6 +107,37 @@ struct FBountyMapData
 	}
 };
 
+
+USTRUCT(BlueprintType)
+struct FBountyTargetEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	FString _bountyTargetName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	FString _bountyTargetDescription;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	TSubclassOf<AActor> _bountyTarget;
+};
+
+USTRUCT(BlueprintType)
+struct FBountyTargets
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	TArray<FBountyTargetEntry> _bountyTargets;
+
+	FBountyTargetEntry GetRandomBountyTarget()
+	{
+		int32 randomIndex = FMath::RandRange(0, _bountyTargets.Num() - 1);
+		return _bountyTargets[randomIndex];
+	}
+};
+
 USTRUCT(BlueprintType)
 struct FBountyDataEntry
 {
@@ -123,6 +154,9 @@ struct FBountyDataEntry
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	FBountyMapDataEntry _bountyMapDataEntry;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	FBountyTargetEntry _bountyTarget;
 };
 
 /**
