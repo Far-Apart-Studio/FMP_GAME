@@ -329,7 +329,7 @@ void APW_BountyGameMode::SpawnEnemies()
 	TArray<FVector> enemySpawnPoints = _spawnPointsHandlerComponent->GetEnemySpawnPoint();
 	for (FVector spawnPoint : enemySpawnPoints)
 	{
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < _numOfenemiesPerPoint; i++)
 		{
 			AActor* enemy = GetWorld()->SpawnActor<AActor>(_enemyClass);
 			if (enemy)

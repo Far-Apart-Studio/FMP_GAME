@@ -223,7 +223,7 @@ void APW_PlayerController::HandleMatchCooldown()
 {
 	if(IsHUDValid())
 	{
-		_hud->DisplayAccouncement("Match Ended, Returning to Lobby", FColor::Red, _endMatchCountdown);
+	//	_hud->DisplayAccouncement("Match Ended, Returning to Lobby", FColor::Red, _endMatchCountdown);
 	}
 	
 	_endMatchCountdown += GetServerTime();
