@@ -3,8 +3,11 @@
 
 #include "PW_Lantern.h"
 #include "Components/PointLightComponent.h"
+#include "Components/BoxComponent.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "Net/UnrealNetwork.h"
+#include "PROJECT_WEST/PW_HealthComponent.h"
+#include "PROJECT_WEST/PW_Character.h"
 
 // Sets default values
 APW_Lantern::APW_Lantern()
@@ -22,6 +25,11 @@ APW_Lantern::APW_Lantern()
 	_pointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
 	_pointLight->SetupAttachment(_itemMesh);
 	_pointLight->SetIsReplicated(true);
+
+	_bodyDetectionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyDetectionBox"));
+	_bodyDetectionBox->SetupAttachment(_itemMesh);
+	_bodyDetectionBox->SetIsReplicated(true);
+	_bodyDetectionBox->SetCollisionProfileName("Trigger");
 
 	_currentLightIntensity = _minLightIntensity = 1000.0f;
 	_maxLightIntensity = 10000.0f;
@@ -45,6 +53,11 @@ void APW_Lantern::BeginPlay()
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
 	ToggleLightVisibility(false);
 	_currentFuel = 0.0f;
+
+	if (HasAuthority())
+	{
+		_bodyDetectionBox->OnComponentBeginOverlap.AddDynamic(this, &APW_Lantern::OnBodyDetectionBoxBeginOverlap);
+	}
 }
 
 void APW_Lantern::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -62,6 +75,21 @@ void APW_Lantern::OnVisibilityChange(bool bIsVisible)
 	_pointLight->SetVisibility(bIsVisible);
 }
 
+void APW_Lantern::OnBodyDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
+	if (OtherActor == nullptr || OtherActor == this) return;
+	if(APW_Character* character = Cast<APW_Character>(OtherActor)) return;
+	
+	UPW_HealthComponent* healthComponent = OtherActor->FindComponentByClass<UPW_HealthComponent>();
+	if (healthComponent && !healthComponent->IsAlive())
+	{
+		AddFuel();
+		OtherActor->Destroy();
+	}
+}
+
 // Called every frame
 void APW_Lantern::Tick(float DeltaTime)
 {
@@ -70,7 +98,7 @@ void APW_Lantern::Tick(float DeltaTime)
 
 	if (HasAuthority())
 	{
-		//HandleDrainFuel(DeltaTime);
+		HandleDrainFuel(DeltaTime);
 	}
 }
 
@@ -137,8 +165,6 @@ void APW_Lantern::AddFuel()
 
 void APW_Lantern::ChargeFuel(float amount)
 {
-	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
-	
 	_currentFuel += amount;
 	if (_currentFuel > _maxFuel)
 	{

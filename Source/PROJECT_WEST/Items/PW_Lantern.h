@@ -13,16 +13,20 @@ class PROJECT_WEST_API APW_Lantern : public APW_Item
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
+
 	APW_Lantern();
 
 protected:
-	// Called when the game starts or when spawned
+
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	void OnVisibilityChange(bool bIsVisible) override; 
+	void OnVisibilityChange(bool bIsVisible) override;
+
+	UFUNCTION()
+	void OnBodyDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 public:	
-	// Called every frame
+
 	virtual void Tick(float DeltaTime) override;
 
 private:
@@ -32,6 +36,9 @@ private:
 
 	UPROPERTY (VisibleAnywhere , Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UPointLightComponent* _pointLight;
+
+	UPROPERTY (VisibleAnywhere , Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* _bodyDetectionBox;
 	
 	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxLightIntensity;

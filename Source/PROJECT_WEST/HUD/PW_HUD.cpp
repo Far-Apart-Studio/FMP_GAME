@@ -34,12 +34,15 @@ APW_HUD::APW_HUD()
 	crosshairSpreadMax = 16.0f;
 }
 
+void APW_HUD::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	AddCharacterOverlayWidget();
+}
+
 void APW_HUD::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	AddCharacterOverlayWidget();
-
 	crosshairSpreadMultiplier = 1;
 }
 

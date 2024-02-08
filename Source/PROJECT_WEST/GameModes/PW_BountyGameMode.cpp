@@ -15,6 +15,7 @@
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/Items/PW_BountyHead.h"
 #include "PROJECT_WEST/Bounty System/PW_ExtractionPoint.h"
+#include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 
 namespace MatchState
 {
@@ -39,12 +40,11 @@ void APW_BountyGameMode::BeginPlay()
 	ToggleSessionLock(true);
 	
 	_levelStartTime = GetWorld()->GetTimeSeconds();
-	
-	StartMatch();
-	
+		
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
 	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
-
+	
+	StartMatch();
 	
 	SpawnBountyEnemy();
 	SpawnLantern();
@@ -54,7 +54,7 @@ void APW_BountyGameMode::BeginPlay()
 	
 	_matchStartTime = GetWorld()->GetTimeSeconds();
 
-	DEBUG_STRING( "APW_BountyGameMode::BeginPlay" );
+	//DEBUG_STRING( "APW_BountyGameMode::BeginPlay" );
 
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
@@ -190,7 +190,7 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 
 		if(host)
 		{
-			DEBUG_STRING( "Player alive"  + host->GetName() );
+			//DEBUG_STRING( "Player alive"  + host->GetName() );
 			if (VictimController)
 			{
 				VictimController->ClientTogglePlayerInput(false);
@@ -199,7 +199,7 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 		}
 		else
 		{
-			DEBUG_STRING( "No player alive" );
+			//DEBUG_STRING( "No player alive" );
 			BountyFailed();
 		}
 	}
@@ -210,6 +210,22 @@ void APW_BountyGameMode::BountySuccessful()
 	_bountySuccessful = true;
 	ToggleAllPlayersInput(false);
 	SetMatchState(MatchState::Cooldown);
+}
+
+void APW_BountyGameMode::LoadGameSessionData()
+{
+	Super::LoadGameSessionData();
+	
+	if (_gameInstance)
+	{
+		DEBUG_STRING( "Bounty cost: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost) );
+	}
+}
+
+void APW_BountyGameMode::TestModifyBountyData()
+{
+	_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost += 500;
+	DEBUG_STRING( "Bounty cost: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost) );
 }
 
 void APW_BountyGameMode::SpawnLantern()
@@ -225,11 +241,7 @@ void APW_BountyGameMode::SpawnLantern()
 		if (_bountyEnemy)
 		{
 			_lantern->SetTarget( _bountyEnemy);
-			DEBUG_STRING ( "Lantern spawned and set target" );
-		}
-		else
-		{
-			DEBUG_STRING ( "Lantern spawned but no target" );
+			//DEBUG_STRING ( "Lantern spawned and set target" );
 		}
 	}
 }
@@ -253,7 +265,7 @@ void APW_BountyGameMode::SpawnBountyEnemy()
 		UPW_HealthComponent* healthComponent = _bountyEnemy->FindComponentByClass<UPW_HealthComponent>();
 		if (healthComponent)
 		{
-			DEBUG_STRING( "Bounty enemy spawned and health component found" );
+			//DEBUG_STRING( "Bounty enemy spawned and health component found" );
 			healthComponent->OnDeath.AddDynamic(this, &APW_BountyGameMode::OnBountyDead);
 		}
 	}
@@ -268,7 +280,7 @@ void APW_BountyGameMode::SpawnBountyHead()
 		_bountyHead->SetActorLocation(_bountyEnemy->GetActorLocation());
 		_bountyHead->SetActorRotation(FRotator(0, 0, 0));
 		_bountyHead->SetOwner(nullptr);
-		DEBUG_STRING( "Bounty head spawned" );
+		//DEBUG_STRING( "Bounty head spawned" );
 
 		// To remove after prototype
 		SpawnEnemies();
@@ -297,7 +309,7 @@ void APW_BountyGameMode::SpawnExtractionPoint()
 		_extractionPoint->SetActorRotation(FRotator(0, 0, 0));
 		_extractionPoint->SetOwner(nullptr);
 		_extractionPoint->OnWinConditionMet.AddDynamic(this, &APW_BountyGameMode::OnActivateExtrationPoint);
-		DEBUG_STRING( "Extraction point spawned" );
+		//DEBUG_STRING( "Extraction point spawned" );
 	}
 }
 
@@ -321,7 +333,6 @@ void APW_BountyGameMode::SpawnWeapons()
 void APW_BountyGameMode::EnemyEliminated(AActor* DamageCauser, AController* DamageCauserController)
 {
 	_enemyCount--;
-	_lantern->AddFuel();
 }
 
 void APW_BountyGameMode::SpawnEnemies()

@@ -325,12 +325,13 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
 
 void UPW_MultiplayerSessionsSubsystem::ToggleSessionStatus(bool locked)
 {
-	// const FString& sessionStatus = locked ? "Closed" : "Open";
-	// if (sessionInterface && _lastSessionSettings)
-	// {
-	// 	_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-	// 	sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
-	// }
+	 const FString& sessionStatus = locked ? "Closed" : "Open";
+	 if (sessionInterface && _lastSessionSettings)
+	 {
+	 	DEBUG_STRING("Session Status Changed");
+	 	//_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	 	//sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
+	 }
 }
 
 

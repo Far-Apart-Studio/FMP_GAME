@@ -23,14 +23,12 @@ class PROJECT_WEST_API APW_BountyGameMode : public APW_GameMode
 public:
 
 	APW_BountyGameMode();
-	virtual void Tick(float DeltaSeconds) override;
+	void Tick(float DeltaSeconds) override;
 	
 	void PostLogin(APlayerController* NewPlayer) override;
 	void Logout(AController* Exiting) override;
 
-	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController) override;
-
-	void BountySuccessful();
+	void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController) override;
 
 	float _matchStartTime;
 
@@ -54,7 +52,7 @@ public:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<AActor > _weaponClass;
-
+	
 	APW_Lantern* _lantern;
 
 	AActor* _bountyEnemy;
@@ -63,6 +61,14 @@ public:
 
 	APW_ExtractionPoint* _extractionPoint;
 
+
+	void BountySuccessful();
+	
+	void LoadGameSessionData() override;
+
+	UFUNCTION( BlueprintCallable )
+	void TestModifyBountyData();
+	
 	void SpawnLantern();
 	
 	UFUNCTION()
