@@ -13,10 +13,8 @@
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 
-// Sets default values
 APW_BountyBoard::APW_BountyBoard()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	SetReplicates(true);
@@ -31,11 +29,6 @@ APW_BountyBoard::APW_BountyBoard()
 	_bountyBoardWidget->SetupAttachment(_root);
 	_bountyBoardWidget->SetIsReplicated(true);
 	_bountyBoardWidget->SetCollisionResponseToAllChannels(ECR_Ignore);
-
-	_triggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
-	_triggerBox->SetupAttachment(_root);
-	_triggerBox->SetIsReplicated(true);
-	_triggerBox->SetCollisionProfileName(FName("OverlapAllDynamic"));
 }
 
 void APW_BountyBoard::BeginPlay()
@@ -46,16 +39,11 @@ void APW_BountyBoard::BeginPlay()
 	{
 
 	}
-
-	_triggerBox->OnComponentBeginOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapBegin);
-	_triggerBox->OnComponentEndOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapEnd);
 }
 
-// Called every frame
 void APW_BountyBoard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//DetectOverlap();
 }
 
 void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -65,10 +53,19 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(APW_BountyBoard, _bountyDataList);
 }
 
-void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                     UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType, bool bFromSweep, const FHitResult& SweepResult)
+void APW_BountyBoard::StartFocus_Implementation()
 {
-	APW_Character* characterController = Cast<APW_Character>(OtherActor);
+
+}
+
+void APW_BountyBoard::EndFocus_Implementation()
+{
+
+}
+
+void APW_BountyBoard::Interact_Implementation(AActor* owner)
+{
+	APW_Character* characterController = Cast<APW_Character>(owner);
 	if (characterController && characterController->IsLocallyControlled())
 	{
 		DEBUG_STRING( "OnOverlapBegin Player");
@@ -76,23 +73,10 @@ void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 		if (playerController)
 		{
 			playerController->bShowMouseCursor = true;
-			playerController->SetInputMode(FInputModeGameAndUI());	
-		}
-	}
-}
+			playerController->SetInputMode(FInputModeGameAndUI());
 
-void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType)
-{
-	APW_Character* characterController = Cast<APW_Character>(OtherActor);
-	if (characterController && characterController->IsLocallyControlled())
-	{
-		DEBUG_STRING( " OnOverlapEnd Player");
-		APlayerController* playerController = characterController->GetController<APlayerController>();
-		if (playerController)
-		{
-			playerController->bShowMouseCursor = false;
-			playerController->SetInputMode(FInputModeGameOnly());
+			// playerController->bShowMouseCursor = false;
+			// playerController->SetInputMode(FInputModeGameOnly());
 		}
 	}
 }
@@ -126,36 +110,10 @@ void APW_BountyBoard::PopulateBountyDataList()
 		difficulties.Add(EBountyDifficulty::ThreeStar);
 		_bountyDataList = gameMode->GetBountySystemComponent()->GetBountyDataList(difficulties);
 
-		if ( gameInstance )
+		if (gameInstance)
 		{
 			gameInstance->GetGameSessionData()._bountyDataList = _bountyDataList;
 		}
 		_bountyDataListChanged.Broadcast(_bountyDataList);
 	}
 }
-
-void APW_BountyBoard::DetectOverlap()
-{
-	if (!HasAuthority()) return;
-	
-	if(_isOverlapping)
-	{
-		return;
-	}
-	
-	TArray<AActor*> overlappingActors;
-	_triggerBox->GetOverlappingActors(overlappingActors, APW_Character::StaticClass());
-
-	if (overlappingActors.Num() > 0)
-	{
-		_isOverlapping = true;
-		APW_Character* characterController = Cast<APW_Character>(overlappingActors[0]);
-		if (characterController)
-		{
-			DEBUG_STRING( " Overlap Begin Player");
-			APlayerController* playerController = characterController->GetController<APlayerController>();
-			playerController->bShowMouseCursor = true;
-		}
-	}
-}
-

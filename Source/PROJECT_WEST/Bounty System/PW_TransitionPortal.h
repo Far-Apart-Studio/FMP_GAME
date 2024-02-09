@@ -14,30 +14,31 @@ class PROJECT_WEST_API APW_TransitionPortal : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
+
 	APW_TransitionPortal();
 
 protected:
-	// Called when the game starts or when spawned
+
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
+
 	virtual void Tick(float DeltaTime) override;
 
 	void ToggleActivation( bool value );
+	
 private:
 
-	UPROPERTY(VisibleAnywhere , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (VisibleAnywhere , meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* _root;
 
-	UPROPERTY(VisibleAnywhere , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (VisibleAnywhere , meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* _mesh;
 	
 	UPROPERTY (VisibleAnywhere , meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* _extractionBox;
 
-	UPROPERTY( BlueprintReadWrite, VisibleAnywhere  , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (BlueprintReadWrite, VisibleAnywhere  , meta = (AllowPrivateAccess = "true"))
 	bool _winCondition;
 
 	UPROPERTY( BlueprintReadWrite, VisibleAnywhere  , meta = (AllowPrivateAccess = "true"))

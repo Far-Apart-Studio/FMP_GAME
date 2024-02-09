@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "PW_BountyData.h"
+#include "PROJECT_WEST/Interfaces//PW_InteractableInterface.h"
 #include "PW_BountyBoard.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBountyDataListChanged, const TArray<FBountyDataEntry>&, bountyDataList);
 
 UCLASS()
-class PROJECT_WEST_API APW_BountyBoard : public AActor
+class PROJECT_WEST_API APW_BountyBoard : public AActor, public IPW_InteractableInterface
 {
 	GENERATED_BODY()
 	
@@ -26,14 +27,10 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
-	UFUNCTION()
-	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor,
-				class UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()
-	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor,
-						class UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType);
+	void StartFocus_Implementation() override;
+	void EndFocus_Implementation() override;
+	void Interact_Implementation(AActor* owner) override;
 
 private:
 
@@ -46,9 +43,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _bountyBoardWidget;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* _triggerBox;
-
 	UPROPERTY(ReplicatedUsing = OnRep_BountyListChanged, BlueprintReadWrite, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
 	TArray<FBountyDataEntry> _bountyDataList;
 
@@ -60,8 +54,6 @@ private:
 
 	UFUNCTION( BlueprintCallable, Category = "BountyBoard" )
 	void PopulateBountyDataList();
-	
-	void DetectOverlap();
 
 	bool _isOverlapping = false;
 };
