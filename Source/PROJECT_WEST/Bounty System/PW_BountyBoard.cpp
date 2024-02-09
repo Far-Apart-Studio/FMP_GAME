@@ -69,9 +69,9 @@ void APW_BountyBoard::EndFocus_Implementation()
 
 }
 
-void APW_BountyBoard::EndInteract_Implementation(AActor* owner)
+void APW_BountyBoard::EndInteract_Implementation()
 {
-	APW_Character* characterController = Cast<APW_Character>(owner);
+	APW_Character* characterController = Cast<APW_Character>(_character);
 	if (characterController && characterController->IsLocallyControlled())
 	{
 		APlayerController* playerController = characterController->GetController<APlayerController>();
@@ -88,6 +88,13 @@ void APW_BountyBoard::EndInteract_Implementation(AActor* owner)
 			}
 		}
 	}
+
+	_character = nullptr;
+}
+
+bool APW_BountyBoard::IsInteracting_Implementation()
+{
+	return _character != nullptr;
 }
 
 void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
@@ -95,6 +102,7 @@ void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 	APW_Character* characterController = Cast<APW_Character>(owner);
 	if (characterController && characterController->IsLocallyControlled())
 	{
+		_character = characterController;
 		APlayerController* playerController = characterController->GetController<APlayerController>();
 		if (playerController)
 		{
@@ -151,8 +159,12 @@ void APW_BountyBoard::FocusCharacterCameraOnBountyBoard(APW_Character* character
 		UCameraComponent* cameraComponent = character->GetCameraComponent();
 		if (cameraComponent)
 		{
-			cameraComponent->SetWorldLocation(_cameraPosition->GetComponentLocation());
-			cameraComponent->SetWorldRotation(_cameraPosition->GetComponentRotation());
+			cameraComponent->SetWorldLocation(GetActorLocation() + FVector(0, -300, 100));
+			APlayerController* playerController = character->GetController<APlayerController>();
+			if (playerController)
+			{
+				playerController->SetControlRotation(_cameraPosition->GetComponentRotation());
+			}
 		}
 	}
 }

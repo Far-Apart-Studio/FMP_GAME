@@ -31,7 +31,8 @@ public:
 	void StartFocus_Implementation() override;
 	void EndFocus_Implementation() override;
 	void StartInteract_Implementation(AActor* owner) override;
-	void EndInteract_Implementation(AActor* owner) override;
+	void EndInteract_Implementation() override;
+	bool IsInteracting_Implementation() override;
 
 private:
 
@@ -52,6 +53,8 @@ private:
 
 	UPROPERTY(BlueprintAssignable, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
 	FBountyDataListChanged _bountyDataListChanged;
+
+	class APW_Character* _character;
 
 	UFUNCTION()
 	void OnRep_BountyListChanged();

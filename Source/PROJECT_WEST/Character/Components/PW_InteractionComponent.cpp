@@ -33,9 +33,8 @@ void UPW_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 void UPW_InteractionComponent::TryClearLastInteractable()
 {
-	if (_lastInteractable)
+	if (_lastInteractable && !_lastInteractable->IsInteracting_Implementation())
 	{
-		DEBUG_STRING("Interactable End Focus");
 		_lastInteractable->EndFocus_Implementation();
 		_lastInteractable = nullptr;
 	}
@@ -44,6 +43,8 @@ void UPW_InteractionComponent::TryClearLastInteractable()
 void UPW_InteractionComponent::TraceForInteractable()
 {
 	if(!_ownerCharacter) return;
+	if(_lastInteractable && !_lastInteractable->IsInteracting_Implementation()) return;
+	
 	UCameraComponent* _cameraComponent = _ownerCharacter->GetCameraComponent();
 	if (!_cameraComponent) return;
 
@@ -86,7 +87,7 @@ void UPW_InteractionComponent::TraceForInteractable()
 
 void UPW_InteractionComponent::TryStartInteractWithInteractable()
 {
-	if (_lastInteractable)
+	if (_lastInteractable && !_lastInteractable->IsInteracting_Implementation())
 	{
 		_lastInteractable->EndFocus_Implementation();
 		_lastInteractable->StartInteract_Implementation(GetOwner());
@@ -95,9 +96,9 @@ void UPW_InteractionComponent::TryStartInteractWithInteractable()
 
 void UPW_InteractionComponent::TryEndInteractWithInteractable()
 {
-	if (_lastInteractable)
+	if (_lastInteractable && _lastInteractable->IsInteracting_Implementation())
 	{
-		_lastInteractable->EndInteract_Implementation(GetOwner());
+		_lastInteractable->EndInteract_Implementation();
 		_lastInteractable = nullptr;
 	}
 }
