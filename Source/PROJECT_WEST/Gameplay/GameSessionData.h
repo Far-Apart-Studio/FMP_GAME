@@ -8,18 +8,20 @@ USTRUCT(BlueprintType)
 struct FGameSessionData
 {
 	GENERATED_BODY()
+
+	UPROPERTY( EditAnywhere, Category = "Bounty System")
+	TArray<FBountyDataEntry> _bountyDataList;
 	
 	UPROPERTY( EditAnywhere, Category = "Bounty System")
 	FBountyDataEntry _bountyDataEntry;
 
 	UPROPERTY( EditAnywhere, Category = "Bounty System")
 	int32 _money;
-
-	// other game session data
-
+	
 	FGameSessionData CoptData()
 	{
 		FGameSessionData copy;
+		copy._bountyDataList = _bountyDataList;
 		copy._bountyDataEntry = _bountyDataEntry;
 		copy._money = _money;
 		return copy;

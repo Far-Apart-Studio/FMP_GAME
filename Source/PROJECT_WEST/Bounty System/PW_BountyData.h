@@ -85,7 +85,7 @@ struct FBountyMapDataEntry
 	FString _bountyMapDescription;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	int32 _bountyMapPath;
+	FString _bountyMapPath;
 };
 
 USTRUCT(BlueprintType)
@@ -96,14 +96,41 @@ struct FBountyMapData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	TArray<FBountyMapDataEntry> _bountyMapData;
 
-	FBountyMapDataEntry GetRandomBountyMapDataEntry(FString ignoreMap = "")
+	FBountyMapDataEntry GetRandomBountyMapDataEntry()
 	{
 		int32 randomIndex = FMath::RandRange(0, _bountyMapData.Num() - 1);
-		while (_bountyMapData[randomIndex]._bountyMapName == ignoreMap)
-		{
-			randomIndex = FMath::RandRange(0, _bountyMapData.Num() - 1);
-		}
 		return _bountyMapData[randomIndex];
+	}
+};
+
+
+USTRUCT(BlueprintType)
+struct FBountyTargetEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	FString _bountyTargetName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	FString _bountyTargetDescription;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	TSubclassOf<AActor> _bountyTarget;
+};
+
+USTRUCT(BlueprintType)
+struct FBountyTargets
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	TArray<FBountyTargetEntry> _bountyTargets;
+
+	FBountyTargetEntry GetRandomBountyTarget()
+	{
+		int32 randomIndex = FMath::RandRange(0, _bountyTargets.Num() - 1);
+		return _bountyTargets[randomIndex];
 	}
 };
 
@@ -123,23 +150,7 @@ struct FBountyDataEntry
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	FBountyMapDataEntry _bountyMapDataEntry;
-};
 
-/**
- * 
- */
-
-UCLASS()
-class PROJECT_WEST_API UPW_BountyData : public UDataAsset
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	UTexture2D* _bountyIcon;
-	
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	FString _bountyName;
-
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	FString _bountyDescription;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	FBountyTargetEntry _bountyTarget;
 };

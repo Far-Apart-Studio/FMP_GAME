@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ServerTravel (FString mapPath);
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetNumPlayerInSession() const;
+
 	class UPW_GameInstance* _gameInstance = nullptr;
 	
 protected:

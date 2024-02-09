@@ -10,6 +10,7 @@
 #include "Engine/Texture2D.h"
 #include "TextureResource.h"
 #include "CanvasItem.h"
+#include "PROJECT_WEST/DebugMacros.h"
 #include "UObject/ConstructorHelpers.h"
 
 void APW_HUD::DrawHUD()
@@ -34,15 +35,11 @@ APW_HUD::APW_HUD()
 	crosshairSpreadMax = 16.0f;
 }
 
-void APW_HUD::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-}
-
 void APW_HUD::BeginPlay()
 {
 	Super::BeginPlay();
 	crosshairSpreadMultiplier = 1;
+	AddCharacterOverlayWidget();
 }
 
 void APW_HUD::Destroyed()
@@ -56,11 +53,11 @@ void APW_HUD::AddCharacterOverlayWidget()
 	APlayerController* playerController = GetOwningPlayerController();
 	if (playerController != nullptr)
 	{
-		// _characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(playerController, _characterOverlayWidgetClass);
-		// if (_characterOverlayWidget != nullptr)
-		// {
-		// 	_characterOverlayWidget->AddToViewport();
-		// }
+		_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(playerController, _characterOverlayWidgetClass);
+		if (_characterOverlayWidget != nullptr)
+		{
+			_characterOverlayWidget->AddToViewport();
+		}
 	}
 }
 

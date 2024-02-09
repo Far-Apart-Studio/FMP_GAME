@@ -3,6 +3,8 @@
 
 #include "BountySystemComponent.h"
 
+#include "PROJECT_WEST/DebugMacros.h"
+
 // Sets default values for this component's properties
 UBountySystemComponent::UBountySystemComponent()
 {
@@ -38,6 +40,16 @@ FBountyDataEntry UBountySystemComponent::GetBountyDataEntry(EBountyDifficulty _b
 	bountyDataEntry._bountyCost = _bountyDifficultyData.GetBountyCost(_bountyDifficulty);
 	bountyDataEntry._bountyReward = _bountyDifficultyData.GetBountyReward(_bountyDifficulty);
 	bountyDataEntry._bountyMapDataEntry = _bountyMapData.GetRandomBountyMapDataEntry();
+	bountyDataEntry._bountyTarget = _bountyTargets.GetRandomBountyTarget();
 	return bountyDataEntry;
 }
 
+TArray<FBountyDataEntry> UBountySystemComponent::GetBountyDataList(TArray<EBountyDifficulty> _bountyDifficulties)
+{
+	TArray<FBountyDataEntry> bountyDataList;
+	for (EBountyDifficulty difficulty : _bountyDifficulties)
+	{
+		bountyDataList.Add(GetBountyDataEntry(difficulty));
+	}
+	return bountyDataList;
+}

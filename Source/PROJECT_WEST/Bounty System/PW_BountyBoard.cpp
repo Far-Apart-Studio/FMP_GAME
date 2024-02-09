@@ -2,11 +2,16 @@
 
 
 #include "PW_BountyBoard.h"
+
+#include "BountySystemComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/DebugMacros.h"
+#include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
+#include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 
 // Sets default values
 APW_BountyBoard::APW_BountyBoard()
@@ -39,9 +44,11 @@ void APW_BountyBoard::BeginPlay()
 
 	if(HasAuthority())
 	{
-		_triggerBox->OnComponentBeginOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapBegin);
-		_triggerBox->OnComponentEndOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapEnd);
+
 	}
+
+	_triggerBox->OnComponentBeginOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapBegin);
+	_triggerBox->OnComponentEndOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapEnd);
 }
 
 // Called every frame
@@ -51,11 +58,16 @@ void APW_BountyBoard::Tick(float DeltaTime)
 	//DetectOverlap();
 }
 
-void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType, bool bFromSweep, const FHitResult& SweepResult)
+void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	if (!HasAuthority()) return;
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(APW_BountyBoard, _bountyDataList);
+}
+
+void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                     UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType, bool bFromSweep, const FHitResult& SweepResult)
+{
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController && characterController->IsLocallyControlled())
 	{
@@ -72,8 +84,6 @@ void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType)
 {
-	if (!HasAuthority()) return;
-	
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController && characterController->IsLocallyControlled())
 	{
@@ -84,6 +94,43 @@ void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* 
 			playerController->bShowMouseCursor = false;
 			playerController->SetInputMode(FInputModeGameOnly());
 		}
+	}
+}
+
+void APW_BountyBoard::OnRep_BountyListChanged()
+{
+	_bountyDataListChanged.Broadcast(_bountyDataList);
+}
+
+void APW_BountyBoard::PopulateBountyDataList()
+{
+	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
+	if ( gameInstance )
+	{
+		if ( gameInstance->GetGameSessionData()._bountyDataList.Num() > 0 )
+		{
+			_bountyDataList = gameInstance->GetGameSessionData()._bountyDataList;
+			_bountyDataListChanged.Broadcast(_bountyDataList);
+
+			DEBUG_STRING( "PopulateBountyDataList from GameInstance");
+			return;
+		}
+	}
+	
+	APW_LobbyGameMode* gameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
+	if(gameMode)
+	{
+		TArray<EBountyDifficulty> difficulties;
+		difficulties.Add(EBountyDifficulty::OneStar);
+		difficulties.Add(EBountyDifficulty::TwoStar);
+		difficulties.Add(EBountyDifficulty::ThreeStar);
+		_bountyDataList = gameMode->GetBountySystemComponent()->GetBountyDataList(difficulties);
+
+		if ( gameInstance )
+		{
+			gameInstance->GetGameSessionData()._bountyDataList = _bountyDataList;
+		}
+		_bountyDataListChanged.Broadcast(_bountyDataList);
 	}
 }
 

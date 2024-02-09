@@ -14,26 +14,30 @@ class PROJECT_WEST_API UBountySystemComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
+
 	UBountySystemComponent();
 
 
 protected:
-	// Called when the game starts
+
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
-	TArray<class UPW_BountyData*> _bountyDataList;
-
+	
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
 	FBountyMapData _bountyMapData;
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
 	FBountyDifficultyData _bountyDifficultyData;
 
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
+	FBountyTargets _bountyTargets;
+
+	UFUNCTION(BlueprintCallable, Category = "Bounty System" )
 	FBountyDataEntry GetBountyDataEntry(EBountyDifficulty _bountyDifficulty);
+
+	UFUNCTION(BlueprintCallable, Category = "Bounty System" )
+	TArray<FBountyDataEntry> GetBountyDataList(TArray<EBountyDifficulty> _bountyDifficulties);
 };

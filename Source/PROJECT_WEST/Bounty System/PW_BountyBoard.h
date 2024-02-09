@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "PW_BountyData.h"
 #include "PW_BountyBoard.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBountyDataListChanged, const TArray<FBountyDataEntry>&, bountyDataList);
 
 UCLASS()
 class PROJECT_WEST_API APW_BountyBoard : public AActor
@@ -22,6 +25,7 @@ protected:
 public:	
 
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor,
@@ -45,6 +49,18 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* _triggerBox;
 
+	UPROPERTY(ReplicatedUsing = OnRep_BountyListChanged, BlueprintReadWrite, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	TArray<FBountyDataEntry> _bountyDataList;
+
+	UPROPERTY(BlueprintAssignable, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	FBountyDataListChanged _bountyDataListChanged;
+
+	UFUNCTION()
+	void OnRep_BountyListChanged();
+
+	UFUNCTION( BlueprintCallable, Category = "BountyBoard" )
+	void PopulateBountyDataList();
+	
 	void DetectOverlap();
 
 	bool _isOverlapping = false;
