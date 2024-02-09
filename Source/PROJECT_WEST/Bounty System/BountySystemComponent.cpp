@@ -37,7 +37,7 @@ FBountyDataEntry UBountySystemComponent::GetBountyDataEntry(EBountyDifficulty _b
 {
 	FBountyDataEntry bountyDataEntry = FBountyDataEntry();
 	bountyDataEntry._bountyDifficulty = _bountyDifficulty;
-	bountyDataEntry._bountyCost = 100;
+	bountyDataEntry._bountyCost = _bountyDifficultyData.GetBountyCost(_bountyDifficulty);
 	bountyDataEntry._bountyReward = _bountyDifficultyData.GetBountyReward(_bountyDifficulty);
 	bountyDataEntry._bountyMapDataEntry = _bountyMapData.GetRandomBountyMapDataEntry();
 	bountyDataEntry._bountyTarget = _bountyTargets.GetRandomBountyTarget();

@@ -25,10 +25,7 @@ protected:
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
-	TArray<class UPW_BountyData*> _bountyDataList;
-
+	
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Bounty System" )
 	FBountyMapData _bountyMapData;
 

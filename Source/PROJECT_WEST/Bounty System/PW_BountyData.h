@@ -85,7 +85,7 @@ struct FBountyMapDataEntry
 	FString _bountyMapDescription;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	int32 _bountyMapPath;
+	FString _bountyMapPath;
 };
 
 USTRUCT(BlueprintType)
@@ -96,13 +96,9 @@ struct FBountyMapData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	TArray<FBountyMapDataEntry> _bountyMapData;
 
-	FBountyMapDataEntry GetRandomBountyMapDataEntry(FString ignoreMap = "")
+	FBountyMapDataEntry GetRandomBountyMapDataEntry()
 	{
 		int32 randomIndex = FMath::RandRange(0, _bountyMapData.Num() - 1);
-		while (_bountyMapData[randomIndex]._bountyMapName == ignoreMap)
-		{
-			randomIndex = FMath::RandRange(0, _bountyMapData.Num() - 1);
-		}
 		return _bountyMapData[randomIndex];
 	}
 };
@@ -157,23 +153,4 @@ struct FBountyDataEntry
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	FBountyTargetEntry _bountyTarget;
-};
-
-/**
- * 
- */
-
-UCLASS()
-class PROJECT_WEST_API UPW_BountyData : public UDataAsset
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	UTexture2D* _bountyIcon;
-	
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	FString _bountyName;
-
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	FString _bountyDescription;
 };

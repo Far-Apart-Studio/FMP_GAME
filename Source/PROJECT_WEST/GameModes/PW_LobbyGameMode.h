@@ -30,4 +30,6 @@ protected:
 public:
 	void BeginPlay() override;
 	void TestGameInstance();
+
+	FORCEINLINE UBountySystemComponent* GetBountySystemComponent() const { return _bountySystemComponent; }
 };
