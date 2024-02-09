@@ -11,8 +11,7 @@ UENUM()
 enum class EFireType : uint8
 {
 	Automatic,
-	SemiAutomatic,
-	Burst
+	Manual
 };
 
 
@@ -55,6 +54,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
 	int _hProjectileCount;
 
+	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	float _hProjectileDelay;
+
 	//------------------ Aimed Weapon Data ------------------//
 
 	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
@@ -78,6 +80,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
 	int _aProjectileCount;
 
+	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	float _aProjectileDelay;
+
 public:
 	FORCEINLINE float GetWeaponMagazineCapacity() const { return _weaponMagazineCapacity; }
 	FORCEINLINE float GetWeaponReserveAmmunition() const { return _weaponReserveAmmunition; }
@@ -90,6 +95,7 @@ public:
 	FORCEINLINE float GetHipWeaponAccuracy() const { return _hWeaponAccuracy; }
 	FORCEINLINE float GetHipWeaponFallOffRange() const { return _hWeaponFallOffRange; }
 	FORCEINLINE int GetHipProjectileCount() const { return _hProjectileCount; }
+	FORCEINLINE float GetHipProjectileDelay() const { return _hProjectileDelay; }
 
 	FORCEINLINE EFireType GetAimedWeaponFireType() const { return _aWeaponFireType; }
 	FORCEINLINE float GetAimedWeaponDamage() const { return _aWeaponDamage; }
@@ -98,4 +104,5 @@ public:
 	FORCEINLINE float GetAimedWeaponAccuracy() const { return _aWeaponAccuracy; }
 	FORCEINLINE float GetAimedWeaponFallOffRange() const { return _aWeaponFallOffRange; }
 	FORCEINLINE int GetAimedProjectileCount() const { return _aProjectileCount; }
+	FORCEINLINE float GetAimedProjectileDelay() const { return _aProjectileDelay; }
 };

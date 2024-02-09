@@ -37,13 +37,11 @@ private:
 
 	UPROPERTY()
 	class UPW_ItemHandlerComponent* _itemHandlerComponent;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
-	bool _canAutoFire = true;
 	
 	bool _isFiring = false;
 	FTimerHandle _reloadTimerHandle;
 	FTimerHandle _fireTimerHandle;
+	FTimerHandle _fireRateTimerHandle;
 
 public:	
 	UPW_WeaponHandlerComponent();
@@ -72,9 +70,11 @@ public:
 	void GetOwnerCharacter();
 	
 	UFUNCTION() void BeginFireSequence();
-	void CoreFireSequence(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData);
 	UFUNCTION() void CompleteFireSequence();
+	
+	void CoreFireSequence(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData);
 	void QueueAutomaticFire(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData);
+	
 	UFUNCTION() void ReloadWeapon();
 	UFUNCTION(Server, Reliable) void ServerReloadWeapon();
 	UFUNCTION(Server, Reliable) void ServerApplyDamage(const FHitResult& hitResult);

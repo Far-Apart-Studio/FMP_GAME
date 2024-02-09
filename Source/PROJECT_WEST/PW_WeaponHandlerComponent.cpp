@@ -33,18 +33,18 @@ void UPW_WeaponHandlerComponent::BeginPlay()
 		AssignInputActions();
 }
 
-APW_Weapon* UPW_WeaponHandlerComponent::TryGetCurrentWeapon()
-{
-	APW_Weapon* weapon = Cast <APW_Weapon>(_itemHandlerComponent->GetItemInHand());
-	return weapon;
-}
-
 void UPW_WeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	if (_ownerCharacter && _ownerCharacter->IsLocallyControlled())
 		_lastFiredTime += DeltaTime;
+}
+
+APW_Weapon* UPW_WeaponHandlerComponent::TryGetCurrentWeapon()
+{
+	APW_Weapon* weapon = Cast <APW_Weapon>(_itemHandlerComponent->GetItemInHand());
+	return weapon;
 }
 
 void UPW_WeaponHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -67,7 +67,18 @@ void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData
 	PW_Utilities::Log("Projectile Count: ", projectileCount);
 	
 	for (int i = 0; i < projectileCount; i++)
+	{
+		const float weaponDelay = weaponData->GetHipProjectileDelay();
+		FTimerDelegate fireRateDelegate;
+		
+		fireRateDelegate.BindLambda([this, cameraComponent]()
+			{ CastBulletRay(cameraComponent); });
+		
+		GetWorld()->GetTimerManager().SetTimer(_fireRateTimerHandle, fireRateDelegate,
+			weaponDelay, false);
+		
 		CastBulletRay(cameraComponent);
+	}
 }
 
 void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent)
@@ -132,7 +143,7 @@ void UPW_WeaponHandlerComponent::CoreFireSequence(APW_Weapon* currentWeapon, UPW
 	if (!_isFiring)
 		return;
 
-	if (_canAutoFire)
+	if (weaponData->GetHipWeaponFireType() == EFireType::Automatic)
 		QueueAutomaticFire(currentWeapon, weaponData);
 
 	if (currentWeapon->IsAmmoEmpty())
