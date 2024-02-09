@@ -65,6 +65,7 @@ public:
 	APW_Character();
 
 	FShootButtonDelegate OnShootButtonPressed;
+	FShootButtonDelegate OnShootReleaseDelegate;
 	FReloadButtonDelegate OnReloadButtonPressed;
 
 	FPickUpButtonDelegate OnPickUpButtonPressed;
@@ -98,6 +99,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void JumpButtonPressed();
 	void UseButtonPressed();
+	void UseButtonReleased();
 	void CrouchButtonPressed();
 	void MoveForwardAxisPressed(float value);
 	void MoveRightAxisPressed(float value);

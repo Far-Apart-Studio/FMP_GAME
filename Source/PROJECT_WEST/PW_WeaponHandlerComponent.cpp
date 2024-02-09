@@ -15,42 +15,27 @@
 
 UPW_WeaponHandlerComponent::UPW_WeaponHandlerComponent()
 {
+	PrimaryComponentTick.bCanEverTick = true;
+	
 	_defaultWeaponData = nullptr;
-	//_currentWeapon = nullptr;
 	_ownerCharacter = nullptr;
 	_defaultWeaponVisualData = nullptr;
-	
-	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UPW_WeaponHandlerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SetIsReplicated( true );
-	
-	if (GetOwner()->HasAuthority())
-	{
-		//DEBUG_STRING("HasAuthority : UPW_WeaponHandlerComponent::BeginPlay()");
-	}
-	else
-	{
-		//DEBUG_STRING("HasNoAuthority : UPW_WeaponHandlerComponent::BeginPlay()");
-	}
-
+	SetIsReplicated(true);
 	GetOwnerCharacter();
 
 	if(_ownerCharacter->IsLocallyControlled())
-	{
 		AssignInputActions();
-	}
-	
-	//AttachDefaultWeapon();
 }
 
 APW_Weapon* UPW_WeaponHandlerComponent::TryGetCurrentWeapon()
 {
-	APW_Weapon* weapon = Cast < APW_Weapon >(_itemHandlerComponent->GetItemInHand());
+	APW_Weapon* weapon = Cast <APW_Weapon>(_itemHandlerComponent->GetItemInHand());
 	return weapon;
 }
 
@@ -59,9 +44,7 @@ void UPW_WeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	if (_ownerCharacter && _ownerCharacter->IsLocallyControlled())
-	{
 		_lastFiredTime += DeltaTime;
-	}
 }
 
 void UPW_WeaponHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -69,16 +52,26 @@ void UPW_WeaponHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
-void UPW_WeaponHandlerComponent::CastBulletRay()
+void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData)
 {
-	if(!_ownerCharacter)
-	{
-		DEBUG_STRING( "Owner Character Not Found!")
-		return;
-	}
+	if(_ownerCharacter == nullptr)
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
 	
 	UCameraComponent* cameraComponent = _ownerCharacter->GetCameraComponent();
+
+	if (cameraComponent == nullptr)
+		{ PW_Utilities::Log("NO CAMERA COMPONENT FOUND!"); return; }
+
+	const int projectileCount = weaponData->GetHipProjectileCount();
+
+	PW_Utilities::Log("Projectile Count: ", projectileCount);
 	
+	for (int i = 0; i < projectileCount; i++)
+		CastBulletRay(cameraComponent);
+}
+
+void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent)
+{
 	FVector rayDirection = cameraComponent->GetForwardVector();
 	FVector rayStart = cameraComponent->GetComponentLocation();
 	FVector rayDestination = rayStart + (rayDirection * 10000.0f);
@@ -93,18 +86,14 @@ void UPW_WeaponHandlerComponent::CastBulletRay()
 	{
 		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Green,
 			false, 2.0f, 0, 2.0f);
-		//PW_Utilities::Log("Hit Actor: ", hitResult.GetActor()->GetName());
-		//DEBUG_STRING("Hit Actor: " + hitResult.GetActor()->GetName());
 	}
 	else
 	{
 		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Red,
 			false, 2.0f, 0, 2.0f);
-		//PW_Utilities::Log("No Actor Hit!");
-		//DEBUG_STRING("Hit Actor:");
 	}
 	
-	DoApplyDamage(hitResult);
+	ApplyDamage(hitResult);
 }
 
 bool UPW_WeaponHandlerComponent::CastRay(const FVector& rayStart, const FVector& rayDestination,
@@ -121,34 +110,60 @@ bool UPW_WeaponHandlerComponent::CastRay(const FVector& rayStart, const FVector&
 	return true;
 }
 
-void UPW_WeaponHandlerComponent::FireWeapon()
+void UPW_WeaponHandlerComponent::BeginFireSequence()
 {
-	if (TryGetCurrentWeapon() == nullptr)
-	{
-		PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!");
-		return;
-	}
+	_isFiring = true;
 
-	if (TryGetCurrentWeapon()->IsAmmoEmpty())
-	{
-		DoReloadWeapon(); return;
-	}
+	APW_Weapon* currentWeapon = TryGetCurrentWeapon();
+	
+	if (currentWeapon == nullptr)
+		{PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+
+	UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
+
+	if (weaponData == nullptr)
+		{PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+	
+	CoreFireSequence(currentWeapon, weaponData);
+}
+
+void UPW_WeaponHandlerComponent::CoreFireSequence(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData)
+{
+	if (!_isFiring)
+		return;
+
+	if (_canAutoFire)
+		QueueAutomaticFire(currentWeapon, weaponData);
+
+	if (currentWeapon->IsAmmoEmpty())
+		{ ReloadWeapon(); return; }
 
 	const bool canFire = CalculateFireStatus();
 	
 	if (canFire)
 	{
+		CastBulletRays(weaponData);
 		FireWeaponVisual();
-		CastBulletRay();
 	}
 }
 
-void UPW_WeaponHandlerComponent::DoReloadWeapon()
+void UPW_WeaponHandlerComponent::CompleteFireSequence()
 {
-	if (GetOwner()->HasAuthority())
-		ReloadWeapon();
-	else
-		ServerReloadWeapon();
+	_isFiring = false;
+}
+
+void UPW_WeaponHandlerComponent::QueueAutomaticFire(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData)
+{
+	const float fireRate = currentWeapon->GetWeaponData()->GetHipWeaponFireRate();
+	FTimerDelegate automaticFireDelegate;
+	automaticFireDelegate.BindLambda([this, currentWeapon, weaponData]()
+		{ CoreFireSequence(currentWeapon, weaponData); });
+	GetWorld()->GetTimerManager().SetTimer(_fireTimerHandle, automaticFireDelegate, fireRate, false);
+}
+
+void UPW_WeaponHandlerComponent::ReloadWeapon()
+{
+	GetOwner()->HasAuthority() ? LocalReloadWeapon() : ServerReloadWeapon();
 }
 
 void UPW_WeaponHandlerComponent::ServerReloadWeapon_Implementation()
@@ -156,10 +171,10 @@ void UPW_WeaponHandlerComponent::ServerReloadWeapon_Implementation()
 	if (!GetOwner()->HasAuthority())
 		return;
 	
-	ReloadWeapon();
+	LocalReloadWeapon();
 }
 
-void UPW_WeaponHandlerComponent::ReloadWeapon()
+void UPW_WeaponHandlerComponent::LocalReloadWeapon()
 {
 	if (TryGetCurrentWeapon() == nullptr)
 	{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
@@ -181,15 +196,19 @@ void UPW_WeaponHandlerComponent::ReloadWeapon()
 
 void UPW_WeaponHandlerComponent::OnReloadWeaponComplete()
 {
-	if (TryGetCurrentWeapon() == nullptr) return;
-	TryGetCurrentWeapon()->SetReloading(false);
-	TryGetCurrentWeapon()->TransferReserveAmmo();
+	APW_Weapon* currentWeapon = TryGetCurrentWeapon();
+	
+	if (currentWeapon == nullptr)
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	
+	currentWeapon->SetReloading(false);
+	currentWeapon->TransferReserveAmmo();
 }
 
-void UPW_WeaponHandlerComponent::DoApplyDamage(const FHitResult& hitResult)
+void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult)
 {
 	if (GetOwner()->HasAuthority())
-		ApplyDamage(hitResult);
+		LocalApplyDamage(hitResult);
 	else
 		ServerApplyDamage(hitResult);
 }
@@ -199,10 +218,10 @@ void UPW_WeaponHandlerComponent::ServerApplyDamage_Implementation(const FHitResu
 	if (!GetOwner()->HasAuthority())
 		return;
 	
-	ApplyDamage(hitResult);
+	LocalApplyDamage(hitResult);
 }
 
-void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult)
+void UPW_WeaponHandlerComponent::LocalApplyDamage(const FHitResult& hitResult)
 {
 	FireWeaponVisual();
 	
@@ -266,19 +285,17 @@ void UPW_WeaponHandlerComponent::GetOwnerCharacter()
 void UPW_WeaponHandlerComponent::AssignInputActions()
 {
 	_ownerCharacter->OnShootButtonPressed.AddDynamic
-		(this, &UPW_WeaponHandlerComponent::FireWeapon);
+		(this, &UPW_WeaponHandlerComponent::BeginFireSequence);
+
+	_ownerCharacter->OnShootReleaseDelegate.AddDynamic
+		(this, &UPW_WeaponHandlerComponent::CompleteFireSequence);
 
 	_ownerCharacter->OnReloadButtonPressed.AddDynamic
-		(this, &UPW_WeaponHandlerComponent::DoReloadWeapon);
+		(this, &UPW_WeaponHandlerComponent::ReloadWeapon);
 }
 
 void UPW_WeaponHandlerComponent::FireWeaponVisual()
 {
 	TryGetCurrentWeapon()->GetMuzzleEffect()->ActivateSystem();
-}
-
-void UPW_WeaponHandlerComponent::ReloadWeaponVisual()
-{
-	
 }
 

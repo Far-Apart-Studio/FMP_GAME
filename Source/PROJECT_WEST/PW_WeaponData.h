@@ -49,6 +49,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
 	float _hWeaponAccuracy;
 
+	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	float _hWeaponFallOffRange;
+
+	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	int _hProjectileCount;
+
 	//------------------ Aimed Weapon Data ------------------//
 
 	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
@@ -66,6 +72,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
 	float _aWeaponAccuracy;
 
+	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	float _aWeaponFallOffRange;
+
+	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	int _aProjectileCount;
 
 public:
 	FORCEINLINE float GetWeaponMagazineCapacity() const { return _weaponMagazineCapacity; }
@@ -77,10 +88,14 @@ public:
 	FORCEINLINE float GetHipWeaponFireRate() const { return _hWeaponFireRate; }
 	FORCEINLINE FVector2D GetHipWeaponRecoil() const { return _hWeaponRecoil; }
 	FORCEINLINE float GetHipWeaponAccuracy() const { return _hWeaponAccuracy; }
+	FORCEINLINE float GetHipWeaponFallOffRange() const { return _hWeaponFallOffRange; }
+	FORCEINLINE int GetHipProjectileCount() const { return _hProjectileCount; }
 
 	FORCEINLINE EFireType GetAimedWeaponFireType() const { return _aWeaponFireType; }
 	FORCEINLINE float GetAimedWeaponDamage() const { return _aWeaponDamage; }
 	FORCEINLINE float GetAimedWeaponFireRate() const { return _aWeaponFireRate; }
 	FORCEINLINE FVector2D GetAimedWeaponRecoil() const { return _aWeaponRecoil; }
 	FORCEINLINE float GetAimedWeaponAccuracy() const { return _aWeaponAccuracy; }
+	FORCEINLINE float GetAimedWeaponFallOffRange() const { return _aWeaponFallOffRange; }
+	FORCEINLINE int GetAimedProjectileCount() const { return _aProjectileCount; }
 };
