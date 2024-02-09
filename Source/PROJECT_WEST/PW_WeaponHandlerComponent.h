@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Camera/CameraComponent.h"
 #include "Components/ActorComponent.h"
 #include "PW_WeaponHandlerComponent.generated.h"
 
@@ -21,9 +22,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class APW_Weapon> _defaultWeaponClass;
-	
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
-	//class APW_Weapon* _currentWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	TSubclassOf<APW_Weapon> _weaponBlueprint;
@@ -37,9 +35,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	class APW_Character* _ownerCharacter;
 
+	UPROPERTY()
 	class UPW_ItemHandlerComponent* _itemHandlerComponent;
-
+	
+	bool _isFiring = false;
 	FTimerHandle _reloadTimerHandle;
+	FTimerHandle _fireTimerHandle;
+	FTimerHandle _fireRateTimerHandle;
 
 public:	
 	UPW_WeaponHandlerComponent();
@@ -54,34 +56,29 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	void CastBulletRay();
+	void CastBulletRays(const UPW_WeaponData* weaponData);
+	void CastBulletRay(UCameraComponent* cameraComponent);
 	bool CastRay(const FVector& rayStart, const FVector& rayDestination, const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const;
-
-	void DoApplyDamage(const FHitResult& hitResult);
 	void ApplyDamage(const FHitResult& hitResult);
-	
-	UFUNCTION(Server, Reliable)
-	void ServerApplyDamage(const FHitResult& hitResult);
-	
+	void LocalApplyDamage(const FHitResult& hitResult);
 	float CalculateDamage(const FHitResult& hitResult);
 	bool CalculateFireStatus();
-	void GetOwnerCharacter();
 	void AssignInputActions();
-
-	UFUNCTION()
-	void DoReloadWeapon();
-
-	UFUNCTION(Server, Reliable)
-	void ServerReloadWeapon();
-	void ReloadWeapon();
+	void LocalReloadWeapon();
 	void OnReloadWeaponComplete();
-	
-	UFUNCTION()
-	void FireWeapon();
-	
 	void FireWeaponVisual();
+	void GetOwnerCharacter();
 	
-	void ReloadWeaponVisual();
+	UFUNCTION() void BeginFireSequence();
+	UFUNCTION() void CompleteFireSequence();
+	
+	void CoreFireSequence(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData);
+	void QueueAutomaticFire(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData);
+	
+	UFUNCTION() void ReloadWeapon();
+	UFUNCTION(Server, Reliable) void ServerReloadWeapon();
+	UFUNCTION(Server, Reliable) void ServerApplyDamage(const FHitResult& hitResult);
+	
 	FORCEINLINE void SetOwnerCharacter(APW_Character* ownerCharacter) { _ownerCharacter = ownerCharacter; }
 };
 

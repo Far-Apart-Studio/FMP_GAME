@@ -7,7 +7,6 @@
 #include "PW_WeaponVisualData.h"
 #include "PROJECT_WEST/Items/PW_Item.h"
 #include "GameFramework/Actor.h"
-#include "Items/PW_Item.h"
 #include "PW_Weapon.generated.h"
 
 UCLASS()
@@ -75,7 +74,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	void OnVisibilityChange(bool bIsVisible) override;
+	virtual void OnVisibilityChange(bool bIsVisible) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	

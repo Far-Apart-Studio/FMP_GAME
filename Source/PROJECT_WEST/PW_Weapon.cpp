@@ -9,7 +9,7 @@
 
 APW_Weapon::APW_Weapon()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	
 	_currentWeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	_currentWeaponMesh->SetupAttachment(RootComponent);
@@ -63,7 +63,6 @@ void APW_Weapon::TransferReserveAmmo()
 	_currentAmmo += ammoToTransfer;
 	_currentReserveAmmo -= ammoToTransfer;
 }
-
 
 void APW_Weapon::InitialiseWeapon(UPW_WeaponData* weaponData, UPW_WeaponVisualData* weaponVisualData)
 {

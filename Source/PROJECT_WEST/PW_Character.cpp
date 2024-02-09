@@ -96,7 +96,10 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APW_Character::JumpButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APW_Character::CrouchButtonPressed);
+	
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APW_Character::UseButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &APW_Character::UseButtonReleased);
+	
 	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_Character::SprintButtonPressed);
 	
 	PlayerInputComponent->BindAction("PickUp", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
@@ -150,6 +153,11 @@ void APW_Character::UseButtonPressed()
 	OnShootButtonPressed.Broadcast();
 }
 
+void APW_Character::UseButtonReleased()
+{
+	OnShootReleaseDelegate.Broadcast();
+}
+
 void APW_Character::CrouchButtonPressed()
 {
 	Super::Crouch();
@@ -169,7 +177,6 @@ void APW_Character::ServerLeaveGame_Implementation()
 
 void APW_Character::Elim(bool leftGame)
 {
-	//_itemHandlerComponent->DropItem();
 	MultiCastElim(leftGame);
 }
 
