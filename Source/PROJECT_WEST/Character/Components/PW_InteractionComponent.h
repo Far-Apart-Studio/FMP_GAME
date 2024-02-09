@@ -27,7 +27,12 @@ public:
 	void TryClearLastInteractable();
 	void TraceForInteractable();
 
-	void TryInteractWithInteractable();
+	UFUNCTION()
+	void TryStartInteractWithInteractable();
+	
+	UFUNCTION()
+	void TryEndInteractWithInteractable();
+	
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")

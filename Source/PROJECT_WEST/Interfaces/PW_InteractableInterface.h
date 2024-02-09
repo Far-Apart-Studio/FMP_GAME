@@ -30,5 +30,8 @@ public:
 	void EndFocus();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
-	void Interact(AActor* owner);
+	void StartInteract(AActor* owner);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
+	void EndInteract(AActor* owner);
 };

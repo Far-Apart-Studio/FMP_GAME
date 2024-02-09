@@ -7,11 +7,13 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
+#include "Camera/CameraComponent.h"
 
 APW_BountyBoard::APW_BountyBoard()
 {
@@ -29,6 +31,10 @@ APW_BountyBoard::APW_BountyBoard()
 	_bountyBoardWidget->SetupAttachment(_root);
 	_bountyBoardWidget->SetIsReplicated(true);
 	_bountyBoardWidget->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	_cameraPosition = CreateDefaultSubobject<USceneComponent>(TEXT("CameraPosition"));
+	_cameraPosition->SetupAttachment(_root);
+	_cameraPosition->SetRelativeLocation(FVector(0, 0, 100));
 }
 
 void APW_BountyBoard::BeginPlay()
@@ -63,20 +69,39 @@ void APW_BountyBoard::EndFocus_Implementation()
 
 }
 
-void APW_BountyBoard::Interact_Implementation(AActor* owner)
+void APW_BountyBoard::EndInteract_Implementation(AActor* owner)
 {
 	APW_Character* characterController = Cast<APW_Character>(owner);
 	if (characterController && characterController->IsLocallyControlled())
 	{
-		DEBUG_STRING( "OnOverlapBegin Player");
+		APlayerController* playerController = characterController->GetController<APlayerController>();
+		if (playerController)
+		{
+			playerController->bShowMouseCursor = false;
+			playerController->SetInputMode(FInputModeGameOnly());
+			characterController->ToggleMovement(true);
+			UCameraComponent* cameraComponent = characterController->GetCameraComponent();
+			if (cameraComponent)
+			{
+				cameraComponent->SetRelativeLocation( FVector(40, 0, 88) );
+				cameraComponent->SetRelativeRotation( FRotator(0, 0, 0) );
+			}
+		}
+	}
+}
+
+void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
+{
+	APW_Character* characterController = Cast<APW_Character>(owner);
+	if (characterController && characterController->IsLocallyControlled())
+	{
 		APlayerController* playerController = characterController->GetController<APlayerController>();
 		if (playerController)
 		{
 			playerController->bShowMouseCursor = true;
 			playerController->SetInputMode(FInputModeGameAndUI());
-
-			// playerController->bShowMouseCursor = false;
-			// playerController->SetInputMode(FInputModeGameOnly());
+			characterController->ToggleMovement(false);
+			FocusCharacterCameraOnBountyBoard(characterController);
 		}
 	}
 }
@@ -115,5 +140,19 @@ void APW_BountyBoard::PopulateBountyDataList()
 			gameInstance->GetGameSessionData()._bountyDataList = _bountyDataList;
 		}
 		_bountyDataListChanged.Broadcast(_bountyDataList);
+	}
+}
+
+void APW_BountyBoard::FocusCharacterCameraOnBountyBoard(APW_Character* character)
+{
+	if (character)
+	{
+		// set camera position to the bounty board _cameraPosition
+		UCameraComponent* cameraComponent = character->GetCameraComponent();
+		if (cameraComponent)
+		{
+			cameraComponent->SetWorldLocation(_cameraPosition->GetComponentLocation());
+			cameraComponent->SetWorldRotation(_cameraPosition->GetComponentRotation());
+		}
 	}
 }

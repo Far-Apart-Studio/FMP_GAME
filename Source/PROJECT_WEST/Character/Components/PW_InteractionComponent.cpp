@@ -18,6 +18,11 @@ void UPW_InteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	_ownerCharacter = Cast<APW_Character>(GetOwner());
+	if(_ownerCharacter && _ownerCharacter->IsLocallyControlled())
+	{
+		_ownerCharacter->OnStartInteractButtonPressed.AddDynamic(this, &UPW_InteractionComponent::TryStartInteractWithInteractable);
+		_ownerCharacter->OnEndInteractButtonPressed.AddDynamic(this, &UPW_InteractionComponent::TryEndInteractWithInteractable);
+	}
 }
 
 void UPW_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -54,7 +59,7 @@ void UPW_InteractionComponent::TraceForInteractable()
 	FHitResult hitResult;
 	
 	if (UKismetSystemLibrary::BoxTraceSingleForObjects(GetWorld(), start, destination, FVector(halfHeight, halfHeight, halfHeight), FRotator(),
-	objectTypes, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, hitResult,
+	objectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, hitResult,
 		true, FLinearColor::Red, FLinearColor::Green, 5.0f))
 	{
 		Interactable = Cast<IPW_InteractableInterface>(hitResult.GetActor());
@@ -79,12 +84,21 @@ void UPW_InteractionComponent::TraceForInteractable()
 	}
 }
 
-void UPW_InteractionComponent::TryInteractWithInteractable()
+void UPW_InteractionComponent::TryStartInteractWithInteractable()
 {
 	if (_lastInteractable)
 	{
 		_lastInteractable->EndFocus_Implementation();
-		_lastInteractable->Interact_Implementation(GetOwner());
+		_lastInteractable->StartInteract_Implementation(GetOwner());
+	}
+}
+
+void UPW_InteractionComponent::TryEndInteractWithInteractable()
+{
+	if (_lastInteractable)
+	{
+		_lastInteractable->EndInteract_Implementation(GetOwner());
+		_lastInteractable = nullptr;
 	}
 }
 

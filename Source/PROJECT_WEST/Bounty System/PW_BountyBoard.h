@@ -30,7 +30,8 @@ public:
 
 	void StartFocus_Implementation() override;
 	void EndFocus_Implementation() override;
-	void Interact_Implementation(AActor* owner) override;
+	void StartInteract_Implementation(AActor* owner) override;
+	void EndInteract_Implementation(AActor* owner) override;
 
 private:
 
@@ -42,6 +43,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _bountyBoardWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* _cameraPosition;
 
 	UPROPERTY(ReplicatedUsing = OnRep_BountyListChanged, BlueprintReadWrite, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
 	TArray<FBountyDataEntry> _bountyDataList;
@@ -56,4 +60,6 @@ private:
 	void PopulateBountyDataList();
 
 	bool _isOverlapping = false;
+
+	void FocusCharacterCameraOnBountyBoard(class APW_Character* character);
 };
