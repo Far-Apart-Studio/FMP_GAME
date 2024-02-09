@@ -13,7 +13,6 @@
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 
-
 // Sets default values
 APW_BountyBoard::APW_BountyBoard()
 {
@@ -45,9 +44,11 @@ void APW_BountyBoard::BeginPlay()
 
 	if(HasAuthority())
 	{
-		_triggerBox->OnComponentBeginOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapBegin);
-		_triggerBox->OnComponentEndOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapEnd);
+
 	}
+
+	_triggerBox->OnComponentBeginOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapBegin);
+	_triggerBox->OnComponentEndOverlap.AddDynamic(this, &APW_BountyBoard::OnOverlapEnd);
 }
 
 // Called every frame
@@ -67,8 +68,6 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!HasAuthority()) return;
-
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController && characterController->IsLocallyControlled())
 	{
@@ -85,8 +84,6 @@ void APW_BountyBoard::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 void APW_BountyBoard::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndexType)
 {
-	if (!HasAuthority()) return;
-	
 	APW_Character* characterController = Cast<APW_Character>(OtherActor);
 	if (characterController && characterController->IsLocallyControlled())
 	{

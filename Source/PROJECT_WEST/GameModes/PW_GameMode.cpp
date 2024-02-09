@@ -48,26 +48,9 @@ void APW_GameMode::Logout(AController* Exiting)
 	{
 		FString playerName = playerState->GetPlayerName();
 		DEBUG_STRING (FString::Printf (TEXT ("%s has left sesson " ), *playerName));
-		
-		APW_Character * character = Cast<APW_Character>(playerState->GetPawn());
-		if (character)
-		{
-			DEBUG_STRING( "Player Logout Drop Item");
-			character->Elim(true);
-			character->ServerLeaveGame();
-			character->Destroy();
-		}
-		else
-		{
-			DEBUG_STRING( "Player Logout No APW_Character");
-		}
-	}
-	else
-	{
-		//DEBUG_STRING( "Player Logout No PlayerState");
 	}
 
-	int32 numPlayers = GameState.Get()->PlayerArray.Num();
+	//int32 numPlayers = GameState.Get()->PlayerArray.Num();
 	//DEBUG_STRING (FString::Printf (TEXT ("Num Players: %d"), numPlayers));
 }
 
@@ -78,6 +61,11 @@ void APW_GameMode::ServerTravel(FString MapPath)
 	{
 		World->ServerTravel( MapPath + "?listen" );
 	}
+}
+
+int32 APW_GameMode::GetNumPlayerInSession() const
+{
+	return GameState.Get()->PlayerArray.Num();
 }
 
 void APW_GameMode::Tick(float DeltaTime)

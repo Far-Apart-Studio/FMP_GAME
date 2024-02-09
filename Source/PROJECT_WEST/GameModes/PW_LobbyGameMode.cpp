@@ -26,17 +26,6 @@ void APW_LobbyGameMode::BeginPlay()
 	{
 		DEBUG_STRING("Bounty Board Found");
 	}
-
-	TestGameInstance();
-
+	
 	ToggleSessionLock(false);
-}
-
-void APW_LobbyGameMode::TestGameInstance()
-{
-	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
-	if ( gameInstance )
-	{
-		DEBUG_STRING("GameInstance Found");
-	}
 }
