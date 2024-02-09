@@ -41,7 +41,6 @@ private:
 	bool _isFiring = false;
 	FTimerHandle _reloadTimerHandle;
 	FTimerHandle _fireTimerHandle;
-	FTimerHandle _fireRateTimerHandle;
 
 public:	
 	UPW_WeaponHandlerComponent();
@@ -50,14 +49,15 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	APW_Weapon* TryGetCurrentWeapon();
+	APW_Weapon* TryGetCurrentWeapon() const;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	void CastBulletRays(const UPW_WeaponData* weaponData);
-	void CastBulletRay(UCameraComponent* cameraComponent);
+	void CastBulletRays(const UPW_WeaponData* weaponData, const APW_Weapon* currentWeapon);
+	void CastBulletRay(UCameraComponent* cameraComponent, const UPW_WeaponData* weaponData, const APW_Weapon* currentWeapon);
+	void SimulateBulletSpread(FVector& rayDirection, const UPW_WeaponData* weaponData);
 	bool CastRay(const FVector& rayStart, const FVector& rayDestination, const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const;
 	void ApplyDamage(const FHitResult& hitResult);
 	void LocalApplyDamage(const FHitResult& hitResult);
@@ -66,7 +66,6 @@ public:
 	void AssignInputActions();
 	void LocalReloadWeapon();
 	void OnReloadWeaponComplete();
-	void FireWeaponVisual();
 	void GetOwnerCharacter();
 	
 	UFUNCTION() void BeginFireSequence();

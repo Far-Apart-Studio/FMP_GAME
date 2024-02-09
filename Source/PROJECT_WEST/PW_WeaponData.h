@@ -33,28 +33,28 @@ private:
 
 	//------------------ Hip Fire Weapon Data ------------------//
 	
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	EFireType _hWeaponFireType;
 	
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	float _hWeaponDamage;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	float _hWeaponFireRate;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	FVector2D _hWeaponRecoil;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	float _hWeaponAccuracy;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	float _hWeaponFallOffRange;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	int _hProjectileCount;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	float _hProjectileDelay;
 
 	//------------------ Aimed Weapon Data ------------------//
@@ -74,7 +74,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
 	float _aWeaponAccuracy;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Fire Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
 	float _aWeaponFallOffRange;
 
 	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
