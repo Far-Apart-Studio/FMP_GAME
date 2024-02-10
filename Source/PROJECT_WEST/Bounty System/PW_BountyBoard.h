@@ -48,6 +48,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* _cameraPosition;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* _cameraComponent;
+
 	UPROPERTY(ReplicatedUsing = OnRep_BountyListChanged, BlueprintReadWrite, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
 	TArray<FBountyDataEntry> _bountyDataList;
 
@@ -63,6 +66,4 @@ private:
 	void PopulateBountyDataList();
 
 	bool _isOverlapping = false;
-
-	void FocusCharacterCameraOnBountyBoard(class APW_Character* character);
 };

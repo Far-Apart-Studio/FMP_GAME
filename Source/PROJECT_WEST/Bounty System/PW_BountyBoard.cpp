@@ -35,6 +35,9 @@ APW_BountyBoard::APW_BountyBoard()
 	_cameraPosition = CreateDefaultSubobject<USceneComponent>(TEXT("CameraPosition"));
 	_cameraPosition->SetupAttachment(_root);
 	_cameraPosition->SetRelativeLocation(FVector(0, 0, 100));
+
+	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	_cameraComponent->SetupAttachment(_cameraPosition);
 }
 
 void APW_BountyBoard::BeginPlay()
@@ -80,12 +83,7 @@ void APW_BountyBoard::EndInteract_Implementation()
 			playerController->bShowMouseCursor = false;
 			playerController->SetInputMode(FInputModeGameOnly());
 			characterController->ToggleMovement(true);
-			UCameraComponent* cameraComponent = characterController->GetCameraComponent();
-			if (cameraComponent)
-			{
-				cameraComponent->SetRelativeLocation( FVector(40, 0, 88) );
-				cameraComponent->SetRelativeRotation( FRotator(0, 0, 0) );
-			}
+			playerController->SetViewTargetWithBlend(characterController, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 		}
 	}
 
@@ -109,7 +107,7 @@ void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 			playerController->bShowMouseCursor = true;
 			playerController->SetInputMode(FInputModeGameAndUI());
 			characterController->ToggleMovement(false);
-			FocusCharacterCameraOnBountyBoard(characterController);
+			playerController->SetViewTargetWithBlend(this, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 		}
 	}
 }
@@ -148,23 +146,5 @@ void APW_BountyBoard::PopulateBountyDataList()
 			gameInstance->GetGameSessionData()._bountyDataList = _bountyDataList;
 		}
 		_bountyDataListChanged.Broadcast(_bountyDataList);
-	}
-}
-
-void APW_BountyBoard::FocusCharacterCameraOnBountyBoard(APW_Character* character)
-{
-	if (character)
-	{
-		// set camera position to the bounty board _cameraPosition
-		UCameraComponent* cameraComponent = character->GetCameraComponent();
-		if (cameraComponent)
-		{
-			cameraComponent->SetWorldLocation(GetActorLocation() + FVector(0, -300, 100));
-			APlayerController* playerController = character->GetController<APlayerController>();
-			if (playerController)
-			{
-				playerController->SetControlRotation(_cameraPosition->GetComponentRotation());
-			}
-		}
 	}
 }
