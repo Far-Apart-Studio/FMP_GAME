@@ -151,5 +151,5 @@ void APW_BountyBoard::PopulateBountyDataList()
 
 void APW_BountyBoard::ToggleHighlight(bool status)
 {
-	_bountyBoardMesh->bRenderCustomDepth = status;
+	_bountyBoardMesh->SetRenderCustomDepth(status);
 }
