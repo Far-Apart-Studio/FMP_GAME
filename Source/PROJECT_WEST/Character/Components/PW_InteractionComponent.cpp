@@ -27,6 +27,7 @@ void UPW_InteractionComponent::BeginPlay()
 
 void UPW_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+	if(!_ownerCharacter || !_ownerCharacter->IsLocallyControlled()) return;
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	TraceForInteractable();
 }
