@@ -66,4 +66,6 @@ private:
 	void PopulateBountyDataList();
 
 	bool _isOverlapping = false;
+
+	void ToggleHighlight(bool status);
 };

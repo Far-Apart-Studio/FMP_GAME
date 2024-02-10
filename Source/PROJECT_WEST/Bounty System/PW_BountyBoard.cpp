@@ -64,12 +64,12 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void APW_BountyBoard::StartFocus_Implementation()
 {
-
+	ToggleHighlight (true);
 }
 
 void APW_BountyBoard::EndFocus_Implementation()
 {
-
+	ToggleHighlight (false);
 }
 
 void APW_BountyBoard::EndInteract_Implementation()
@@ -147,4 +147,9 @@ void APW_BountyBoard::PopulateBountyDataList()
 		}
 		_bountyDataListChanged.Broadcast(_bountyDataList);
 	}
+}
+
+void APW_BountyBoard::ToggleHighlight(bool status)
+{
+	_bountyBoardMesh->bRenderCustomDepth = status;
 }

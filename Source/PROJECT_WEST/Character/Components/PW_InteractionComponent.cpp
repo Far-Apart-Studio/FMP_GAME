@@ -43,7 +43,7 @@ void UPW_InteractionComponent::TryClearLastInteractable()
 void UPW_InteractionComponent::TraceForInteractable()
 {
 	if(!_ownerCharacter) return;
-	if(_lastInteractable && !_lastInteractable->IsInteracting_Implementation()) return;
+	if(_lastInteractable && _lastInteractable->IsInteracting_Implementation()) return;
 	
 	UCameraComponent* _cameraComponent = _ownerCharacter->GetCameraComponent();
 	if (!_cameraComponent) return;
