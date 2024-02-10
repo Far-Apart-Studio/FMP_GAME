@@ -24,6 +24,7 @@ protected:
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 	void TryClearLastInteractable();
 	void TraceForInteractable();
 
@@ -35,7 +36,7 @@ public:
 	
 private:
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	UPROPERTY(EditAnywhere)
 	class APW_Character* _ownerCharacter;
 
 	class IPW_InteractableInterface* _lastInteractable;
