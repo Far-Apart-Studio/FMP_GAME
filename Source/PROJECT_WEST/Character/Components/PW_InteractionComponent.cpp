@@ -72,7 +72,6 @@ void UPW_InteractionComponent::TraceForInteractable()
 				TryClearLastInteractable();
 				_lastInteractable = Interactable;
 				_lastInteractable->StartFocus_Implementation();
-				DEBUG_STRING( "Interactable Start Focus");
 			}
 		}
 		else
