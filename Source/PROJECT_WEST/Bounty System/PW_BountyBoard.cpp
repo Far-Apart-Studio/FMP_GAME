@@ -80,10 +80,10 @@ void APW_BountyBoard::EndInteract_Implementation()
 		APlayerController* playerController = characterController->GetController<APlayerController>();
 		if (playerController)
 		{
+			playerController->SetViewTargetWithBlend(characterController, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 			playerController->bShowMouseCursor = false;
 			playerController->SetInputMode(FInputModeGameOnly());
 			characterController->ToggleMovement(true);
-			playerController->SetViewTargetWithBlend(characterController, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 		}
 	}
 
@@ -104,10 +104,10 @@ void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 		APlayerController* playerController = characterController->GetController<APlayerController>();
 		if (playerController)
 		{
+			playerController->SetViewTargetWithBlend(this, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 			playerController->bShowMouseCursor = true;
 			playerController->SetInputMode(FInputModeGameAndUI());
 			characterController->ToggleMovement(false);
-			playerController->SetViewTargetWithBlend(this, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 		}
 	}
 }
