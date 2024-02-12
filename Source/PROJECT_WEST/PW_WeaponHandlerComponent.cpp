@@ -8,18 +8,16 @@
 #include "PW_Weapon.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
-#include "Particles/ParticleSystemComponent.h"
 #include "PW_ItemHandlerComponent.h"
-#include "DebugMacros.h"
-#include "Net/UnrealNetwork.h"
 
 UPW_WeaponHandlerComponent::UPW_WeaponHandlerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	
+
 	_defaultWeaponData = nullptr;
 	_ownerCharacter = nullptr;
 	_defaultWeaponVisualData = nullptr;
+	_itemHandlerComponent = nullptr;
 }
 
 void UPW_WeaponHandlerComponent::BeginPlay()
@@ -41,7 +39,7 @@ void UPW_WeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 		_lastFiredTime += DeltaTime;
 }
 
-APW_Weapon* UPW_WeaponHandlerComponent::TryGetCurrentWeapon()
+APW_Weapon* UPW_WeaponHandlerComponent::TryGetCurrentWeapon() const
 {
 	APW_Weapon* weapon = Cast <APW_Weapon>(_itemHandlerComponent->GetItemInHand());
 	return weapon;
@@ -52,7 +50,46 @@ void UPW_WeaponHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
-void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData)
+void UPW_WeaponHandlerComponent::BeginFireSequence()
+{
+	_isFiring = true;
+
+	APW_Weapon* currentWeapon = TryGetCurrentWeapon();
+	
+	if (currentWeapon == nullptr)
+	{PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+
+	UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
+
+	if (weaponData == nullptr)
+	{PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+	
+	CoreFireSequence(currentWeapon, weaponData);
+}
+
+void UPW_WeaponHandlerComponent::CoreFireSequence(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData)
+{
+	if (!_isFiring)
+		return;
+
+	if (weaponData->GetHipWeaponFireType() == EFireType::Automatic)
+		QueueAutomaticFire(currentWeapon, weaponData);
+
+	if (currentWeapon->IsAmmoEmpty())
+	{ ReloadWeapon(); return; }
+
+	const bool canFire = CalculateFireStatus();
+	
+	if (canFire)
+		CastBulletRays(weaponData, currentWeapon);
+}
+
+void UPW_WeaponHandlerComponent::CompleteFireSequence()
+{
+	_isFiring = false;
+}
+
+void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData, const APW_Weapon* currentWeapon)
 {
 	if(_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
@@ -62,29 +99,35 @@ void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData
 	if (cameraComponent == nullptr)
 		{ PW_Utilities::Log("NO CAMERA COMPONENT FOUND!"); return; }
 
-	const int projectileCount = weaponData->GetHipProjectileCount();
+	int projectileCount = weaponData->GetHipProjectileCount();
+	const float defaultProjectileDelay = weaponData->GetHipProjectileDelay();
+	float currentDelay = -defaultProjectileDelay;
 
-	PW_Utilities::Log("Projectile Count: ", projectileCount);
+	const int availableAmmo = currentWeapon->GetCurrentAmmo();
+	if (availableAmmo < projectileCount)
+		projectileCount = availableAmmo;
 	
 	for (int i = 0; i < projectileCount; i++)
 	{
-		const float weaponDelay = weaponData->GetHipProjectileDelay();
+		currentDelay += defaultProjectileDelay;
+		currentDelay += 0.000001f;
+		
 		FTimerDelegate fireRateDelegate;
+		FTimerHandle _fireRateTimerHandle;
 		
-		fireRateDelegate.BindLambda([this, cameraComponent]()
-			{ CastBulletRay(cameraComponent); });
-		
+		fireRateDelegate.BindLambda([this, cameraComponent, weaponData, currentWeapon]()
+			{ CastBulletRay(cameraComponent, weaponData, currentWeapon); });
+
 		GetWorld()->GetTimerManager().SetTimer(_fireRateTimerHandle, fireRateDelegate,
-			weaponDelay, false);
-		
-		CastBulletRay(cameraComponent);
+			currentDelay, false);
 	}
 }
 
-void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent)
+void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent, const UPW_WeaponData* weaponData, const APW_Weapon* currentWeapon)
 {
 	FVector rayDirection = cameraComponent->GetForwardVector();
 	FVector rayStart = cameraComponent->GetComponentLocation();
+	SimulateBulletSpread(rayDirection, weaponData);
 	FVector rayDestination = rayStart + (rayDirection * 10000.0f);
 	
 	FCollisionQueryParams collisionQueryParams;
@@ -105,6 +148,15 @@ void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent
 	}
 	
 	ApplyDamage(hitResult);
+	if (currentWeapon->IsAmmoEmpty())
+		ReloadWeapon(); 
+}
+
+void UPW_WeaponHandlerComponent::SimulateBulletSpread(FVector& rayDirection, const UPW_WeaponData* weaponData)
+{
+	const float weaponSpread = weaponData->GetHipWeaponAccuracy();
+	const FVector spreadVector = FMath::VRandCone(rayDirection, weaponSpread);
+	rayDirection = spreadVector;
 }
 
 bool UPW_WeaponHandlerComponent::CastRay(const FVector& rayStart, const FVector& rayDestination,
@@ -119,48 +171,6 @@ bool UPW_WeaponHandlerComponent::CastRay(const FVector& rayStart, const FVector&
 		return false;
 	}
 	return true;
-}
-
-void UPW_WeaponHandlerComponent::BeginFireSequence()
-{
-	_isFiring = true;
-
-	APW_Weapon* currentWeapon = TryGetCurrentWeapon();
-	
-	if (currentWeapon == nullptr)
-		{PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
-
-	UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
-
-	if (weaponData == nullptr)
-		{PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
-	
-	CoreFireSequence(currentWeapon, weaponData);
-}
-
-void UPW_WeaponHandlerComponent::CoreFireSequence(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData)
-{
-	if (!_isFiring)
-		return;
-
-	if (weaponData->GetHipWeaponFireType() == EFireType::Automatic)
-		QueueAutomaticFire(currentWeapon, weaponData);
-
-	if (currentWeapon->IsAmmoEmpty())
-		{ ReloadWeapon(); return; }
-
-	const bool canFire = CalculateFireStatus();
-	
-	if (canFire)
-	{
-		CastBulletRays(weaponData);
-		FireWeaponVisual();
-	}
-}
-
-void UPW_WeaponHandlerComponent::CompleteFireSequence()
-{
-	_isFiring = false;
 }
 
 void UPW_WeaponHandlerComponent::QueueAutomaticFire(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData)
@@ -234,8 +244,6 @@ void UPW_WeaponHandlerComponent::ServerApplyDamage_Implementation(const FHitResu
 
 void UPW_WeaponHandlerComponent::LocalApplyDamage(const FHitResult& hitResult)
 {
-	FireWeaponVisual();
-	
 	TryGetCurrentWeapon()->SubtractCurrentAmmo(1);
 	
 	AActor* hitActor = hitResult.GetActor();
@@ -305,8 +313,4 @@ void UPW_WeaponHandlerComponent::AssignInputActions()
 		(this, &UPW_WeaponHandlerComponent::ReloadWeapon);
 }
 
-void UPW_WeaponHandlerComponent::FireWeaponVisual()
-{
-	TryGetCurrentWeapon()->GetMuzzleEffect()->ActivateSystem();
-}
 
