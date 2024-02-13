@@ -196,6 +196,11 @@ int32 APW_BountyBoard::GetBountyIndexWithHighestVotes()
 	return highestVotesIndex;
 }
 
+FBountyDataEntry APW_BountyBoard::GetBountyWithHighestVotes()
+{
+	return  _bountyDataList [GetBountyIndexWithHighestVotes()];
+}
+
 void APW_BountyBoard::ToggleHighlight(bool status)
 {
 	_bountyBoardMesh->SetRenderCustomDepth(status);

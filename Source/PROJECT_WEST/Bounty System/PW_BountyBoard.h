@@ -80,6 +80,8 @@ private:
 	UFUNCTION()
 	void OnRep_BountyVoteChanged();
 
+public:	
+
 	UFUNCTION( BlueprintCallable, Category = "Info" )
 	void PopulateBountyDataList();
 	
@@ -88,9 +90,9 @@ private:
 	UFUNCTION( BlueprintCallable, Category = "Info" )
 	int32 GetBountyIndexWithHighestVotes();
 
-	void ToggleHighlight(bool status);
+	FBountyDataEntry GetBountyWithHighestVotes();
 
-public:
+	void ToggleHighlight(bool status);
 
 	UFUNCTION(BlueprintCallable, Category = "Info" )
 	void AddVoteToBounty(int32 bountyIndex);

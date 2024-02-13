@@ -25,9 +25,15 @@ protected:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
 	class UBountySystemComponent* _bountySystemComponent;
 
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
 	class APW_BountyBoard* _bountyBoard;
 
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	class APW_TransitionPortal* _transitionPortal;
+
 public:
+	UFUNCTION()
+	void OnTransitionCompleted();
 	void BeginPlay() override;
 	FORCEINLINE UBountySystemComponent* GetBountySystemComponent() const { return _bountySystemComponent; }
 	FORCEINLINE APW_BountyBoard* GetBountyBoard() const { return _bountyBoard; }

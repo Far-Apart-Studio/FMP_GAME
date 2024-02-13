@@ -389,7 +389,6 @@ bool APW_PlayerController::DoVoteToBounty(int32 bountyIndex)
 {
 	if (_hasVoted)
 	{
-
 		if (HasAuthority())
 		{
 			RemoveVoteFromBounty(bountyIndex);
