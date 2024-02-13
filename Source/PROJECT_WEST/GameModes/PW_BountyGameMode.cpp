@@ -138,7 +138,21 @@ void APW_BountyGameMode::BountyFailed()
 	_bountySuccessful = false;
 	ToggleAllPlayersInput(false);
 	SetMatchState(MatchState::Cooldown);
-	DEBUG_STRING( "BountyFailed"  + MatchState.ToString() );
+	
+	// Give money to players
+	_gameInstance->GetGameSessionData()._money += _gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost;
+	DEBUG_STRING("Bounty Failed. Money: " + FString::FromInt(_gameInstance->GetGameSessionData()._money));
+}
+
+void APW_BountyGameMode::BountySuccessful()
+{
+	_bountySuccessful = true;
+	ToggleAllPlayersInput(false);
+	SetMatchState(MatchState::Cooldown);
+
+	// Give money to players
+	_gameInstance->GetGameSessionData()._money += _gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost;
+	DEBUG_STRING("Bounty successful. Money: " + FString::FromInt(_gameInstance->GetGameSessionData()._money));
 }
 
 APW_PlayerController* APW_BountyGameMode::GetAnyPlayerAlive()
@@ -205,27 +219,14 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 	}
 }
 
-void APW_BountyGameMode::BountySuccessful()
-{
-	_bountySuccessful = true;
-	ToggleAllPlayersInput(false);
-	SetMatchState(MatchState::Cooldown);
-}
-
 void APW_BountyGameMode::LoadGameSessionData()
 {
 	Super::LoadGameSessionData();
 	
 	if (_gameInstance)
 	{
-		DEBUG_STRING( "Bounty cost: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost) );
+		DEBUG_STRING("Bounty cost: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost));
 	}
-}
-
-void APW_BountyGameMode::TestModifyBountyData()
-{
-	_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost += 500;
-	DEBUG_STRING( "Bounty cost: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost) );
 }
 
 void APW_BountyGameMode::SpawnLantern()

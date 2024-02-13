@@ -17,13 +17,7 @@ struct FGameSessionData
 
 	UPROPERTY( EditAnywhere, Category = "Bounty System")
 	int32 _money;
-	
-	FGameSessionData CoptData()
-	{
-		FGameSessionData copy;
-		copy._bountyDataList = _bountyDataList;
-		copy._bountyDataEntry = _bountyDataEntry;
-		copy._money = _money;
-		return copy;
-	}
+
+	UPROPERTY( EditAnywhere, Category = "Bounty System")
+	bool _hasHead;
 };

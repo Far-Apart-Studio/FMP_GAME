@@ -65,9 +65,6 @@ public:
 	void BountySuccessful();
 	
 	void LoadGameSessionData() override;
-
-	UFUNCTION( BlueprintCallable )
-	void TestModifyBountyData();
 	
 	void SpawnLantern();
 	
