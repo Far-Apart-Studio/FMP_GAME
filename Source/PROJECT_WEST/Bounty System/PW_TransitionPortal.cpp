@@ -6,6 +6,8 @@
 #include "Components/BoxComponent.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
+#include "Net/UnrealNetwork.h"
+#include "PROJECT_WEST/DebugMacros.h"
 
 // Sets default values
 APW_TransitionPortal::APW_TransitionPortal()
@@ -36,14 +38,22 @@ void APW_TransitionPortal::BeginPlay()
 	}
 }
 
+void APW_TransitionPortal::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APW_TransitionPortal, _isActivated);
+}
+
 void APW_TransitionPortal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	CheckForOverlap();
 }
 
 void APW_TransitionPortal::ToggleActivation(bool value)
 {
 	_isActivated = value;
+	OnActivationChangedDelegate.Broadcast(_isActivated);
 }
 
 void APW_TransitionPortal::CheckForOverlap()
@@ -59,5 +69,10 @@ void APW_TransitionPortal::CheckForOverlap()
 		OnSuccess.Broadcast();
 		_lobbyGameMode->ServerTravel(_mapPath);
 	}
+}
+
+void APW_TransitionPortal::OnRep_ActivationChanged()
+{
+	OnActivationChangedDelegate.Broadcast(_isActivated);
 }
 

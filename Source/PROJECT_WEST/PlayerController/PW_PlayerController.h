@@ -22,8 +22,8 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
 	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
+	
 	void Destroyed() override;
 
 	FHighPingDelegate HighPingDelegate;
@@ -36,10 +36,21 @@ protected:
 	void StartHighPingWarning();
 	void StopHighPingWarning();
 	void HandleCheckPing(float DeltaTime);
-
-
 	void SetHUDTime();
 	void SyncTimeWithServer(float deltaTime);
+
+	UFUNCTION(BlueprintCallable, Category = "Info" )
+	bool DoVoteToBounty(int32 bountyIndex);
+	
+	void AddVoteToBounty(int32 bountyIndex);
+	
+	void RemoveVoteFromBounty(int32 bountyIndex);
+
+	UFUNCTION( Server, Reliable )
+	void ServerRemoveVoteFromBounty(int32 bountyIndex);
+
+	UFUNCTION( Server, Reliable )
+	void ServerAddVoteToBounty(int32 bountyIndex);
 
 	UFUNCTION( Server, Reliable )
 	void ServerRequestTime(float timeOfClientRequest); // Request server time
@@ -56,6 +67,7 @@ protected:
 	float _timeSyncRuningTime;
 	
 	void PawnLeavingGame() override;
+	
 public:
 
 	void SetHUDHealth(float health, float maxHealth);
@@ -105,7 +117,11 @@ private:
 	
 	uint32 _countDownInt;
 
+	bool _hasVoted;
+	int32 _votedBountyIndex;
+
 	class APW_BountyGameMode* _bountyGameMode;
+	class APW_LobbyGameMode* _lobbyGameMode;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 	FName _matchState;

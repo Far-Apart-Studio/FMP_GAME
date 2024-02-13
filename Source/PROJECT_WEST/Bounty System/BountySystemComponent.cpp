@@ -49,7 +49,9 @@ TArray<FBountyDataEntry> UBountySystemComponent::GetBountyDataList(TArray<EBount
 	TArray<FBountyDataEntry> bountyDataList;
 	for (EBountyDifficulty difficulty : _bountyDifficulties)
 	{
-		bountyDataList.Add(GetBountyDataEntry(difficulty));
+		FBountyDataEntry bountyDataEntry = GetBountyDataEntry(difficulty);
+		bountyDataEntry.index = bountyDataList.Num();
+		bountyDataList.Add(bountyDataEntry);
 	}
 	return bountyDataList;
 }

@@ -102,7 +102,9 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	
 	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_Character::SprintButtonPressed);
 	
-	PlayerInputComponent->BindAction("PickUp", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
+	PlayerInputComponent->BindAction("StartInteract", IE_Pressed, this, &APW_Character::StartInteractButtonPressed);
+	PlayerInputComponent->BindAction("EndInteract", IE_Pressed, this, &APW_Character::EndInteractButtonPressed);
+	
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
 	
@@ -114,28 +116,33 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void APW_Character::MoveForwardAxisPressed(float value)
 {
+	if (_disableMovement) return;
 	const FVector moveDirection = GetActorForwardVector();
 	AddMovementInput(moveDirection, value);
 }
 
 void APW_Character::MoveRightAxisPressed(float value)
 {
+	if (_disableMovement) return;
 	const FVector moveDirection = GetActorRightVector();
 	AddMovementInput(moveDirection, value);
 }
 
 void APW_Character::LookRightAxisPressed(float value)
 {
+	if (_disableMovement) return;
 	AddControllerYawInput(value);
 }
 
 void APW_Character::LookUpAxisPressed(float value)
 {
+	if (_disableMovement) return;
 	AddControllerPitchInput(value);
 }
 
 void APW_Character::SprintButtonPressed()
 {
+	if (_disableMovement) return;
 	_isSprinting = !_isSprinting;
 	
 	_isSprinting ?
@@ -192,9 +199,14 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 	}
 }
 
-void APW_Character::PickUpButtonPressed()
+void APW_Character::StartInteractButtonPressed()
 {
-	OnPickUpButtonPressed.Broadcast();
+	OnStartInteractButtonPressed.Broadcast();
+}
+
+void APW_Character::EndInteractButtonPressed()
+{
+	OnEndInteractButtonPressed.Broadcast();
 }
 
 void APW_Character::SwitchItemButtonPressed()

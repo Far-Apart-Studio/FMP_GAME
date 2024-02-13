@@ -9,11 +9,11 @@
 UENUM()
 enum class EBountyDifficulty: uint8
 {
-	OneStar,
-	TwoStar,
-	ThreeStar,
-	FourStar,
-	FiveStar
+	EBD_OneStar UMETA(DisplayName = "One Star"),
+	EBD_TwoStar UMETA(DisplayName = "Two Star"),
+	EBD_ThreeStar UMETA(DisplayName = "Three Star"),
+	EBD_FourStar UMETA(DisplayName = "Four Star"),
+	EBD_FiveStar UMETA(DisplayName = "Five Star")
 };
 
 USTRUCT(BlueprintType)
@@ -140,6 +140,9 @@ struct FBountyDataEntry
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	int32 index;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	EBountyDifficulty _bountyDifficulty;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
@@ -153,4 +156,22 @@ struct FBountyDataEntry
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	FBountyTargetEntry _bountyTarget;
+};
+
+USTRUCT(BlueprintType)
+struct FBountyVoteDataEntry
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	int32 _bountyVotes;
+};
+
+USTRUCT(BlueprintType)
+struct FBountyVoteData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
+	TArray<FBountyVoteDataEntry> _bountyVoteDataList;
 };

@@ -15,7 +15,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMoveRightAxisDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookRightAxisDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookUpAxisDelegate);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPickUpButtonDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartInteractButtonDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndInteractButtonDelegate);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDropButtonDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSwitchItemButtonDelegate);
 
@@ -56,6 +58,8 @@ private:
 	
 	bool _LeftGame = false;
 
+	bool _disableMovement = false;
+
 	UFUNCTION( NetMulticast, Reliable )
 	void MultiCastElim (bool leftGame);
 
@@ -68,7 +72,9 @@ public:
 	FShootButtonDelegate OnShootReleaseDelegate;
 	FReloadButtonDelegate OnReloadButtonPressed;
 
-	FPickUpButtonDelegate OnPickUpButtonPressed;
+	FStartInteractButtonDelegate OnStartInteractButtonPressed;
+	FEndInteractButtonDelegate OnEndInteractButtonPressed;
+	
 	FDropButtonDelegate OnDropButtonPressed;
 	FSwitchItemButtonDelegate OnSwitchItemButtonPressed;
 	
@@ -90,7 +96,8 @@ protected:
 	void OnHealthChanged();
 	
 	virtual void PostInitializeComponents() override;
-	void PickUpButtonPressed();
+	void StartInteractButtonPressed();
+	void EndInteractButtonPressed();
 	void SwitchItemButtonPressed();
 	
 public:	
@@ -114,4 +121,5 @@ public:
 public:
 	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
+	FORCEINLINE void ToggleMovement(bool value) { _disableMovement = !value; }
 };

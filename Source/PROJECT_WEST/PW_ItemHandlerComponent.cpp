@@ -21,7 +21,7 @@ void UPW_ItemHandlerComponent::BeginPlay()
 	_ownerCharacter = _ownerCharacter ?   Cast<APW_Character>(GetOwner()) : _ownerCharacter;
 	if (_ownerCharacter->IsLocallyControlled())
 	{
-		_ownerCharacter->OnPickUpButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::TryPickUpItemNearBy);
+		_ownerCharacter->OnStartInteractButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::TryPickUpItemNearBy);
 		_ownerCharacter->OnDropButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::TryDropItemHeld);
 		_ownerCharacter->OnSwitchItemButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::DoSwitchItem);
 	}

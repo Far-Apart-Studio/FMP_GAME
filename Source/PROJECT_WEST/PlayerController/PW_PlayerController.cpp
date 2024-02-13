@@ -13,8 +13,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
+#include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/PW_ItemHandlerComponent.h"
-#include "PROJECT_WEST/PW_HealthComponent.h"
+#include "PROJECT_WEST/Bounty System/PW_BountyBoard.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -30,8 +31,10 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	// called when the player controller possesses a pawn
 	_hud = Cast<APW_HUD>(GetHUD());
-	//AddCharacterOverlayWidget();
+	_votedBountyIndex = -1;
+	_hasVoted = false;
 }
 
 void APW_PlayerController::BeginPlay()
@@ -41,8 +44,7 @@ void APW_PlayerController::BeginPlay()
 	//DEBUG_STRING( "APW_PlayerController BeginPlay" );
 
 	//ServerCheckMatchState();
-
-
+	
 	_highPingRunningTime = 0;
 	_highPingDuration = 5;
 	_checkPingFrequency = 20;
@@ -133,6 +135,10 @@ void APW_PlayerController::ReceivedPlayer()
 void APW_PlayerController::Destroyed()
 {
 	// Drop all items when player controller is destroyed
+	if (_hasVoted)
+	{
+		DoVoteToBounty(_votedBountyIndex);
+	}
 	DropAllItems();
 	Super::Destroyed();
 }
@@ -376,6 +382,69 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 	{
 		ServerRequestTime(GetWorld()->GetTimeSeconds());
 		_timeSyncRuningTime = 0;
+	}
+}
+
+bool APW_PlayerController::DoVoteToBounty(int32 bountyIndex)
+{
+	if (_hasVoted)
+	{
+		if (HasAuthority())
+		{
+			RemoveVoteFromBounty(bountyIndex);
+		}
+		else
+		{
+			ServerRemoveVoteFromBounty(bountyIndex);
+		}
+		_hasVoted = false;
+		return _hasVoted;
+	}
+	
+	if (HasAuthority())
+	{
+		AddVoteToBounty(bountyIndex);
+	}
+	else
+	{
+		ServerAddVoteToBounty(bountyIndex);
+	}
+	_votedBountyIndex = bountyIndex;
+	_hasVoted = true;
+	return _hasVoted;
+}
+
+void APW_PlayerController::AddVoteToBounty(int32 bountyIndex)
+{
+	_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
+	if (_lobbyGameMode)
+	{
+		_lobbyGameMode->GetBountyBoard()->AddVoteToBounty(bountyIndex);
+	}
+}
+
+void APW_PlayerController::RemoveVoteFromBounty(int32 bountyIndex)
+{
+	_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
+	if (_lobbyGameMode)
+	{
+		_lobbyGameMode->GetBountyBoard()->RemoveVoteFromBounty(bountyIndex);
+	}
+}
+
+void APW_PlayerController::ServerAddVoteToBounty_Implementation(int32 bountyIndex)
+{
+	if (HasAuthority())
+	{
+		AddVoteToBounty(bountyIndex);
+	};
+}
+
+void APW_PlayerController::ServerRemoveVoteFromBounty_Implementation(int32 bountyIndex)
+{
+	if (HasAuthority())
+	{
+		RemoveVoteFromBounty(bountyIndex);
 	}
 }
 
