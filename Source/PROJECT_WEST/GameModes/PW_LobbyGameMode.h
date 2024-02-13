@@ -32,9 +32,12 @@ protected:
 	class APW_TransitionPortal* _transitionPortal;
 
 public:
+
 	UFUNCTION()
 	void OnTransitionCompleted();
+	
 	void BeginPlay() override;
+	
 	FORCEINLINE UBountySystemComponent* GetBountySystemComponent() const { return _bountySystemComponent; }
 	FORCEINLINE APW_BountyBoard* GetBountyBoard() const { return _bountyBoard; }
 };

@@ -169,6 +169,16 @@ void APW_BountyBoard::PopulateBountyVoteData(int numberOfBounties)
 	}
 }
 
+int32 APW_BountyBoard::GetTotalVotes()
+{
+	int32 totalVotes = 0;
+	for (FBountyVoteDataEntry& entry : _bountyVoteData._bountyVoteDataList)
+	{
+		totalVotes += entry._bountyVotes;
+	}
+	return totalVotes;
+}
+
 void APW_BountyBoard::AddVoteToBounty(int32 bountyIndex)
 {
 	_bountyVoteData._bountyVoteDataList[bountyIndex]._bountyVotes++;

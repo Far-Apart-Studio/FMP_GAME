@@ -88,6 +88,9 @@ public:
 	void PopulateBountyVoteData(int numberOfBounties);
 
 	UFUNCTION( BlueprintCallable, Category = "Info" )
+	int32 GetTotalVotes();
+	
+	UFUNCTION( BlueprintCallable, Category = "Info" )
 	int32 GetBountyIndexWithHighestVotes();
 
 	FBountyDataEntry GetBountyWithHighestVotes();
