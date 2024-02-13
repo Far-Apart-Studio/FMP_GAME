@@ -9,6 +9,9 @@
 #include "PW_BountyBoard.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBountyDataListChanged, const TArray<FBountyDataEntry>&, bountyDataList);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBountyVoteDataChanged, const FBountyVoteData&, bountyVoteData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnBoardOpened);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnBoardClosed);
 
 UCLASS()
 class PROJECT_WEST_API APW_BountyBoard : public AActor, public IPW_InteractableInterface
@@ -36,36 +39,62 @@ public:
 
 private:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* _root;
 	
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* _bountyBoardMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _bountyBoardWidget;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* _cameraPosition;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* _cameraComponent;
 
-	UPROPERTY(ReplicatedUsing = OnRep_BountyListChanged, BlueprintReadWrite, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_BountyListChanged, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	TArray<FBountyDataEntry> _bountyDataList;
 
-	UPROPERTY(BlueprintAssignable, Category = "BountyBoard", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FBountyDataListChanged _bountyDataListChanged;
 
+	UPROPERTY(BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FBountyVoteDataChanged _bountyVoteDataChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnBoardOpened _onBoardOpened;
+
+	UPROPERTY(BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnBoardClosed _onBoardClosed;
+	
 	class APW_Character* _character;
 
 	UFUNCTION()
 	void OnRep_BountyListChanged();
 
-	UFUNCTION( BlueprintCallable, Category = "BountyBoard" )
-	void PopulateBountyDataList();
+	UPROPERTY(ReplicatedUsing = OnRep_BountyVoteChanged, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FBountyVoteData _bountyVoteData;
 
-	bool _isOverlapping = false;
+	UFUNCTION()
+	void OnRep_BountyVoteChanged();
+
+	UFUNCTION( BlueprintCallable, Category = "Info" )
+	void PopulateBountyDataList();
+	
+	void PopulateBountyVoteData(int numberOfBounties);
+
+	UFUNCTION( BlueprintCallable, Category = "Info" )
+	int32 GetBountyIndexWithHighestVotes();
 
 	void ToggleHighlight(bool status);
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Info" )
+	void AddVoteToBounty(int32 bountyIndex);
+	
+	UFUNCTION( BlueprintCallable, Category = "Info" )
+	void RemoveVoteFromBounty(int32 bountyIndex);
 };

@@ -29,7 +29,6 @@ APW_BountyBoard::APW_BountyBoard()
 
 	_bountyBoardWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("BountyBoardWidget"));
 	_bountyBoardWidget->SetupAttachment(_root);
-	_bountyBoardWidget->SetIsReplicated(true);
 	_bountyBoardWidget->SetCollisionResponseToAllChannels(ECR_Ignore);
 
 	_cameraPosition = CreateDefaultSubobject<USceneComponent>(TEXT("CameraPosition"));
@@ -60,6 +59,7 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APW_BountyBoard, _bountyDataList);
+	DOREPLIFETIME(APW_BountyBoard, _bountyVoteData);
 }
 
 void APW_BountyBoard::StartFocus_Implementation()
@@ -81,9 +81,10 @@ void APW_BountyBoard::EndInteract_Implementation()
 		if (playerController)
 		{
 			playerController->SetViewTargetWithBlend(characterController, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+			characterController->ToggleMovement(true);
 			playerController->bShowMouseCursor = false;
 			playerController->SetInputMode(FInputModeGameOnly());
-			characterController->ToggleMovement(true);
+			_onBoardClosed.Broadcast();
 		}
 	}
 
@@ -105,9 +106,10 @@ void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 		if (playerController)
 		{
 			playerController->SetViewTargetWithBlend(this, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+			characterController->ToggleMovement(false);
 			playerController->bShowMouseCursor = true;
 			playerController->SetInputMode(FInputModeGameAndUI());
-			characterController->ToggleMovement(false);
+			_onBoardOpened.Broadcast();
 		}
 	}
 }
@@ -115,6 +117,11 @@ void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 void APW_BountyBoard::OnRep_BountyListChanged()
 {
 	_bountyDataListChanged.Broadcast(_bountyDataList);
+}
+
+void APW_BountyBoard::OnRep_BountyVoteChanged()
+{
+	_bountyVoteDataChanged.Broadcast(_bountyVoteData);
 }
 
 void APW_BountyBoard::PopulateBountyDataList()
@@ -126,7 +133,7 @@ void APW_BountyBoard::PopulateBountyDataList()
 		{
 			_bountyDataList = gameInstance->GetGameSessionData()._bountyDataList;
 			_bountyDataListChanged.Broadcast(_bountyDataList);
-
+			PopulateBountyVoteData(_bountyDataList.Num());
 			DEBUG_STRING( "PopulateBountyDataList from GameInstance");
 			return;
 		}
@@ -136,9 +143,10 @@ void APW_BountyBoard::PopulateBountyDataList()
 	if(gameMode)
 	{
 		TArray<EBountyDifficulty> difficulties;
-		difficulties.Add(EBountyDifficulty::OneStar);
-		difficulties.Add(EBountyDifficulty::TwoStar);
-		difficulties.Add(EBountyDifficulty::ThreeStar);
+		difficulties.Add(EBountyDifficulty::EBD_OneStar);
+		difficulties.Add(EBountyDifficulty::EBD_TwoStar);
+		difficulties.Add(EBountyDifficulty::EBD_ThreeStar);
+		difficulties.Add(EBountyDifficulty::EBD_FourStar);
 		_bountyDataList = gameMode->GetBountySystemComponent()->GetBountyDataList(difficulties);
 
 		if (gameInstance)
@@ -146,7 +154,46 @@ void APW_BountyBoard::PopulateBountyDataList()
 			gameInstance->GetGameSessionData()._bountyDataList = _bountyDataList;
 		}
 		_bountyDataListChanged.Broadcast(_bountyDataList);
+		PopulateBountyVoteData(_bountyDataList.Num());
 	}
+}
+
+void APW_BountyBoard::PopulateBountyVoteData(int numberOfBounties)
+{
+	_bountyVoteData._bountyVoteDataList.Empty();
+	for (int i = 0; i < numberOfBounties; i++)
+	{
+		FBountyVoteDataEntry entry;
+		entry._bountyVotes = 0;
+		_bountyVoteData._bountyVoteDataList.Add(entry);
+	}
+}
+
+void APW_BountyBoard::AddVoteToBounty(int32 bountyIndex)
+{
+	_bountyVoteData._bountyVoteDataList[bountyIndex]._bountyVotes++;
+	_bountyVoteDataChanged.Broadcast(_bountyVoteData);
+}
+
+void APW_BountyBoard::RemoveVoteFromBounty(int32 bountyIndex)
+{
+	_bountyVoteData._bountyVoteDataList[bountyIndex]._bountyVotes--;
+	_bountyVoteDataChanged.Broadcast(_bountyVoteData);
+}
+
+int32 APW_BountyBoard::GetBountyIndexWithHighestVotes()
+{
+	int32 highestVotes = 0;
+	int32 highestVotesIndex = 0;
+	for (int32 i = 0; i < _bountyVoteData._bountyVoteDataList.Num(); i++)
+	{
+		if (_bountyVoteData._bountyVoteDataList[i]._bountyVotes > highestVotes)
+		{
+			highestVotes = _bountyVoteData._bountyVoteDataList[i]._bountyVotes;
+			highestVotesIndex = i;
+		}
+	}
+	return highestVotesIndex;
 }
 
 void APW_BountyBoard::ToggleHighlight(bool status)
