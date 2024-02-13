@@ -49,17 +49,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _overheadWidget;
 
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly,
+		Category = "Character", meta = (AllowPrivateAccess = "true"))
+	bool _isSprinting = false;
+
 	class APW_PlayerController* _playerController;
 	class APW_BountyGameMode* _bountyGameMode;
-	
-	bool _isSprinting = false;
-	
 	bool _LeftGame = false;
-
-	UFUNCTION( NetMulticast, Reliable )
-	void MultiCastElim (bool leftGame);
-
-	
 public:
 	
 	APW_Character();
@@ -88,6 +84,9 @@ protected:
 	
 	UFUNCTION()
 	void OnHealthChanged();
+
+	UFUNCTION( NetMulticast, Reliable )
+	void MultiCastElim (bool leftGame);
 	
 	virtual void PostInitializeComponents() override;
 	void PickUpButtonPressed();
@@ -97,16 +96,21 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
 	void JumpButtonPressed();
 	void UseButtonPressed();
 	void UseButtonReleased();
 	void CrouchButtonPressed();
 	void MoveForwardAxisPressed(float value);
 	void MoveRightAxisPressed(float value);
-	void SprintButtonPressed();
 	void LookRightAxisPressed(float value);
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
+	void SprintButtonPressed();
+	void LocalSpringButtonPressed();
+
+	UFUNCTION(Server, Reliable)
+	void ServerSprintButtonPressed();
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
+
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -11,7 +12,6 @@
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PW_ItemHandlerComponent.h"
 #include "PW_WeaponHandlerComponent.h"
-#include "Engine/DamageEvents.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
@@ -59,15 +59,11 @@ void APW_Character::PostInitializeComponents()
 
 	UPW_WeaponHandlerComponent* weaponHandler = FindComponentByClass<UPW_WeaponHandlerComponent>();
 	if (weaponHandler)
-	{
 		weaponHandler->SetOwnerCharacter(this);
-	}
 
 	_itemHandlerComponent = FindComponentByClass<UPW_ItemHandlerComponent>();
 	if (_itemHandlerComponent)
-	{
 		_itemHandlerComponent->SetOwnerCharacter(this);
-	}
 
 	if (HasAuthority())
 	{
@@ -87,7 +83,8 @@ void APW_Character::Tick(float DeltaTime)
 
 void APW_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APW_Character, _isSprinting);
 }
 
 void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -136,11 +133,21 @@ void APW_Character::LookUpAxisPressed(float value)
 
 void APW_Character::SprintButtonPressed()
 {
+	HasAuthority() ? LocalSpringButtonPressed() : ServerSprintButtonPressed();
+}
+
+void APW_Character::LocalSpringButtonPressed()
+{
 	_isSprinting = !_isSprinting;
-	
 	_isSprinting ?
 		GetCharacterMovement()->MaxWalkSpeed *= _sprintMultiplier :
 		GetCharacterMovement()->MaxWalkSpeed /= _sprintMultiplier;
+}
+
+void APW_Character::ServerSprintButtonPressed_Implementation()
+{
+	if (HasAuthority())
+		LocalSpringButtonPressed();
 }
 
 void APW_Character::JumpButtonPressed()
