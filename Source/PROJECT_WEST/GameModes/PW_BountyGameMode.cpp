@@ -227,7 +227,7 @@ void APW_BountyGameMode::SpawnLantern()
 
 		if (_bountyEnemy)
 		{
-			_lantern->SetTarget( _bountyEnemy);
+			_lantern->SetTarget(_bountyEnemy);
 			//DEBUG_STRING ( "Lantern spawned and set target" );
 		}
 	}

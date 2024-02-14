@@ -155,7 +155,6 @@ void UPW_ItemHandlerComponent::PickUpItem(APW_Item* item)
 {
 	if (!item)
 	{
-		DEBUG_STRING( "PickUpItem : item is nullptr!" );
 		return;
 	}
 	
