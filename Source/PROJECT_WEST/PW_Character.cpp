@@ -91,12 +91,24 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("PrimaryUse", IE_Released, this, &APW_Character::UseButtonReleased);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APW_Character::SprintButtonPressed);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::StartInteractButtonPressed);
+	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::EndInteractButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_Character::MoveForwardAxisPressed);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookUpAxisPressed);
 	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookRightAxisPressed);
+}
+
+void APW_Character::StartInteractButtonPressed()
+{
+	OnStartInteractButtonPressed.Broadcast();
+}
+
+void APW_Character::EndInteractButtonPressed()
+{
+	OnEndInteractButtonPressed.Broadcast();
 }
 
 void APW_Character::JumpButtonPressed()

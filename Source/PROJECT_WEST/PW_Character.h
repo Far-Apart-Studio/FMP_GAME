@@ -83,7 +83,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	void JumpButtonPressed();
 	void UseButtonPressed();
 	void UseButtonReleased();
@@ -95,6 +95,8 @@ public:
 	void DropButtonPressed();
 	void SprintButtonPressed();
 	void ToggleMovement(bool canMove);
+	void StartInteractButtonPressed();
+	void EndInteractButtonPressed();
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
