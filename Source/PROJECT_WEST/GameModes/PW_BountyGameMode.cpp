@@ -128,10 +128,6 @@ void APW_BountyGameMode::BountyFailed()
 	_bountySuccessful = false;
 	ToggleAllPlayersInput(false);
 	SetMatchState(MatchState::Cooldown);
-	
-	// Give money to players
-	AddMoney(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward);
-	DEBUG_STRING("Bounty Failed. Money Gained: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward));
 }
 
 void APW_BountyGameMode::BountySuccessful()
@@ -296,7 +292,6 @@ void APW_BountyGameMode::SpawnExtractionPoint()
 		_extractionPoint->SetActorRotation(FRotator(0, 0, 0));
 		_extractionPoint->SetOwner(nullptr);
 		_extractionPoint->OnWinConditionMet.AddDynamic(this, &APW_BountyGameMode::OnActivateExtrationPoint);
-		//DEBUG_STRING( "Extraction point spawned" );
 	}
 }
 
