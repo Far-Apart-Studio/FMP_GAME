@@ -13,21 +13,14 @@
 #include "PROJECT_WEST/GameState/PW_GameState.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 #include "PROJECT_WEST/Bounty System/PW_TransitionPortal.h"
+#include "PROJECT_WEST/Gameplay/PW_DebtCollector.h"
+#include "PROJECT_WEST/Gameplay/PW_SpawnPointsManager.h"
 
 APW_LobbyGameMode::APW_LobbyGameMode()
 {
 	bUseSeamlessTravel = true;
 	_mapPath = "";
 	_bountySystemComponent = CreateDefaultSubobject<UBountySystemComponent>( "BountySystemComponent" );
-}
-
-void APW_LobbyGameMode::OnTransitionCompleted()
-{
-	ToggleAllPlayersInput(false);
-	FBountyDataEntry bounty = _bountyBoard->GetBountyWithHighestVotes();
-	_gameInstance->GetGameSessionData()._bountyDataEntry = bounty;
-	RemoveMoney(bounty._bountyCost);
-	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
 }
 
 void APW_LobbyGameMode::BeginPlay()
@@ -43,8 +36,7 @@ void APW_LobbyGameMode::BeginPlay()
 			APW_PlayerController* localPlayerController = gameState->GetLocalPlayerController();
 			if (localPlayerController)
 			{
-				_bountyBoard->SetOwner(localPlayerController->GetPawn());
-				DEBUG_STRING("Bounty Board Found");
+
 			}
 		}
 	}
@@ -56,4 +48,47 @@ void APW_LobbyGameMode::BeginPlay()
 	}
 	
 	ToggleSessionLock(false);
+}
+
+void APW_LobbyGameMode::LoadGameSessionData()
+{
+	Super::LoadGameSessionData();
+
+	int bountyCollectorInterval = 1;
+	if (_gameInstance->GetGameSessionData()._dayIndex % bountyCollectorInterval == 0)
+	{
+		_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
+		_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
+		TriggerDebtCollector();
+	}
+}
+
+void APW_LobbyGameMode::OnTransitionCompleted()
+{
+	ToggleAllPlayersInput(false);
+	FBountyDataEntry bounty = _bountyBoard->GetBountyWithHighestVotes();
+	_gameInstance->GetGameSessionData()._bountyDataEntry = bounty;
+	RemoveMoney(bounty._bountyCost);
+	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
+}
+
+void APW_LobbyGameMode::TriggerDebtCollector()
+{
+	if (!_debtCollectorClass)
+	{
+		DEBUG_STRING("debtCollectorClass Not Set");
+		return;
+	}
+
+	if (!_spawnPointsHandlerComponent)
+	{
+		DEBUG_STRING("spawnPointsHandlerComponent Not Set");
+		return;
+	}
+	
+	_debtCollector = GetWorld()->SpawnActor<APW_DebtCollector>(_debtCollectorClass, _spawnPointsHandlerComponent->_debtCollectorSpawnPoint.GetRandomSpawnPoint(), FRotator::ZeroRotator);
+	if (_debtCollector)
+	{
+
+	}
 }

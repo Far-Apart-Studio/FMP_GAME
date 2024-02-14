@@ -26,17 +26,30 @@ protected:
 	class UBountySystemComponent* _bountySystemComponent;
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	TSubclassOf<class APW_DebtCollector> _debtCollectorClass;
+
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Lobby" )
 	class APW_BountyBoard* _bountyBoard;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Lobby" )
 	class APW_TransitionPortal* _transitionPortal;
+
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	APW_DebtCollector* _debtCollector;
+
+	class APW_SpawnPointsManager* _spawnPointsManager;
+	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
 
 public:
 
+	void BeginPlay() override;
+	
+	void LoadGameSessionData() override;
+
 	UFUNCTION()
 	void OnTransitionCompleted();
-	
-	void BeginPlay() override;
+
+	void TriggerDebtCollector();
 	
 	FORCEINLINE UBountySystemComponent* GetBountySystemComponent() const { return _bountySystemComponent; }
 	FORCEINLINE APW_BountyBoard* GetBountyBoard() const { return _bountyBoard; }
