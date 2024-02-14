@@ -212,7 +212,8 @@ void UPW_WeaponHandlerComponent::LocalReloadWeapon()
 	
 	const float reloadTime = weaponData->GetWeaponReloadTime();
 	
-	_ownerCharacter->GetWorldTimerManager().SetTimer (_reloadTimerHandle, this, &UPW_WeaponHandlerComponent::OnReloadWeaponComplete, reloadTime, false);
+	_ownerCharacter->GetWorldTimerManager().SetTimer (_reloadTimerHandle, this,
+		&UPW_WeaponHandlerComponent::OnReloadWeaponComplete, reloadTime, false);
 }
 
 void UPW_WeaponHandlerComponent::OnReloadWeaponComplete()
@@ -259,16 +260,12 @@ void UPW_WeaponHandlerComponent::LocalApplyDamage(const FHitResult& hitResult)
 float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult)
 {
 	const float shotDistance = hitResult.Location.Distance(hitResult.TraceStart, hitResult.ImpactPoint);
-
-	PW_Utilities::Log("Shot Distance: ", shotDistance);
 	
 	float normalisedDamage = 1.0f - (shotDistance / _maximumWeaponFallOffRange);
 	normalisedDamage = PWMath::Clamp01(normalisedDamage);
 
 	const UPW_WeaponData* weaponData = TryGetCurrentWeapon()->GetWeaponData();
 	const float weaponDamage = weaponData->GetHipWeaponDamage();
-
-	PW_Utilities::Log("Normalised Damage: ", normalisedDamage);
 	
 	return  weaponDamage * normalisedDamage;
 }

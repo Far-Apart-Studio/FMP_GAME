@@ -1,9 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
-
 #include "Camera/CameraComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetComponent.h"
@@ -13,7 +11,6 @@
 #include "PW_ItemHandlerComponent.h"
 #include "PW_WeaponHandlerComponent.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
-#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 APW_Character::APW_Character()
@@ -29,8 +26,6 @@ APW_Character::APW_Character()
 
 	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
 	_itemHolder->SetupAttachment(_cameraComponent);
-
-	//_itemHandlerComponent = CreateDefaultSubobject<UPW_ItemHandlerComponent>(TEXT("Item Handler"));
 }
 
 void APW_Character::BeginPlay()
@@ -84,7 +79,6 @@ void APW_Character::Tick(float DeltaTime)
 void APW_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(APW_Character, _isSprinting);
 }
 
 void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -93,32 +87,36 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APW_Character::JumpButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APW_Character::CrouchButtonPressed);
-	
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APW_Character::UseButtonPressed);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &APW_Character::UseButtonReleased);
-	
-	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_Character::SprintButtonPressed);
-	
-	PlayerInputComponent->BindAction("PickUp", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
+	PlayerInputComponent->BindAction("PrimaryUse", IE_Pressed, this, &APW_Character::UseButtonPressed);
+	PlayerInputComponent->BindAction("PrimaryUse", IE_Released, this, &APW_Character::UseButtonReleased);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APW_Character::SprintButtonPressed);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
-	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_Character::MoveForwardAxisPressed);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookUpAxisPressed);
 	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookRightAxisPressed);
 }
 
+void APW_Character::JumpButtonPressed()
+{
+	OnJumpButtonPressed.Broadcast();
+}
+
+void APW_Character::SprintButtonPressed()
+{
+	OnSprintButtonPressed.Broadcast();
+}
+
 void APW_Character::MoveForwardAxisPressed(float value)
 {
-	const FVector moveDirection = GetActorForwardVector();
-	AddMovementInput(moveDirection, value);
+	OnMoveForwardAxisPressed.Broadcast(value);
 }
 
 void APW_Character::MoveRightAxisPressed(float value)
 {
-	const FVector moveDirection = GetActorRightVector();
-	AddMovementInput(moveDirection, value);
+	OnMoveRightAxisPressed.Broadcast(value);
 }
 
 void APW_Character::LookRightAxisPressed(float value)
@@ -129,30 +127,6 @@ void APW_Character::LookRightAxisPressed(float value)
 void APW_Character::LookUpAxisPressed(float value)
 {
 	AddControllerPitchInput(value);
-}
-
-void APW_Character::SprintButtonPressed()
-{
-	HasAuthority() ? LocalSpringButtonPressed() : ServerSprintButtonPressed();
-}
-
-void APW_Character::LocalSpringButtonPressed()
-{
-	_isSprinting = !_isSprinting;
-	_isSprinting ?
-		GetCharacterMovement()->MaxWalkSpeed *= _sprintMultiplier :
-		GetCharacterMovement()->MaxWalkSpeed /= _sprintMultiplier;
-}
-
-void APW_Character::ServerSprintButtonPressed_Implementation()
-{
-	if (HasAuthority())
-		LocalSpringButtonPressed();
-}
-
-void APW_Character::JumpButtonPressed()
-{
-	Super::Jump();
 }
 
 void APW_Character::UseButtonPressed()

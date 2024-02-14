@@ -7,22 +7,8 @@
 #include "Items/PW_Item.h"
 #include "PW_Character.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCrouchButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSprintButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMoveForwardAxisDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMoveRightAxisDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookRightAxisDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookUpAxisDelegate);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPickUpButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDropButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSwitchItemButtonDelegate);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShootButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReloadButtonDelegate);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGameDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FButtonPressedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAxisModifiedDelegate, float, value);
 
 UCLASS()
 class PROJECT_WEST_API APW_Character : public ACharacter
@@ -43,15 +29,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	class UPW_HealthComponent* _healthComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
-	float _sprintMultiplier = 1.50f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _overheadWidget;
-
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly,
-		Category = "Character", meta = (AllowPrivateAccess = "true"))
-	bool _isSprinting = false;
 
 	class APW_PlayerController* _playerController;
 	class APW_BountyGameMode* _bountyGameMode;
@@ -60,15 +39,21 @@ public:
 	
 	APW_Character();
 
-	FShootButtonDelegate OnShootButtonPressed;
-	FShootButtonDelegate OnShootReleaseDelegate;
-	FReloadButtonDelegate OnReloadButtonPressed;
+	FButtonPressedDelegate OnShootButtonPressed;
+	FButtonPressedDelegate OnShootReleaseDelegate;
+	FButtonPressedDelegate OnReloadButtonPressed;
 
-	FPickUpButtonDelegate OnPickUpButtonPressed;
-	FDropButtonDelegate OnDropButtonPressed;
-	FSwitchItemButtonDelegate OnSwitchItemButtonPressed;
+	FButtonPressedDelegate OnPickUpButtonPressed;
+	FButtonPressedDelegate OnDropButtonPressed;
+	FButtonPressedDelegate OnSwitchItemButtonPressed;
+	FButtonPressedDelegate OnLeftGameDelegate;
+
+	FButtonPressedDelegate OnJumpButtonPressed;
+	FButtonPressedDelegate OnCrouchButtonPressed;
+	FButtonPressedDelegate OnSprintButtonPressed;
 	
-	FOnLeftGameDelegate OnLeftGameDelegate;
+	FAxisModifiedDelegate OnMoveForwardAxisPressed;
+	FAxisModifiedDelegate OnMoveRightAxisPressed;
 	
 	void Elim(bool leftGame);
 
@@ -107,10 +92,6 @@ public:
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
 	void SprintButtonPressed();
-	void LocalSpringButtonPressed();
-
-	UFUNCTION(Server, Reliable)
-	void ServerSprintButtonPressed();
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
