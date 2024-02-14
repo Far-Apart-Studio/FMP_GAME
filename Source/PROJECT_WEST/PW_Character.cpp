@@ -109,6 +109,11 @@ void APW_Character::SprintButtonPressed()
 	OnSprintButtonPressed.Broadcast();
 }
 
+void APW_Character::ToggleMovement(bool canMove)
+{
+	
+}
+
 void APW_Character::MoveForwardAxisPressed(float value)
 {
 	OnMoveForwardAxisPressed.Broadcast(value);

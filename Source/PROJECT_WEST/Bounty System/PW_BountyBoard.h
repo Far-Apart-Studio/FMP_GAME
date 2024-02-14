@@ -19,7 +19,6 @@ class PROJECT_WEST_API APW_BountyBoard : public AActor, public IPW_InteractableI
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	APW_BountyBoard();
 
 protected:
@@ -31,11 +30,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void StartFocus_Implementation() override;
-	void EndFocus_Implementation() override;
-	void StartInteract_Implementation(AActor* owner) override;
-	void EndInteract_Implementation() override;
-	bool IsInteracting_Implementation() override;
+	virtual void StartFocus_Implementation() override;
+	virtual void EndFocus_Implementation() override;
+	virtual void StartInteract_Implementation(AActor* owner) override;
+	virtual void EndInteract_Implementation() override;
+	virtual bool IsInteracting_Implementation() override;
 
 private:
 

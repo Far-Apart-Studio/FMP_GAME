@@ -47,6 +47,8 @@ public:
 	FButtonPressedDelegate OnDropButtonPressed;
 	FButtonPressedDelegate OnSwitchItemButtonPressed;
 	FButtonPressedDelegate OnLeftGameDelegate;
+	FButtonPressedDelegate OnStartInteractButtonPressed;
+	FButtonPressedDelegate OnEndInteractButtonPressed;
 
 	FButtonPressedDelegate OnJumpButtonPressed;
 	FButtonPressedDelegate OnCrouchButtonPressed;
@@ -92,6 +94,7 @@ public:
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
 	void SprintButtonPressed();
+	void ToggleMovement(bool canMove);
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
