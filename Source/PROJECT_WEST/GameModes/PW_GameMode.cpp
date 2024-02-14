@@ -68,6 +68,10 @@ void APW_GameMode::Tick(float DeltaTime)
 void APW_GameMode::LoadGameSessionData()
 {
 	_gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
+	if (_gameInstance)
+	{
+		DEBUG_STRING("LoadGameSessionData Found");
+	}
 }
 
 void APW_GameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController,AController* AttackerController)

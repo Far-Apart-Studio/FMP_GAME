@@ -38,12 +38,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetNumPlayerInSession() const;
 
-	FORCEINLINE class UPW_GameInstance* GetGameInstance() const { return _gameInstance; }
-	
-protected:
-
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GamepMode" )
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
 	class UPW_GameInstance* _gameInstance = nullptr;
+
+protected:
 	
 	virtual void BeginPlay() override;
 	

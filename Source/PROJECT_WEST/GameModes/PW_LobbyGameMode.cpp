@@ -54,5 +54,5 @@ void APW_LobbyGameMode::BeginPlay()
 		_transitionPortal->OnSuccess.AddDynamic(this, &APW_LobbyGameMode::OnTransitionCompleted);
 	}
 	
-	ToggleSessionLock(false);
+	//ToggleSessionLock(false);
 }

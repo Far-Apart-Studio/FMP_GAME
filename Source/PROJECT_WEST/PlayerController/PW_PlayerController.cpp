@@ -466,8 +466,7 @@ void APW_PlayerController::TestGameData()
 	APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 	if (gameMode)
 	{
-		UPW_GameInstance* gameInstance = gameMode->GetGameInstance();
-		
+		UPW_GameInstance* gameInstance = gameMode->_gameInstance;
 	}
 }
 
