@@ -2,7 +2,6 @@
 
 #include "PW_Character.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetComponent.h"
@@ -11,9 +10,7 @@
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PW_ItemHandlerComponent.h"
 #include "PW_WeaponHandlerComponent.h"
-#include "Engine/DamageEvents.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
-#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 APW_Character::APW_Character()
@@ -29,8 +26,6 @@ APW_Character::APW_Character()
 
 	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
 	_itemHolder->SetupAttachment(_cameraComponent);
-
-	//_itemHandlerComponent = CreateDefaultSubobject<UPW_ItemHandlerComponent>(TEXT("Item Handler"));
 }
 
 void APW_Character::BeginPlay()
@@ -59,15 +54,11 @@ void APW_Character::PostInitializeComponents()
 
 	UPW_WeaponHandlerComponent* weaponHandler = FindComponentByClass<UPW_WeaponHandlerComponent>();
 	if (weaponHandler)
-	{
 		weaponHandler->SetOwnerCharacter(this);
-	}
 
 	_itemHandlerComponent = FindComponentByClass<UPW_ItemHandlerComponent>();
 	if (_itemHandlerComponent)
-	{
 		_itemHandlerComponent->SetOwnerCharacter(this);
-	}
 
 	if (HasAuthority())
 	{
@@ -87,7 +78,7 @@ void APW_Character::Tick(float DeltaTime)
 
 void APW_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -96,63 +87,46 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APW_Character::JumpButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APW_Character::CrouchButtonPressed);
-	
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APW_Character::UseButtonPressed);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &APW_Character::UseButtonReleased);
-	
-	PlayerInputComponent->BindAction("SprintToggle", IE_Pressed, this, &APW_Character::SprintButtonPressed);
-	
-	PlayerInputComponent->BindAction("StartInteract", IE_Pressed, this, &APW_Character::StartInteractButtonPressed);
-	PlayerInputComponent->BindAction("EndInteract", IE_Pressed, this, &APW_Character::EndInteractButtonPressed);
-	
+	PlayerInputComponent->BindAction("PrimaryUse", IE_Pressed, this, &APW_Character::UseButtonPressed);
+	PlayerInputComponent->BindAction("PrimaryUse", IE_Released, this, &APW_Character::UseButtonReleased);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APW_Character::SprintButtonPressed);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
-	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_Character::MoveForwardAxisPressed);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookUpAxisPressed);
 	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookRightAxisPressed);
 }
 
+void APW_Character::JumpButtonPressed()
+{
+	OnJumpButtonPressed.Broadcast();
+}
+
+void APW_Character::SprintButtonPressed()
+{
+	OnSprintButtonPressed.Broadcast();
+}
+
 void APW_Character::MoveForwardAxisPressed(float value)
 {
-	if (_disableMovement) return;
-	const FVector moveDirection = GetActorForwardVector();
-	AddMovementInput(moveDirection, value);
+	OnMoveForwardAxisPressed.Broadcast(value);
 }
 
 void APW_Character::MoveRightAxisPressed(float value)
 {
-	if (_disableMovement) return;
-	const FVector moveDirection = GetActorRightVector();
-	AddMovementInput(moveDirection, value);
+	OnMoveRightAxisPressed.Broadcast(value);
 }
 
 void APW_Character::LookRightAxisPressed(float value)
 {
-	if (_disableMovement) return;
 	AddControllerYawInput(value);
 }
 
 void APW_Character::LookUpAxisPressed(float value)
 {
-	if (_disableMovement) return;
 	AddControllerPitchInput(value);
-}
-
-void APW_Character::SprintButtonPressed()
-{
-	if (_disableMovement) return;
-	_isSprinting = !_isSprinting;
-	
-	_isSprinting ?
-		GetCharacterMovement()->MaxWalkSpeed *= _sprintMultiplier :
-		GetCharacterMovement()->MaxWalkSpeed /= _sprintMultiplier;
-}
-
-void APW_Character::JumpButtonPressed()
-{
-	Super::Jump();
 }
 
 void APW_Character::UseButtonPressed()
@@ -199,14 +173,9 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 	}
 }
 
-void APW_Character::StartInteractButtonPressed()
+void APW_Character::PickUpButtonPressed()
 {
-	OnStartInteractButtonPressed.Broadcast();
-}
-
-void APW_Character::EndInteractButtonPressed()
-{
-	OnEndInteractButtonPressed.Broadcast();
+	OnPickUpButtonPressed.Broadcast();
 }
 
 void APW_Character::SwitchItemButtonPressed()

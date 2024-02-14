@@ -7,24 +7,8 @@
 #include "Items/PW_Item.h"
 #include "PW_Character.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCrouchButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSprintButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMoveForwardAxisDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMoveRightAxisDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookRightAxisDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLookUpAxisDelegate);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartInteractButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEndInteractButtonDelegate);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDropButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSwitchItemButtonDelegate);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShootButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReloadButtonDelegate);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGameDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FButtonPressedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAxisModifiedDelegate, float, value);
 
 UCLASS()
 class PROJECT_WEST_API APW_Character : public ACharacter
@@ -45,40 +29,31 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	class UPW_HealthComponent* _healthComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
-	float _sprintMultiplier = 1.50f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _overheadWidget;
 
 	class APW_PlayerController* _playerController;
 	class APW_BountyGameMode* _bountyGameMode;
-	
-	bool _isSprinting = false;
-	
 	bool _LeftGame = false;
-
-	bool _disableMovement = false;
-
-	UFUNCTION( NetMulticast, Reliable )
-	void MultiCastElim (bool leftGame);
-
-	
 public:
 	
 	APW_Character();
 
-	FShootButtonDelegate OnShootButtonPressed;
-	FShootButtonDelegate OnShootReleaseDelegate;
-	FReloadButtonDelegate OnReloadButtonPressed;
+	FButtonPressedDelegate OnShootButtonPressed;
+	FButtonPressedDelegate OnShootReleaseDelegate;
+	FButtonPressedDelegate OnReloadButtonPressed;
 
-	FStartInteractButtonDelegate OnStartInteractButtonPressed;
-	FEndInteractButtonDelegate OnEndInteractButtonPressed;
+	FButtonPressedDelegate OnPickUpButtonPressed;
+	FButtonPressedDelegate OnDropButtonPressed;
+	FButtonPressedDelegate OnSwitchItemButtonPressed;
+	FButtonPressedDelegate OnLeftGameDelegate;
+
+	FButtonPressedDelegate OnJumpButtonPressed;
+	FButtonPressedDelegate OnCrouchButtonPressed;
+	FButtonPressedDelegate OnSprintButtonPressed;
 	
-	FDropButtonDelegate OnDropButtonPressed;
-	FSwitchItemButtonDelegate OnSwitchItemButtonPressed;
-	
-	FOnLeftGameDelegate OnLeftGameDelegate;
+	FAxisModifiedDelegate OnMoveForwardAxisPressed;
+	FAxisModifiedDelegate OnMoveRightAxisPressed;
 	
 	void Elim(bool leftGame);
 
@@ -94,26 +69,29 @@ protected:
 	
 	UFUNCTION()
 	void OnHealthChanged();
+
+	UFUNCTION( NetMulticast, Reliable )
+	void MultiCastElim (bool leftGame);
 	
 	virtual void PostInitializeComponents() override;
-	void StartInteractButtonPressed();
-	void EndInteractButtonPressed();
+	void PickUpButtonPressed();
 	void SwitchItemButtonPressed();
 	
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
 	void JumpButtonPressed();
 	void UseButtonPressed();
 	void UseButtonReleased();
 	void CrouchButtonPressed();
 	void MoveForwardAxisPressed(float value);
 	void MoveRightAxisPressed(float value);
-	void SprintButtonPressed();
 	void LookRightAxisPressed(float value);
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
+	void SprintButtonPressed();
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
@@ -121,5 +99,4 @@ public:
 public:
 	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
-	FORCEINLINE void ToggleMovement(bool value) { _disableMovement = !value; }
 };
