@@ -130,8 +130,8 @@ void APW_BountyGameMode::BountyFailed()
 	SetMatchState(MatchState::Cooldown);
 	
 	// Give money to players
-	_gameInstance->GetGameSessionData()._money += _gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost;
-	DEBUG_STRING("Bounty Failed. Money: " + FString::FromInt(_gameInstance->GetGameSessionData()._money));
+	AddMoney(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward);
+	DEBUG_STRING("Bounty Failed. Money Gained: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward));
 }
 
 void APW_BountyGameMode::BountySuccessful()
@@ -141,8 +141,8 @@ void APW_BountyGameMode::BountySuccessful()
 	SetMatchState(MatchState::Cooldown);
 
 	// Give money to players
-	_gameInstance->GetGameSessionData()._money += _gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost;
-	DEBUG_STRING("Bounty successful. Money: " + FString::FromInt(_gameInstance->GetGameSessionData()._money));
+	AddMoney(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward);
+	DEBUG_STRING("Bounty successful. Money Gained: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward));
 }
 
 APW_PlayerController* APW_BountyGameMode::GetAnyPlayerAlive()

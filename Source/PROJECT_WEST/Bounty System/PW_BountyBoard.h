@@ -101,4 +101,6 @@ public:
 	
 	UFUNCTION( BlueprintCallable, Category = "Info" )
 	void RemoveVoteFromBounty(int32 bountyIndex);
+
+	FORCEINLINE TArray<FBountyDataEntry> GetBountyDataList() const { return _bountyDataList; }
 };

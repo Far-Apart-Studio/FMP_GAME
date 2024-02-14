@@ -60,6 +60,41 @@ int32 APW_GameMode::GetNumPlayerInSession() const
 	return GameState.Get()->PlayerArray.Num();
 }
 
+void APW_GameMode::AddMoney(int32 amount)
+{
+	if (_gameInstance)
+	{
+		_gameInstance->GetGameSessionData()._money += amount;
+		NotifyPlayersOfMoney();
+	}
+}
+
+void APW_GameMode::RemoveMoney(int32 amount)
+{
+	if (_gameInstance)
+	{
+		_gameInstance->GetGameSessionData()._money -= amount;
+		NotifyPlayersOfMoney();
+	}
+}
+
+void APW_GameMode::NotifyPlayersOfMoney()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			playerController->ClientMoneyValueChanged(_gameInstance->GetGameSessionData()._money);
+		}
+	}
+}
+
+int32 APW_GameMode::GetMoney() const
+{
+	return _gameInstance ? _gameInstance->GetGameSessionData()._money : 0;
+}
+
 void APW_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -70,6 +105,7 @@ void APW_GameMode::LoadGameSessionData()
 	_gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
 	if (_gameInstance)
 	{
+		NotifyPlayersOfMoney();
 		DEBUG_STRING("LoadGameSessionData Found");
 	}
 }

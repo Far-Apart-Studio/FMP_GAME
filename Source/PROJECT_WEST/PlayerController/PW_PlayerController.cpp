@@ -6,17 +6,18 @@
 #include "GameFramework/PlayerState.h"
 #include "PROJECT_WEST/HUD/PW_HUD.h"
 #include "PROJECT_WEST/HUD/PW_CharacterOverlayWidget.h"
-#include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/PW_ItemHandlerComponent.h"
 #include "PROJECT_WEST/Bounty System/PW_BountyBoard.h"
+#include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "PROJECT_WEST/GameModes/PW_GameMode.h"
+#include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -84,6 +85,12 @@ void APW_PlayerController::SpectatePlayer(APW_PlayerController* playerController
 {
 	DropAllItems();
 	SetViewTargetWithBlend( playerController->GetPawn(), 0.5f, EViewTargetBlendFunction::VTBlend_Cubic );
+}
+
+void APW_PlayerController::ClientMoneyValueChanged_Implementation(int32 money)
+{
+	_money = money;
+	DEBUG_STRING( "MoneyValueChanged : "  + FString::FromInt(money) );
 }
 
 bool APW_PlayerController::IsAlive()
@@ -388,26 +395,27 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 	}
 }
 
-bool APW_PlayerController::DoVoteToBounty(int32 bountyIndex)
+void APW_PlayerController::DoVoteToBounty(int32 bountyIndex)
 {
 	if (_hasVoted)
 	{
 		RemoveVoteFromBounty(_votedBountyIndex);
-		_hasVoted = false;
-		return _hasVoted;
+		return;
 	}
 
 	AddVoteToBounty(bountyIndex);
-	_votedBountyIndex = bountyIndex;
-	_hasVoted = true;
-	return _hasVoted;
 }
 
 void APW_PlayerController::AddVoteToBounty(int32 bountyIndex)
 {
 	if (HasAuthority())
 	{
-		LocalAddVoteToBounty(bountyIndex);
+		if(LocalAddVoteToBounty(bountyIndex))
+		{
+			_hasVoted = true;
+			_votedBountyIndex = bountyIndex;
+			VoteChangedDelegate.Broadcast(true, bountyIndex);
+		}
 	}
 	else
 	{
@@ -419,7 +427,11 @@ void APW_PlayerController::RemoveVoteFromBounty(int32 bountyIndex)
 {
 	if (HasAuthority())
 	{
-		LocalRemoveVoteFromBounty(bountyIndex);
+		if(LocalRemoveVoteFromBounty(bountyIndex))
+		{
+			_hasVoted = false;
+			VoteChangedDelegate.Broadcast(false, bountyIndex);
+		}
 	}
 	else
 	{
@@ -427,29 +439,40 @@ void APW_PlayerController::RemoveVoteFromBounty(int32 bountyIndex)
 	}
 }
 
-void APW_PlayerController::LocalAddVoteToBounty(int32 bountyIndex)
+bool APW_PlayerController::LocalAddVoteToBounty(int32 bountyIndex)
 {
 	_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
 	if (_lobbyGameMode)
 	{
-		_lobbyGameMode->GetBountyBoard()->AddVoteToBounty(bountyIndex);
+		FBountyDataEntry bounty = _lobbyGameMode->GetBountyBoard()->GetBountyDataList()[bountyIndex];
+		if (bounty._bountyCost <= _lobbyGameMode->_gameInstance->GetGameSessionData()._money)
+		{
+			_lobbyGameMode->GetBountyBoard()->AddVoteToBounty(bountyIndex);
+			return true;
+		}
 	}
+	return false;
 }
 
-void APW_PlayerController::LocalRemoveVoteFromBounty(int32 bountyIndex)
+bool APW_PlayerController::LocalRemoveVoteFromBounty(int32 bountyIndex)
 {
 	_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
 	if (_lobbyGameMode)
 	{
 		_lobbyGameMode->GetBountyBoard()->RemoveVoteFromBounty(bountyIndex);
+		return true;
 	}
+	return false;
 }
 
 void APW_PlayerController::ServerAddVoteToBounty_Implementation(int32 bountyIndex)
 {
 	if (HasAuthority())
 	{
-		LocalAddVoteToBounty(bountyIndex);
+		if(LocalAddVoteToBounty(bountyIndex))
+		{
+			ClientVoteToBounty(true, bountyIndex);
+		}
 	};
 }
 
@@ -457,19 +480,78 @@ void APW_PlayerController::ServerRemoveVoteFromBounty_Implementation(int32 bount
 {
 	if (HasAuthority())
 	{
-		LocalRemoveVoteFromBounty(bountyIndex);
+		if(LocalRemoveVoteFromBounty(bountyIndex))
+		{
+			ClientVoteToBounty(false, bountyIndex);
+		}
 	}
 }
 
-void APW_PlayerController::TestGameData()
+void APW_PlayerController::ClientVoteToBounty_Implementation(bool bSuccess, int32 bountyIndex)
+{
+	_hasVoted = bSuccess;
+	_votedBountyIndex = bountyIndex;
+	VoteChangedDelegate.Broadcast(bSuccess, bountyIndex);
+}
+
+void APW_PlayerController::AddMoney(int32 amount)
+{
+	if (HasAuthority())
+	{
+		LocalAddMoney(amount);
+	}
+	else
+	{
+		SeverAddMoney(amount);
+	}
+}
+
+void APW_PlayerController::RemoveMoney(int32 amount)
+{
+	if (HasAuthority())
+	{
+		LocalRemoveMoney(amount);
+	}
+	else
+	{
+		SeverRemoveMoney(amount);
+	}
+}
+
+void APW_PlayerController::SeverAddMoney_Implementation(int32 amount)
+{
+	if (HasAuthority())
+	{
+		LocalAddMoney(amount);
+	}
+}
+
+void APW_PlayerController::SeverRemoveMoney_Implementation(int32 amount)
+{
+	if (HasAuthority())
+	{
+		LocalRemoveMoney(amount);
+	}
+}
+
+void APW_PlayerController::LocalAddMoney(int32 amount)
 {
 	APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 	if (gameMode)
 	{
-		UPW_GameInstance* gameInstance = gameMode->_gameInstance;
+		gameMode->AddMoney(amount);
 	}
 }
- 
+
+void APW_PlayerController::LocalRemoveMoney(int32 amount)
+{
+	APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+	if (gameMode)
+	{
+		gameMode->RemoveMoney(amount);
+	}
+}
+
 void APW_PlayerController::ServerRequestTime_Implementation(float timeOfClientRequest)
 {
 	float serverTime = GetWorld()->GetTimeSeconds();
@@ -481,18 +563,4 @@ void APW_PlayerController::ClientReportServerTime_Implementation(float timeOfCli
 	float roundTripTime = GetWorld()->GetTimeSeconds() - timeOfClientRequest;
 	float currentServerTime = serverTime + (roundTripTime / 2);
 	_clientServerDelta = currentServerTime - GetWorld()->GetTimeSeconds();
-}
-
-void APW_PlayerController::PawnLeavingGame()
-{
-	APW_Character* character = Cast<APW_Character>(GetPawn());
-	if (character)
-	{
-		//character->Elim(true);
-		//character->ServerLeaveGame();
-	}
-
-	DEBUG_STRING( "PawnLeavingGame");
-
-	Super::PawnLeavingGame();
 }

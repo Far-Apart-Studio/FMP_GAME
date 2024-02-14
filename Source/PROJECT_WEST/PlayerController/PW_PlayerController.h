@@ -7,7 +7,7 @@
 #include "PW_PlayerController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsuccess, int32, bountyIndex);
 /**
  * 
  */
@@ -18,6 +18,7 @@ class PROJECT_WEST_API APW_PlayerController : public APlayerController
 
 
 public:
+	
 	APW_PlayerController();
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
@@ -27,6 +28,9 @@ public:
 	void Destroyed() override;
 
 	FHighPingDelegate HighPingDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FVoteChangedDelegate VoteChangedDelegate;
 
 protected:
 	
@@ -40,13 +44,13 @@ protected:
 	void SyncTimeWithServer(float deltaTime);
 
 	UFUNCTION(BlueprintCallable, Category = "Info" )
-	bool DoVoteToBounty(int32 bountyIndex);
+	void DoVoteToBounty(int32 bountyIndex);
 	
 	void AddVoteToBounty(int32 bountyIndex);
 	void RemoveVoteFromBounty(int32 bountyIndex);
 
-	void LocalAddVoteToBounty (int32 bountyIndex);
-	void LocalRemoveVoteFromBounty (int32 bountyIndex);
+	bool LocalAddVoteToBounty (int32 bountyIndex);
+	bool LocalRemoveVoteFromBounty (int32 bountyIndex);
 
 	UFUNCTION( Server, Reliable )
 	void ServerRemoveVoteFromBounty(int32 bountyIndex);
@@ -54,8 +58,22 @@ protected:
 	UFUNCTION( Server, Reliable )
 	void ServerAddVoteToBounty(int32 bountyIndex);
 
-	void TestGameData();
+	UFUNCTION( Client, Reliable )
+	void ClientVoteToBounty(bool  bSuccess, int32 bountyIndex);
 
+	UFUNCTION(BlueprintCallable)
+	void AddMoney(int32 amount);
+	UFUNCTION(BlueprintCallable)
+	void RemoveMoney(int32 amount);
+
+	UFUNCTION( Server, Reliable )
+	void SeverAddMoney(int32 amount);
+	UFUNCTION( Server, Reliable )
+	void SeverRemoveMoney(int32 amount);
+	
+	void LocalAddMoney(int32 amount);
+	void LocalRemoveMoney(int32 amount);
+	
 	UFUNCTION( Server, Reliable )
 	void ServerRequestTime(float timeOfClientRequest); // Request server time
 
@@ -69,8 +87,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	float _timeSyncRuningTime;
-	
-	void PawnLeavingGame() override;
 	
 public:
 
@@ -96,6 +112,9 @@ public:
 
 	void SpectatePlayer (APW_PlayerController* playerController);
 
+	UFUNCTION( Client, Reliable )
+	void ClientMoneyValueChanged(int32 money);
+
 	bool IsAlive();
 	
 private:
@@ -116,8 +135,13 @@ private:
 	float _highPingThreshold;
 
 	float _levelStartTime;
+	
 	float _matchTime;
+	
 	float _endMatchCountdown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	float _money;
 	
 	uint32 _countDownInt;
 

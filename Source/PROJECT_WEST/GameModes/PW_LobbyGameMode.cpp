@@ -26,6 +26,7 @@ void APW_LobbyGameMode::OnTransitionCompleted()
 	ToggleAllPlayersInput(false);
 	FBountyDataEntry bounty = _bountyBoard->GetBountyWithHighestVotes();
 	_gameInstance->GetGameSessionData()._bountyDataEntry = bounty;
+	RemoveMoney(bounty._bountyCost);
 	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
 }
 
@@ -54,5 +55,5 @@ void APW_LobbyGameMode::BeginPlay()
 		_transitionPortal->OnSuccess.AddDynamic(this, &APW_LobbyGameMode::OnTransitionCompleted);
 	}
 	
-	//ToggleSessionLock(false);
+	ToggleSessionLock(false);
 }

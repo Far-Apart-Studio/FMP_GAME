@@ -41,6 +41,11 @@ public:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
 	class UPW_GameInstance* _gameInstance = nullptr;
 
+	void AddMoney(int32 amount);
+	void RemoveMoney (int32 amount);
+	void NotifyPlayersOfMoney();
+	int32 GetMoney() const;
+
 protected:
 	
 	virtual void BeginPlay() override;
