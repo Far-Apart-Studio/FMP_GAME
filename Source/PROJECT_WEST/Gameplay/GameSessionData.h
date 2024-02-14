@@ -9,15 +9,15 @@ struct FGameSessionData
 {
 	GENERATED_BODY()
 
-	UPROPERTY( EditAnywhere, Category = "Bounty System")
+	UPROPERTY( EditAnywhere,BlueprintReadOnly, Category = "Bounty System")
 	TArray<FBountyDataEntry> _bountyDataList;
 	
-	UPROPERTY( EditAnywhere, Category = "Bounty System")
+	UPROPERTY( EditAnywhere,BlueprintReadOnly, Category = "Bounty System")
 	FBountyDataEntry _bountyDataEntry;
 
-	UPROPERTY( EditAnywhere, Category = "Bounty System")
+	UPROPERTY( EditAnywhere,BlueprintReadOnly, Category = "Bounty System")
 	int32 _money;
 
-	UPROPERTY( EditAnywhere, Category = "Bounty System")
+	UPROPERTY( EditAnywhere, BlueprintReadOnly,Category = "Bounty System")
 	bool _hasHead;
 };

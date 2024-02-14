@@ -43,14 +43,18 @@ protected:
 	bool DoVoteToBounty(int32 bountyIndex);
 	
 	void AddVoteToBounty(int32 bountyIndex);
-	
 	void RemoveVoteFromBounty(int32 bountyIndex);
+
+	void LocalAddVoteToBounty (int32 bountyIndex);
+	void LocalRemoveVoteFromBounty (int32 bountyIndex);
 
 	UFUNCTION( Server, Reliable )
 	void ServerRemoveVoteFromBounty(int32 bountyIndex);
 
 	UFUNCTION( Server, Reliable )
 	void ServerAddVoteToBounty(int32 bountyIndex);
+
+	void TestGameData();
 
 	UFUNCTION( Server, Reliable )
 	void ServerRequestTime(float timeOfClientRequest); // Request server time

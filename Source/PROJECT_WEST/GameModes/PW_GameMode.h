@@ -15,6 +15,7 @@ class PROJECT_WEST_API APW_GameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	
 	APW_GameMode();
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override;
@@ -37,11 +38,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetNumPlayerInSession() const;
 
-	class UPW_GameInstance* _gameInstance = nullptr;
+	FORCEINLINE class UPW_GameInstance* GetGameInstance() const { return _gameInstance; }
 	
 protected:
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GamepMode" )
+	class UPW_GameInstance* _gameInstance = nullptr;
 	
 	virtual void BeginPlay() override;
 	
 	virtual void OnMatchStateSet() override;
+
+	void ToggleAllPlayersInput(bool bEnable);
 };

@@ -23,7 +23,9 @@ APW_LobbyGameMode::APW_LobbyGameMode()
 
 void APW_LobbyGameMode::OnTransitionCompleted()
 {
+	ToggleAllPlayersInput(false);
 	FBountyDataEntry bounty = _bountyBoard->GetBountyWithHighestVotes();
+	_gameInstance->GetGameSessionData()._bountyDataEntry = bounty;
 	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
 }
 
@@ -38,7 +40,6 @@ void APW_LobbyGameMode::BeginPlay()
 		if (gameState)
 		{
 			APW_PlayerController* localPlayerController = gameState->GetLocalPlayerController();
-			
 			if (localPlayerController)
 			{
 				_bountyBoard->SetOwner(localPlayerController->GetPawn());

@@ -9,6 +9,8 @@
 
 namespace MatchState
 {
+	extern PROJECT_WEST_API const FName Lose;
+	extern PROJECT_WEST_API const FName Win;
 	extern PROJECT_WEST_API const FName Cooldown; // cooldown before match ends
 }
 
@@ -60,8 +62,7 @@ public:
 	AActor* _bountyHead;
 
 	APW_ExtractionPoint* _extractionPoint;
-
-
+	
 	void BountySuccessful();
 	
 	void LoadGameSessionData() override;
@@ -99,8 +100,6 @@ protected:
 
 	class APW_SpawnPointsManager* _spawnPointsManager;
 	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
-
-	void ToggleAllPlayersInput(bool bEnable);
 
 	float _countdownTime = 0.f;
 

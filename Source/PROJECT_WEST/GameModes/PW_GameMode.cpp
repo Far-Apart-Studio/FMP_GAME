@@ -25,12 +25,7 @@ void APW_GameMode::BeginPlay()
 void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
-	if(!GameState) return;
 	
-	int32 numPlayers = GameState.Get()->PlayerArray.Num();
-	// DEBUG_STRING (FString::Printf (TEXT ("Num Players: %d"), numPlayers));
-
 	APlayerState* playerState = NewPlayer->GetPlayerState<APlayerState>();
 	if (playerState)
 	{
@@ -49,9 +44,6 @@ void APW_GameMode::Logout(AController* Exiting)
 		FString playerName = playerState->GetPlayerName();
 		DEBUG_STRING (FString::Printf (TEXT ("%s has left sesson " ), *playerName));
 	}
-
-	//int32 numPlayers = GameState.Get()->PlayerArray.Num();
-	//DEBUG_STRING (FString::Printf (TEXT ("Num Players: %d"), numPlayers));
 }
 
 void APW_GameMode::ServerTravel(FString MapPath)
@@ -108,4 +100,16 @@ void APW_GameMode::ToggleSessionLock(bool lock)
 void APW_GameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
+}
+
+void APW_GameMode::ToggleAllPlayersInput(bool bEnable)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			playerController->ClientTogglePlayerInput( bEnable );
+		}
+	}
 }

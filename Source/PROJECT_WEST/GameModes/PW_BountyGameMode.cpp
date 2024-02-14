@@ -19,6 +19,8 @@
 
 namespace MatchState
 {
+	const FName Lose = FName("Lose");
+	const FName Win = FName("Win");
 	const FName Cooldown = FName("Cooldown");
 }
 
@@ -91,18 +93,6 @@ void APW_BountyGameMode::OnMatchStateSet()
 	if (MatchState == MatchState::LeavingMap)
 	{
 		ServerTravel(_mapPath);
-	}
-}
-
-void APW_BountyGameMode::ToggleAllPlayersInput(bool bEnable)
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
-		if (playerController)
-		{
-			playerController->ClientTogglePlayerInput( bEnable );
-		}
 	}
 }
 
@@ -194,14 +184,10 @@ void APW_BountyGameMode::Logout(AController* Exiting)
 void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController, AController* AttackerController)
 {
 	Super::PlayerEliminated(ElimmedCharacter, VictimController, AttackerController);
-
 	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
-
 	if (ElimmedCharacter)
 	{
-		
 		APW_PlayerController* host = GetAnyPlayerAlive();
-
 		if(host)
 		{
 			//DEBUG_STRING( "Player alive"  + host->GetName() );
