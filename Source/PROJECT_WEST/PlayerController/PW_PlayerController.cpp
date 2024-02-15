@@ -15,9 +15,7 @@
 #include "PROJECT_WEST/PW_ItemHandlerComponent.h"
 #include "PROJECT_WEST/Bounty System/PW_BountyBoard.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "PROJECT_WEST/GameModes/PW_GameMode.h"
-#include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
+#include "PROJECT_WEST/PW_ConsoleCommandManager.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -26,7 +24,7 @@ APW_PlayerController::APW_PlayerController()
 	_timeSyncFrequency = 5;
 	_timeSyncRuningTime = 0;
 
-	//DEBUG_STRING( "APW_PlayerController is created" );
+	_consoleCommandManager = CreateDefaultSubobject<UPW_ConsoleCommandManager>(TEXT("ConsoleCommandManager"));
 }
 
 void APW_PlayerController::OnPossess(APawn* InPawn)
@@ -96,7 +94,7 @@ void APW_PlayerController::ClientMoneyValueChanged_Implementation(int32 money)
 
 bool APW_PlayerController::IsAlive()
 {
-	APW_Character* character = Cast<APW_Character>(GetPawn());
+	const APW_Character* character = Cast<APW_Character>(GetPawn());
 	if (character)
 	{
 		return character->IsAlive();
@@ -141,6 +139,16 @@ void APW_PlayerController::ReceivedPlayer()
 	{
 		ServerRequestTime(GetWorld()->GetTimeSeconds());
 	}
+}
+
+bool APW_PlayerController::ProcessConsoleExec(const TCHAR* Command, FOutputDevice& OutputDevice, UObject* Executor)
+{
+	bool isHandled = Super::ProcessConsoleExec(Command, OutputDevice, Executor);
+
+	if (!isHandled && _consoleCommandManager != nullptr)
+		isHandled = _consoleCommandManager->ProcessConsoleExec(Command, OutputDevice, Executor);
+
+	return isHandled;
 }
 
 void APW_PlayerController::Destroyed()

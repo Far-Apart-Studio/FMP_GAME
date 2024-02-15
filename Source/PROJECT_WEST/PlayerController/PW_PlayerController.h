@@ -7,6 +7,7 @@
 #include "PROJECT_WEST/Gameplay/GameSessionData.h"
 #include "PW_PlayerController.generated.h"
 
+class UPW_ConsoleCommandManager;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsuccess, int32, bountyIndex);
 /**
@@ -17,14 +18,19 @@ class PROJECT_WEST_API APW_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY(EditAnywhere, Category = "Console Command Manager")
+	UPW_ConsoleCommandManager* _consoleCommandManager;
 
+	
 public:
 	
 	APW_PlayerController();
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
+	virtual void ReceivedPlayer() override;
+	virtual bool ProcessConsoleExec(const TCHAR* Command, FOutputDevice& OutputDevice, UObject* Executor) override;
 	
 	void Destroyed() override;
 
