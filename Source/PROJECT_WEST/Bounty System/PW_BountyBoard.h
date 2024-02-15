@@ -76,6 +76,10 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_BountyVoteChanged, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FBountyVoteData _bountyVoteData;
 
+
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	bool _isActivated;
+
 	UFUNCTION()
 	void OnRep_BountyVoteChanged();
 
@@ -103,4 +107,5 @@ public:
 	void RemoveVoteFromBounty(int32 bountyIndex);
 
 	FORCEINLINE TArray<FBountyDataEntry> GetBountyDataList() const { return _bountyDataList; }
+	FORCEINLINE void ToggleActivation(bool status) { _isActivated = status; }
 };

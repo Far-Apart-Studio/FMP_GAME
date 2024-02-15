@@ -52,10 +52,14 @@ void APW_LobbyGameMode::BeginPlay()
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
 	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
 	
-	int bountyCollectorInterval = 1;
+	int bountyCollectorInterval = 2;
 	if (_gameInstance->GetGameSessionData()._dayIndex % bountyCollectorInterval == 0)
 	{
 		TriggerDebtCollector();
+	}
+	else
+	{
+		_bountyBoard->ToggleActivation(true);
 	}
 }
 
@@ -74,6 +78,18 @@ void APW_LobbyGameMode::OnTransitionCompleted()
 	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
 }
 
+void APW_LobbyGameMode::OnDebtCollectorInteract(bool bSuccess)
+{
+	if (bSuccess)
+	{
+		_bountyBoard->ToggleActivation(true);
+	}
+	else
+	{
+		ResetSessionData();
+	}
+}
+
 void APW_LobbyGameMode::TriggerDebtCollector()
 {
 	if (!_debtCollectorClass || !_spawnPointsHandlerComponent) return;
@@ -82,5 +98,17 @@ void APW_LobbyGameMode::TriggerDebtCollector()
 	if (_debtCollector)
 	{
 		_debtCollector->SetDebtAmount(_gameInstance->GetGameSessionData()._dayIndex);
+		_debtCollector->_onInteract.AddDynamic(this, &APW_LobbyGameMode::OnDebtCollectorInteract);
+	}
+}
+
+void APW_LobbyGameMode::ResetSessionData()
+{
+	if (_gameInstance)
+	{
+		_gameInstance->GetGameSessionData()._money = 0;
+		_gameInstance->GetGameSessionData()._dayIndex = 0;
+		NotifyPlayersOfMoney();
+		RestartGame();
 	}
 }

@@ -60,6 +60,7 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 	DOREPLIFETIME(APW_BountyBoard, _bountyDataList);
 	DOREPLIFETIME(APW_BountyBoard, _bountyVoteData);
+	DOREPLIFETIME(APW_BountyBoard, _isActivated);
 }
 
 void APW_BountyBoard::StartFocus_Implementation()
@@ -74,6 +75,8 @@ void APW_BountyBoard::EndFocus_Implementation()
 
 void APW_BountyBoard::EndInteract_Implementation()
 {
+	if (!_isActivated || !_character) return;
+	
 	APW_Character* characterController = Cast<APW_Character>(_character);
 	if (characterController && characterController->IsLocallyControlled())
 	{
@@ -98,6 +101,8 @@ bool APW_BountyBoard::IsInteracting_Implementation()
 
 void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 {
+	if (!_isActivated) return;
+	
 	APW_Character* characterController = Cast<APW_Character>(owner);
 	if (characterController && characterController->IsLocallyControlled())
 	{
