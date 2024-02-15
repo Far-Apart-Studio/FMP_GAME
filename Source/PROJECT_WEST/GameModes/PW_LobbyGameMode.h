@@ -43,7 +43,6 @@ protected:
 public:
 
 	void BeginPlay() override;
-	
 	void LoadGameSessionData() override;
 
 	UFUNCTION()

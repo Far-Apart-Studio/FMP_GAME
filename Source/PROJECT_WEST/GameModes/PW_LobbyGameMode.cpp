@@ -76,17 +76,7 @@ void APW_LobbyGameMode::OnTransitionCompleted()
 
 void APW_LobbyGameMode::TriggerDebtCollector()
 {
-	if (!_debtCollectorClass)
-	{
-		DEBUG_STRING("debtCollectorClass Not Set");
-		return;
-	}
-
-	if (!_spawnPointsHandlerComponent)
-	{
-		DEBUG_STRING("spawnPointsHandlerComponent Not Set");
-		return;
-	}
+	if (!_debtCollectorClass || !_spawnPointsHandlerComponent) return;
 	
 	_debtCollector = GetWorld()->SpawnActor<APW_DebtCollector>(_debtCollectorClass, _spawnPointsHandlerComponent->_debtCollectorSpawnPoint.GetRandomSpawnPoint(), FRotator::ZeroRotator);
 	if (_debtCollector)

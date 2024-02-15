@@ -19,13 +19,13 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Info" )
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	int32 _debtStartAmount;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Info" )
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
 	int32 _debtIncreaseAmount;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Info" )
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Info")
 	int32 _debtAmount;
 
 public:	
