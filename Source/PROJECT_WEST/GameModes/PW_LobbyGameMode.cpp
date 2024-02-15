@@ -48,19 +48,20 @@ void APW_LobbyGameMode::BeginPlay()
 	}
 	
 	ToggleSessionLock(false);
+
+	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
+	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
+	
+	int bountyCollectorInterval = 1;
+	if (_gameInstance->GetGameSessionData()._dayIndex % bountyCollectorInterval == 0)
+	{
+		TriggerDebtCollector();
+	}
 }
 
 void APW_LobbyGameMode::LoadGameSessionData()
 {
 	Super::LoadGameSessionData();
-
-	int bountyCollectorInterval = 1;
-	if (_gameInstance->GetGameSessionData()._dayIndex % bountyCollectorInterval == 0)
-	{
-		_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
-		_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
-		TriggerDebtCollector();
-	}
 }
 
 void APW_LobbyGameMode::OnTransitionCompleted()

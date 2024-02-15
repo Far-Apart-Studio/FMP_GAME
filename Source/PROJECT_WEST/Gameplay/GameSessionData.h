@@ -21,5 +21,6 @@ struct FGameSessionData
 	UPROPERTY( EditAnywhere, BlueprintReadOnly,Category = "Bounty System")
 	bool _hasHead;
 
+	UPROPERTY( EditAnywhere, BlueprintReadOnly,Category = "Bounty System")
 	int32 _dayIndex = 1;
 };

@@ -126,20 +126,30 @@ void APW_BountyBoard::OnRep_BountyVoteChanged()
 
 void APW_BountyBoard::PopulateBountyDataList()
 {
+
+	APW_LobbyGameMode* gameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
+	
 	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
 	if ( gameInstance )
 	{
 		if ( gameInstance->GetGameSessionData()._bountyDataList.Num() > 0 )
 		{
 			_bountyDataList = gameInstance->GetGameSessionData()._bountyDataList;
+
+			if(gameMode)
+			{
+				_bountyDataList[ gameInstance->GetGameSessionData()._bountyDataEntry.index ] =
+					gameMode->GetBountySystemComponent()->GetBountyDataEntry(gameInstance->GetGameSessionData()._bountyDataEntry._bountyDifficulty);
+				DEBUG_STRING( "PopulateBountyDataList from GameInstance and refresh last bounty data.");
+			}
+			
 			_bountyDataListChanged.Broadcast(_bountyDataList);
 			PopulateBountyVoteData(_bountyDataList.Num());
-			DEBUG_STRING( "PopulateBountyDataList from GameInstance");
 			return;
 		}
 	}
 	
-	APW_LobbyGameMode* gameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
+
 	if(gameMode)
 	{
 		TArray<EBountyDifficulty> difficulties;
