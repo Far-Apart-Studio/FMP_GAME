@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "PROJECT_WEST/Gameplay/GameSessionData.h"
 #include "PW_PlayerController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
@@ -73,6 +74,12 @@ protected:
 	
 	void LocalAddMoney(int32 amount);
 	void LocalRemoveMoney(int32 amount);
+
+	void LoadGameSessionData();
+	UFUNCTION( Server, Reliable )
+	void SeverLoadGameSessionData();
+	UFUNCTION( Client, Reliable )
+	void ClientLoadGameSessionData(FGameSessionData GameSessionData);
 	
 	UFUNCTION( Server, Reliable )
 	void ServerRequestTime(float timeOfClientRequest); // Request server time
@@ -140,8 +147,11 @@ private:
 	
 	float _endMatchCountdown;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	float _money;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	float _dayIndex;
 	
 	uint32 _countDownInt;
 

@@ -45,12 +45,14 @@ void APW_PlayerController::BeginPlay()
 
 	//DEBUG_STRING( "APW_PlayerController BeginPlay" );
 
-	//ServerCheckMatchState();
+	ServerCheckMatchState();
 	
 	_highPingRunningTime = 0;
 	_highPingDuration = 5;
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
+
+	LoadGameSessionData();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
@@ -90,7 +92,6 @@ void APW_PlayerController::SpectatePlayer(APW_PlayerController* playerController
 void APW_PlayerController::ClientMoneyValueChanged_Implementation(int32 money)
 {
 	_money = money;
-	DEBUG_STRING( "MoneyValueChanged : "  + FString::FromInt(money) );
 }
 
 bool APW_PlayerController::IsAlive()
@@ -550,6 +551,30 @@ void APW_PlayerController::LocalRemoveMoney(int32 amount)
 	{
 		gameMode->RemoveMoney(amount);
 	}
+}
+
+void APW_PlayerController::LoadGameSessionData()
+{
+	if(HasAuthority()) return;
+	SeverLoadGameSessionData();
+}
+
+void APW_PlayerController::SeverLoadGameSessionData_Implementation()
+{
+	if(HasAuthority())
+	{
+		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+		if (gameMode)
+		{
+			ClientLoadGameSessionData(gameMode->_gameInstance->GetGameSessionData());
+		}
+	}
+}
+
+void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSessionData GameSessionData)
+{
+	_money = GameSessionData._money;
+	_dayIndex = GameSessionData._dayIndex;
 }
 
 void APW_PlayerController::ServerRequestTime_Implementation(float timeOfClientRequest)
