@@ -62,6 +62,7 @@ void APW_LobbyGameMode::BeginPlay()
 void APW_LobbyGameMode::LoadGameSessionData()
 {
 	Super::LoadGameSessionData();
+	_gameInstance->GetGameSessionData()._dayIndex++;
 }
 
 void APW_LobbyGameMode::OnTransitionCompleted()
@@ -90,6 +91,6 @@ void APW_LobbyGameMode::TriggerDebtCollector()
 	_debtCollector = GetWorld()->SpawnActor<APW_DebtCollector>(_debtCollectorClass, _spawnPointsHandlerComponent->_debtCollectorSpawnPoint.GetRandomSpawnPoint(), FRotator::ZeroRotator);
 	if (_debtCollector)
 	{
-
+		_debtCollector->SetDebtAmount(_gameInstance->GetGameSessionData()._dayIndex);
 	}
 }

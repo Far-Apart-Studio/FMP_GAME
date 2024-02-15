@@ -28,3 +28,8 @@ void APW_DebtCollector::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 }
 
+void APW_DebtCollector::SetDebtAmount(int32 day)
+{
+	_debtAmount = _debtStartAmount + (day * _debtIncreaseAmount);
+}
+

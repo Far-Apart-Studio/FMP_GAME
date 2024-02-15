@@ -95,6 +95,16 @@ int32 APW_GameMode::GetMoney() const
 	return _gameInstance ? _gameInstance->GetGameSessionData()._money : 0;
 }
 
+void APW_GameMode::SetDay(int day)
+{
+	
+}
+
+void APW_GameMode::NofigyPlayersOfDay()
+{
+	
+}
+
 void APW_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
