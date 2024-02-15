@@ -154,10 +154,11 @@ bool APW_PlayerController::ProcessConsoleExec(const TCHAR* Command, FOutputDevic
 void APW_PlayerController::Destroyed()
 {
 	// Drop all items when player controller is destroyed
-	if (_hasVoted)
+	if (_hasVoted && !HasAuthority())
 	{
-		RemoveVoteFromBounty(_votedBountyIndex);
+
 	}
+
 	DropAllItems();
 	Super::Destroyed();
 }
@@ -406,6 +407,7 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 
 void APW_PlayerController::DoVoteToBounty(int32 bountyIndex)
 {
+	if(_voteSeverDelay) return;
 	if (_hasVoted)
 	{
 		RemoveVoteFromBounty(_votedBountyIndex);
@@ -428,6 +430,7 @@ void APW_PlayerController::AddVoteToBounty(int32 bountyIndex)
 	}
 	else
 	{
+		_voteSeverDelay = true;
 		ServerAddVoteToBounty(bountyIndex);
 	}
 }
@@ -444,6 +447,7 @@ void APW_PlayerController::RemoveVoteFromBounty(int32 bountyIndex)
 	}
 	else
 	{
+		_voteSeverDelay = true;
 		ServerRemoveVoteFromBounty(bountyIndex);
 	}
 }
@@ -501,6 +505,26 @@ void APW_PlayerController::ClientVoteToBounty_Implementation(bool bSuccess, int3
 	_hasVoted = bSuccess;
 	_votedBountyIndex = bountyIndex;
 	VoteChangedDelegate.Broadcast(bSuccess, bountyIndex);
+	_voteSeverDelay = false;
+}
+
+void APW_PlayerController::ServerClearVote_Implementation()
+{
+	DEBUG_STRING( "ServerClearVote" );
+	
+	if (HasAuthority())
+	{
+		_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
+		if (_lobbyGameMode)
+		{
+			DEBUG_STRING( "ServerClearVote Done : " + FString::FromInt(_votedBountyIndex) );
+			_lobbyGameMode->GetBountyBoard()->RemoveVoteFromBounty(_votedBountyIndex);
+		}
+		else
+		{
+			DEBUG_STRING( "ServerClearVote: No LobbyGameMode" );
+		}
+	};
 }
 
 void APW_PlayerController::AddMoney(int32 amount)

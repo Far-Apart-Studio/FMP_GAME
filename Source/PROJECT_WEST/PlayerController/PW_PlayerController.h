@@ -68,6 +68,9 @@ protected:
 	UFUNCTION( Client, Reliable )
 	void ClientVoteToBounty(bool  bSuccess, int32 bountyIndex);
 
+	UFUNCTION( Server, Reliable )
+	void ServerClearVote();
+
 	UFUNCTION(BlueprintCallable)
 	void AddMoney(int32 amount);
 	UFUNCTION(BlueprintCallable)
@@ -163,6 +166,8 @@ private:
 
 	bool _hasVoted;
 	int32 _votedBountyIndex;
+	
+	bool _voteSeverDelay;
 
 	class APW_BountyGameMode* _bountyGameMode;
 	class APW_LobbyGameMode* _lobbyGameMode;
