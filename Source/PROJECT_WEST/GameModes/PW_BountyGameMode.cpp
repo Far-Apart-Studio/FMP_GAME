@@ -123,8 +123,7 @@ void APW_BountyGameMode::HandleStateTimer()
 void APW_BountyGameMode::BountyFailed()
 {
 	if(MatchState == MatchState::Cooldown || MatchState == MatchState::LeavingMap) return;
-	
-	_mathEndCooldownTime += GetWorld()->GetTimeSeconds();
+	_mathEndCooldownTime += GetWorld()->GetTimeSeconds() - _levelStartTime;
 	_bountySuccessful = false;
 	ToggleAllPlayersInput(false);
 	SetMatchState(MatchState::Cooldown);

@@ -39,7 +39,6 @@ void APW_HUD::BeginPlay()
 {
 	Super::BeginPlay();
 	crosshairSpreadMultiplier = 1;
-	AddCharacterOverlayWidget();
 }
 
 void APW_HUD::Destroyed()
@@ -51,7 +50,7 @@ void APW_HUD::Destroyed()
 void APW_HUD::AddCharacterOverlayWidget()
 {
 	APlayerController* playerController = GetOwningPlayerController();
-	if (playerController != nullptr)
+	if (playerController != nullptr && _characterOverlayWidgetClass != nullptr && !_characterOverlayWidget)
 	{
 		_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(playerController, _characterOverlayWidgetClass);
 		if (_characterOverlayWidget != nullptr)
@@ -81,6 +80,14 @@ void APW_HUD::HideAccouncement()
 	if (_announcementWidget != nullptr)
 	{
 		_announcementWidget->RemoveFromViewport();
+	}
+}
+
+void APW_HUD::SetVisibility(bool bShow)
+{
+	if(_characterOverlayWidget != nullptr)
+	{
+		_characterOverlayWidget->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 	}
 }
 

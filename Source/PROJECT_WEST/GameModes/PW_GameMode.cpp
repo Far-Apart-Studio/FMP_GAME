@@ -105,6 +105,18 @@ void APW_GameMode::NofigyPlayersOfDay()
 	
 }
 
+void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColor color, float duration)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			playerController->ClientShowAnnocement( announcement, color, duration);
+		}
+	}
+}
+
 void APW_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

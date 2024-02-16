@@ -10,6 +10,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_Character.h"
+#include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
@@ -80,13 +81,14 @@ void APW_BountyBoard::EndInteract_Implementation()
 	APW_Character* characterController = Cast<APW_Character>(_character);
 	if (characterController && characterController->IsLocallyControlled())
 	{
-		APlayerController* playerController = characterController->GetController<APlayerController>();
+		APW_PlayerController* playerController = characterController->GetController<APW_PlayerController>();
 		if (playerController)
 		{
 			playerController->SetViewTargetWithBlend(characterController, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 			characterController->ToggleMovement(true);
 			playerController->bShowMouseCursor = false;
 			playerController->SetInputMode(FInputModeGameOnly());
+			playerController->ToggleHUDVisibility(true);
 			_onBoardClosed.Broadcast();
 		}
 	}
@@ -107,9 +109,10 @@ void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 	if (characterController && characterController->IsLocallyControlled())
 	{
 		_character = characterController;
-		APlayerController* playerController = characterController->GetController<APlayerController>();
+		APW_PlayerController* playerController = characterController->GetController<APW_PlayerController>();
 		if (playerController)
 		{
+			playerController->ToggleHUDVisibility(false);
 			playerController->SetViewTargetWithBlend(this, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 			characterController->ToggleMovement(false);
 			playerController->bShowMouseCursor = true;

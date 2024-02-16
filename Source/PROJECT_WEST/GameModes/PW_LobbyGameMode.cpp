@@ -86,6 +86,7 @@ void APW_LobbyGameMode::OnDebtCollectorInteract(bool bSuccess)
 	}
 	else
 	{
+		TriggerPlayersAnnouncement("Not enough money to pay the debt collector", FColor::Red, 5.0f);
 		ResetSessionData();
 	}
 }

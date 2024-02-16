@@ -49,6 +49,8 @@ public:
 	void SetDay(int day);
 	void NofigyPlayersOfDay();
 
+	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration);
+	
 protected:
 	
 	virtual void BeginPlay() override;

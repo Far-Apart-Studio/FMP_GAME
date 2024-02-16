@@ -16,6 +16,7 @@
 #include "PROJECT_WEST/Bounty System/PW_BountyBoard.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "PROJECT_WEST/PW_ConsoleCommandManager.h"
+#include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -31,8 +32,10 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	// called when the player controller possesses a pawn
-	_hud = Cast<APW_HUD>(GetHUD());
+	// called Only on Host when player is spawned
+
+	//DEBUG_STRING( "APW_PlayerController OnPossess" );
+	
 	_votedBountyIndex = -1;
 	_hasVoted = false;
 }
@@ -41,8 +44,11 @@ void APW_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//DEBUG_STRING( "APW_PlayerController BeginPlay" );
+	// called only once when player is spawned
+	//DEBUG_STRING ( "APW_PlayerController BeginPlay" );
 
+	GetCharacterOverlayWidget();
+	
 	ServerCheckMatchState();
 	
 	_highPingRunningTime = 0;
@@ -90,6 +96,11 @@ void APW_PlayerController::SpectatePlayer(APW_PlayerController* playerController
 void APW_PlayerController::ClientMoneyValueChanged_Implementation(int32 money)
 {
 	_money = money;
+}
+
+void APW_PlayerController::ClientShowAnnocement_Implementation(const FString& message, FColor color, float duration)
+{
+	DisplayAccouncement(message, color, duration);
 }
 
 bool APW_PlayerController::IsAlive()
@@ -163,9 +174,55 @@ void APW_PlayerController::Destroyed()
 	Super::Destroyed();
 }
 
+void APW_PlayerController::DisplayAccouncement(const FString& message, FColor color, float duration)
+{
+	if (!_announcementWidget)
+	{
+		_announcementWidget = CreateWidget<UPW_AnnouncementWidget>(this, _announcementWidgetClass);
+	}
+
+	if (_announcementWidget)
+	{
+		_announcementWidget->SetAnnouncementText(message,color);
+		_announcementWidget->AddToViewport();
+		GetWorldTimerManager().SetTimer(_announcementTimer, this, &APW_PlayerController::HideAccouncement, duration, false);
+	}
+}
+
+void APW_PlayerController::HideAccouncement()
+{
+	if (_announcementWidget != nullptr)
+	{
+		_announcementWidget->RemoveFromViewport();
+	}
+}
+
+void APW_PlayerController::ToggleHUDVisibility(bool bShow)
+{
+	if(_characterOverlayWidget)
+	{
+		_characterOverlayWidget->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
+}
+
 void APW_PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
+}
+
+
+UPW_CharacterOverlayWidget*  APW_PlayerController::GetCharacterOverlayWidget()
+{
+	if (!_characterOverlayWidget)
+	{
+		_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(this, _characterOverlayWidgetClass);
+		if (_characterOverlayWidget != nullptr)
+		{
+			DEBUG_STRING( "CharacterOverlayWidget Added" );
+			_characterOverlayWidget->AddToViewport();
+		}
+	}
+	return _characterOverlayWidget;
 }
 
 void APW_PlayerController::SetHUDHealth(float health, float maxHealth)
@@ -180,16 +237,15 @@ void APW_PlayerController::SetHUDScore(float score)
 
 void APW_PlayerController::SetMatchCountdown(float time)
 {
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (_characterOverlayWidget)
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_hud->GetCharacterOverlayWidget()->SetTimeText("00:00");
 		}
 		
-		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
-		//DEBUG_STRING ( ConvertToTime(time) );
+		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+		DEBUG_STRING ( ConvertToTime(time) );
 	}
 	else
 	{
@@ -199,16 +255,19 @@ void APW_PlayerController::SetMatchCountdown(float time)
 
 void APW_PlayerController::SetMatchEndCountdown(float time)
 {
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (_characterOverlayWidget)
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
 		}
 
-		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
-		//DEBUG_STRING( ConvertToTime(time) );
+		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+		DEBUG_STRING( ConvertToTime(time) );
+	}
+	else
+	{
+		DEBUG_STRING( "HUD is not valid" );
 	}
 }
 
@@ -248,11 +307,7 @@ void APW_PlayerController::HandleMatchCooldown()
 {
 	// show cooldown screen
 	
-	if(_hud)
-	{
-		_hud->DisplayAccouncement("Match Ended, Returning to Lobby", FColor::Red, _endMatchCountdown);
-	}
-	
+	DisplayAccouncement("Match Ended, Returning to Lobby", FColor::Red, _endMatchCountdown);
 	_endMatchCountdown += GetServerTime() - _levelStartTime;
 }
 
@@ -272,12 +327,6 @@ void APW_PlayerController::DropAllItems()
 			itemHandlerComponent->DoDropAllItems();
 		}
 	}
-}
-
-bool APW_PlayerController::IsHUDValid()
-{
-	_hud = _hud == nullptr ? Cast<APW_HUD>(GetHUD()) : _hud;
-	return _hud != nullptr;
 }
 
 FString APW_PlayerController::ConvertToTime(float time)
@@ -311,23 +360,23 @@ void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
 
 void APW_PlayerController::StartHighPingWarning()
 {
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (GetCharacterOverlayWidget())
 	{
-		_hud->GetCharacterOverlayWidget()->StartHighPingWarning();
+		_characterOverlayWidget->StartHighPingWarning();
 	}
 }
 
 void APW_PlayerController::StopHighPingWarning()
 {
-	if (_hud && _hud->GetCharacterOverlayWidget())
+	if (GetCharacterOverlayWidget())
 	{
-		_hud->GetCharacterOverlayWidget()->StopHighPingWarning();
+		_characterOverlayWidget->StopHighPingWarning();
 	}
 }
 
 void APW_PlayerController::HandleCheckPing(float DeltaTime)
 {
-	if(!IsHUDValid()) return;
+	if(!GetCharacterOverlayWidget()) return;
 	
 	_highPingRunningTime += DeltaTime;
 	if (_highPingRunningTime >= _checkPingFrequency)
@@ -344,9 +393,8 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 		_highPingRunningTime = 0;
 	}
 	
-	if (_hud &&
-		 _hud->GetCharacterOverlayWidget() &&
-		 _hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
+	if (_characterOverlayWidget &&
+		_characterOverlayWidget->IsHighPingWarningPlaying())
 	{
 		_pingAnimationRunningTime += DeltaTime;
 		if (_pingAnimationRunningTime >= _highPingDuration)
