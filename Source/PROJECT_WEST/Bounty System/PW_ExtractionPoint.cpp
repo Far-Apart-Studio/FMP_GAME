@@ -24,6 +24,9 @@ APW_ExtractionPoint::APW_ExtractionPoint()
 	
 	_mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	_mesh->SetupAttachment( _root);
+
+	_becon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Becon"));
+	_becon->SetupAttachment( _root);
 	
 	_extractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("ExtractionBox"));
 	_extractionBox->SetupAttachment( _root);
