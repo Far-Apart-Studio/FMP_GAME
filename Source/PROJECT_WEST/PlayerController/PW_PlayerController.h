@@ -92,7 +92,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
-	UPW_CharacterOverlayWidget* GetCharacterOverlayWidget();
+	UFUNCTION( Client, Reliable )
+	void ClientAddCharacterOverlayWidget();
 	void StartHighPingWarning();
 	void StopHighPingWarning();
 	void HandleCheckPing(float DeltaTime);

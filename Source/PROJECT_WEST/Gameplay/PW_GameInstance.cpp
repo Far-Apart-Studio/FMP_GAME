@@ -13,7 +13,7 @@ UPW_GameInstance::UPW_GameInstance()
 void UPW_GameInstance::Init()
 {
 	Super::Init();
-	DEBUG_STRING("GameInstance Init");
+	//DEBUG_STRING("GameInstance Init");
 	_gameSessionData = FGameSessionData();
 	_gameSessionData._bountyDataEntry._bountyCost = 100;
 	_gameSessionData._bountyDataEntry._bountyReward = 1000;
@@ -24,11 +24,11 @@ void UPW_GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 	Super::OnWorldChanged(OldWorld, NewWorld);
 	FString OldWorldName = OldWorld ? OldWorld->GetName() : "nullptr";
 	FString NewWorldName = NewWorld ? NewWorld->GetName() : "nullptr";
-	DEBUG_STRING("GameInstance World Changed from " + OldWorldName + " to " + NewWorldName);
+	//DEBUG_STRING("GameInstance World Changed from " + OldWorldName + " to " + NewWorldName);
 }
 
 void UPW_GameInstance::Shutdown()
 {
-	DEBUG_STRING("GameInstance Shutdown");
+	//DEBUG_STRING("GameInstance Shutdown");
 	Super::Shutdown();
 }

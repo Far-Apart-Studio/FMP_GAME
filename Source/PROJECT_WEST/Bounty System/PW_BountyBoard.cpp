@@ -20,7 +20,7 @@ APW_BountyBoard::APW_BountyBoard()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	SetReplicates(true);
+
 
 	_root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(_root);
@@ -43,7 +43,9 @@ APW_BountyBoard::APW_BountyBoard()
 void APW_BountyBoard::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	SetReplicates(true);
+	
 	if(HasAuthority())
 	{
 
@@ -134,46 +136,40 @@ void APW_BountyBoard::OnRep_BountyVoteChanged()
 
 void APW_BountyBoard::PopulateBountyDataList()
 {
-
 	APW_LobbyGameMode* gameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
+	if (!gameMode) return;
+
+	_bountyDataList.Empty();
 	
 	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
-	if ( gameInstance )
-	{
-		if ( gameInstance->GetGameSessionData()._bountyDataList.Num() > 0 )
-		{
-			_bountyDataList = gameInstance->GetGameSessionData()._bountyDataList;
-
-			if(gameMode)
-			{
-				_bountyDataList[ gameInstance->GetGameSessionData()._bountyDataEntry.index ] =
-					gameMode->GetBountySystemComponent()->GetBountyDataEntry(gameInstance->GetGameSessionData()._bountyDataEntry._bountyDifficulty);
-				DEBUG_STRING( "PopulateBountyDataList from GameInstance and refresh last bounty data.");
-			}
-			
-			_bountyDataListChanged.Broadcast(_bountyDataList);
-			PopulateBountyVoteData(_bountyDataList.Num());
-			return;
-		}
-	}
 	
-
-	if(gameMode)
+	if (gameInstance && gameInstance->GetGameSessionData()._bountyDataList.Num() > 0 )
 	{
-		TArray<EBountyDifficulty> difficulties;
-		difficulties.Add(EBountyDifficulty::EBD_OneStar);
-		difficulties.Add(EBountyDifficulty::EBD_TwoStar);
-		difficulties.Add(EBountyDifficulty::EBD_ThreeStar);
-		difficulties.Add(EBountyDifficulty::EBD_FourStar);
-		_bountyDataList = gameMode->GetBountySystemComponent()->GetBountyDataList(difficulties);
+		_bountyDataList = gameInstance->GetGameSessionData()._bountyDataList;
 
-		if (gameInstance)
-		{
-			gameInstance->GetGameSessionData()._bountyDataList = _bountyDataList;
-		}
+		FBountyDataEntry newBountyData = gameMode->GetBountySystemComponent()->GetBountyDataEntry(gameInstance->GetGameSessionData()._bountyDataEntry._bountyDifficulty);
+		newBountyData.index = gameInstance->GetGameSessionData()._bountyDataEntry.index;
+		_bountyDataList[ gameInstance->GetGameSessionData()._bountyDataEntry.index ] = newBountyData;
 		_bountyDataListChanged.Broadcast(_bountyDataList);
 		PopulateBountyVoteData(_bountyDataList.Num());
+		DEBUG_STRING( "PopulateBountyDataList from GameInstance and refresh last bounty data.");
+		return;
 	}
+	
+	TArray<EBountyDifficulty> difficulties;
+	difficulties.Add(EBountyDifficulty::EBD_OneStar);
+	difficulties.Add(EBountyDifficulty::EBD_TwoStar);
+	difficulties.Add(EBountyDifficulty::EBD_ThreeStar);
+	difficulties.Add(EBountyDifficulty::EBD_FourStar);
+	_bountyDataList = gameMode->GetBountySystemComponent()->GetBountyDataList(difficulties);
+
+	if (gameInstance)
+	{
+		gameInstance->GetGameSessionData()._bountyDataList = _bountyDataList;
+	}
+	_bountyDataListChanged.Broadcast(_bountyDataList);
+	PopulateBountyVoteData(_bountyDataList.Num());
+	DEBUG_STRING( "Populate New BountyDataList from GameMode and save to GameInstance.");
 }
 
 void APW_BountyBoard::PopulateBountyVoteData(int numberOfBounties)

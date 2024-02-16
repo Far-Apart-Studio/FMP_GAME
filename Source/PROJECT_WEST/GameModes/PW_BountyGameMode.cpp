@@ -206,7 +206,7 @@ void APW_BountyGameMode::LoadGameSessionData()
 	
 	if (_gameInstance)
 	{
-		DEBUG_STRING("Bounty cost: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost));
+		//DEBUG_STRING("Bounty cost: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyCost));
 	}
 }
 
