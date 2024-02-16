@@ -26,13 +26,11 @@ APW_LobbyGameMode::APW_LobbyGameMode()
 void APW_LobbyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	DEBUG_STRING( "APW_LobbyGameMode::BeginPlay" );
 	
 	_bountyBoard = Cast<APW_BountyBoard>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_BountyBoard::StaticClass()));
-	if ( _bountyBoard)
+	if (! _bountyBoard)
 	{
-		DEBUG_STRING( "APW_LobbyGameMode::BeginPlay _bountyBoard" );
+		DEBUG_STRING( "APW_LobbyGameMode::BeginPlay _bountyBoard not found" );
 	}
 
 	_transitionPortal = Cast<APW_TransitionPortal>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_TransitionPortal::StaticClass()));
@@ -55,8 +53,6 @@ void APW_LobbyGameMode::BeginPlay()
 	{
 		_bountyBoard->ToggleActivation(true);
 	}
-
-	_bountyBoard->ToggleActivation(true);
 }
 
 void APW_LobbyGameMode::LoadGameSessionData()
