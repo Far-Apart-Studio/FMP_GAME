@@ -39,6 +39,7 @@ void APW_HUD::BeginPlay()
 {
 	Super::BeginPlay();
 	crosshairSpreadMultiplier = 1;
+	AddCharacterOverlayWidget();
 }
 
 void APW_HUD::Destroyed()

@@ -33,9 +33,7 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	// called when the player controller possesses a pawn
-
-	DEBUG_STRING( "APW_PlayerController OnPossess" );
-
+	
 	ClientAddCharacterOverlayWidget();
 	
 	_votedBountyIndex = -1;
@@ -175,32 +173,25 @@ void APW_PlayerController::Destroyed()
 
 void APW_PlayerController::DisplayAccouncement(const FString& message, FColor color, float duration)
 {
-	if (!_announcementWidget)
+	if (!_hud)
 	{
-		_announcementWidget = CreateWidget<UPW_AnnouncementWidget>(this, _announcementWidgetClass);
-	}
-
-	if (_announcementWidget)
-	{
-		_announcementWidget->SetAnnouncementText(message,color);
-		_announcementWidget->AddToViewport();
-		GetWorldTimerManager().SetTimer(_announcementTimer, this, &APW_PlayerController::HideAccouncement, duration, false);
+		_hud->DisplayAccouncement( message, color, duration );
 	}
 }
 
 void APW_PlayerController::HideAccouncement()
 {
-	if (_announcementWidget != nullptr)
+	if (!_hud)
 	{
-		_announcementWidget->RemoveFromViewport();
+		_hud->HideAccouncement();	
 	}
 }
 
 void APW_PlayerController::ToggleHUDVisibility(bool bShow)
 {
-	if(_characterOverlayWidget)
+	if(_hud)
 	{
-		_characterOverlayWidget->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+		_hud->SetVisibility(bShow);
 	}
 }
 
@@ -211,14 +202,7 @@ void APW_PlayerController::SetupInputComponent()
 
 void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation()
 {
-	if (_characterOverlayWidgetClass != nullptr)
-	{
-		_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(this, _characterOverlayWidgetClass);
-		if (_characterOverlayWidget != nullptr)
-		{
-			_characterOverlayWidget->AddToViewport();
-		}
-	}
+	_hud = GetHUD <APW_HUD>();
 }
 
 void APW_PlayerController::SetHUDHealth(float health, float maxHealth)
@@ -233,15 +217,15 @@ void APW_PlayerController::SetHUDScore(float score)
 
 void APW_PlayerController::SetMatchCountdown(float time)
 {
-	if (_characterOverlayWidget)
+	if (_hud)
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_characterOverlayWidget->SetTimeText("00:00");
+			_hud->GetCharacterOverlayWidget()->SetTimeText("00:00");
 		}
 		
-			_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
 		//DEBUG_STRING ( ConvertToTime(time) );
 	}
 	else
@@ -252,15 +236,14 @@ void APW_PlayerController::SetMatchCountdown(float time)
 
 void APW_PlayerController::SetMatchEndCountdown(float time)
 {
-	if (_characterOverlayWidget)
+	if (_hud)
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+			_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
 		}
-
-		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
 		//DEBUG_STRING( ConvertToTime(time) );
 	}
 	else
@@ -358,23 +341,23 @@ void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
 
 void APW_PlayerController::StartHighPingWarning()
 {
-	if (_characterOverlayWidget)
+	if (_hud)
 	{
-		_characterOverlayWidget->StartHighPingWarning();
+		_hud->GetCharacterOverlayWidget()->StartHighPingWarning();
 	}
 }
 
 void APW_PlayerController::StopHighPingWarning()
 {
-	if (_characterOverlayWidget)
+	if (_hud)
 	{
-		_characterOverlayWidget->StopHighPingWarning();
+		_hud->GetCharacterOverlayWidget()->StopHighPingWarning();
 	}
 }
 
 void APW_PlayerController::HandleCheckPing(float DeltaTime)
 {
-	if(!_characterOverlayWidget) return;
+	if(!_hud) return;
 	
 	_highPingRunningTime += DeltaTime;
 	if (_highPingRunningTime >= _checkPingFrequency)
@@ -391,8 +374,7 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 		_highPingRunningTime = 0;
 	}
 	
-	if (_characterOverlayWidget &&
-		_characterOverlayWidget->IsHighPingWarningPlaying())
+	if (_hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
 	{
 		_pingAnimationRunningTime += DeltaTime;
 		if (_pingAnimationRunningTime >= _highPingDuration)
@@ -500,7 +482,7 @@ void APW_PlayerController::RemoveVoteFromBounty(int32 bountyIndex)
 
 bool APW_PlayerController::LocalAddVoteToBounty(int32 bountyIndex)
 {
-	_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
+	_lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this));
 
 	if(!_lobbyGameMode)
 	{
@@ -532,7 +514,7 @@ bool APW_PlayerController::LocalAddVoteToBounty(int32 bountyIndex)
 
 bool APW_PlayerController::LocalRemoveVoteFromBounty(int32 bountyIndex)
 {
-	_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
+	_lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this));
 	if (_lobbyGameMode)
 	{
 		_lobbyGameMode->GetBountyBoard()->RemoveVoteFromBounty(bountyIndex);
