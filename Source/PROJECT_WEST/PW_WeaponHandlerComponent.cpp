@@ -41,8 +41,8 @@ void UPW_WeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 APW_Weapon* UPW_WeaponHandlerComponent::TryGetCurrentWeapon() const
 {
-	APW_Weapon* weapon = Cast <APW_Weapon>(_itemHandlerComponent->GetItemInHand());
-	return weapon;
+	APW_Weapon* currentWeapon = Cast<APW_Weapon>(_itemHandlerComponent->GetItemInHand());
+	return currentWeapon;
 }
 
 void UPW_WeaponHandlerComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
