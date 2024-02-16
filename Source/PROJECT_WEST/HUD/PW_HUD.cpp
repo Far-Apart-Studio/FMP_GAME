@@ -39,7 +39,6 @@ void APW_HUD::BeginPlay()
 {
 	Super::BeginPlay();
 	crosshairSpreadMultiplier = 1;
-	AddCharacterOverlayWidget();
 }
 
 void APW_HUD::Destroyed()
@@ -51,7 +50,7 @@ void APW_HUD::Destroyed()
 void APW_HUD::AddCharacterOverlayWidget()
 {
 	APlayerController* playerController = GetOwningPlayerController();
-	if (playerController != nullptr && _characterOverlayWidgetClass != nullptr && !_characterOverlayWidget)
+	if (playerController != nullptr && _characterOverlayWidgetClass != nullptr)
 	{
 		_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(playerController, _characterOverlayWidgetClass);
 		if (_characterOverlayWidget != nullptr)

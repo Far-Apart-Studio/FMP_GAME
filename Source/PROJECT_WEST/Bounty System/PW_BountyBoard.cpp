@@ -68,18 +68,19 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void APW_BountyBoard::StartFocus_Implementation()
 {
+	if (!_isActivated) return;
 	ToggleHighlight (true);
 }
 
 void APW_BountyBoard::EndFocus_Implementation()
 {
+	if (!_isActivated) return;
 	ToggleHighlight (false);
 }
 
 void APW_BountyBoard::EndInteract_Implementation()
 {
-	if (!_isActivated || !_character) return;
-	
+	if ( !_character) return;
 	APW_Character* characterController = Cast<APW_Character>(_character);
 	if (characterController && characterController->IsLocallyControlled())
 	{

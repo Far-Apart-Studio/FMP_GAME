@@ -173,17 +173,20 @@ void APW_PlayerController::Destroyed()
 
 void APW_PlayerController::DisplayAccouncement(const FString& message, FColor color, float duration)
 {
-	if (!_hud)
+	_announcementWidget = CreateWidget<UPW_AnnouncementWidget>(this, _announcementWidgetClass);
+	if (_announcementWidget)
 	{
-		_hud->DisplayAccouncement( message, color, duration );
+		_announcementWidget->SetAnnouncementText(message,color);
+		_announcementWidget->AddToViewport();
+		GetWorldTimerManager().SetTimer(_announcementTimer, this, &APW_PlayerController::HideAccouncement, duration, false);
 	}
 }
 
 void APW_PlayerController::HideAccouncement()
 {
-	if (!_hud)
+	if (_announcementWidget != nullptr)
 	{
-		_hud->HideAccouncement();	
+		_announcementWidget->RemoveFromViewport();
 	}
 }
 
@@ -203,6 +206,15 @@ void APW_PlayerController::SetupInputComponent()
 void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation()
 {
 	_hud = GetHUD <APW_HUD>();
+	
+	if (_characterOverlayWidgetClass)
+	{
+		_characterOverlayWidget = CreateWidget<UPW_CharacterOverlayWidget>(this, _characterOverlayWidgetClass);
+		if (_characterOverlayWidget != nullptr)
+		{
+			_characterOverlayWidget->AddToViewport();
+		}
+	}
 }
 
 void APW_PlayerController::SetHUDHealth(float health, float maxHealth)
@@ -217,15 +229,15 @@ void APW_PlayerController::SetHUDScore(float score)
 
 void APW_PlayerController::SetMatchCountdown(float time)
 {
-	if (_hud)
+	if (_characterOverlayWidget)
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_hud->GetCharacterOverlayWidget()->SetTimeText("00:00");
+			_characterOverlayWidget->SetTimeText("00:00");
 		}
 		
-		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
+		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
 		//DEBUG_STRING ( ConvertToTime(time) );
 	}
 	else
@@ -236,14 +248,14 @@ void APW_PlayerController::SetMatchCountdown(float time)
 
 void APW_PlayerController::SetMatchEndCountdown(float time)
 {
-	if (_hud)
+	if (_characterOverlayWidget)
 	{
 		if (time < 0)
 		{
 			time = 0;
-			_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
+			_characterOverlayWidget->SetTimeText(ConvertToTime(time));
 		}
-		_hud->GetCharacterOverlayWidget()->SetTimeText(ConvertToTime(time));
+		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
 		//DEBUG_STRING( ConvertToTime(time) );
 	}
 	else
@@ -341,17 +353,17 @@ void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
 
 void APW_PlayerController::StartHighPingWarning()
 {
-	if (_hud)
+	if (_characterOverlayWidget)
 	{
-		_hud->GetCharacterOverlayWidget()->StartHighPingWarning();
+		_characterOverlayWidget->StartHighPingWarning();
 	}
 }
 
 void APW_PlayerController::StopHighPingWarning()
 {
-	if (_hud)
+	if (_characterOverlayWidget)
 	{
-		_hud->GetCharacterOverlayWidget()->StopHighPingWarning();
+		_characterOverlayWidget->StopHighPingWarning();
 	}
 }
 
@@ -374,7 +386,7 @@ void APW_PlayerController::HandleCheckPing(float DeltaTime)
 		_highPingRunningTime = 0;
 	}
 	
-	if (_hud->GetCharacterOverlayWidget()->IsHighPingWarningPlaying())
+	if (_characterOverlayWidget->IsHighPingWarningPlaying())
 	{
 		_pingAnimationRunningTime += DeltaTime;
 		if (_pingAnimationRunningTime >= _highPingDuration)
@@ -505,8 +517,11 @@ bool APW_PlayerController::LocalAddVoteToBounty(int32 bountyIndex)
 	FBountyDataEntry bounty = _lobbyGameMode->GetBountyBoard()->GetBountyDataList()[bountyIndex];
 	if (bounty._bountyCost <= _lobbyGameMode->_gameInstance->GetGameSessionData()._money)
 	{
-		_lobbyGameMode->GetBountyBoard()->AddVoteToBounty(bountyIndex);
-		return true;
+		if(_lobbyGameMode->GetBountyBoard()->IsActivated())
+		{
+			_lobbyGameMode->GetBountyBoard()->AddVoteToBounty(bountyIndex);
+			return true;
+		}
 	}
 	
 	return false;
@@ -515,11 +530,31 @@ bool APW_PlayerController::LocalAddVoteToBounty(int32 bountyIndex)
 bool APW_PlayerController::LocalRemoveVoteFromBounty(int32 bountyIndex)
 {
 	_lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this));
-	if (_lobbyGameMode)
+
+	if(!_lobbyGameMode)
+	{
+		DEBUG_STRING( "LocalAddVoteToBounty: No LobbyGameMode Found" );
+		return false;
+	}
+
+	if (! _lobbyGameMode->GetBountyBoard())
+	{
+		DEBUG_STRING ( "LocalAddVoteToBounty: No BountyBoard Found" );
+		return false;
+	}
+
+	if (_lobbyGameMode->GetBountyBoard()->GetBountyDataList().Num() == 0)
+	{
+		DEBUG_STRING( "LocalAddVoteToBounty: BountyDataList is empty" );
+		return false;
+	}
+	
+	if(_lobbyGameMode->GetBountyBoard()->IsActivated())
 	{
 		_lobbyGameMode->GetBountyBoard()->RemoveVoteFromBounty(bountyIndex);
 		return true;
 	}
+	
 	return false;
 }
 

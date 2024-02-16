@@ -108,4 +108,5 @@ public:
 
 	FORCEINLINE TArray<FBountyDataEntry> GetBountyDataList() const { return _bountyDataList; }
 	FORCEINLINE void ToggleActivation(bool status) { _isActivated = status; }
+	FORCEINLINE bool IsActivated() const { return _isActivated; }
 };

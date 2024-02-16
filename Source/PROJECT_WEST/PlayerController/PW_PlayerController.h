@@ -23,6 +23,18 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Console Command Manager")
 	UPW_ConsoleCommandManager* _consoleCommandManager;
+
+	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivateAccess = "true") )
+	TSubclassOf<class UUserWidget> _characterOverlayWidgetClass;
+
+	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
+	class UPW_CharacterOverlayWidget* _characterOverlayWidget;
+
+	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivate = "true") )
+	TSubclassOf<class UUserWidget> _announcementWidgetClass;
+
+	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
+	class UPW_AnnouncementWidget*  _announcementWidget;
 	
 	class APW_HUD* _hud;
 
@@ -82,6 +94,7 @@ protected:
 
 	UFUNCTION( Client, Reliable )
 	void ClientAddCharacterOverlayWidget();
+	
 	void StartHighPingWarning();
 	void StopHighPingWarning();
 	void HandleCheckPing(float DeltaTime);

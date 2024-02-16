@@ -60,11 +60,7 @@ private:
 public:
 	
 	virtual void DrawHUD() override;
-
-	FORCEINLINE class UPW_CharacterOverlayWidget* GetCharacterOverlayWidget() const { return _characterOverlayWidget; }
-	FORCEINLINE class UPW_AnnouncementWidget* GetAnnouncementWidget() const { return _announcementWidget; }
-
-
+	
 	void DisplayAccouncement(const FString& message,FColor color = FColor::White, float duration = 2.0f);
 	void HideAccouncement();
 	void SetVisibility(bool bShow);

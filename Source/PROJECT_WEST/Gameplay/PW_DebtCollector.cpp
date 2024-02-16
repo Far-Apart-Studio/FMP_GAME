@@ -88,7 +88,6 @@ void APW_DebtCollector::LocalHandleBounty()
 		{
 			gameMode->RemoveMoney(_debtAmount);
 			_onInteract.Broadcast(true);
-			//Destroy();
 		}
 		else
 		{
