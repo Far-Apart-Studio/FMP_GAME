@@ -54,6 +54,9 @@ public:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<AActor > _weaponClass;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
+	TSubclassOf<class APW_Currency> _currencyClass;
 	
 	APW_Lantern* _lantern;
 
@@ -84,6 +87,8 @@ public:
 	UFUNCTION()
 	void EnemyEliminated(AActor* DamageCauser, AController* DamageCauserController);
 	void SpawnEnemies();
+
+	void SpawnCurrencies();
 
 	int _enemyCount = 0;
 	int _numOfenemiesPerPoint = 3;

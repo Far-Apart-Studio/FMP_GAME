@@ -52,9 +52,18 @@ TArray<FVector> UPW_SpawnPointsHandlerComponent::GetEnemySpawnPoint()
 	return _enemySpawnPoints.spawnPoints;
 }
 
-FVector UPW_SpawnPointsHandlerComponent::GetCurrencySpawnPoint()
+TArray<FVector> UPW_SpawnPointsHandlerComponent::GetRandomCurrencySpawnPoints(int32 amount)
 {
-	return ConvertToWorldLocation(_debtCollectorSpawnPoint.GetRandomSpawnPoint());
+	TArray<FVector> avaliableSlots = _currencySpawnPoint.spawnPoints;
+	TArray<FVector> result;
+	for (int32 i = 0; i < amount; i++)
+	{
+		if (i >= avaliableSlots.Num()) break;
+		int32 index = FMath::RandRange(0, avaliableSlots.Num() - 1);
+		result.Add(ConvertToWorldLocation(avaliableSlots[index]));
+		avaliableSlots.RemoveAt(index);
+	}
+	return result;
 }
 
 FVector UPW_SpawnPointsHandlerComponent::ConvertToWorldLocation(FVector location)

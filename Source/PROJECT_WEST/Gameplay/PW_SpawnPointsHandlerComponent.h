@@ -73,7 +73,7 @@ public:
 
 	TArray<FVector>  GetEnemySpawnPoint();
 
-	FVector GetCurrencySpawnPoint();
+	TArray<FVector> GetRandomCurrencySpawnPoints(int32 amount);
 
 private:
 

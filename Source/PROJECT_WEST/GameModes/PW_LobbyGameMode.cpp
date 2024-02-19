@@ -108,11 +108,16 @@ void APW_LobbyGameMode::OnCurrencyCollected(APW_Currency* Currency)
 void APW_LobbyGameMode::SpawnCurrency()
 {
 	if (!_currencyClass || !_spawnPointsHandlerComponent) return;
-	APW_Currency* currency = GetWorld()->SpawnActor<APW_Currency>(_currencyClass, _spawnPointsHandlerComponent->_currencySpawnPoint.GetRandomSpawnPoint(), FRotator::ZeroRotator);
-	if (currency)
+	TArray<FVector> currencySpawnPoints = _spawnPointsHandlerComponent->GetRandomCurrencySpawnPoints(2);
+	for (FVector spawnPoint : currencySpawnPoints)
 	{
-		//currency->_onCollected.AddDynamic(this, &APW_LobbyGameMode::OnCurrencyCollected);
-		DEBUG_STRING( "Currency SpawnCurrency" );
+		APW_Currency* currency = GetWorld()->SpawnActor<APW_Currency>(_currencyClass);
+		if (currency)
+		{
+			currency->SetActorLocation(spawnPoint);
+			currency->SetActorRotation(FRotator(0, 0, 0));
+			currency->SetOwner(nullptr);
+		}
 	}
 }
 

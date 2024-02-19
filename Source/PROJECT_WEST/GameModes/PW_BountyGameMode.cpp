@@ -16,6 +16,7 @@
 #include "PROJECT_WEST/Items/PW_BountyHead.h"
 #include "PROJECT_WEST/Bounty System/PW_ExtractionPoint.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
+#include "PROJECT_WEST/Items/PW_Currency.h"
 
 namespace MatchState
 {
@@ -53,6 +54,7 @@ void APW_BountyGameMode::BeginPlay()
 	SpawnExtractionPoint();
 	SpawnEnemies();
 	SpawnWeapons();
+	SpawnCurrencies();
 	
 	_matchStartTime = GetWorld()->GetTimeSeconds();
 
@@ -338,6 +340,22 @@ void APW_BountyGameMode::SpawnEnemies()
 				}
 				_enemyCount++;
 			}
+		}
+	}
+}
+
+void APW_BountyGameMode::SpawnCurrencies()
+{
+	if (!_currencyClass || !_spawnPointsHandlerComponent) return;
+	TArray<FVector> currencySpawnPoints = _spawnPointsHandlerComponent->GetRandomCurrencySpawnPoints(1);
+	for (FVector spawnPoint : currencySpawnPoints)
+	{
+		APW_Currency* currency = GetWorld()->SpawnActor<APW_Currency>(_currencyClass);
+		if (currency)
+		{
+			currency->SetActorLocation(spawnPoint);
+			currency->SetActorRotation(FRotator(0, 0, 0));
+			currency->SetOwner(nullptr);
 		}
 	}
 }
