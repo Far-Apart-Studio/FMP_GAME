@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DebugMacros.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/PW_InteractableInterface.h"
 #include "PW_ItemObject.generated.h"
@@ -49,10 +50,11 @@ public:
 	APW_ItemObject();
 	
 	virtual void Tick(float DeltaTime) override;
-	virtual void Use() { }
+	virtual void Use() { DEBUG_STRING("USE ITEM"); }
 
 	void UpdateItemState(EItemObjectState updatedState);
 	void UpdateItemType(EItemType updatedType);
+	void SetVisibility(bool isVisible);
 
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;
@@ -64,5 +66,4 @@ public:
 	FORCEINLINE EItemObjectState GetItemState() const { return _itemState; }
 	FORCEINLINE void SetItemState(EItemObjectState newState) { _itemState = newState; }
 	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return _itemMesh; }
-	FORCEINLINE void SetVisibility(bool isVisible) { _itemMesh->SetVisibility(isVisible); }
 };

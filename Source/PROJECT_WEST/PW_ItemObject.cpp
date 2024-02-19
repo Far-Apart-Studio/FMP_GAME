@@ -10,6 +10,14 @@
 APW_ItemObject::APW_ItemObject()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	_itemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
+	_itemMesh->SetIsReplicated(true);
+	SetRootComponent(_itemMesh);
+
+	_itemMesh->SetCollisionResponseToAllChannels(ECR_Block);
+	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void APW_ItemObject::BeginPlay()
@@ -40,6 +48,14 @@ void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
 void APW_ItemObject::UpdateItemType(EItemType updatedType)
 {
 	_itemType = updatedType;
+}
+
+void APW_ItemObject::SetVisibility(bool isVisible)
+{
+	if (_itemMesh == nullptr)
+		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+
+	_itemMesh->SetVisibility(isVisible);
 }
 
 void APW_ItemObject::StartFocus_Implementation()
@@ -83,6 +99,9 @@ bool APW_ItemObject::IsInteracting_Implementation()
 
 void APW_ItemObject::EnterHeldState()
 {
+	if (_itemMesh == nullptr)
+		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+	
 	_itemMesh->SetSimulatePhysics(false);
 	_itemMesh->SetEnableGravity(false);
 	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -90,6 +109,9 @@ void APW_ItemObject::EnterHeldState()
 
 void APW_ItemObject::EnterDroppedState()
 {
+	if (_itemMesh == nullptr)
+		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+	
 	const FDetachmentTransformRules detachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,
 	EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
 	_itemMesh->DetachFromComponent(detachmentRules);

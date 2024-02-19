@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PW_InventorySlot.h"
 #include "PW_ItemObject.h"
+#include "PW_Utilities.h"
 #include "Components/ActorComponent.h"
 #include "Items/PW_Item.h"
 #include "PW_InventoryHandler.generated.h"
@@ -22,57 +23,79 @@ class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
 private:
 
 	//DEBUG THINGS >>
-
 	UPROPERTY(EditAnywhere, Category = "Inventory")
 	TSubclassOf<APW_ItemObject> _spawnItemClass;
-	
 	//DEBUG THINGS <<
 	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Inventory")
 	APW_Character* _ownerCharacter;
 	
 	UPROPERTY(EditAnywhere, Category = "Inventory")
-	TArray<FInventorySlot> _currentSlots;
+	TArray<FInventorySlot> _slotConfiguration;
 
-	UPROPERTY(EditAnywhere, Category = "Inventory")
+	UPROPERTY(Transient, VisibleAnywhere, Category = "Inventory")
 	TArray<UPW_InventorySlot*> _inventorySlots;
-	
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	int _currentSlotIndex = 0;
 
 public:	
 	UPW_InventoryHandler();
 
-
 private:
 	void AssignInputActions();
 	void GetOwnerCharacter();
+	void CreateInventoryConfiguration();
 
 protected:
 	virtual void BeginPlay() override;
 
 public:
-	void ChangeSlot(const FInventorySlot& updatedSlot);
+	void ChangeSlot(const UPW_InventorySlot* updatedSlot);
 	void DropCurrentItem();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
-	bool TryGetSlot(int slotIndex, FInventorySlot& outSlot);
+
+	void UseCurrentItem();
+	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
 	bool TryCollectItem(APW_ItemObject* collectedItem);
-	bool TryDropItem(FInventorySlot& currentSlot);
+	bool TryDropItem(UPW_InventorySlot* currentSlot);
 	
 	void ShowItem(APW_ItemObject* selectedItem);
 	void HideItem(APW_ItemObject* selectedItem);
 
-	FInventorySlot TryGetAvailableSlot(EItemType itemType);
+	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
 
-	FORCEINLINE FInventorySlot GetSlot(int slotIndex) { return _currentSlots[slotIndex]; }
-	FORCEINLINE FInventorySlot GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
-	FORCEINLINE FInventorySlot GetNextSlot() { return GetSlot(_currentSlotIndex + 1); }
-	FORCEINLINE FInventorySlot GetPreviousSlot() { return GetSlot(_currentSlotIndex - 1); }
+	FORCEINLINE UPW_InventorySlot* GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
+	FORCEINLINE UPW_InventorySlot* GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
+	FORCEINLINE UPW_InventorySlot* GetNextSlot() { return GetSlot(_currentSlotIndex + 1); }
+	FORCEINLINE UPW_InventorySlot* GetPreviousSlot() { return GetSlot(_currentSlotIndex - 1); }
 
-
-	//DEBUG FUNCTIONS >>>
+	// >>>>>>>> DEBUG FUNCTIONS <<<<<<<<<
 	void SpawnItem();
-	//DEBUG FUNCTIONS <<<
+	UFUNCTION(BlueprintCallable)
+	void DebugSwitchSlot(int slotIndex)
+	{
+		UPW_InventorySlot* updatedSlot = nullptr;
+		const bool foundSlot = TryGetSlot(slotIndex, updatedSlot);
+
+		if (!foundSlot)
+			{ PW_Utilities::Log("NO SLOT FOUND!"); return; }
+
+		ChangeSlot(updatedSlot);
+		_currentSlotIndex = slotIndex;
+	}
+	
+	UFUNCTION(BlueprintCallable)
+	void DebugDropItem()
+	{
+		
+	}
+	UFUNCTION(BlueprintCallable)
+	void DebugUseItem()
+	{
+		UseCurrentItem();
+	}
+	// >>>>>>>> DEBUG FUNCTIONS <<<<<<<<<
 };

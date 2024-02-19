@@ -14,16 +14,7 @@ struct FInventorySlot
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category = "Inventory")
-	EItemType _slotType;
-
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	APW_ItemObject* _currentItem;
-
-	FORCEINLINE APW_ItemObject* GetCurrentItem() const { return _currentItem; }
-	FORCEINLINE bool IsSlotAvailable() const { return _currentItem == nullptr; }
-	FORCEINLINE void SetItem(APW_ItemObject* item) { _currentItem = item; }
-	FORCEINLINE void RemoveItem() { _currentItem = nullptr; }
-	FORCEINLINE EItemType GetSlotType() const { return _slotType; }
+	EItemType SlotType;
 };
 
 UCLASS()
@@ -45,5 +36,6 @@ public:
 	FORCEINLINE void SetItem(APW_ItemObject* item) { _currentItem = item; }
 	FORCEINLINE void RemoveItem() { _currentItem = nullptr; }
 	FORCEINLINE EItemType GetSlotType() const { return _slotType; }
+	FORCEINLINE void SetSlotType(EItemType type) { _slotType = type; }
 };
 
