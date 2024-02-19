@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PW_InventorySlot.h"
 #include "PW_ItemObject.h"
 #include "Components/ActorComponent.h"
 #include "Items/PW_Item.h"
@@ -11,6 +12,7 @@
 class APW_ItemObject;
 class UPW_InventorySlot;
 class APW_Character;
+struct FInventorySlot;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
@@ -18,15 +20,23 @@ class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
 	GENERATED_BODY()
 
 private:
+
+	//DEBUG THINGS >>
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TSubclassOf<APW_ItemObject> _spawnItemClass;
+	
+	//DEBUG THINGS <<
+	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Inventory")
 	APW_Character* _ownerCharacter;
 	
 	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TArray<FInventorySlot> _currentSlots;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
 	TArray<UPW_InventorySlot*> _inventorySlots;
-
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	APW_ItemObject* _currentSelectedItem;
-
+	
 	int _currentSlotIndex = 0;
 
 public:	
@@ -35,26 +45,34 @@ public:
 
 private:
 	void AssignInputActions();
-	void AssignDefaultSlot();
 	void GetOwnerCharacter();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
+	void ChangeSlot(const FInventorySlot& updatedSlot);
+	void DropCurrentItem();
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
+	bool TryGetSlot(int slotIndex, FInventorySlot& outSlot);
 	bool TryCollectItem(APW_ItemObject* collectedItem);
-	bool TryDropItem(APW_ItemObject* droppedItem);
+	bool TryDropItem(FInventorySlot& currentSlot);
+	
 	void ShowItem(APW_ItemObject* selectedItem);
 	void HideItem(APW_ItemObject* selectedItem);
-	
-	UPW_InventorySlot* GetAvailableSlot(EItemType itemType);
 
-	FORCEINLINE UPW_InventorySlot* GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
-	FORCEINLINE UPW_InventorySlot* GetCurrentSlot() { return _inventorySlots[_currentSlotIndex]; }
-	
-	FORCEINLINE void DropHeldItem() { TryDropItem(_currentSelectedItem); }
-	FORCEINLINE void UseHeldItem() { _currentSelectedItem->Use(); }
+	FInventorySlot TryGetAvailableSlot(EItemType itemType);
+
+	FORCEINLINE FInventorySlot GetSlot(int slotIndex) { return _currentSlots[slotIndex]; }
+	FORCEINLINE FInventorySlot GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
+	FORCEINLINE FInventorySlot GetNextSlot() { return GetSlot(_currentSlotIndex + 1); }
+	FORCEINLINE FInventorySlot GetPreviousSlot() { return GetSlot(_currentSlotIndex - 1); }
+
+
+	//DEBUG FUNCTIONS >>>
+	void SpawnItem();
+	//DEBUG FUNCTIONS <<<
 };

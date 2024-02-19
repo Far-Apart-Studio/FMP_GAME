@@ -2,6 +2,10 @@
 
 #include "PW_ItemObject.h"
 
+#include "PW_Character.h"
+#include "PW_InventoryHandler.h"
+#include "PW_Utilities.h"
+
 
 APW_ItemObject::APW_ItemObject()
 {
@@ -40,27 +44,41 @@ void APW_ItemObject::UpdateItemType(EItemType updatedType)
 
 void APW_ItemObject::StartFocus_Implementation()
 {
-	IPW_InteractableInterface::StartFocus_Implementation();
+	
 }
 
 void APW_ItemObject::EndFocus_Implementation()
 {
-	IPW_InteractableInterface::EndFocus_Implementation();
+	
 }
 
 void APW_ItemObject::StartInteract_Implementation(AActor* owner)
 {
-	IPW_InteractableInterface::StartInteract_Implementation(owner);
+	PW_Utilities::Log("ITEM OBJECT: START INTERACT");
+	
+	const APW_Character* characterController = Cast<APW_Character>(owner);
+
+	if (characterController == nullptr)
+		{ PW_Utilities::Log("ITEM OBJECT: OWNER IS NULL!"); return; }
+	
+	UActorComponent* actorComponent = characterController->GetComponentByClass(UPW_InventoryHandler::StaticClass());
+	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(actorComponent);
+
+	if (inventoryHandler == nullptr)
+		{ PW_Utilities::Log("ITEM OBJECT: INVENTORY HANDLER IS NULL!"); return; }
+	
+	if (characterController->IsLocallyControlled())
+		inventoryHandler->TryCollectItem(this);
 }
 
 void APW_ItemObject::EndInteract_Implementation()
 {
-	IPW_InteractableInterface::EndInteract_Implementation();
+	
 }
 
 bool APW_ItemObject::IsInteracting_Implementation()
 {
-	return IPW_InteractableInterface::IsInteracting_Implementation();
+	return false;
 }
 
 void APW_ItemObject::EnterHeldState()

@@ -8,6 +8,24 @@
 enum class EItemType : uint8;
 class APW_ItemObject;
 
+USTRUCT()
+struct FInventorySlot
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	EItemType _slotType;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	APW_ItemObject* _currentItem;
+
+	FORCEINLINE APW_ItemObject* GetCurrentItem() const { return _currentItem; }
+	FORCEINLINE bool IsSlotAvailable() const { return _currentItem == nullptr; }
+	FORCEINLINE void SetItem(APW_ItemObject* item) { _currentItem = item; }
+	FORCEINLINE void RemoveItem() { _currentItem = nullptr; }
+	FORCEINLINE EItemType GetSlotType() const { return _slotType; }
+};
+
 UCLASS()
 class PROJECT_WEST_API UPW_InventorySlot : public UObject
 {
@@ -18,18 +36,14 @@ private:
 	EItemType _slotType;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	TArray<APW_ItemObject*> _currentItems;
-
-	UPROPERTY(EditAnywhere, Category = "Inventory")
-	int _currentIndex = 0;
+	APW_ItemObject* _currentItem;
 
 public:
 	
-	FORCEINLINE APW_ItemObject* GetCurrentItem() const { return _currentItems[_currentIndex]; }
-	FORCEINLINE void AppendItem(APW_ItemObject* item) { _currentItems.Add(item); }
-	FORCEINLINE void RemoveItem(APW_ItemObject* item) { _currentItems.Remove(item); }
+	FORCEINLINE APW_ItemObject* GetCurrentItem() const { return _currentItem; }
+	FORCEINLINE bool IsSlotAvailable() const { return _currentItem == nullptr; }
+	FORCEINLINE void SetItem(APW_ItemObject* item) { _currentItem = item; }
+	FORCEINLINE void RemoveItem() { _currentItem = nullptr; }
 	FORCEINLINE EItemType GetSlotType() const { return _slotType; }
-	
-	void EmptyCurrentSlot();
-	bool IsSlotAvailable();
 };
+
