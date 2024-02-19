@@ -196,6 +196,11 @@ void APW_PlayerController::ToggleHUDVisibility(bool bShow)
 	{
 		_hud->SetVisibility(bShow);
 	}
+
+	if (_characterOverlayWidget)
+	{
+		_characterOverlayWidget->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
 }
 
 void APW_PlayerController::SetupInputComponent()
