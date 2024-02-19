@@ -19,23 +19,23 @@ protected:
 	
 	APW_LobbyGameMode();
 	
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
-	FString _mapPath;
-
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Info" )
 	class UBountySystemComponent* _bountySystemComponent;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<class APW_DebtCollector> _debtCollectorClass;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Info" )
 	class APW_BountyBoard* _bountyBoard;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Info" )
 	class APW_TransitionPortal* _transitionPortal;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Lobby" )
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Info")
 	APW_DebtCollector* _debtCollector;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" , meta = (AllowPrivateAccess = "true") )
+	int32 _bountyCollectorDayInterval;
 
 	class APW_SpawnPointsManager* _spawnPointsManager;
 	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;

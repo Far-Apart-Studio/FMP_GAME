@@ -19,8 +19,8 @@
 APW_LobbyGameMode::APW_LobbyGameMode()
 {
 	bUseSeamlessTravel = true;
-	_mapPath = "";
 	_bountySystemComponent = CreateDefaultSubobject<UBountySystemComponent>( "BountySystemComponent" );
+	_bountyCollectorDayInterval = 4;
 }
 
 void APW_LobbyGameMode::BeginPlay()
@@ -44,9 +44,9 @@ void APW_LobbyGameMode::BeginPlay()
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
 	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
 	
-	int bountyCollectorInterval = 2;
-	if (_gameInstance->GetGameSessionData()._dayIndex % bountyCollectorInterval == 0)
+	if (_gameInstance->GetGameSessionData()._dayIndex % _bountyCollectorDayInterval == 0)
 	{
+		_bountyBoard->RefereshBountyDataList();
 		TriggerDebtCollector();
 	}
 	else
@@ -75,6 +75,7 @@ void APW_LobbyGameMode::OnDebtCollectorInteract(bool bSuccess)
 	if (bSuccess)
 	{
 		_bountyBoard->ToggleActivation(true);
+		_debtCollector->Destroy();
 	}
 	else
 	{

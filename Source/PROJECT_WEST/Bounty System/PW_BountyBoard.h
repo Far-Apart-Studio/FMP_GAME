@@ -87,6 +87,9 @@ public:
 
 	UFUNCTION( BlueprintCallable, Category = "Info" )
 	void PopulateBountyDataList();
+
+	UFUNCTION( BlueprintCallable, Category = "Info" )
+	void RefereshBountyDataList();
 	
 	void PopulateBountyVoteData(int numberOfBounties);
 
