@@ -82,6 +82,8 @@ private:
 	UPROPERTY (Replicated, EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _currentFuel;
 
+	bool _isInProgress;
+
 public:
 
 	void OnItemStateSet() override;
@@ -93,11 +95,15 @@ public:
 	void AddFuel();
 
 	void ChargeFuel(float amount);
-
-	UFUNCTION( Server, Reliable )
-	void ServerChargeFuel(float amount);
 	
 	void HandleDrainFuel(float DeltaTime);
+
+	UFUNCTION(BlueprintCallable)
+	void ReduceFuel(float amount);
+	
+	UFUNCTION( Server, Reliable )
+	void ServerReduceFuel(float amount);
+	void LocalReduceFuel(float amount);
 
 	void ToggleLightVisibility(bool visible);
 

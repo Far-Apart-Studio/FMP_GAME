@@ -100,6 +100,11 @@ void APW_PlayerController::ClientShowAnnocement_Implementation(const FString& me
 	DisplayAccouncement(message, color, duration);
 }
 
+void APW_PlayerController::ClientDayChanged_Implementation(int32 day)
+{
+	_dayIndex = day;
+}
+
 bool APW_PlayerController::IsAlive()
 {
 	const APW_Character* character = Cast<APW_Character>(GetPawn());
@@ -520,7 +525,7 @@ bool APW_PlayerController::LocalAddVoteToBounty(int32 bountyIndex)
 	}
 	
 	FBountyDataEntry bounty = _lobbyGameMode->GetBountyBoard()->GetBountyDataList()[bountyIndex];
-	if (bounty._bountyCost <= _lobbyGameMode->_gameInstance->GetGameSessionData()._money)
+	if (bounty._bountyCost <= _lobbyGameMode->GetCurrentGameInstance()->GetGameSessionData()._money)
 	{
 		if(_lobbyGameMode->GetBountyBoard()->IsActivated())
 		{
@@ -683,7 +688,7 @@ void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 		if (gameMode)
 		{
-			ClientLoadGameSessionData(gameMode->_gameInstance->GetGameSessionData());
+			ClientLoadGameSessionData(gameMode->GetCurrentGameInstance()->GetGameSessionData());
 		}
 	}
 }

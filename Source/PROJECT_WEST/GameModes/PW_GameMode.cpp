@@ -97,12 +97,23 @@ int32 APW_GameMode::GetMoney() const
 
 void APW_GameMode::SetDay(int day)
 {
-	
+	if (_gameInstance)
+	{
+		_gameInstance->GetGameSessionData()._dayIndex = day;
+		NofigyPlayersOfDay();
+	}
 }
 
 void APW_GameMode::NofigyPlayersOfDay()
 {
-	
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			playerController->ClientDayChanged(_gameInstance->GetGameSessionData()._dayIndex);
+		}
+	}
 }
 
 void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColor color, float duration)

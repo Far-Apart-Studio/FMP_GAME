@@ -202,6 +202,8 @@ public:
 	UFUNCTION( Client, Reliable )
 	void ClientShowAnnocement(const FString& message,FColor color, float duration);
 
-	bool IsAlive();
+	UFUNCTION( Client, Reliable )
+	void ClientDayChanged(int32 day);
 
+	bool IsAlive();
 };

@@ -58,7 +58,7 @@ void APW_LobbyGameMode::BeginPlay()
 void APW_LobbyGameMode::LoadGameSessionData()
 {
 	Super::LoadGameSessionData();
-	_gameInstance->GetGameSessionData()._dayIndex++;
+	SetDay(_gameInstance->GetGameSessionData()._dayIndex + 1);
 }
 
 void APW_LobbyGameMode::OnTransitionCompleted()
@@ -104,6 +104,7 @@ void APW_LobbyGameMode::ResetSessionData()
 		_gameInstance->GetGameSessionData()._dayIndex = 0;
 		_gameInstance->GetGameSessionData()._bountyDataList.Empty();
 		NotifyPlayersOfMoney();
+		NofigyPlayersOfDay();
 		RestartGame();
 	}
 }

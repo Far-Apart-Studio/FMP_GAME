@@ -172,15 +172,35 @@ void APW_Lantern::ChargeFuel(float amount)
 	}
 }
 
-void APW_Lantern::ServerChargeFuel_Implementation(float amount)
-{
-	ChargeFuel(amount);
-}
-
 void APW_Lantern::HandleDrainFuel(float DeltaTime)
 {
 	if (_currentFuel <= 0.0f) return;
-	_currentFuel -= _fuelDrainRate * DeltaTime;
+	LocalReduceFuel(_fuelDrainRate * DeltaTime);
+}
+
+void APW_Lantern::ReduceFuel(float amount)
+{
+	if (HasAuthority())
+	{
+		LocalReduceFuel(amount);
+	}
+	else if (!_isInProgress)
+	{
+		_isInProgress = true;
+		ServerReduceFuel(amount);
+	}
+}
+
+void APW_Lantern::ServerReduceFuel_Implementation(float DeltaTime)
+{
+	if (!HasAuthority()) return;
+	LocalReduceFuel(DeltaTime);
+	_isInProgress = false;
+}
+
+void APW_Lantern::LocalReduceFuel(float amount)
+{
+	_currentFuel = FMath::Clamp(_currentFuel - amount, 0.0f, _maxFuel);
 }
 
 void APW_Lantern::ToggleLightVisibility(bool visible)

@@ -14,33 +14,45 @@ class PROJECT_WEST_API APW_GameMode : public AGameMode
 {
 	GENERATED_BODY()
 
-public:
 	
+protected:
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
+	class UPW_GameInstance* _gameInstance = nullptr;
+
+protected:
+
 	APW_GameMode();
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	
 	virtual void Logout(AController* Exiting) override;
 
+	virtual void BeginPlay() override;
+
 	virtual void Tick(float DeltaTime) override;
+	
+	virtual void OnMatchStateSet() override;
 
 	virtual void LoadGameSessionData();
 	
 	virtual void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController);
 
-	void PlayerLeftGame(class APW_PlayerState* PlayerLeaving);
+	void ToggleAllPlayersInput(bool bEnable);
 
 	void ToggleSessionLock(bool lock);
 
-	UFUNCTION(BlueprintCallable)
-	void ServerTravel (FString mapPath);
+	
+public:
+
+	void PlayerLeftGame(class APW_PlayerState* PlayerLeaving);
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetNumPlayerInSession() const;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
-	class UPW_GameInstance* _gameInstance = nullptr;
-
+	UFUNCTION(BlueprintCallable)
+	void ServerTravel (FString mapPath);
+	
 	void AddMoney(int32 amount);
 	void RemoveMoney (int32 amount);
 	void NotifyPlayersOfMoney();;
@@ -50,12 +62,6 @@ public:
 	void NofigyPlayersOfDay();
 
 	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration);
-	
-protected:
-	
-	virtual void BeginPlay() override;
-	
-	virtual void OnMatchStateSet() override;
 
-	void ToggleAllPlayersInput(bool bEnable);
+	FORCEINLINE class UPW_GameInstance* GetCurrentGameInstance() const { return _gameInstance; }
 };
