@@ -52,6 +52,11 @@ TArray<FVector> UPW_SpawnPointsHandlerComponent::GetEnemySpawnPoint()
 	return _enemySpawnPoints.spawnPoints;
 }
 
+FVector UPW_SpawnPointsHandlerComponent::GetCurrencySpawnPoint()
+{
+	return ConvertToWorldLocation(_debtCollectorSpawnPoint.GetRandomSpawnPoint());
+}
+
 FVector UPW_SpawnPointsHandlerComponent::ConvertToWorldLocation(FVector location)
 {
 	return  GetComponentLocation() + GetComponentTransform().TransformVector(location);

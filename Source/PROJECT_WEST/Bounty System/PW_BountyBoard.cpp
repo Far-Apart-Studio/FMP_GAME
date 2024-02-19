@@ -20,8 +20,7 @@ APW_BountyBoard::APW_BountyBoard()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-
-
+	
 	_root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(_root);
 	

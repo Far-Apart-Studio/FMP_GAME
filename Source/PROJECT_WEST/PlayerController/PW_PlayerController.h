@@ -119,11 +119,6 @@ protected:
 	UFUNCTION( Server, Reliable )
 	void ServerClearVote();
 
-	UFUNCTION(BlueprintCallable)
-	void AddMoney(int32 amount);
-	UFUNCTION(BlueprintCallable)
-	void RemoveMoney(int32 amount);
-
 	UFUNCTION( Server, Reliable )
 	void SeverAddMoney(int32 amount);
 	UFUNCTION( Server, Reliable )
@@ -204,6 +199,19 @@ public:
 
 	UFUNCTION( Client, Reliable )
 	void ClientDayChanged(int32 day);
+
+	
+	UFUNCTION(BlueprintCallable)
+	void AddMoney(int32 amount);
+	UFUNCTION(BlueprintCallable)
+	void RemoveMoney(int32 amount);
+
+	void CollectCurrency(class APW_Currency* currency);
+
+	UFUNCTION( Server, Reliable )
+	void ServerCollectCurrency(class APW_Currency* currency);
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiCollectCurrency(class APW_Currency* currency);
 
 	bool IsAlive();
 };

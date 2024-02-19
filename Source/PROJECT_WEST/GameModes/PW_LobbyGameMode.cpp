@@ -15,6 +15,7 @@
 #include "PROJECT_WEST/Bounty System/PW_TransitionPortal.h"
 #include "PROJECT_WEST/Gameplay/PW_DebtCollector.h"
 #include "PROJECT_WEST/Gameplay/PW_SpawnPointsManager.h"
+#include "PROJECT_WEST/Items/PW_Currency.h"
 
 APW_LobbyGameMode::APW_LobbyGameMode()
 {
@@ -53,6 +54,9 @@ void APW_LobbyGameMode::BeginPlay()
 	{
 		_bountyBoard->ToggleActivation(true);
 	}
+
+	// to be removed
+	SpawnCurrency();
 }
 
 void APW_LobbyGameMode::LoadGameSessionData()
@@ -93,6 +97,22 @@ void APW_LobbyGameMode::TriggerDebtCollector()
 	{
 		_debtCollector->SetDebtAmount(_gameInstance->GetGameSessionData()._dayIndex);
 		_debtCollector->_onInteract.AddDynamic(this, &APW_LobbyGameMode::OnDebtCollectorInteract);
+	}
+}
+
+void APW_LobbyGameMode::OnCurrencyCollected(APW_Currency* Currency)
+{
+	Currency->Destroy();
+}
+
+void APW_LobbyGameMode::SpawnCurrency()
+{
+	if (!_currencyClass || !_spawnPointsHandlerComponent) return;
+	APW_Currency* currency = GetWorld()->SpawnActor<APW_Currency>(_currencyClass, _spawnPointsHandlerComponent->_currencySpawnPoint.GetRandomSpawnPoint(), FRotator::ZeroRotator);
+	if (currency)
+	{
+		//currency->_onCollected.AddDynamic(this, &APW_LobbyGameMode::OnCurrencyCollected);
+		DEBUG_STRING( "Currency SpawnCurrency" );
 	}
 }
 

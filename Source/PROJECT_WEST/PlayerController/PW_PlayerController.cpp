@@ -17,6 +17,7 @@
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "PROJECT_WEST/PW_ConsoleCommandManager.h"
 #include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
+#include "PROJECT_WEST/Items/PW_Currency.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -639,6 +640,33 @@ void APW_PlayerController::RemoveMoney(int32 amount)
 	{
 		SeverRemoveMoney(amount);
 	}
+}
+
+void APW_PlayerController::CollectCurrency(APW_Currency* currency)
+{
+	AddMoney(currency->GetCurrentValue());
+	
+	if (HasAuthority())
+	{
+		MultiCollectCurrency(currency);
+	}
+	else
+	{
+		ServerCollectCurrency(currency);
+	}
+}
+
+void APW_PlayerController::ServerCollectCurrency_Implementation(APW_Currency* currency)
+{
+	if (HasAuthority())
+	{
+		MultiCollectCurrency(currency);
+	}
+}
+
+void APW_PlayerController::MultiCollectCurrency_Implementation(APW_Currency* currency)
+{
+	currency->Destroy();
 }
 
 void APW_PlayerController::SeverAddMoney_Implementation(int32 amount)
