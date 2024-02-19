@@ -74,7 +74,6 @@ void APW_PlayerController::Tick(float DeltaTime)
 void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
 	DOREPLIFETIME( APW_PlayerController, _matchState );
 }
 

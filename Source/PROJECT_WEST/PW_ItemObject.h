@@ -8,6 +8,8 @@
 #include "Interfaces/PW_InteractableInterface.h"
 #include "PW_ItemObject.generated.h"
 
+class APW_Character;
+
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
@@ -50,7 +52,9 @@ public:
 	APW_ItemObject();
 	
 	virtual void Tick(float DeltaTime) override;
-	virtual void Use() { DEBUG_STRING("USE ITEM"); }
+	
+	virtual void ApplyBindingActions(APW_Character* characterOwner) {}
+	virtual void RemoveBindingActions(APW_Character* characterOwner) {}
 
 	void UpdateItemState(EItemObjectState updatedState);
 	void UpdateItemType(EItemType updatedType);

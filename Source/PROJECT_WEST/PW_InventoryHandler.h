@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "PW_InventorySlot.h"
-#include "PW_ItemObject.h"
 #include "PW_Utilities.h"
+#include "PW_WeaponObject.h"
 #include "Components/ActorComponent.h"
-#include "Items/PW_Item.h"
 #include "PW_InventoryHandler.generated.h"
 
 class APW_ItemObject;
 class UPW_InventorySlot;
 class APW_Character;
+class APW_WeaponObject;
 struct FInventorySlot;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -25,6 +25,9 @@ private:
 	//DEBUG THINGS >>
 	UPROPERTY(EditAnywhere, Category = "Inventory")
 	TSubclassOf<APW_ItemObject> _spawnItemClass;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TSubclassOf<APW_WeaponObject> _spawnWeaponClass;
 	//DEBUG THINGS <<
 	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Inventory")
@@ -51,13 +54,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	void ChangeSlot(const UPW_InventorySlot* updatedSlot);
+	void ChangeSlot(const UPW_InventorySlot* updatedSlot, bool forceChangeSlot = false);
 	void DropCurrentItem();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	void UseCurrentItem();
+	
 	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
 	bool TryCollectItem(APW_ItemObject* collectedItem);
 	bool TryDropItem(UPW_InventorySlot* currentSlot);
@@ -92,11 +93,6 @@ public:
 	{
 		UPW_InventorySlot* currentSlot = GetCurrentSlot();
 		bool droppedItem = TryDropItem(currentSlot);
-	}
-	UFUNCTION(BlueprintCallable)
-	void DebugUseItem()
-	{
-		UseCurrentItem();
 	}
 	// >>>>>>>> DEBUG FUNCTIONS <<<<<<<<<
 };

@@ -21,6 +21,9 @@ void UPW_InventoryHandler::BeginPlay()
 	GetOwnerCharacter();
 	CreateInventoryConfiguration();
 
+	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
+	ChangeSlot(currentSlot, true);
+
 	//DEBUG THINGS >>
 	FTimerHandle spawnItemTimer;
 	GetWorld()->GetTimerManager().SetTimer(spawnItemTimer, this,
@@ -32,33 +35,17 @@ void UPW_InventoryHandler::SpawnItem()
 {
 	APW_ItemObject* newItem = GetWorld()->SpawnActor<APW_ItemObject>(_spawnItemClass,
 		FVector(0, 0, 0), FRotator(0, 0, 0));
-	
+
+	APW_WeaponObject* newWeapon = GetWorld()->SpawnActor<APW_WeaponObject>(_spawnWeaponClass,
+		FVector(0, 0, 0), FRotator(0, 0, 0));
+
+	TryCollectItem(newWeapon);
 	TryCollectItem(newItem);
 }
 
 void UPW_InventoryHandler::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-void UPW_InventoryHandler::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-}
-
-void UPW_InventoryHandler::UseCurrentItem()
-{
-	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
-
-	if (currentSlot == nullptr)
-		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
-
-	APW_ItemObject* currentItem = currentSlot->GetCurrentItem();
-	
-	if (currentItem == nullptr)
-		{ PW_Utilities::Log("CURRENT ITEM IS NULL!"); return; }
-
-	currentItem->Use();
 }
 
 bool UPW_InventoryHandler::TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot)
@@ -72,14 +59,14 @@ bool UPW_InventoryHandler::TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot
 	return true;
 }
 
-void UPW_InventoryHandler::ChangeSlot(const UPW_InventorySlot* updatedSlot)
+void UPW_InventoryHandler::ChangeSlot(const UPW_InventorySlot* updatedSlot, bool forceChangeSlot)
 {
 	if (updatedSlot == nullptr)
 		{ PW_Utilities::Log("UPDATED SLOT IS NULL!"); return; }
 	
 	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
 
-	if (currentSlot == updatedSlot)
+	if (currentSlot == updatedSlot && !forceChangeSlot)
 		{ PW_Utilities::Log("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
 
 	APW_ItemObject* currentItem = currentSlot->GetCurrentItem();
@@ -113,6 +100,11 @@ bool UPW_InventoryHandler::TryCollectItem(APW_ItemObject* collectedItem)
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	collectedItem->SetItemState(EItemObjectState::EHeld);
 	collectedItem->SetOwner(_ownerCharacter);
+	collectedItem->SetVisibility(false);
+
+	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
+	ChangeSlot(currentSlot, true);
+	
 	return true;
 }
 
@@ -127,10 +119,13 @@ bool UPW_InventoryHandler::TryDropItem(UPW_InventorySlot* currentSlot)
 		{ PW_Utilities::Log("SLOT IS EMPTY!"); return false; }
 
 	currentSlot->RemoveItem();
+
+	slotItem->RemoveBindingActions(_ownerCharacter);
 	slotItem->UpdateItemState(EItemObjectState::EDropped);
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	slotItem->SetItemState(EItemObjectState::EDropped);
 	slotItem->SetOwner(nullptr);
+	
 	return true;
 }
 
@@ -166,6 +161,7 @@ void UPW_InventoryHandler::ShowItem(APW_ItemObject* selectedItem)
 		{ PW_Utilities::Log("SELECTED ITEM IS NULL!"); return; }
 	
 	selectedItem->SetVisibility(true);
+	selectedItem->ApplyBindingActions(_ownerCharacter);
 }
 
 void UPW_InventoryHandler::HideItem(APW_ItemObject* selectedItem)
@@ -174,6 +170,7 @@ void UPW_InventoryHandler::HideItem(APW_ItemObject* selectedItem)
 		{ PW_Utilities::Log("SELECTED ITEM IS NULL!"); return; }
 	
 	selectedItem->SetVisibility(false);
+	selectedItem->RemoveBindingActions(_ownerCharacter);
 }
 
 void UPW_InventoryHandler::GetOwnerCharacter()
