@@ -90,7 +90,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DebugDropItem()
 	{
-		
+		UPW_InventorySlot* currentSlot = GetCurrentSlot();
+		bool droppedItem = TryDropItem(currentSlot);
 	}
 	UFUNCTION(BlueprintCallable)
 	void DebugUseItem()

@@ -59,8 +59,6 @@ public:
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
-	virtual void EndInteract_Implementation() override;
-	virtual bool IsInteracting_Implementation() override;
 
 	FORCEINLINE EItemType GetItemType() const { return _itemType; }
 	FORCEINLINE EItemObjectState GetItemState() const { return _itemState; }

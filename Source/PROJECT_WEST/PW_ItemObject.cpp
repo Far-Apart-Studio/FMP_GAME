@@ -87,16 +87,6 @@ void APW_ItemObject::StartInteract_Implementation(AActor* owner)
 		inventoryHandler->TryCollectItem(this);
 }
 
-void APW_ItemObject::EndInteract_Implementation()
-{
-	
-}
-
-bool APW_ItemObject::IsInteracting_Implementation()
-{
-	return false;
-}
-
 void APW_ItemObject::EnterHeldState()
 {
 	if (_itemMesh == nullptr)

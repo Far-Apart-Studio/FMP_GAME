@@ -118,13 +118,15 @@ bool UPW_InventoryHandler::TryCollectItem(APW_ItemObject* collectedItem)
 
 bool UPW_InventoryHandler::TryDropItem(UPW_InventorySlot* currentSlot)
 {
+	if (currentSlot == nullptr)
+		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return false; }
+	
 	APW_ItemObject* slotItem = currentSlot->GetCurrentItem();
 	
 	if (slotItem == nullptr)
 		{ PW_Utilities::Log("SLOT IS EMPTY!"); return false; }
 
 	currentSlot->RemoveItem();
-
 	slotItem->UpdateItemState(EItemObjectState::EDropped);
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	slotItem->SetItemState(EItemObjectState::EDropped);
