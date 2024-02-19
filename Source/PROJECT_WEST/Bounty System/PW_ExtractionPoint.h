@@ -33,6 +33,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	class UStaticMeshComponent* _mesh;
+
+	UPROPERTY(VisibleAnywhere)
+	class UStaticMeshComponent* _becon;
 	
 	UPROPERTY (VisibleAnywhere)
 	class UBoxComponent* _extractionBox;

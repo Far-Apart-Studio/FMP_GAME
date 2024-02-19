@@ -173,6 +173,32 @@ void APW_BountyBoard::PopulateBountyDataList()
 	DEBUG_STRING( "Populate New BountyDataList from GameMode and save to GameInstance.");
 }
 
+void APW_BountyBoard::RefereshBountyDataList()
+{
+	_bountyDataList.Empty();
+	
+	APW_LobbyGameMode* gameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
+	if (!gameMode) return;
+
+	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
+	if (!gameInstance) return;
+	
+	TArray<EBountyDifficulty> difficulties;
+	difficulties.Add(EBountyDifficulty::EBD_OneStar);
+	difficulties.Add(EBountyDifficulty::EBD_TwoStar);
+	difficulties.Add(EBountyDifficulty::EBD_ThreeStar);
+	difficulties.Add(EBountyDifficulty::EBD_FourStar);
+	_bountyDataList = gameMode->GetBountySystemComponent()->GetBountyDataList(difficulties);
+
+	if (gameInstance)
+	{
+		gameInstance->GetGameSessionData()._bountyDataList = _bountyDataList;
+	}
+	_bountyDataListChanged.Broadcast(_bountyDataList);
+	PopulateBountyVoteData(_bountyDataList.Num());
+	DEBUG_STRING( "Populate New BountyDataList from GameMode and save to GameInstance.");
+}
+
 void APW_BountyBoard::PopulateBountyVoteData(int numberOfBounties)
 {
 	_bountyVoteData._bountyVoteDataList.Empty();
