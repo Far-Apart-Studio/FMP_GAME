@@ -245,7 +245,11 @@ void UPW_WeaponHandlerComponent::ServerApplyDamage_Implementation(const FHitResu
 
 void UPW_WeaponHandlerComponent::LocalApplyDamage(const FHitResult& hitResult)
 {
-	TryGetCurrentWeapon()->SubtractCurrentAmmo(1);
+	APW_Weapon* currentWeapon = TryGetCurrentWeapon();
+	if (currentWeapon == nullptr)
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+
+	currentWeapon->SubtractCurrentAmmo(1);
 	
 	AActor* hitActor = hitResult.GetActor();
 
