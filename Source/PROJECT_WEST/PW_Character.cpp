@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
+
+#include "DebugMacros.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -99,6 +101,18 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookUpAxisPressed);
 	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookRightAxisPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APW_Character::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APW_Character::AimButtonReleased);
+}
+
+void APW_Character::AimButtonPressed()
+{
+	OnAimButtonPressed.Broadcast();
+}
+
+void APW_Character::AimButtonReleased()
+{
+	OnAimButtonReleased.Broadcast();
 }
 
 void APW_Character::StartInteractButtonPressed()

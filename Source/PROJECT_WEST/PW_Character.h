@@ -39,22 +39,53 @@ public:
 	
 	APW_Character();
 
+
+	UPROPERTY(BlueprintAssignable)
+	FButtonPressedDelegate OnAimButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
+	FButtonPressedDelegate OnAimButtonReleased;
+	
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnShootButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnShootReleaseDelegate;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnReloadButtonPressed;
 
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnPickUpButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnDropButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnCycleItemButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnLeftGameDelegate;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnStartInteractButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnEndInteractButtonPressed;
 
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnJumpButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnCrouchButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnSprintButtonPressed;
-	
+
+	UPROPERTY(BlueprintAssignable)
 	FAxisModifiedDelegate OnMoveForwardAxisPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FAxisModifiedDelegate OnMoveRightAxisPressed;
 	
 	void Elim(bool leftGame);
@@ -83,7 +114,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
+	void AimButtonPressed();
+	void AimButtonReleased();
 	void JumpButtonPressed();
 	void UseButtonPressed();
 	void UseButtonReleased();
