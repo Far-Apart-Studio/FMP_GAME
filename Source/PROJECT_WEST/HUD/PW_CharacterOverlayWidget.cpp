@@ -11,7 +11,6 @@
 void UPW_CharacterOverlayWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	_timeText = Cast<UTextBlock>(GetWidgetFromName(TEXT("_timeText")));
 	_highPingImage = Cast<UImage>(GetWidgetFromName(TEXT("_highPingImage")));
 	_highPingAnimation = Cast<UWidgetAnimation>(GetWidgetFromName(TEXT("_highPingAnimation")));
 }
@@ -44,16 +43,4 @@ bool UPW_CharacterOverlayWidget::IsHighPingWarningPlaying()
 		return IsAnimationPlaying(_highPingAnimation);
 	}
 	return false;
-}
-
-void UPW_CharacterOverlayWidget::SetTimeText(const FString& String)
-{
-	if (_timeText)
-	{
-		_timeText->SetText(FText::FromString(String));
-	}
-	else
-	{
-		DEBUG_STRING( "Time Text is null" );
-	}
 }

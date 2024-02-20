@@ -87,6 +87,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))
 	float _timeSyncRuningTime;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FString _timeText;
+
 protected:
 	
 	virtual void BeginPlay() override;

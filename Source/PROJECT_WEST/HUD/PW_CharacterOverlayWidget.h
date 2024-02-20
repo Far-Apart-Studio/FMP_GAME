@@ -17,9 +17,6 @@ class PROJECT_WEST_API UPW_CharacterOverlayWidget : public UUserWidget
 private:
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* _timeText;
-
-	UPROPERTY(meta = (BindWidget))
 	class UImage* _highPingImage;
 
 	UPROPERTY(meta = (BindWidgetAnim) ,Transient)
@@ -31,5 +28,4 @@ public:
 	void StartHighPingWarning();
 	void StopHighPingWarning();
 	bool IsHighPingWarningPlaying();
-	void SetTimeText(const FString& String);
 };

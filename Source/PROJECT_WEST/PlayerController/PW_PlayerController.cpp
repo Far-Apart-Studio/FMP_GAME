@@ -71,7 +71,7 @@ void APW_PlayerController::Tick(float DeltaTime)
 		SyncTimeWithServer(DeltaTime);
 	}
 
-	HandleCheckPing(DeltaTime);
+	//HandleCheckPing(DeltaTime);
 }
 
 void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -276,10 +276,9 @@ void APW_PlayerController::SetMatchCountdown(float time)
 		if (time < 0)
 		{
 			time = 0;
-			_characterOverlayWidget->SetTimeText("00:00");
+			_timeText = "00:00";
 		}
-		
-		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+		_timeText = ConvertToTime(time);
 		//DEBUG_STRING ( ConvertToTime(time) );
 	}
 	else
@@ -295,9 +294,9 @@ void APW_PlayerController::SetMatchEndCountdown(float time)
 		if (time < 0)
 		{
 			time = 0;
-			_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+			_timeText = "00:00";
 		}
-		_characterOverlayWidget->SetTimeText(ConvertToTime(time));
+		_timeText = ConvertToTime(time);
 		//DEBUG_STRING( ConvertToTime(time) );
 	}
 	else
