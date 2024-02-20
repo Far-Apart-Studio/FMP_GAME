@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "PW_InventorySlot.h"
-#include "PW_Utilities.h"
 #include "PW_WeaponObject.h"
 #include "Components/ActorComponent.h"
 #include "PW_InventoryHandler.generated.h"

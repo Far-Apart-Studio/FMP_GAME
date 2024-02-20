@@ -70,8 +70,8 @@ private:
 	
 	class APW_Character* _character;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	class UPW_HighlightCompont* _highlightComponent;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	//class UPW_HighlightCompont* _highlightComponent;
 
 	UFUNCTION()
 	void OnRep_BountyListChanged();
