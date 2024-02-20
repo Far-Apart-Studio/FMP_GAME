@@ -181,6 +181,15 @@ public:
 	UFUNCTION( Client, Reliable )
 	void ClientTogglePlayerInput(bool bEnable);
 
+	UFUNCTION( Client, Reliable )
+	void ClientToggleGravity(bool bEnable);
+
+	UFUNCTION( Client, Reliable )
+	void ClientActivateTrapMode(AActor* trap);
+
+	UFUNCTION( Client, Reliable )
+	void ClientDeactivateTrapMode();
+
 	virtual float GetServerTime(); // Synced with server world clock
 
 	UFUNCTION( Server, Reliable )
