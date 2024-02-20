@@ -74,27 +74,4 @@ public:
 	FORCEINLINE void CyclePreviousSlot();
 	
 	UFUNCTION() void CycleSlot();
-
-	// >>>>>>>> DEBUG FUNCTIONS <<<<<<<<<
-	void SpawnItem();
-	UFUNCTION(BlueprintCallable)
-	void DebugSwitchSlot(int slotIndex)
-	{
-		UPW_InventorySlot* updatedSlot = nullptr;
-		const bool foundSlot = TryGetSlot(slotIndex, updatedSlot);
-
-		if (!foundSlot)
-			{ PW_Utilities::Log("NO SLOT FOUND!"); return; }
-
-		ChangeSlot(updatedSlot);
-		_currentSlotIndex = slotIndex;
-	}
-	
-	UFUNCTION(BlueprintCallable)
-	void DebugDropItem()
-	{
-		UPW_InventorySlot* currentSlot = GetCurrentSlot();
-		bool droppedItem = TryDropItem(currentSlot);
-	}
-	// >>>>>>>> DEBUG FUNCTIONS <<<<<<<<<
 };
