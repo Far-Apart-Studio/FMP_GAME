@@ -70,13 +70,15 @@ private:
 	
 	class APW_Character* _character;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	class UPW_HighlightCompont* _highlightComponent;
+
 	UFUNCTION()
 	void OnRep_BountyListChanged();
 
 	UPROPERTY(ReplicatedUsing = OnRep_BountyVoteChanged, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FBountyVoteData _bountyVoteData;
-
-
+	
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	bool _isActivated;
 
@@ -100,8 +102,6 @@ public:
 	int32 GetBountyIndexWithHighestVotes();
 
 	FBountyDataEntry GetBountyWithHighestVotes();
-
-	void ToggleHighlight(bool status);
 
 	UFUNCTION(BlueprintCallable, Category = "Info" )
 	void AddVoteToBounty(int32 bountyIndex);
