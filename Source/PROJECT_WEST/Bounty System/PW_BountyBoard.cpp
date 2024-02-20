@@ -15,6 +15,7 @@
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "Camera/CameraComponent.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_HighlightCompont.h"
 
 APW_BountyBoard::APW_BountyBoard()
 {
@@ -37,6 +38,9 @@ APW_BountyBoard::APW_BountyBoard()
 
 	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	_cameraComponent->SetupAttachment(_cameraPosition);
+
+	_highlightComponent = CreateDefaultSubobject<UPW_HighlightCompont>(TEXT("HighlightComponent"));
+	_highlightComponent->RegisterComponent();
 }
 
 void APW_BountyBoard::BeginPlay()
@@ -68,13 +72,13 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 void APW_BountyBoard::StartFocus_Implementation()
 {
 	if (!_isActivated) return;
-	ToggleHighlight (true);
+	_highlightComponent->ShowHighlight();
 }
 
 void APW_BountyBoard::EndFocus_Implementation()
 {
 	if (!_isActivated) return;
-	ToggleHighlight (false);
+	_highlightComponent->HideHighlight();
 }
 
 void APW_BountyBoard::EndInteract_Implementation()
@@ -249,9 +253,4 @@ int32 APW_BountyBoard::GetBountyIndexWithHighestVotes()
 FBountyDataEntry APW_BountyBoard::GetBountyWithHighestVotes()
 {
 	return  _bountyDataList [GetBountyIndexWithHighestVotes()];
-}
-
-void APW_BountyBoard::ToggleHighlight(bool status)
-{
-	_bountyBoardMesh->SetRenderCustomDepth(status);
 }
