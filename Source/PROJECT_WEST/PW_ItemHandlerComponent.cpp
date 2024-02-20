@@ -23,7 +23,7 @@ void UPW_ItemHandlerComponent::BeginPlay()
 	{
 		_ownerCharacter->OnStartInteractButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::TryPickUpItemNearBy);
 		_ownerCharacter->OnDropButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::TryDropItemHeld);
-		_ownerCharacter->OnSwitchItemButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::DoSwitchItem);
+		_ownerCharacter->OnCycleItemButtonPressed.AddDynamic(this, &UPW_ItemHandlerComponent::DoSwitchItem);
 	}
 }
 

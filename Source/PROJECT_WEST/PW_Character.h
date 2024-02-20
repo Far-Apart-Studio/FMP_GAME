@@ -45,7 +45,7 @@ public:
 
 	FButtonPressedDelegate OnPickUpButtonPressed;
 	FButtonPressedDelegate OnDropButtonPressed;
-	FButtonPressedDelegate OnSwitchItemButtonPressed;
+	FButtonPressedDelegate OnCycleItemButtonPressed;
 	FButtonPressedDelegate OnLeftGameDelegate;
 	FButtonPressedDelegate OnStartInteractButtonPressed;
 	FButtonPressedDelegate OnEndInteractButtonPressed;
