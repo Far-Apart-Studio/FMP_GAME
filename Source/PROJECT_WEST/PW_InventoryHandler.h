@@ -70,8 +70,10 @@ public:
 
 	FORCEINLINE UPW_InventorySlot* GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
 	FORCEINLINE UPW_InventorySlot* GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
-	FORCEINLINE UPW_InventorySlot* GetNextSlot() { return GetSlot(_currentSlotIndex + 1); }
-	FORCEINLINE UPW_InventorySlot* GetPreviousSlot() { return GetSlot(_currentSlotIndex - 1); }
+	FORCEINLINE void CycleNextSlot(); 
+	FORCEINLINE void CyclePreviousSlot();
+	
+	UFUNCTION() void CycleSlot();
 
 	// >>>>>>>> DEBUG FUNCTIONS <<<<<<<<<
 	void SpawnItem();

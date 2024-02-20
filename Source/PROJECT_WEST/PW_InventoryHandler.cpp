@@ -17,30 +17,12 @@ void UPW_InventoryHandler::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AssignInputActions();
 	GetOwnerCharacter();
+	AssignInputActions();
 	CreateInventoryConfiguration();
 
 	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
 	ChangeSlot(currentSlot, true);
-
-	//DEBUG THINGS >>
-	FTimerHandle spawnItemTimer;
-	GetWorld()->GetTimerManager().SetTimer(spawnItemTimer, this,
-		&UPW_InventoryHandler::SpawnItem, 2.0f, false);
-	//DEBUG THINGS <<
-}
-
-void UPW_InventoryHandler::SpawnItem()
-{
-	APW_ItemObject* newItem = GetWorld()->SpawnActor<APW_ItemObject>(_spawnItemClass,
-		FVector(0, 0, 0), FRotator(0, 0, 0));
-
-	APW_WeaponObject* newWeapon = GetWorld()->SpawnActor<APW_WeaponObject>(_spawnWeaponClass,
-		FVector(0, 0, 0), FRotator(0, 0, 0));
-
-	TryCollectItem(newWeapon);
-	TryCollectItem(newItem);
 }
 
 void UPW_InventoryHandler::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -119,7 +101,6 @@ bool UPW_InventoryHandler::TryDropItem(UPW_InventorySlot* currentSlot)
 		{ PW_Utilities::Log("SLOT IS EMPTY!"); return false; }
 
 	currentSlot->RemoveItem();
-
 	slotItem->RemoveBindingActions(_ownerCharacter);
 	slotItem->UpdateItemState(EItemObjectState::EDropped);
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
@@ -152,7 +133,7 @@ bool UPW_InventoryHandler::TryGetAvailableSlot(EItemType itemType, UPW_Inventory
 		outSlot = inventorySlot;
 		return true;
 	}
-	return false;
+	return false; 
 }
 
 void UPW_InventoryHandler::ShowItem(APW_ItemObject* selectedItem)
@@ -196,8 +177,49 @@ void UPW_InventoryHandler::CreateInventoryConfiguration()
 	}
 }
 
+void UPW_InventoryHandler::CycleNextSlot()
+{
+	const int targetedSlotIndex = _currentSlotIndex + 1;
+	constexpr int overflowSlotIndex = 0;
+	const bool isIndexValid = _inventorySlots.IsValidIndex(targetedSlotIndex);
+
+	if (isIndexValid)
+	{
+		const UPW_InventorySlot* targetedSlot = GetSlot(targetedSlotIndex);
+		ChangeSlot(targetedSlot);
+		_currentSlotIndex = targetedSlotIndex;
+	}
+	else
+	{
+		const UPW_InventorySlot* errorSlot = GetSlot(overflowSlotIndex);
+		ChangeSlot(errorSlot);
+		_currentSlotIndex = overflowSlotIndex;
+	}
+}
+
+void UPW_InventoryHandler::CyclePreviousSlot()
+{
+	const int targetedSlotIndex = _currentSlotIndex - 1;
+	const int overflowSlotIndex = _inventorySlots.Num() - 1;
+	const bool isIndexValid = _inventorySlots.IsValidIndex(targetedSlotIndex);
+	const UPW_InventorySlot* errorSlot = GetSlot(overflowSlotIndex);
+	const UPW_InventorySlot* targetedSlot = GetSlot(targetedSlotIndex);
+
+	ChangeSlot(!isIndexValid ? errorSlot : targetedSlot);
+	_currentSlotIndex = !isIndexValid ? overflowSlotIndex : targetedSlotIndex;
+}
+
+void UPW_InventoryHandler::CycleSlot()
+{
+	CycleNextSlot();
+}
+
+
 void UPW_InventoryHandler::AssignInputActions()
 {
+	if (_ownerCharacter == nullptr)
+		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
 	
+	_ownerCharacter->OnCycleItemButtonPressed.AddDynamic(this, &UPW_InventoryHandler::CycleSlot);
 }
 

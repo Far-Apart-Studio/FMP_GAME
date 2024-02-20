@@ -94,7 +94,7 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::StartInteractButtonPressed);
 	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::EndInteractButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
-	PlayerInputComponent->BindAction("Switch", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
+	PlayerInputComponent->BindAction("Cycle", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
 	PlayerInputComponent->BindAxis("MoveForward", this, &APW_Character::MoveForwardAxisPressed);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
 	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookUpAxisPressed);
@@ -197,7 +197,7 @@ void APW_Character::PickUpButtonPressed()
 
 void APW_Character::SwitchItemButtonPressed()
 {
-	OnSwitchItemButtonPressed.Broadcast();
+	OnCycleItemButtonPressed.Broadcast();
 }
 
 void APW_Character::DropButtonPressed()

@@ -23,6 +23,7 @@ APW_ItemObject::APW_ItemObject()
 void APW_ItemObject::BeginPlay()
 {
 	Super::BeginPlay();
+	EnterDroppedState();
 }
 
 void APW_ItemObject::Tick(float DeltaTime)
