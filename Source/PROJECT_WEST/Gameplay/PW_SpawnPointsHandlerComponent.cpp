@@ -56,9 +56,10 @@ TArray<FVector> UPW_SpawnPointsHandlerComponent::GetRandomCurrencySpawnPoints(in
 {
 	TArray<FVector> avaliableSlots = _currencySpawnPoint.spawnPoints;
 	TArray<FVector> result;
+	if(amount > avaliableSlots.Num()) amount = avaliableSlots.Num();
+	
 	for (int32 i = 0; i < amount; i++)
 	{
-		if (i >= avaliableSlots.Num()) break;
 		int32 index = FMath::RandRange(0, avaliableSlots.Num() - 1);
 		result.Add(ConvertToWorldLocation(avaliableSlots[index]));
 		avaliableSlots.RemoveAt(index);

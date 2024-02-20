@@ -40,9 +40,6 @@ protected:
 	class APW_SpawnPointsManager* _spawnPointsManager;
 	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
-	TSubclassOf<class APW_Currency> _currencyClass;
-
 public:
 
 	void BeginPlay() override;
@@ -57,8 +54,6 @@ public:
 
 	UFUNCTION()
 	void OnCurrencyCollected(APW_Currency* Currency);
-	
-	void SpawnCurrency();
 
 	void ResetSessionData();
 	

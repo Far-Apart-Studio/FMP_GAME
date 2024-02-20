@@ -54,9 +54,6 @@ void APW_LobbyGameMode::BeginPlay()
 	{
 		_bountyBoard->ToggleActivation(true);
 	}
-
-	// to be removed
-	SpawnCurrency();
 }
 
 void APW_LobbyGameMode::LoadGameSessionData()
@@ -103,22 +100,6 @@ void APW_LobbyGameMode::TriggerDebtCollector()
 void APW_LobbyGameMode::OnCurrencyCollected(APW_Currency* Currency)
 {
 	Currency->Destroy();
-}
-
-void APW_LobbyGameMode::SpawnCurrency()
-{
-	if (!_currencyClass || !_spawnPointsHandlerComponent) return;
-	TArray<FVector> currencySpawnPoints = _spawnPointsHandlerComponent->GetRandomCurrencySpawnPoints(2);
-	for (FVector spawnPoint : currencySpawnPoints)
-	{
-		APW_Currency* currency = GetWorld()->SpawnActor<APW_Currency>(_currencyClass);
-		if (currency)
-		{
-			currency->SetActorLocation(spawnPoint);
-			currency->SetActorRotation(FRotator(0, 0, 0));
-			currency->SetOwner(nullptr);
-		}
-	}
 }
 
 void APW_LobbyGameMode::ResetSessionData()

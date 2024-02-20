@@ -57,6 +57,10 @@ public:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<class APW_Currency> _currencyClass;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
+	int32 _numOfCurrencies;
+	
 	
 	APW_Lantern* _lantern;
 

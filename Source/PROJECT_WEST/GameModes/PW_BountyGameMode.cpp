@@ -32,7 +32,7 @@ APW_BountyGameMode::APW_BountyGameMode()
 	_matchStartTime = 0.f;
 	_matchTime = 120.f;
 	_mathEndCooldownTime = 10.f;
-
+	_numOfCurrencies = 1;
 	//bDelayedStart = true; use if you want to delay the start of the game
 }
 
@@ -347,7 +347,7 @@ void APW_BountyGameMode::SpawnEnemies()
 void APW_BountyGameMode::SpawnCurrencies()
 {
 	if (!_currencyClass || !_spawnPointsHandlerComponent) return;
-	TArray<FVector> currencySpawnPoints = _spawnPointsHandlerComponent->GetRandomCurrencySpawnPoints(1);
+	TArray<FVector> currencySpawnPoints = _spawnPointsHandlerComponent->GetRandomCurrencySpawnPoints(_numOfCurrencies);
 	for (FVector spawnPoint : currencySpawnPoints)
 	{
 		APW_Currency* currency = GetWorld()->SpawnActor<APW_Currency>(_currencyClass);
