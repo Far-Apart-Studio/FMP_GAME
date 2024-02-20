@@ -39,7 +39,6 @@ public:
 	
 	APW_Character();
 
-
 	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnAimButtonPressed;
 
@@ -115,6 +114,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	void ReloadButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
 	void JumpButtonPressed();

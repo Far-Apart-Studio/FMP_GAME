@@ -103,6 +103,12 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookRightAxisPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APW_Character::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APW_Character::AimButtonReleased);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APW_Character::ReloadButtonPressed);
+}
+
+void APW_Character::ReloadButtonPressed()
+{
+	OnReloadButtonPressed.Broadcast();
 }
 
 void APW_Character::AimButtonPressed()
