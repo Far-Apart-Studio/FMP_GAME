@@ -2,6 +2,8 @@
 
 
 #include "PW_PlayerController.h"
+
+#include "GameFramework/CharacterMovementComponent.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "GameFramework/PlayerState.h"
 #include "PROJECT_WEST/HUD/PW_HUD.h"
@@ -77,6 +79,36 @@ void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME( APW_PlayerController, _matchState );
+}
+
+void APW_PlayerController::ClientToggleGravity_Implementation(bool bEnable)
+{
+	const APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		character->GetCharacterMovement()->SetMovementMode(bEnable ? EMovementMode::MOVE_Walking : EMovementMode::MOVE_Falling);
+		character->GetCharacterMovement()->GravityScale = bEnable ? 1 : 0;
+		character->GetMesh()->SetEnableGravity(bEnable);
+	}
+}
+
+void APW_PlayerController::ClientActivateTrapMode_Implementation(AActor* trap)
+{
+	APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+		character->GetCharacterMovement()->SetMovementMode( EMovementMode::MOVE_None);
+		character->GetCharacterMovement()->GravityScale =  0;
+		character->GetMesh()->SetEnableGravity(false);
+		character->AttachToComponent(trap->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		character->SetActorLocation(trap->GetActorLocation());
+	}
+}
+
+void APW_PlayerController::ClientDeactivateTrapMode_Implementation()
+{
+	
 }
 
 float APW_PlayerController::GetServerTime()
