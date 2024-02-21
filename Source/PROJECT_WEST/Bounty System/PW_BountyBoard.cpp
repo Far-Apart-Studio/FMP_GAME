@@ -38,9 +38,6 @@ APW_BountyBoard::APW_BountyBoard()
 
 	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	_cameraComponent->SetupAttachment(_cameraPosition);
-
-	//_highlightComponent = CreateDefaultSubobject<UPW_HighlightCompont>(TEXT("HighlightComponent"));
-	//_highlightComponent->RegisterComponent();
 }
 
 void APW_BountyBoard::BeginPlay()
@@ -53,6 +50,8 @@ void APW_BountyBoard::BeginPlay()
 	{
 
 	}
+	
+	_highlightComponent = FindComponentByClass<UPW_HighlightCompont>();
 }
 
 void APW_BountyBoard::Tick(float DeltaTime)
@@ -71,14 +70,16 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void APW_BountyBoard::StartFocus_Implementation()
 {
-	//if (!_isActivated) return;
-	//_highlightComponent->ShowHighlight();
+	if (!_isActivated) return;
+	if(_highlightComponent)
+	_highlightComponent->ShowHighlight();
 }
 
 void APW_BountyBoard::EndFocus_Implementation()
 {
-	//if (!_isActivated) return;
-	//_highlightComponent->HideHighlight();
+	if (!_isActivated) return;
+	if(_highlightComponent)
+	_highlightComponent->HideHighlight();
 }
 
 void APW_BountyBoard::EndInteract_Implementation()
