@@ -18,9 +18,7 @@ class PROJECT_WEST_API UPW_CommandRegistry : public UPW_ConsoleCommand
 public:
 	UFUNCTION(BlueprintCallable, Category = "ConsoleCommands")
 	void IncreaseHealth();
-
+	
+	UFUNCTION(BlueprintCallable, Category = "ConsoleCommands")
 	APW_Character* GetPlayerCharacter();
-
-	
-	
 };
