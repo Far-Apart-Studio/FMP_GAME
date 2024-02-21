@@ -28,13 +28,16 @@ protected:
 	virtual void EndInteract_Implementation() override;
 	virtual bool IsInteracting_Implementation() override;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
-	int32 _debtStartAmount;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	int32 _debtMinStartAmount;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	int32 __debtMaxStartAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtIncreaseAmount;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Info")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtAmount;
 
 public:	

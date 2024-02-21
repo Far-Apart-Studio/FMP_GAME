@@ -57,7 +57,8 @@ void APW_DebtCollector::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void APW_DebtCollector::SetDebtAmount(int32 day)
 {
-	_debtAmount = _debtStartAmount + ((day - 1) * _debtIncreaseAmount);
+	int32 randomAmount = FMath::RandRange(_debtMinStartAmount, __debtMaxStartAmount); 
+	_debtAmount = randomAmount + ((day - 1) * _debtIncreaseAmount);
 }
 
 void APW_DebtCollector::HandleBounty()
