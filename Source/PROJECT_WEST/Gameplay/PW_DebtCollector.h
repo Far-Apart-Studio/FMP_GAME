@@ -32,10 +32,13 @@ protected:
 	int32 _debtMinStartAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	int32 __debtMaxStartAmount;
+	int32 _debtMaxStartAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	int32 _debtIncreaseAmount;
+	int32 _debtMinIncreaseAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	int32 _debtMaxIncreaseAmount;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtAmount;

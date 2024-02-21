@@ -9,6 +9,11 @@ APW_DebtCollector::APW_DebtCollector()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	_debtMinStartAmount = 100;
+	_debtMaxStartAmount = 500;
+
+	_debtMinIncreaseAmount = 100;
+	_debtMaxIncreaseAmount = 500;
 }
 
 void APW_DebtCollector::BeginPlay()
@@ -57,8 +62,9 @@ void APW_DebtCollector::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void APW_DebtCollector::SetDebtAmount(int32 day)
 {
-	int32 randomAmount = FMath::RandRange(_debtMinStartAmount, __debtMaxStartAmount); 
-	_debtAmount = randomAmount + ((day - 1) * _debtIncreaseAmount);
+	const int32 randomAmount = FMath::RandRange(_debtMinStartAmount, _debtMaxStartAmount);
+	const int32 randomIncrease = FMath::RandRange(_debtMinIncreaseAmount, _debtMaxIncreaseAmount);
+	_debtAmount = randomAmount + ((day - 1) * randomIncrease);
 }
 
 void APW_DebtCollector::HandleBounty()
