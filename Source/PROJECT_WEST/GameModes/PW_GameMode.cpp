@@ -10,6 +10,7 @@
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/PW_MultiplayerSessionsSubsystem.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
+#include "PROJECT_WEST/Items/PW_Currency.h"
 
 APW_GameMode::APW_GameMode()
 {
@@ -88,6 +89,12 @@ void APW_GameMode::NotifyPlayersOfMoney()
 			playerController->ClientMoneyValueChanged(_gameInstance->GetGameSessionData()._money);
 		}
 	}
+}
+
+void APW_GameMode::CollectCurrency(APW_Currency* Currency)
+{
+	AddMoney(Currency->GetCurrentValue());
+	Currency->Destroy();
 }
 
 int32 APW_GameMode::GetMoney() const

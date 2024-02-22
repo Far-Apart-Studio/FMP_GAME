@@ -37,6 +37,9 @@ protected:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" , meta = (AllowPrivateAccess = "true") )
 	int32 _bountyCollectorDayInterval;
 
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
+	TSubclassOf<class APW_Currency> _currencyClass;
+
 	class APW_SpawnPointsManager* _spawnPointsManager;
 	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
 
@@ -52,9 +55,6 @@ public:
 	
 	void TryPayDebtCollector();
 	
-	UFUNCTION()
-	void OnCurrencyCollected(APW_Currency* Currency);
-
 	void ResetSessionData();
 	
 	FORCEINLINE UBountySystemComponent* GetBountySystemComponent() const { return _bountySystemComponent; }

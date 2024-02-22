@@ -219,16 +219,13 @@ public:
 	void RemoveMoney(int32 amount);
 
 	void CollectCurrency(class APW_Currency* currency);
-
 	UFUNCTION( Server, Reliable )
 	void ServerCollectCurrency(class APW_Currency* currency);
-	UFUNCTION(NetMulticast, Reliable)
-	void MultiCollectCurrency(class APW_Currency* currency);
+	void LocalCollectCurrency(class APW_Currency* currency);
 
 	bool IsAlive();
 	
 	void PayDebtCollector();
-	
 	UFUNCTION( Server, Reliable )
 	void ServerPayDebtCollector();
 	void LocalPayDebtCollector();

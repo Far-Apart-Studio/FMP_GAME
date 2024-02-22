@@ -55,11 +55,13 @@ public:
 	
 	void AddMoney(int32 amount);
 	void RemoveMoney (int32 amount);
-	void NotifyPlayersOfMoney();;
+	void NotifyPlayersOfMoney();
 	int32 GetMoney() const;
 
 	void SetDay(int day);
 	void NofigyPlayersOfDay();
+
+	void CollectCurrency(class APW_Currency* Currency);;
 
 	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration);
 

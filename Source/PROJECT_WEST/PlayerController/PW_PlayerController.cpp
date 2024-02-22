@@ -703,11 +703,9 @@ void APW_PlayerController::RemoveMoney(int32 amount)
 
 void APW_PlayerController::CollectCurrency(APW_Currency* currency)
 {
-	AddMoney(currency->GetCurrentValue());
-	
 	if (HasAuthority())
 	{
-		MultiCollectCurrency(currency);
+		LocalCollectCurrency(currency);
 	}
 	else
 	{
@@ -719,13 +717,17 @@ void APW_PlayerController::ServerCollectCurrency_Implementation(APW_Currency* cu
 {
 	if (HasAuthority())
 	{
-		MultiCollectCurrency(currency);
+		LocalCollectCurrency(currency);
 	}
 }
 
-void APW_PlayerController::MultiCollectCurrency_Implementation(APW_Currency* currency)
+void APW_PlayerController::LocalCollectCurrency(APW_Currency* currency)
 {
-	currency->Destroy();
+	APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+	if (gameMode)
+	{
+		gameMode->CollectCurrency(currency);
+	}
 }
 
 void APW_PlayerController::SeverAddMoney_Implementation(int32 amount)

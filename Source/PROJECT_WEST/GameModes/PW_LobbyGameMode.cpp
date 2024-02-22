@@ -98,11 +98,6 @@ void APW_LobbyGameMode::TryPayDebtCollector()
 	}
 }
 
-void APW_LobbyGameMode::OnCurrencyCollected(APW_Currency* Currency)
-{
-	Currency->Destroy();
-}
-
 void APW_LobbyGameMode::ResetSessionData()
 {
 	if (_gameInstance)
