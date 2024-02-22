@@ -147,6 +147,35 @@ bool APW_PlayerController::IsAlive()
 	return false;
 }
 
+void APW_PlayerController::PayDebtCollector()
+{
+	if (HasAuthority())
+	{
+		LocalPayDebtCollector();
+	}
+	else
+	{
+		ServerPayDebtCollector();
+	}
+}
+
+void APW_PlayerController::ServerPayDebtCollector_Implementation()
+{
+	if (HasAuthority())
+	{
+		LocalPayDebtCollector();
+	}
+}
+
+void APW_PlayerController::LocalPayDebtCollector()
+{
+	APW_LobbyGameMode* lobbyGameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
+	if (lobbyGameMode)
+	{
+		lobbyGameMode->TryPayDebtCollector();
+	}
+}
+
 void APW_PlayerController::ClientJoinMidGame_Implementation(FName stateOfMatch, float matchTime, float levelStartTime,float endMatchCountdown)
 {
 	_matchState = stateOfMatch;

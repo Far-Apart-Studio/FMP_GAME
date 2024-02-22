@@ -71,20 +71,6 @@ void APW_LobbyGameMode::OnTransitionCompleted()
 	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
 }
 
-void APW_LobbyGameMode::OnDebtCollectorInteract(bool bSuccess)
-{
-	if (bSuccess)
-	{
-		_bountyBoard->ToggleActivation(true);
-		_debtCollector->Destroy();
-	}
-	else
-	{
-		TriggerPlayersAnnouncement("Not enough money to pay the debt collector", FColor::Red, 5.0f);
-		ResetSessionData();
-	}
-}
-
 void APW_LobbyGameMode::TriggerDebtCollector()
 {
 	if (!_debtCollectorClass || !_spawnPointsHandlerComponent) return;
@@ -93,7 +79,22 @@ void APW_LobbyGameMode::TriggerDebtCollector()
 	if (_debtCollector)
 	{
 		_debtCollector->SetDebtAmount(_gameInstance->GetGameSessionData()._dayIndex);
-		_debtCollector->_onInteract.AddDynamic(this, &APW_LobbyGameMode::OnDebtCollectorInteract);
+	}
+}
+
+void APW_LobbyGameMode::TryPayDebtCollector()
+{
+	if (_gameInstance->GetGameSessionData()._money >= _debtCollector->GetDebtAmount())
+	{
+		RemoveMoney(_debtCollector->GetDebtAmount());
+		_bountyBoard->ToggleActivation(true);
+		_debtCollector->Destroy();
+	}
+	else
+	{
+		TriggerPlayersAnnouncement("Not enough money to pay the debt collector", FColor::Red, 5.0f);
+		ResetSessionData();
+		_debtCollector->Destroy();
 	}
 }
 

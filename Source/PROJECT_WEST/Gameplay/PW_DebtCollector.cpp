@@ -2,8 +2,13 @@
 
 
 #include "PW_DebtCollector.h"
+
+#include "Components/PW_HighlightCompont.h"
+#include "Net/UnrealNetwork.h"
 #include  "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "PROJECT_WEST/DebugMacros.h"
+#include "PROJECT_WEST/PW_Character.h"
+#include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 APW_DebtCollector::APW_DebtCollector()
 {
@@ -14,6 +19,7 @@ APW_DebtCollector::APW_DebtCollector()
 
 	_debtMinIncreaseAmount = 100;
 	_debtMaxIncreaseAmount = 500;
+	_isActivated = true;
 }
 
 void APW_DebtCollector::BeginPlay()
@@ -21,37 +27,40 @@ void APW_DebtCollector::BeginPlay()
 	Super::BeginPlay();
 	SetReplicates(true);
 	SetReplicateMovement(true);
+
+	_highlightComponent = FindComponentByClass<UPW_HighlightCompont>();
+}
+
+void APW_DebtCollector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APW_DebtCollector, _isActivated);
 }
 
 void APW_DebtCollector::StartFocus_Implementation()
 {
-	DEBUG_STRING("StartFocus_Implementation");
+	if(_highlightComponent)
+	{
+		_highlightComponent->ShowHighlight();
+	}
 }
 
 void APW_DebtCollector::EndFocus_Implementation()
 {
-	DEBUG_STRING("EndFocus_Implementation");
+	if(_highlightComponent)
+	{
+		_highlightComponent->HideHighlight();
+	}
 }
 
 void APW_DebtCollector::StartInteract_Implementation(AActor* owner)
 {
-	HandleBounty();
-}
-
-void APW_DebtCollector::EndInteract_Implementation()
-{
-
-}
-
-bool APW_DebtCollector::IsInteracting_Implementation()
-{
-	return false;
+	HandleBounty(owner);
 }
 
 void APW_DebtCollector::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void APW_DebtCollector::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -67,39 +76,19 @@ void APW_DebtCollector::SetDebtAmount(int32 day)
 	_debtAmount = randomAmount + ((day - 1) * randomIncrease);
 }
 
-void APW_DebtCollector::HandleBounty()
+void APW_DebtCollector::HandleBounty(AActor* owner)
 {
-	if (HasAuthority())
-	{
-		LocalHandleBounty();
-	}
-	else
-	{
-		ServerHandleBounty();
-	}
-}
+	if (!_isActivated) return;
+	
+	APW_Character* character = Cast<APW_Character>(owner);
+	if (!character) return;
+	
+	APW_PlayerController* playerController = Cast<APW_PlayerController>(character->GetController());
+	if (!playerController) return;
 
-void APW_DebtCollector::ServerHandleBounty_Implementation()
-{
-	if (!HasAuthority()) return;
-	LocalHandleBounty();
-}
+	_isActivated = false;
+	playerController->PayDebtCollector();
 
-void APW_DebtCollector::LocalHandleBounty()
-{
-	APW_GameMode* gameMode = GetWorld()->GetAuthGameMode<APW_GameMode>();
-	if (gameMode)
-	{
-		int32 avaliableMoney =  gameMode->GetMoney();
-		if (avaliableMoney >= _debtAmount)
-		{
-			gameMode->RemoveMoney(_debtAmount);
-			_onInteract.Broadcast(true);
-		}
-		else
-		{
-			_onInteract.Broadcast(false);
-		}
-	}
+	DEBUG_STRING("Debt paid");
 }
 

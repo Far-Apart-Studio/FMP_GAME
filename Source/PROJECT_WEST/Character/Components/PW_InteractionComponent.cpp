@@ -56,6 +56,8 @@ void UPW_InteractionComponent::TraceForInteractable()
 	
 	TArray< TEnumAsByte<EObjectTypeQuery> > objectTypes;
 	objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Visibility));
+	//objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
+	//objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
 	
 	float halfHeight = 10;
 	FHitResult hitResult;

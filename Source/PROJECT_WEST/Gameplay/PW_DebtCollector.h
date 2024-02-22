@@ -7,8 +7,6 @@
 #include "PROJECT_WEST/Interfaces//PW_InteractableInterface.h"
 #include "PW_DebtCollector.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteract,bool, success);
-
 UCLASS()
 class PROJECT_WEST_API APW_DebtCollector : public ACharacter, public IPW_InteractableInterface
 {
@@ -21,12 +19,14 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
-	virtual void EndInteract_Implementation() override;
-	virtual bool IsInteracting_Implementation() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	class UPW_HighlightCompont* _highlightComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtMinStartAmount;
@@ -43,6 +43,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtAmount;
 
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	bool _isActivated;
+
 public:	
 
 	virtual void Tick(float DeltaTime) override;
@@ -51,12 +54,7 @@ public:
 
 	void SetDebtAmount(int32 day);
 
-	FOnInteract _onInteract;
+	void HandleBounty(AActor* owner);
 
-	void HandleBounty();
-
-	UFUNCTION(Server, Reliable)
-	void ServerHandleBounty();
-	
-	void LocalHandleBounty();
+	FORCEINLINE int32 GetDebtAmount() const { return _debtAmount; }
 };

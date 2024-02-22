@@ -47,11 +47,11 @@ public:
 
 	UFUNCTION()
 	void OnTransitionCompleted();
-
-	UFUNCTION()
-	void OnDebtCollectorInteract(bool bSuccess);
+	
 	void TriggerDebtCollector();
-
+	
+	void TryPayDebtCollector();
+	
 	UFUNCTION()
 	void OnCurrencyCollected(APW_Currency* Currency);
 
@@ -59,4 +59,5 @@ public:
 	
 	FORCEINLINE UBountySystemComponent* GetBountySystemComponent() const { return _bountySystemComponent; }
 	FORCEINLINE APW_BountyBoard* GetBountyBoard() const { return _bountyBoard; }
+
 };
