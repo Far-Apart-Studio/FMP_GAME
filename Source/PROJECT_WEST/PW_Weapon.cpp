@@ -76,18 +76,9 @@ void APW_Weapon::InitialiseWeaponVisualData(UPW_WeaponVisualData* weaponVisualDa
 	
 	if (_weaponVisualData == nullptr)
 		{ PW_Utilities::Log("FAILED TO LOAD WEAPON VISUAL DATA"); return; }
-	
-	_currentWeaponMesh->SetSkeletalMesh(_weaponVisualData->GetWeaponMesh());
-	_currentWeaponMesh->SetRelativeRotation(_weaponVisualData->GetWeaponMeshRotation());
-	_currentWeaponMesh->SetRelativeLocation(_weaponVisualData->GetWeaponMeshOffset());
-	_currentWeaponMesh->SetRelativeScale3D(_weaponVisualData->GetWeaponMeshScale());
 
 	if(_currentMuzzleEffect)
-	{
 		_currentMuzzleEffect->SetTemplate(_weaponVisualData->GetMuzzleFlash());
-		_currentMuzzleEffect->SetRelativeScale3D(_weaponVisualData->GetMuzzleFlashScale());
-		_currentMuzzleEffect->SetRelativeLocation(_weaponVisualData->GetMuzzleFlashOffset());
-	}
 }
 
 void APW_Weapon::InitialiseWeaponData(UPW_WeaponData* weaponData)

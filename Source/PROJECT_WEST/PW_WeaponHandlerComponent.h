@@ -27,9 +27,6 @@ private:
 	TSubclassOf<APW_Weapon> _weaponBlueprint;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
-	float _maximumWeaponFallOffRange = 10000.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
 	float _lastFiredTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
@@ -61,7 +58,7 @@ public:
 	bool CastRay(const FVector& rayStart, const FVector& rayDestination, const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const;
 	void ApplyDamage(const FHitResult& hitResult);
 	void LocalApplyDamage(const FHitResult& hitResult);
-	float CalculateDamage(const FHitResult& hitResult);
+	float CalculateDamage(const FHitResult& hitResult, const UPW_WeaponData* weaponData);
 	bool CalculateFireStatus();
 	void AssignInputActions();
 	void LocalReloadWeapon();

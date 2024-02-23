@@ -237,8 +237,7 @@ void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult)
 
 void UPW_WeaponHandlerComponent::ServerApplyDamage_Implementation(const FHitResult& hitResult)
 {
-	if (!GetOwner()->HasAuthority())
-		return;
+	if (!GetOwner()->HasAuthority()) return;
 	
 	LocalApplyDamage(hitResult);
 }
@@ -250,28 +249,47 @@ void UPW_WeaponHandlerComponent::LocalApplyDamage(const FHitResult& hitResult)
 		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 
 	currentWeapon->SubtractCurrentAmmo(1);
+
+	const UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
+	if (weaponData == nullptr)
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
 	AActor* hitActor = hitResult.GetActor();
 
 	if (hitActor == nullptr)
-	{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
+		{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
 
-	const float calculatedDamage = CalculateDamage(hitResult);
+	const float calculatedDamage = CalculateDamage(hitResult, weaponData);
 	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
 	_ownerCharacter->GetController(), _ownerCharacter);
 }
 
-float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult)
+float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult, const UPW_WeaponData* weaponData)
 {
 	const float shotDistance = hitResult.Location.Distance(hitResult.TraceStart, hitResult.ImpactPoint);
-	
-	float normalisedDamage = 1.0f - (shotDistance / _maximumWeaponFallOffRange);
-	normalisedDamage = PWMath::Clamp01(normalisedDamage);
-
-	const UPW_WeaponData* weaponData = TryGetCurrentWeapon()->GetWeaponData();
+	const float maximumDistance = weaponData->GetHipWeaponMaximumDistance();
+	const float normalisedDistance = PWMath::Clamp01(1.0f - (shotDistance / maximumDistance));
 	const float weaponDamage = weaponData->GetHipWeaponDamage();
+
+	const UCurveFloat* fallOffCurve = weaponData->GetHipWeaponFallOffCurve();
+
+	const float normalisedFallOff = fallOffCurve == nullptr
+		                                ? normalisedDistance
+		                                : fallOffCurve->GetFloatValue(normalisedDistance);
+
+	PW_Utilities::Log("Shot Distance: " + FString::SanitizeFloat(shotDistance));
+
+	PW_Utilities::Log("Normalised Distance: " + FString::SanitizeFloat(normalisedDistance));
 	
-	return  weaponDamage * normalisedDamage;
+	PW_Utilities::Log("Float Value " + FString::SanitizeFloat(fallOffCurve->GetFloatValue(normalisedDistance)));
+
+	PW_Utilities::Log("Normalised FallOff: " + FString::SanitizeFloat(normalisedFallOff));
+	
+	const float calculatedDamage = weaponDamage * normalisedFallOff;
+
+	PW_Utilities::Log("CALCULATED DAMAGE: " + FString::SanitizeFloat(calculatedDamage));
+	
+	return calculatedDamage;
 }
 
 bool UPW_WeaponHandlerComponent::CalculateFireStatus()
