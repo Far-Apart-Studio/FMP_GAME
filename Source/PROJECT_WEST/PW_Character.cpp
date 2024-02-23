@@ -47,7 +47,6 @@ void APW_Character::OnDeath(AActor* DamageCauser, AController* DamageCauserContr
 
 void APW_Character::OnHealthChanged()
 {
-	
 }
 
 void APW_Character::PostInitializeComponents()
