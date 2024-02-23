@@ -276,19 +276,8 @@ float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult, c
 	const float normalisedFallOff = fallOffCurve == nullptr
 		                                ? normalisedDistance
 		                                : fallOffCurve->GetFloatValue(normalisedDistance);
-
-	PW_Utilities::Log("Shot Distance: " + FString::SanitizeFloat(shotDistance));
-
-	PW_Utilities::Log("Normalised Distance: " + FString::SanitizeFloat(normalisedDistance));
-	
-	PW_Utilities::Log("Float Value " + FString::SanitizeFloat(fallOffCurve->GetFloatValue(normalisedDistance)));
-
-	PW_Utilities::Log("Normalised FallOff: " + FString::SanitizeFloat(normalisedFallOff));
 	
 	const float calculatedDamage = weaponDamage * normalisedFallOff;
-
-	PW_Utilities::Log("CALCULATED DAMAGE: " + FString::SanitizeFloat(calculatedDamage));
-	
 	return calculatedDamage;
 }
 
