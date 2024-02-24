@@ -97,7 +97,7 @@ void UPW_InteractionComponent::TryStartInteractWithInteractable()
 
 void UPW_InteractionComponent::TryEndInteractWithInteractable()
 {
-	if (_lastInteractableActor && _lastInteractableActor->Implements<UPW_InteractableInterface>())
+	if (_lastInteractableActor && IPW_InteractableInterface::Execute_IsInteracting(_lastInteractableActor))
 	{
 		IPW_InteractableInterface::Execute_EndInteract(_lastInteractableActor);
 		_lastInteractableActor = nullptr;
