@@ -9,10 +9,8 @@
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/PW_Character.h"
 
-// Sets default values
 APW_Lantern::APW_Lantern()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
 	bReplicates = true;
@@ -36,16 +34,12 @@ APW_Lantern::APW_Lantern()
 
 	_currentBeamScale = _minBeamScale = .5f;
 	_maxBeamScale = 2.0f;
-
-	_maxSearchDistance = 1000.0f;
-	_minSearchDistance = 100.0f;
 	
 	_maxFuel = 100.0f;
 	_fuelPerCharge = 10.0f;
 	_fuelDrainRate = 10.0f;
 }
 
-// Called when the game starts or when spawned
 void APW_Lantern::BeginPlay()
 {
 	Super::BeginPlay();
@@ -85,12 +79,11 @@ void APW_Lantern::OnBodyDetectionBoxBeginOverlap(UPrimitiveComponent* Overlapped
 	UPW_HealthComponent* healthComponent = OtherActor->FindComponentByClass<UPW_HealthComponent>();
 	if (healthComponent && !healthComponent->IsAlive())
 	{
-		AddFuel();
+		AddFuel(_fuelPerCharge);
 		OtherActor->Destroy();
 	}
 }
 
-// Called every frame
 void APW_Lantern::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -112,18 +105,7 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
 	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
 
-	_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
-
-	const float distance = FVector::Dist (GetActorLocation (), _target->GetActorLocation ());
-
-	bool inRange = distance < _currentSearchDistance;
-
-	ToggleLightVisibility (inRange);
-	
-	if (!inRange)
-	{
-		return;
-	}
+	//_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
 	
 	AActor* player = GetOwner ();
 	if (!player) return;
@@ -158,49 +140,45 @@ void APW_Lantern::HandleLightBeamScale(float normalisedAngle)
 	_lightBeamMesh -> SetRelativeScale3D (FVector (_currentBeamScale, _currentBeamScale, _lightBeamMesh -> GetRelativeScale3D ().Z));
 }
 
-void APW_Lantern::AddFuel()
-{
-	ChargeFuel(_fuelPerCharge);
-}
-
-void APW_Lantern::ChargeFuel(float amount)
-{
-	_currentFuel += amount;
-	if (_currentFuel > _maxFuel)
-	{
-		_currentFuel = _maxFuel;
-	}
-}
-
 void APW_Lantern::HandleDrainFuel(float DeltaTime)
 {
 	if (_currentFuel <= 0.0f) return;
-	LocalReduceFuel(_fuelDrainRate * DeltaTime);
+	LocalModifyFuel(_fuelDrainRate * DeltaTime);
+}
+
+void APW_Lantern::AddFuel(float amount)
+{
+	if (HasAuthority())
+	{
+		LocalModifyFuel(amount);
+	}
+	else
+	{
+		ServerModifyFuel(amount);
+	}
 }
 
 void APW_Lantern::ReduceFuel(float amount)
 {
 	if (HasAuthority())
 	{
-		LocalReduceFuel(amount);
+		LocalModifyFuel(-amount);
 	}
-	else if (!_isInProgress)
+	else
 	{
-		_isInProgress = true;
-		ServerReduceFuel(amount);
+		ServerModifyFuel(-amount);
 	}
 }
 
-void APW_Lantern::ServerReduceFuel_Implementation(float DeltaTime)
+void APW_Lantern::ServerModifyFuel_Implementation(float amount)
 {
 	if (!HasAuthority()) return;
-	LocalReduceFuel(DeltaTime);
-	_isInProgress = false;
+	LocalModifyFuel(amount);
 }
 
-void APW_Lantern::LocalReduceFuel(float amount)
+void APW_Lantern::LocalModifyFuel(float amount)
 {
-	_currentFuel = FMath::Clamp(_currentFuel - amount, 0.0f, _maxFuel);
+	_currentFuel = FMath::Clamp(_currentFuel + amount, 0.0f, _maxFuel);
 }
 
 void APW_Lantern::ToggleLightVisibility(bool visible)

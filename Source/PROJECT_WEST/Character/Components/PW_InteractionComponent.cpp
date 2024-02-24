@@ -2,7 +2,7 @@
 
 
 #include "PW_InteractionComponent.h"
-#include "PROJECT_WEST/Interfaces//PW_InteractableInterface.h"
+#include "PROJECT_WEST/Interfaces/PW_InteractableInterface.h"
 #include <Kismet/KismetMathLibrary.h>
 #include "PROJECT_WEST/PW_Character.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -34,17 +34,17 @@ void UPW_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 void UPW_InteractionComponent::TryClearLastInteractable()
 {
-	if (_lastInteractable && !_lastInteractable->IsInteracting_Implementation())
+	if (_lastInteractableActor && !IPW_InteractableInterface::Execute_IsInteracting(_lastInteractableActor))
 	{
-		_lastInteractable->EndFocus_Implementation();
-		_lastInteractable = nullptr;
+		IPW_InteractableInterface::Execute_EndFocus(_lastInteractableActor);
+		_lastInteractableActor = nullptr;
 	}
 }
 
 void UPW_InteractionComponent::TraceForInteractable()
 {
 	if(!_ownerCharacter) return;
-	if(_lastInteractable && _lastInteractable->IsInteracting_Implementation()) return;
+	if(_lastInteractableActor && IPW_InteractableInterface::Execute_IsInteracting(_lastInteractableActor)) return;
 	
 	UCameraComponent* _cameraComponent = _ownerCharacter->GetCameraComponent();
 	if (!_cameraComponent) return;
@@ -66,14 +66,13 @@ void UPW_InteractionComponent::TraceForInteractable()
 	objectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, hitResult,
 		true, FLinearColor::Red, FLinearColor::Green, 5.0f))
 	{
-		Interactable = Cast<IPW_InteractableInterface>(hitResult.GetActor());
-		if (Interactable)
+		if (hitResult.GetActor()->GetClass()->ImplementsInterface(UPW_InteractableInterface::StaticClass()))
 		{
-			if (Interactable != _lastInteractable)
+			if (_lastInteractableActor != hitResult.GetActor())
 			{
 				TryClearLastInteractable();
-				_lastInteractable = Interactable;
-				_lastInteractable->StartFocus_Implementation();
+				_lastInteractableActor = hitResult.GetActor();
+				IPW_InteractableInterface::Execute_StartFocus(_lastInteractableActor);
 			}
 		}
 		else
@@ -89,19 +88,19 @@ void UPW_InteractionComponent::TraceForInteractable()
 
 void UPW_InteractionComponent::TryStartInteractWithInteractable()
 {
-	if (_lastInteractable && !_lastInteractable->IsInteracting_Implementation())
+	if (_lastInteractableActor && !IPW_InteractableInterface::Execute_IsInteracting(_lastInteractableActor))
 	{
-		_lastInteractable->EndFocus_Implementation();
-		_lastInteractable->StartInteract_Implementation(GetOwner());
+		IPW_InteractableInterface::Execute_EndFocus(_lastInteractableActor);
+		IPW_InteractableInterface::Execute_StartInteract(_lastInteractableActor, GetOwner());
 	}
 }
 
 void UPW_InteractionComponent::TryEndInteractWithInteractable()
 {
-	if (_lastInteractable && _lastInteractable->IsInteracting_Implementation())
+	if (_lastInteractableActor && _lastInteractableActor->Implements<UPW_InteractableInterface>())
 	{
-		_lastInteractable->EndInteract_Implementation();
-		_lastInteractable = nullptr;
+		IPW_InteractableInterface::Execute_EndInteract(_lastInteractableActor);
+		_lastInteractableActor = nullptr;
 	}
 }
 

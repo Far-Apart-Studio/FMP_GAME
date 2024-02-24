@@ -59,15 +59,6 @@ private:
 	float _currentBeamScale;
 
 	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
-	float _maxSearchDistance;
-
-	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
-	float _minSearchDistance;
-
-	UPROPERTY (VisibleAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
-	float _currentSearchDistance;
-
-	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxFuel;
 
 	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
@@ -82,8 +73,6 @@ private:
 	UPROPERTY (Replicated, EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _currentFuel;
 
-	bool _isInProgress;
-
 public:
 
 	void OnItemStateSet() override;
@@ -92,18 +81,17 @@ public:
 	void HandleLightIntensity(float normalisedAngle);
 	void HandleLightBeamScale(float normalisedAngle);
 
-	void AddFuel();
+	void HandleDrainFuel(float amount);
 
-	void ChargeFuel(float amount);
-	
-	void HandleDrainFuel(float DeltaTime);
+	UFUNCTION(BlueprintCallable)
+	void AddFuel(float amount);
 
 	UFUNCTION(BlueprintCallable)
 	void ReduceFuel(float amount);
 	
 	UFUNCTION( Server, Reliable )
-	void ServerReduceFuel(float amount);
-	void LocalReduceFuel(float amount);
+	void ServerModifyFuel(float amount);
+	void LocalModifyFuel(float amount);
 
 	void ToggleLightVisibility(bool visible);
 

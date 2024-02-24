@@ -39,5 +39,5 @@ private:
 	UPROPERTY(EditAnywhere)
 	class APW_Character* _ownerCharacter;
 
-	class IPW_InteractableInterface* _lastInteractable;
+	AActor  * _lastInteractableActor;
 };
