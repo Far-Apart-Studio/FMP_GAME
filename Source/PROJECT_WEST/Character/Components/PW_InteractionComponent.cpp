@@ -32,15 +32,6 @@ void UPW_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	TraceForInteractable();
 }
 
-void UPW_InteractionComponent::TryClearLastInteractable()
-{
-	if (_lastInteractableActor && !IPW_InteractableInterface::Execute_IsInteracting(_lastInteractableActor))
-	{
-		IPW_InteractableInterface::Execute_EndFocus(_lastInteractableActor);
-		_lastInteractableActor = nullptr;
-	}
-}
-
 void UPW_InteractionComponent::TraceForInteractable()
 {
 	if(!_ownerCharacter) return;
@@ -83,6 +74,15 @@ void UPW_InteractionComponent::TraceForInteractable()
 	else
 	{
 		TryClearLastInteractable();
+	}
+}
+
+void UPW_InteractionComponent::TryClearLastInteractable()
+{
+	if (_lastInteractableActor && !IPW_InteractableInterface::Execute_IsInteracting(_lastInteractableActor))
+	{
+		IPW_InteractableInterface::Execute_EndFocus(_lastInteractableActor);
+		_lastInteractableActor = nullptr;
 	}
 }
 
