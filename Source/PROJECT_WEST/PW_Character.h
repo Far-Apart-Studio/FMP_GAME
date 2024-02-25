@@ -49,7 +49,7 @@ public:
 	FButtonPressedDelegate OnShootButtonPressed;
 
 	UPROPERTY(BlueprintAssignable)
-	FButtonPressedDelegate OnShootReleaseDelegate;
+	FButtonPressedDelegate OnShootButtonReleased;
 
 	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnReloadButtonPressed;

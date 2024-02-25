@@ -172,7 +172,7 @@ void APW_Character::UseButtonPressed()
 
 void APW_Character::UseButtonReleased()
 {
-	OnShootReleaseDelegate.Broadcast();
+	OnShootButtonReleased.Broadcast();
 }
 
 void APW_Character::CrouchButtonPressed()

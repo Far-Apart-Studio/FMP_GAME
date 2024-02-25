@@ -319,7 +319,7 @@ void UPW_WeaponHandlerComponent::AssignInputActions()
 	_ownerCharacter->OnShootButtonPressed.AddDynamic
 		(this, &UPW_WeaponHandlerComponent::BeginFireSequence);
 
-	_ownerCharacter->OnShootReleaseDelegate.AddDynamic
+	_ownerCharacter->OnShootButtonReleased.AddDynamic
 		(this, &UPW_WeaponHandlerComponent::CompleteFireSequence);
 
 	_ownerCharacter->OnReloadButtonPressed.AddDynamic
