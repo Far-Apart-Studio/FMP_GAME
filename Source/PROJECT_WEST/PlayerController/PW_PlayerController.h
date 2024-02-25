@@ -79,6 +79,8 @@ private:
 
 	FString _matchTimeString;
 
+	FString _playerName;
+
 	float _clientServerDelta; // Difference between client and server time
 
 	UPROPERTY(EditAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))

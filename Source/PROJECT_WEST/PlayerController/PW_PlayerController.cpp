@@ -38,9 +38,9 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	// called when the player controller possesses a pawn
 	
 	ClientAddCharacterOverlayWidget();
-	
 	_votedBountyIndex = -1;
 	_hasVoted = false;
+	LoadGameSessionData();
 }
 
 void APW_PlayerController::BeginPlay()
@@ -56,7 +56,7 @@ void APW_PlayerController::BeginPlay()
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
 
-	LoadGameSessionData();
+	_playerName = PlayerState->GetPlayerName();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
