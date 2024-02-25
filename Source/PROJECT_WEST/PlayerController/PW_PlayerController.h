@@ -79,6 +79,7 @@ private:
 
 	FString _matchTimeString;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
 
 	float _clientServerDelta; // Difference between client and server time

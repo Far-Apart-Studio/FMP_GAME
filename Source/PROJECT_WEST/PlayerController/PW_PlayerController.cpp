@@ -56,7 +56,7 @@ void APW_PlayerController::BeginPlay()
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
 
-	_playerName = PlayerState->GetPlayerName();
+	//_playerName = PlayerState->GetPlayerName();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
