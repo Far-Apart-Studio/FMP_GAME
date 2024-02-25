@@ -46,7 +46,7 @@ private:
 	USkeletalMeshComponent* _currentWeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	UParticleSystemComponent* _currentMuzzleEffect;
+	USceneComponent* _muzzleLocation;
 	
 	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	FWeaponRuntimeData _weaponRuntimeData;
@@ -75,16 +75,19 @@ public:
 	
 public:	
 	APW_Weapon();
-	void OnPicked() override;
+
 	
+
+	//-----------------------------------------------------------------------------------------------
+	//OLD
+	
+	void OnPicked() override;
 	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }
 	FORCEINLINE void SetWeaponData(UPW_WeaponData* weaponData) { _weaponData = weaponData; }
 	FORCEINLINE UPW_WeaponVisualData* GetWeaponVisualData() const { return _weaponVisualData; }
 	FORCEINLINE void SetWeaponVisualData(UPW_WeaponVisualData* weaponVisualData) { _weaponVisualData = weaponVisualData; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return _currentWeaponMesh; }
 	FORCEINLINE void SetWeaponMesh(USkeletalMeshComponent* weaponMesh) { _currentWeaponMesh = weaponMesh; }
-	FORCEINLINE UParticleSystemComponent* GetMuzzleEffect() const { return _currentMuzzleEffect; }
-	FORCEINLINE void SetMuzzleEffect(UParticleSystemComponent* muzzleEffect) { _currentMuzzleEffect = muzzleEffect; }
 	FORCEINLINE int GetCurrentAmmo() const { return _weaponRuntimeData.CurrentAmmo; }
 	FORCEINLINE void SetCurrentAmmo(int currentAmmo) { _weaponRuntimeData.CurrentAmmo = currentAmmo; }
 	FORCEINLINE void SubtractCurrentAmmo(int amount) { _weaponRuntimeData.CurrentAmmo -= amount; }

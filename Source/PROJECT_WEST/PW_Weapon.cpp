@@ -5,7 +5,6 @@
 #include "PW_Utilities.h"
 #include "PW_WeaponData.h"
 #include "Net/UnrealNetwork.h"
-#include "Particles/ParticleSystemComponent.h"
 
 APW_Weapon::APW_Weapon()
 {
@@ -14,8 +13,8 @@ APW_Weapon::APW_Weapon()
 	_currentWeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	_currentWeaponMesh->SetupAttachment(RootComponent);
 
-	_currentMuzzleEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("MuzzleEffect"));
-	_currentMuzzleEffect->SetupAttachment(_currentWeaponMesh);
+	_muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
+	_muzzleLocation->SetupAttachment(_currentWeaponMesh);
 }
 
 void APW_Weapon::OnPicked()
@@ -27,8 +26,7 @@ void APW_Weapon::OnPicked()
 void APW_Weapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-	_currentMuzzleEffect->SetIsReplicated(true);
+	
 	SetReplicateMovement(true);
 	SetReplicates(true);
 	InitialiseWeapon(_weaponData, _weaponVisualData);
@@ -74,9 +72,6 @@ void APW_Weapon::InitialiseWeaponVisualData(UPW_WeaponVisualData* weaponVisualDa
 	
 	if (_weaponVisualData == nullptr)
 		{ PW_Utilities::Log("FAILED TO LOAD WEAPON VISUAL DATA"); return; }
-
-	if(_currentMuzzleEffect)
-		_currentMuzzleEffect->SetTemplate(_weaponVisualData->GetMuzzleFlash());
 }
 
 void APW_Weapon::InitialiseWeaponData(UPW_WeaponData* weaponData)

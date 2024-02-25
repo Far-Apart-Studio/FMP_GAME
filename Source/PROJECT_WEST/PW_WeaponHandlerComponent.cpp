@@ -91,6 +91,8 @@ void UPW_WeaponHandlerComponent::CompleteFireSequence()
 
 void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData, const APW_Weapon* currentWeapon)
 {
+	currentWeapon->OnWeaponFireDelegate.Broadcast();
+	
 	if(_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
 	
@@ -197,18 +199,21 @@ void UPW_WeaponHandlerComponent::ServerReloadWeapon_Implementation()
 
 void UPW_WeaponHandlerComponent::LocalReloadWeapon()
 {
-	if (TryGetCurrentWeapon() == nullptr)
-	{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	APW_Weapon* currentWeapon = TryGetCurrentWeapon();
 	
-	if (TryGetCurrentWeapon()->IsReloading())
+	if (currentWeapon == nullptr)
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	
+	if (currentWeapon->IsReloading())
 		return;
-	
-	TryGetCurrentWeapon()->SetReloading(true);
 
-	const UPW_WeaponData* weaponData = TryGetCurrentWeapon()->GetWeaponData();
+	currentWeapon->OnWeaponBeginReload.Broadcast();
+	currentWeapon->SetReloading(true);
+
+	const UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
 
 	if (weaponData == nullptr)
-	{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
 	const float reloadTime = weaponData->GetWeaponReloadTime();
 	
