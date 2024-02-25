@@ -56,7 +56,7 @@ void APW_PlayerController::BeginPlay()
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
 
-	//_playerName = PlayerState->GetPlayerName();
+	SetPlayerName();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
@@ -512,6 +512,29 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 	{
 		ServerRequestTime(GetWorld()->GetTimeSeconds());
 		_timeSyncRuningTime = 0;
+	}
+}
+
+void APW_PlayerController::SetPlayerName()
+{
+	if (HasAuthority())
+	{
+		if(PlayerState)
+		{
+			_playerName = PlayerState->GetPlayerName();
+		}
+	}
+	else
+	{
+		ServerSetPlayerName();
+	}
+}
+
+void APW_PlayerController::ServerSetPlayerName_Implementation()
+{
+	if(PlayerState)
+	{
+		_playerName = PlayerState->GetPlayerName();
 	}
 }
 

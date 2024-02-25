@@ -107,6 +107,10 @@ protected:
 	void SetHUDTime();
 	void SyncTimeWithServer(float deltaTime);
 
+	void SetPlayerName();
+	UFUNCTION( Server, Reliable )
+	void ServerSetPlayerName();
+
 	UFUNCTION(BlueprintCallable, Category = "Info" )
 	void DoVoteToBounty(int32 bountyIndex);
 	
