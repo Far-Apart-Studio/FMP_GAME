@@ -14,7 +14,7 @@
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 #include "PROJECT_WEST/Bounty System/PW_TransitionPortal.h"
 #include "PROJECT_WEST/Gameplay/PW_DebtCollector.h"
-#include "PROJECT_WEST/Gameplay/PW_SpawnPointsManager.h"
+#include "PROJECT_WEST/Gameplay/Spawner/PW_SpawnPointsManager.h"
 #include "PROJECT_WEST/Items/PW_Currency.h"
 
 APW_LobbyGameMode::APW_LobbyGameMode()
