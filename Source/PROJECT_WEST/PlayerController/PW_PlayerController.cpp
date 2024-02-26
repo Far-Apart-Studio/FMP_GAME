@@ -56,7 +56,7 @@ void APW_PlayerController::BeginPlay()
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
 
-	//SetPlayerName();
+	SetPlayerName();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
@@ -517,25 +517,29 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 
 void APW_PlayerController::SetPlayerName()
 {
+	if (!GetCharacter()  || !GetCharacter()->IsLocallyControlled()) return;
+	
 	if (HasAuthority())
 	{
 		if(PlayerState)
 		{
-			_playerName = PlayerState->GetPlayerName();
-			ServerSetPlayerName(PlayerState->GetPlayerName());
+			MultiCastSetPlayerName(PlayerState->GetPlayerName());
 		}
 	}
 	else
 	{
-		ServerSetPlayerName(_playerName);
+		ServerSetPlayerName();
 	}
 }
 
-void APW_PlayerController::ServerSetPlayerName_Implementation(const FString& playerName)
+void APW_PlayerController::ServerSetPlayerName_Implementation()
 {
 	if (HasAuthority())
 	{
-		MultiCastSetPlayerName(playerName);
+		if(PlayerState)
+		{
+			MultiCastSetPlayerName(PlayerState->GetPlayerName());
+		}
 	}
 }
 

@@ -109,7 +109,7 @@ protected:
 
 	void SetPlayerName();
 	UFUNCTION( Server, Reliable )
-	void ServerSetPlayerName(const FString& playerName);
+	void ServerSetPlayerName();
 
 	UFUNCTION(BlueprintCallable, Category = "Info" )
 	void DoVoteToBounty(int32 bountyIndex);
