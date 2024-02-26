@@ -32,6 +32,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _overheadWidget;
 
+	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FString _playerName;
+
 	class APW_PlayerController* _playerController;
 	class APW_BountyGameMode* _bountyGameMode;
 	bool _LeftGame = false;
@@ -137,4 +140,5 @@ public:
 public:
 	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
+	FORCEINLINE void SetPlayerName(const FString& playerName) { _playerName = playerName; }
 };

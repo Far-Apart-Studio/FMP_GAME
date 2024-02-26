@@ -10,6 +10,7 @@
 class UPW_ConsoleCommandManager;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsuccess, int32, bountyIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNameChangedDelegate , FString , newName);
 
 /**
  * 
@@ -79,7 +80,7 @@ private:
 
 	FString _matchTimeString;
 
-	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerName,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
 
 	float _clientServerDelta; // Difference between client and server time
@@ -92,6 +93,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _timeText;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnNameChangedDelegate _onNameChanged;
 
 protected:
 	
@@ -148,6 +152,9 @@ protected:
 	UFUNCTION()
 	void OnRep_MatchState();
 
+	UFUNCTION()
+	void OnRep_PlayerName();
+
 	void OnMatchStateChanged();
 	void HandleMatchStarted();
 	void HandleMatchCooldown();
@@ -183,6 +190,12 @@ public:
 	void OnMatchStateSet(FName matchState);
 
 	void SetNewPlayerName(const FString& playerName);
+	UFUNCTION( Server, Reliable )
+	void ServerSetPlayerName(const FString& playerName);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetPlayerName(const FString& playerName);
+	UFUNCTION( Client, Reliable )
+	void ClientSetPlayerName(const FString& playerName);
 	
 	void TogglePlayerInput(bool bEnable);
 	

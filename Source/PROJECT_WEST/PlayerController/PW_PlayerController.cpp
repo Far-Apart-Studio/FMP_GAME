@@ -55,6 +55,8 @@ void APW_PlayerController::BeginPlay()
 	_highPingDuration = 5;
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
+
+	//ServerSetPlayerName();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
@@ -344,6 +346,11 @@ void APW_PlayerController::OnRep_MatchState() // Ran Only on Clients
 	OnMatchStateChanged();
 }
 
+void APW_PlayerController::OnRep_PlayerName()
+{
+	_onNameChanged.Broadcast(_playerName);
+}
+
 void APW_PlayerController::OnMatchStateChanged()
 {
 	if (_matchState == MatchState::InProgress)
@@ -516,7 +523,41 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 
 void APW_PlayerController::SetNewPlayerName(const FString& playerName)
 {
-	_playerName = playerName;
+	if (HasAuthority())
+	{
+		MulticastSetPlayerName(playerName);
+	}
+	else
+	{
+		ServerSetPlayerName(playerName);
+	}
+}
+
+void APW_PlayerController::ServerSetPlayerName_Implementation(const FString& playerName)
+{
+	MulticastSetPlayerName(playerName);
+}
+
+void APW_PlayerController::MulticastSetPlayerName_Implementation(const FString& playerName)
+{
+	APW_Character * character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		character->SetPlayerName(playerName);
+	}
+	else
+	{
+		DEBUG_STRING( "No Character Found");
+	}
+}
+
+void APW_PlayerController::ClientSetPlayerName_Implementation(const FString& playerName)
+{
+	APW_Character * character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		character->SetPlayerName(playerName);
+	}
 }
 
 void APW_PlayerController::DoVoteToBounty(int32 bountyIndex)
