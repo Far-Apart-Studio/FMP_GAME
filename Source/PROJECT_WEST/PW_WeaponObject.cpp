@@ -15,8 +15,14 @@ APW_WeaponObject::APW_WeaponObject()
 {
 	_weaponData = nullptr;
 	_weaponVisualData = nullptr;
+	
+	UStaticMeshComponent* itemMesh = GetItemMesh();
+
+	_weaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	_weaponMesh->SetupAttachment(itemMesh);
+	
 	_muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	_muzzleLocation->SetupAttachment(GetItemMesh());
+	_muzzleLocation->SetupAttachment(itemMesh);
 }
 
 void APW_WeaponObject::ApplyBindingActions(APW_Character* characterOwner)
