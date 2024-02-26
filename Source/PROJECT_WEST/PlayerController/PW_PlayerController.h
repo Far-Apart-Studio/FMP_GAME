@@ -107,10 +107,6 @@ protected:
 	void SetHUDTime();
 	void SyncTimeWithServer(float deltaTime);
 
-	void SetPlayerName();
-	UFUNCTION( Server, Reliable )
-	void ServerSetPlayerName();
-
 	UFUNCTION(BlueprintCallable, Category = "Info" )
 	void DoVoteToBounty(int32 bountyIndex);
 	
@@ -186,6 +182,9 @@ public:
 
 	void OnMatchStateSet(FName matchState);
 
+	void SetPlayerName();
+	UFUNCTION( Server, Reliable )
+	void ServerSetPlayerName();
 	UFUNCTION( NetMulticast, Reliable )
 	void MultiCastSetPlayerName(const FString& playerName);
 	

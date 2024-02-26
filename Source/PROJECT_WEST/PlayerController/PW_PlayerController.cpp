@@ -517,19 +517,21 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 
 void APW_PlayerController::SetPlayerName()
 {
-	if (!GetCharacter()  || !GetCharacter()->IsLocallyControlled()) return;
-	
+	if (!IsLocalPlayerController())
+	{
+		return;	
+	}
+
 	if (HasAuthority())
 	{
-		if(PlayerState)
-		{
-			MultiCastSetPlayerName(PlayerState->GetPlayerName());
-		}
+		MultiCastSetPlayerName(PlayerState->GetPlayerName());
 	}
 	else
 	{
+		DEBUG_STRING("SetPlayerName: Not Authority");
 		ServerSetPlayerName();
 	}
+
 }
 
 void APW_PlayerController::ServerSetPlayerName_Implementation()
