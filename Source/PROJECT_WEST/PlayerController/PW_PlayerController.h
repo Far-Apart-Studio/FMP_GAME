@@ -109,7 +109,7 @@ protected:
 
 	void SetPlayerName();
 	UFUNCTION( Server, Reliable )
-	void ServerSetPlayerName();
+	void ServerSetPlayerName(const FString& playerName);
 
 	UFUNCTION(BlueprintCallable, Category = "Info" )
 	void DoVoteToBounty(int32 bountyIndex);
@@ -185,6 +185,9 @@ public:
 	void SetMatchEndCountdown(float time);
 
 	void OnMatchStateSet(FName matchState);
+
+	UFUNCTION( NetMulticast, Reliable )
+	void MultiCastSetPlayerName(const FString& playerName);
 	
 	void TogglePlayerInput(bool bEnable);
 	
@@ -218,7 +221,6 @@ public:
 
 	UFUNCTION( Client, Reliable )
 	void ClientDayChanged(int32 day);
-
 	
 	UFUNCTION(BlueprintCallable)
 	void AddMoney(int32 amount);

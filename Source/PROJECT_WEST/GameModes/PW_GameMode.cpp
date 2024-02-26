@@ -30,7 +30,12 @@ void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 	APlayerState* playerState = NewPlayer->GetPlayerState<APlayerState>();
 	if (playerState)
 	{
-		FString playerName = playerState->GetPlayerName();	
+		FString playerName = playerState->GetPlayerName();
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer);
+		if (playerController)
+		{
+			playerController->MultiCastSetPlayerName(playerName);
+		}
 		DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
 	}
 }
