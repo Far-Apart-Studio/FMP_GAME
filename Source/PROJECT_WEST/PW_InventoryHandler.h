@@ -20,15 +20,6 @@ class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
 	GENERATED_BODY()
 
 private:
-
-	//DEBUG THINGS >>
-	UPROPERTY(EditAnywhere, Category = "Inventory")
-	TSubclassOf<APW_ItemObject> _spawnItemClass;
-
-	UPROPERTY(EditAnywhere, Category = "Inventory")
-	TSubclassOf<APW_WeaponObject> _spawnWeaponClass;
-	//DEBUG THINGS <<
-	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Inventory")
 	APW_Character* _ownerCharacter;
 	
@@ -53,24 +44,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	void ChangeSlot(const UPW_InventorySlot* updatedSlot, bool forceChangeSlot = false);
-	void DropCurrentItem();
-
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
 	bool TryCollectItem(APW_ItemObject* collectedItem);
 	bool TryDropItem(UPW_InventorySlot* currentSlot);
-	
+	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
+
+	void ChangeSlot(const UPW_InventorySlot* updatedSlot, bool forceChangeSlot = false);
 	void ShowItem(APW_ItemObject* selectedItem);
 	void HideItem(APW_ItemObject* selectedItem);
-
-	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
+	void CycleNextSlot(); 
+	void CyclePreviousSlot();
 
 	FORCEINLINE UPW_InventorySlot* GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
 	FORCEINLINE UPW_InventorySlot* GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
-	FORCEINLINE void CycleNextSlot(); 
-	FORCEINLINE void CyclePreviousSlot();
 	
 	UFUNCTION() void CycleSlot();
+	UFUNCTION() void DropCurrentItem();
 };
