@@ -47,7 +47,7 @@ void APW_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DEBUG_STRING ( "APW_PlayerController BeginPlay" );
+	//DEBUG_STRING ( "APW_PlayerController BeginPlay" );
 
 	ServerCheckMatchState();
 	
@@ -55,8 +55,6 @@ void APW_PlayerController::BeginPlay()
 	_highPingDuration = 5;
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
-
-	SetPlayerName();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
@@ -78,6 +76,7 @@ void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME( APW_PlayerController, _matchState );
+	DOREPLIFETIME( APW_PlayerController, _playerName );
 }
 
 void APW_PlayerController::ClientToggleGravity_Implementation(bool bEnable)
@@ -515,37 +514,7 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 	}
 }
 
-void APW_PlayerController::SetPlayerName()
-{
-	if (!IsLocalPlayerController())
-	{
-		return;	
-	}
-
-	if (HasAuthority())
-	{
-		MultiCastSetPlayerName(PlayerState->GetPlayerName());
-	}
-	else
-	{
-		DEBUG_STRING("SetPlayerName: Not Authority");
-		ServerSetPlayerName();
-	}
-
-}
-
-void APW_PlayerController::ServerSetPlayerName_Implementation()
-{
-	if (HasAuthority())
-	{
-		if(PlayerState)
-		{
-			MultiCastSetPlayerName(PlayerState->GetPlayerName());
-		}
-	}
-}
-
-void APW_PlayerController::MultiCastSetPlayerName_Implementation(const FString& playerName)
+void APW_PlayerController::SetNewPlayerName(const FString& playerName)
 {
 	_playerName = playerName;
 }

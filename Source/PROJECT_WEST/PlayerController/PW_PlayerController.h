@@ -70,7 +70,7 @@ private:
 	int32 _votedBountyIndex;
 	
 	bool _voteSeverDelay;
-
+	
 	class APW_BountyGameMode* _bountyGameMode;
 	class APW_LobbyGameMode* _lobbyGameMode;
 
@@ -79,7 +79,7 @@ private:
 
 	FString _matchTimeString;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
 
 	float _clientServerDelta; // Difference between client and server time
@@ -182,11 +182,7 @@ public:
 
 	void OnMatchStateSet(FName matchState);
 
-	void SetPlayerName();
-	UFUNCTION( Server, Reliable )
-	void ServerSetPlayerName();
-	UFUNCTION( NetMulticast, Reliable )
-	void MultiCastSetPlayerName(const FString& playerName);
+	void SetNewPlayerName(const FString& playerName);
 	
 	void TogglePlayerInput(bool bEnable);
 	

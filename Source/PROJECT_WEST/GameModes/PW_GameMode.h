@@ -65,5 +65,7 @@ public:
 
 	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration);
 
+	FString GetPlayerName(APlayerController* playerController) const;
+
 	FORCEINLINE class UPW_GameInstance* GetCurrentGameInstance() const { return _gameInstance; }
 };
