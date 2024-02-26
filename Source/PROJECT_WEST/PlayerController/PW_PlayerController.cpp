@@ -49,7 +49,7 @@ void APW_PlayerController::BeginPlay()
 
 	//DEBUG_STRING ( "APW_PlayerController BeginPlay" );
 
-	ServerCheckMatchState();
+	//ServerCheckMatchState();
 	
 	_highPingRunningTime = 0;
 	_highPingDuration = 5;
@@ -664,14 +664,14 @@ void APW_PlayerController::ClientVoteToBounty_Implementation(bool bSuccess, int3
 
 void APW_PlayerController::ServerClearVote_Implementation()
 {
-	DEBUG_STRING("ServerClearVote");
+	//DEBUG_STRING("ServerClearVote");
 	
 	if (HasAuthority())
 	{
 		_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
 		if (_lobbyGameMode)
 		{
-			DEBUG_STRING("ServerClearVote Done : " + FString::FromInt(_votedBountyIndex));
+			//DEBUG_STRING("ServerClearVote Done : " + FString::FromInt(_votedBountyIndex));
 			_lobbyGameMode->GetBountyBoard()->RemoveVoteFromBounty(_votedBountyIndex);
 		}
 		else
