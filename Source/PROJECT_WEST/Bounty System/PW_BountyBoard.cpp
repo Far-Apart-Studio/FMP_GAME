@@ -174,7 +174,7 @@ void APW_BountyBoard::PopulateBountyDataList()
 	}
 	_bountyDataListChanged.Broadcast(_bountyDataList);
 	PopulateBountyVoteData(_bountyDataList.Num());
-	DEBUG_STRING( "Populate New BountyDataList from GameMode and save to GameInstance.");
+	//DEBUG_STRING( "Populate New BountyDataList from GameMode and save to GameInstance.");
 }
 
 void APW_BountyBoard::RefereshBountyDataList()
@@ -200,7 +200,7 @@ void APW_BountyBoard::RefereshBountyDataList()
 	}
 	_bountyDataListChanged.Broadcast(_bountyDataList);
 	PopulateBountyVoteData(_bountyDataList.Num());
-	DEBUG_STRING( "Populate New BountyDataList from GameMode and save to GameInstance.");
+	//DEBUG_STRING( "Populate New BountyDataList from GameMode and save to GameInstance.");
 }
 
 void APW_BountyBoard::PopulateBountyVoteData(int numberOfBounties)

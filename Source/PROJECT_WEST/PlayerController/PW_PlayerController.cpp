@@ -47,16 +47,16 @@ void APW_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DEBUG_STRING ( "APW_PlayerController BeginPlay" );
+	//DEBUG_STRING ( "APW_PlayerController BeginPlay" );
 
-	ServerCheckMatchState();
+	//ServerCheckMatchState();
 	
 	_highPingRunningTime = 0;
 	_highPingDuration = 5;
 	_checkPingFrequency = 20;
 	_highPingThreshold = 50;
 
-	SetPlayerName();
+	//ServerSetPlayerName();
 }
 
 void APW_PlayerController::Tick(float DeltaTime)
@@ -78,6 +78,7 @@ void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME( APW_PlayerController, _matchState );
+	DOREPLIFETIME( APW_PlayerController, _playerName );
 }
 
 void APW_PlayerController::ClientToggleGravity_Implementation(bool bEnable)
@@ -345,6 +346,11 @@ void APW_PlayerController::OnRep_MatchState() // Ran Only on Clients
 	OnMatchStateChanged();
 }
 
+void APW_PlayerController::OnRep_PlayerName()
+{
+	_onNameChanged.Broadcast(_playerName);
+}
+
 void APW_PlayerController::OnMatchStateChanged()
 {
 	if (_matchState == MatchState::InProgress)
@@ -515,37 +521,43 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 	}
 }
 
-void APW_PlayerController::SetPlayerName()
+void APW_PlayerController::SetNewPlayerName(const FString& playerName)
 {
-	if (!GetCharacter()  || !GetCharacter()->IsLocallyControlled()) return;
-	
 	if (HasAuthority())
 	{
-		if(PlayerState)
-		{
-			MultiCastSetPlayerName(PlayerState->GetPlayerName());
-		}
+		MulticastSetPlayerName(playerName);
 	}
 	else
 	{
-		ServerSetPlayerName();
+		ServerSetPlayerName(playerName);
 	}
 }
 
-void APW_PlayerController::ServerSetPlayerName_Implementation()
+void APW_PlayerController::ServerSetPlayerName_Implementation(const FString& playerName)
 {
-	if (HasAuthority())
+	MulticastSetPlayerName(playerName);
+}
+
+void APW_PlayerController::MulticastSetPlayerName_Implementation(const FString& playerName)
+{
+	APW_Character * character = Cast<APW_Character>(GetPawn());
+	if (character)
 	{
-		if(PlayerState)
-		{
-			MultiCastSetPlayerName(PlayerState->GetPlayerName());
-		}
+		character->SetPlayerName(playerName);
+	}
+	else
+	{
+		DEBUG_STRING( "No Character Found");
 	}
 }
 
-void APW_PlayerController::MultiCastSetPlayerName_Implementation(const FString& playerName)
+void APW_PlayerController::ClientSetPlayerName_Implementation(const FString& playerName)
 {
-	_playerName = playerName;
+	APW_Character * character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		character->SetPlayerName(playerName);
+	}
 }
 
 void APW_PlayerController::DoVoteToBounty(int32 bountyIndex)
@@ -693,14 +705,14 @@ void APW_PlayerController::ClientVoteToBounty_Implementation(bool bSuccess, int3
 
 void APW_PlayerController::ServerClearVote_Implementation()
 {
-	DEBUG_STRING("ServerClearVote");
+	//DEBUG_STRING("ServerClearVote");
 	
 	if (HasAuthority())
 	{
 		_lobbyGameMode == nullptr ? _lobbyGameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)) : nullptr;
 		if (_lobbyGameMode)
 		{
-			DEBUG_STRING("ServerClearVote Done : " + FString::FromInt(_votedBountyIndex));
+			//DEBUG_STRING("ServerClearVote Done : " + FString::FromInt(_votedBountyIndex));
 			_lobbyGameMode->GetBountyBoard()->RemoveVoteFromBounty(_votedBountyIndex);
 		}
 		else

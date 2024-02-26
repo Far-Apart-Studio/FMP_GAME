@@ -10,6 +10,7 @@
 class UPW_ConsoleCommandManager;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsuccess, int32, bountyIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNameChangedDelegate , FString , newName);
 
 /**
  * 
@@ -70,7 +71,7 @@ private:
 	int32 _votedBountyIndex;
 	
 	bool _voteSeverDelay;
-
+	
 	class APW_BountyGameMode* _bountyGameMode;
 	class APW_LobbyGameMode* _lobbyGameMode;
 
@@ -79,7 +80,7 @@ private:
 
 	FString _matchTimeString;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerName,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
 
 	float _clientServerDelta; // Difference between client and server time
@@ -92,6 +93,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _timeText;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnNameChangedDelegate _onNameChanged;
 
 protected:
 	
@@ -106,10 +110,6 @@ protected:
 	void HandleCheckPing(float DeltaTime);
 	void SetHUDTime();
 	void SyncTimeWithServer(float deltaTime);
-
-	void SetPlayerName();
-	UFUNCTION( Server, Reliable )
-	void ServerSetPlayerName();
 
 	UFUNCTION(BlueprintCallable, Category = "Info" )
 	void DoVoteToBounty(int32 bountyIndex);
@@ -152,6 +152,9 @@ protected:
 	UFUNCTION()
 	void OnRep_MatchState();
 
+	UFUNCTION()
+	void OnRep_PlayerName();
+
 	void OnMatchStateChanged();
 	void HandleMatchStarted();
 	void HandleMatchCooldown();
@@ -186,8 +189,13 @@ public:
 
 	void OnMatchStateSet(FName matchState);
 
-	UFUNCTION( NetMulticast, Reliable )
-	void MultiCastSetPlayerName(const FString& playerName);
+	void SetNewPlayerName(const FString& playerName);
+	UFUNCTION( Server, Reliable )
+	void ServerSetPlayerName(const FString& playerName);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetPlayerName(const FString& playerName);
+	UFUNCTION( Client, Reliable )
+	void ClientSetPlayerName(const FString& playerName);
 	
 	void TogglePlayerInput(bool bEnable);
 	

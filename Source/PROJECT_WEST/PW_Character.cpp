@@ -12,6 +12,7 @@
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PW_ItemHandlerComponent.h"
 #include "PW_WeaponHandlerComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
@@ -81,6 +82,7 @@ void APW_Character::Tick(float DeltaTime)
 void APW_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APW_Character, _playerName);
 }
 
 void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

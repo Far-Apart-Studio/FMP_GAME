@@ -34,7 +34,7 @@ void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 		APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer);
 		if (playerController)
 		{
-		//	playerController->MultiCastSetPlayerName(playerName);
+			playerController->SetNewPlayerName(playerName);
 		}
 		DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
 	}
@@ -140,6 +140,20 @@ void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColo
 	}
 }
 
+FString APW_GameMode::GetPlayerName(APlayerController* playerController) const
+{
+	FString playerName = "";
+	if (playerController)
+	{
+		APlayerState* playerState = playerController->GetPlayerState<APlayerState>();
+		if (playerState)
+		{
+			playerName = playerState->GetPlayerName();
+		}
+	}
+	return playerName;
+}
+
 void APW_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -151,7 +165,7 @@ void APW_GameMode::LoadGameSessionData()
 	if (_gameInstance)
 	{
 		NotifyPlayersOfMoney();
-		DEBUG_STRING("LoadGameSessionData Found");
+		//DEBUG_STRING("LoadGameSessionData Found");
 	}
 }
 
