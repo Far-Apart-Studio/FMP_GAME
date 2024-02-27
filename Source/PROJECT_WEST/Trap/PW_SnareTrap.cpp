@@ -113,12 +113,6 @@ void APW_SnareTrap::OnRep_OnStatsChanged()
 	_skeletalMesh->PlayAnimation(_catchAnimation, false);	
 }
 
-void APW_SnareTrap::MoveTrapUp()
-{
-	float newZ = GetActorLocation().Z + 500.0f;
-	SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, newZ));
-}
-
 void APW_SnareTrap::DrainHealthOfCaughtCharacter(float DeltaTime)
 {
 	if(!_caughtCharacter) return;

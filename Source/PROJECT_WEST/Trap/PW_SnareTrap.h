@@ -62,7 +62,5 @@ private:
 	UFUNCTION()
 	void OnRep_OnStatsChanged();
 
-	void MoveTrapUp();
-
 	void DrainHealthOfCaughtCharacter(float DeltaTime);
 };
