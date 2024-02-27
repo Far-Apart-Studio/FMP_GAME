@@ -4,10 +4,12 @@
 #include "PW_Lantern.h"
 #include "Components/PointLightComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/PW_Character.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_MaterialEffectComponent.h"
 
 APW_Lantern::APW_Lantern()
 {
@@ -74,13 +76,30 @@ void APW_Lantern::OnBodyDetectionBoxBeginOverlap(UPrimitiveComponent* Overlapped
 {
 	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
 	if (OtherActor == nullptr || OtherActor == this) return;
+	
 	if(APW_Character* character = Cast<APW_Character>(OtherActor)) return;
 	
 	UPW_HealthComponent* healthComponent = OtherActor->FindComponentByClass<UPW_HealthComponent>();
 	if (healthComponent && !healthComponent->IsAlive())
 	{
 		AddFuel(_fuelPerCharge);
-		OtherActor->Destroy();
+		
+		UCapsuleComponent* capsuleComponent = OtherActor->FindComponentByClass<UCapsuleComponent>();
+		if (capsuleComponent)
+		{
+			capsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			DEBUG_STRING("Capsule Component Found");
+		}
+
+		UPW_MaterialEffectComponent* materialEffectComponent = OtherActor->FindComponentByClass<UPW_MaterialEffectComponent>();
+		if (materialEffectComponent)
+		{
+			materialEffectComponent->ActivateEffect(EEffectDirection::ED_Forward);
+		}
+		else
+		{
+			OtherActor->Destroy();
+		}
 	}
 }
 

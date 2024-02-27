@@ -32,14 +32,13 @@ APW_ExtractionPoint::APW_ExtractionPoint()
 	_extractionBox->SetupAttachment( _root);
 	_extractionBox->SetIsReplicated(true);
 	_extractionBox->SetCollisionProfileName(FName("OverlapAllDynamic"));
-	
-	_winCondition = false;
 }
 
 // Called when the game starts or when spawned
 void APW_ExtractionPoint::BeginPlay()
 {
 	Super::BeginPlay();
+	_canInteract = true;
 }
 
 // Called every frame
@@ -51,26 +50,29 @@ void APW_ExtractionPoint::Tick(float DeltaTime)
 
 void APW_ExtractionPoint::CheckForWin()
 {
-	if(!HasAuthority() || _winCondition) return;
+	if(!HasAuthority() || !_canInteract) return;
 	TArray<AActor*> overlappingActors;
 	_extractionBox->GetOverlappingActors(overlappingActors, APW_Character::StaticClass());
-
-	for (AActor* actor : overlappingActors)
+	
+	if(overlappingActors.Num() > 0)
 	{
-		APW_Character* character = Cast<APW_Character>(actor);
-		if (character)
+		_canInteract = true;
+
+		bool _winCondition = false;
+		for (AActor* actor : overlappingActors)
 		{
-			UPW_ItemHandlerComponent* itemHandler = Cast <UPW_ItemHandlerComponent>(character->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
-			if (itemHandler && itemHandler->HasItemType<APW_BountyHead>())
+			APW_Character* character = Cast<APW_Character>(actor);
+			if (character)
 			{
-				_winCondition = true;
-				break;
+				UPW_ItemHandlerComponent* itemHandler = Cast <UPW_ItemHandlerComponent>(character->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
+				if (itemHandler && itemHandler->HasItemType<APW_BountyHead>())
+				{
+					_winCondition = true;
+					break;
+				}
 			}
 		}
-	}
 	
-	if (_winCondition)
-	{
 		OnWinConditionMet.Broadcast( _winCondition );
 		//MulticastRPCWin();
 	}
@@ -79,6 +81,6 @@ void APW_ExtractionPoint::CheckForWin()
 void APW_ExtractionPoint::MulticastRPCWin_Implementation()
 {
 	DEBUG_STRING( "APW_ExtractionPoint::MulticastRPCWin_Implementation" );
-	OnWinConditionMet.Broadcast( _winCondition );
+	OnWinConditionMet.Broadcast( _canInteract );
 }
 

@@ -18,14 +18,14 @@ void APW_HUD::DrawHUD()
 	Super::DrawHUD();
 
 	// Draw crosshair
-	HandleScreenPosition();
-	HandleCrosshairCentre();
+	//HandleScreenPosition();
+	//HandleCrosshairCentre();
 	
-	DrawMiddleCrosshair();
-	DrawTopCrosshair();
-	DrawBottomCrosshair();
-	DrawLeftCrosshair();
-	DrawRightCrosshair();
+	//DrawMiddleCrosshair();
+	//DrawTopCrosshair();
+	//DrawBottomCrosshair();
+	//DrawLeftCrosshair();
+	//DrawRightCrosshair();
 }
 
 APW_HUD::APW_HUD()

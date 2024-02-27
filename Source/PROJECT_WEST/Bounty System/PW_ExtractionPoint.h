@@ -26,7 +26,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY( BlueprintReadWrite, VisibleAnywhere )
-	bool _winCondition;
+	bool _canInteract;
 
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* _root;
