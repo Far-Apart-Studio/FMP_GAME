@@ -93,6 +93,13 @@ public:
 	void ServerModifyFuel(float amount);
 	void LocalModifyFuel(float amount);
 
+	void DIssolveEnemy(AActor* enemy);
+	UFUNCTION( Server, Reliable )
+	void ServerDissolveEnemy(AActor* enemy);
+	UFUNCTION( NetMulticast, Reliable )
+	void MulticastDIssolveEnemy(AActor* enemy);
+	void LocalDissolveEnemy(AActor* enemy);
+
 	void ToggleLightVisibility(bool visible);
 
 	FORCEINLINE void SetTarget(AActor* target) { _target = target; }

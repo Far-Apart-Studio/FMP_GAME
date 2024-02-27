@@ -88,18 +88,9 @@ void APW_Lantern::OnBodyDetectionBoxBeginOverlap(UPrimitiveComponent* Overlapped
 		if (capsuleComponent)
 		{
 			capsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			DEBUG_STRING("Capsule Component Found");
 		}
 
-		UPW_MaterialEffectComponent* materialEffectComponent = OtherActor->FindComponentByClass<UPW_MaterialEffectComponent>();
-		if (materialEffectComponent)
-		{
-			materialEffectComponent->ActivateEffect(EEffectDirection::ED_Forward);
-		}
-		else
-		{
-			OtherActor->Destroy();
-		}
+		DIssolveEnemy(OtherActor);
 	}
 }
 
@@ -198,6 +189,41 @@ void APW_Lantern::ServerModifyFuel_Implementation(float amount)
 void APW_Lantern::LocalModifyFuel(float amount)
 {
 	_currentFuel = FMath::Clamp(_currentFuel + amount, 0.0f, _maxFuel);
+}
+
+void APW_Lantern::DIssolveEnemy(AActor* enemy)
+{
+	if (HasAuthority())
+	{
+		LocalDissolveEnemy(enemy);
+		MulticastDIssolveEnemy(enemy);
+	}
+	else
+	{
+		ServerDissolveEnemy(enemy);
+	}
+}
+
+void APW_Lantern::ServerDissolveEnemy_Implementation(AActor* enemy)
+{
+	if (!HasAuthority())
+		return;
+	MulticastDIssolveEnemy(enemy);
+}
+
+void APW_Lantern::MulticastDIssolveEnemy_Implementation(AActor* enemy)
+{
+	if (!HasAuthority())
+		LocalDissolveEnemy(enemy);
+}
+
+void APW_Lantern::LocalDissolveEnemy(AActor* enemy)
+{
+	UPW_MaterialEffectComponent* materialEffectComponent = enemy->FindComponentByClass<UPW_MaterialEffectComponent>();
+	if (materialEffectComponent)
+	{
+		materialEffectComponent->ActivateEffect(EEffectDirection::ED_Forward);
+	}
 }
 
 void APW_Lantern::ToggleLightVisibility(bool visible)
