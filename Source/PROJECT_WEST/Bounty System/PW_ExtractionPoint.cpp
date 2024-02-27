@@ -56,7 +56,7 @@ void APW_ExtractionPoint::CheckForWin()
 	
 	if(overlappingActors.Num() > 0)
 	{
-		_canInteract = true;
+		_canInteract = false;
 
 		bool _winCondition = false;
 		for (AActor* actor : overlappingActors)
