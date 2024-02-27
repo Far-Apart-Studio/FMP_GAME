@@ -10,6 +10,7 @@
 #include "PW_Weapon.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponActionDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FWeaponActionHitDelegate, FHitResult, HitResult, FVector, StartPoint, FVector, EndPoint);
 
 USTRUCT(BlueprintType)
 struct FWeaponRuntimeData
@@ -56,6 +57,9 @@ public:
 	FWeaponActionDelegate OnWeaponFireDelegate;
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionDelegate OnWeaponStopFire;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
 	FWeaponActionDelegate OnWeaponBeginReload;
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
@@ -72,14 +76,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
 	FWeaponActionDelegate OnHitDamageable;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionHitDelegate OnWeaponHit;
 	
 public:	
 	APW_Weapon();
-
-	
-
-	//-----------------------------------------------------------------------------------------------
-	//OLD
 	
 	void OnPicked() override;
 	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }

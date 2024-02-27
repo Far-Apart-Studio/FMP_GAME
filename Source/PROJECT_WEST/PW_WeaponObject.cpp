@@ -73,6 +73,7 @@ void APW_WeaponObject::CoreFireSequence()
 void APW_WeaponObject::CompleteFireSequence()
 {
 	_weaponRuntimeData.IsFiring = false;
+	OnWeaponStopFire.Broadcast();
 }
 
 void APW_WeaponObject::CastBulletRays()
@@ -131,6 +132,7 @@ void APW_WeaponObject::CastBulletRay(UCameraComponent* cameraComponent)
 	FHitResult hitResult;
 
 	bool isActorHit = CastRay(rayStart, rayDestination, collisionQueryParams, hitResult);
+	OnWeaponHit.Broadcast(hitResult, rayStart, rayDestination);
 	
 	if (isActorHit)
 	{

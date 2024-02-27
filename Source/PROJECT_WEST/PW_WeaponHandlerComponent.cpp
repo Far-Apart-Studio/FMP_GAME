@@ -87,12 +87,17 @@ void UPW_WeaponHandlerComponent::CoreFireSequence(APW_Weapon* currentWeapon, UPW
 void UPW_WeaponHandlerComponent::CompleteFireSequence()
 {
 	_isFiring = false;
+
+	const APW_Weapon* currentWeapon = TryGetCurrentWeapon();
+
+	if (currentWeapon == nullptr)
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	
+	currentWeapon->OnWeaponStopFire.Broadcast();
 }
 
 void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData, const APW_Weapon* currentWeapon)
 {
-	currentWeapon->OnWeaponFireDelegate.Broadcast();
-	
 	if(_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
 	
@@ -127,6 +132,8 @@ void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData
 
 void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent, const UPW_WeaponData* weaponData, const APW_Weapon* currentWeapon)
 {
+	currentWeapon->OnWeaponFireDelegate.Broadcast();
+	
 	FVector rayDirection = cameraComponent->GetForwardVector();
 	FVector rayStart = cameraComponent->GetComponentLocation();
 	SimulateBulletSpread(rayDirection, weaponData);
@@ -137,6 +144,7 @@ void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent
 	FHitResult hitResult;
 
 	bool isActorHit = CastRay(rayStart, rayDestination, collisionQueryParams, hitResult);
+	currentWeapon->OnWeaponHit.Broadcast(hitResult, rayStart, rayDestination);
 	
 	if (isActorHit)
 	{
