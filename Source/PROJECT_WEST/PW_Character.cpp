@@ -48,7 +48,6 @@ void APW_Character::OnDeath(AActor* DamageCauser, AController* DamageCauserContr
 
 void APW_Character::OnHealthChanged()
 {
-	
 }
 
 void APW_Character::PostInitializeComponents()
@@ -175,7 +174,7 @@ void APW_Character::UseButtonPressed()
 
 void APW_Character::UseButtonReleased()
 {
-	OnShootReleaseDelegate.Broadcast();
+	OnShootButtonReleased.Broadcast();
 }
 
 void APW_Character::CrouchButtonPressed()

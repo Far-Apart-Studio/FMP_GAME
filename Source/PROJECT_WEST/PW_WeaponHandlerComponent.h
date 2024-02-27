@@ -7,6 +7,8 @@
 #include "Components/ActorComponent.h"
 #include "PW_WeaponHandlerComponent.generated.h"
 
+class APW_Weapon;
+class UPW_ItemHandlerComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_WeaponHandlerComponent : public UActorComponent
@@ -20,23 +22,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
 	class UPW_WeaponVisualData* _defaultWeaponVisualData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class APW_Weapon> _defaultWeaponClass;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
-	TSubclassOf<APW_Weapon> _weaponBlueprint;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
-	float _maximumWeaponFallOffRange = 10000.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
 	float _lastFiredTime = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Handler")
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Handler")
 	class APW_Character* _ownerCharacter;
 
 	UPROPERTY()
-	class UPW_ItemHandlerComponent* _itemHandlerComponent;
+	UPW_ItemHandlerComponent* _itemHandlerComponent;
 	
 	bool _isFiring = false;
 	FTimerHandle _reloadTimerHandle;
@@ -61,7 +54,7 @@ public:
 	bool CastRay(const FVector& rayStart, const FVector& rayDestination, const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const;
 	void ApplyDamage(const FHitResult& hitResult);
 	void LocalApplyDamage(const FHitResult& hitResult);
-	float CalculateDamage(const FHitResult& hitResult);
+	float CalculateDamage(const FHitResult& hitResult, const UPW_WeaponData* weaponData);
 	bool CalculateFireStatus();
 	void AssignInputActions();
 	void LocalReloadWeapon();

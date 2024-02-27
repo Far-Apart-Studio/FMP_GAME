@@ -91,6 +91,8 @@ void UPW_WeaponHandlerComponent::CompleteFireSequence()
 
 void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData, const APW_Weapon* currentWeapon)
 {
+	currentWeapon->OnWeaponFireDelegate.Broadcast();
+	
 	if(_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
 	
@@ -197,18 +199,21 @@ void UPW_WeaponHandlerComponent::ServerReloadWeapon_Implementation()
 
 void UPW_WeaponHandlerComponent::LocalReloadWeapon()
 {
-	if (TryGetCurrentWeapon() == nullptr)
-	{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	APW_Weapon* currentWeapon = TryGetCurrentWeapon();
 	
-	if (TryGetCurrentWeapon()->IsReloading())
+	if (currentWeapon == nullptr)
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+	
+	if (currentWeapon->IsReloading())
 		return;
-	
-	TryGetCurrentWeapon()->SetReloading(true);
 
-	const UPW_WeaponData* weaponData = TryGetCurrentWeapon()->GetWeaponData();
+	currentWeapon->OnWeaponBeginReload.Broadcast();
+	currentWeapon->SetReloading(true);
+
+	const UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
 
 	if (weaponData == nullptr)
-	{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
 	const float reloadTime = weaponData->GetWeaponReloadTime();
 	
@@ -237,8 +242,7 @@ void UPW_WeaponHandlerComponent::ApplyDamage(const FHitResult& hitResult)
 
 void UPW_WeaponHandlerComponent::ServerApplyDamage_Implementation(const FHitResult& hitResult)
 {
-	if (!GetOwner()->HasAuthority())
-		return;
+	if (!GetOwner()->HasAuthority()) return;
 	
 	LocalApplyDamage(hitResult);
 }
@@ -250,28 +254,36 @@ void UPW_WeaponHandlerComponent::LocalApplyDamage(const FHitResult& hitResult)
 		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 
 	currentWeapon->SubtractCurrentAmmo(1);
+
+	const UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
+	if (weaponData == nullptr)
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
 	AActor* hitActor = hitResult.GetActor();
 
 	if (hitActor == nullptr)
-	{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
+		{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
 
-	const float calculatedDamage = CalculateDamage(hitResult);
+	const float calculatedDamage = CalculateDamage(hitResult, weaponData);
 	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
 	_ownerCharacter->GetController(), _ownerCharacter);
 }
 
-float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult)
+float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult, const UPW_WeaponData* weaponData)
 {
 	const float shotDistance = hitResult.Location.Distance(hitResult.TraceStart, hitResult.ImpactPoint);
-	
-	float normalisedDamage = 1.0f - (shotDistance / _maximumWeaponFallOffRange);
-	normalisedDamage = PWMath::Clamp01(normalisedDamage);
-
-	const UPW_WeaponData* weaponData = TryGetCurrentWeapon()->GetWeaponData();
+	const float maximumDistance = weaponData->GetHipWeaponMaximumDistance();
+	const float normalisedDistance = PWMath::Clamp01(1.0f - (shotDistance / maximumDistance));
 	const float weaponDamage = weaponData->GetHipWeaponDamage();
+
+	const UCurveFloat* fallOffCurve = weaponData->GetHipWeaponFallOffCurve();
+
+	const float normalisedFallOff = fallOffCurve == nullptr
+		                                ? normalisedDistance
+		                                : fallOffCurve->GetFloatValue(normalisedDistance);
 	
-	return  weaponDamage * normalisedDamage;
+	const float calculatedDamage = weaponDamage * normalisedFallOff;
+	return calculatedDamage;
 }
 
 bool UPW_WeaponHandlerComponent::CalculateFireStatus()
@@ -307,7 +319,7 @@ void UPW_WeaponHandlerComponent::AssignInputActions()
 	_ownerCharacter->OnShootButtonPressed.AddDynamic
 		(this, &UPW_WeaponHandlerComponent::BeginFireSequence);
 
-	_ownerCharacter->OnShootReleaseDelegate.AddDynamic
+	_ownerCharacter->OnShootButtonReleased.AddDynamic
 		(this, &UPW_WeaponHandlerComponent::CompleteFireSequence);
 
 	_ownerCharacter->OnReloadButtonPressed.AddDynamic

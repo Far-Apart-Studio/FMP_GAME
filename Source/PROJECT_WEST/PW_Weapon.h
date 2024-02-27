@@ -9,6 +9,27 @@
 #include "GameFramework/Actor.h"
 #include "PW_Weapon.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponActionDelegate);
+
+USTRUCT(BlueprintType)
+struct FWeaponRuntimeData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	bool CanFire;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	bool IsReloading;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	int CurrentAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	int CurrentReserveAmmo;
+};
+
+
 UCLASS()
 class PROJECT_WEST_API APW_Weapon : public APW_Item
 {
@@ -25,22 +46,41 @@ private:
 	USkeletalMeshComponent* _currentWeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	UParticleSystemComponent* _currentMuzzleEffect;
+	USceneComponent* _muzzleLocation;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	bool _isReloading = false;
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	FWeaponRuntimeData _weaponRuntimeData;
 
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	bool _canFire = true;
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionDelegate OnWeaponFireDelegate;
 
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	int _currentAmmo;
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionDelegate OnWeaponBeginReload;
 
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	int _currentReserveAmmo;
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionDelegate OnWeaponCompleteReload;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionDelegate OnWeaponCancelReload;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionDelegate OnWeaponEquip;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionDelegate OnWeaponUnEquip;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponActionDelegate OnHitDamageable;
 	
 public:	
 	APW_Weapon();
+
+	
+
+	//-----------------------------------------------------------------------------------------------
+	//OLD
+	
 	void OnPicked() override;
 	FORCEINLINE UPW_WeaponData* GetWeaponData() const { return _weaponData; }
 	FORCEINLINE void SetWeaponData(UPW_WeaponData* weaponData) { _weaponData = weaponData; }
@@ -48,24 +88,22 @@ public:
 	FORCEINLINE void SetWeaponVisualData(UPW_WeaponVisualData* weaponVisualData) { _weaponVisualData = weaponVisualData; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return _currentWeaponMesh; }
 	FORCEINLINE void SetWeaponMesh(USkeletalMeshComponent* weaponMesh) { _currentWeaponMesh = weaponMesh; }
-	FORCEINLINE UParticleSystemComponent* GetMuzzleEffect() const { return _currentMuzzleEffect; }
-	FORCEINLINE void SetMuzzleEffect(UParticleSystemComponent* muzzleEffect) { _currentMuzzleEffect = muzzleEffect; }
-	FORCEINLINE int GetCurrentAmmo() const { return _currentAmmo; }
-	FORCEINLINE void SetCurrentAmmo(int currentAmmo) { _currentAmmo = currentAmmo; }
-	FORCEINLINE void SubtractCurrentAmmo(int amount) { _currentAmmo -= amount; }
-	FORCEINLINE void ResetCurrentAmmo() { _currentAmmo = _weaponData->GetWeaponMagazineCapacity(); }
-	FORCEINLINE int GetCurrentReserveAmmo() const { return _currentReserveAmmo; }
-	FORCEINLINE void SetCurrentReserveAmmo(int currentReserveAmmo) { _currentReserveAmmo = currentReserveAmmo; }
-	FORCEINLINE void SubtractCurrentReserveAmmo(int amount) { _currentReserveAmmo -= amount; }
-	FORCEINLINE void ResetCurrentReserveAmmo() { _currentReserveAmmo = _weaponData->GetWeaponReserveAmmunition(); }
-	FORCEINLINE bool IsAmmoEmpty() const { return _currentAmmo <= 0; }
-	FORCEINLINE bool IsAmmoFull() const { return _currentAmmo == _weaponData->GetWeaponMagazineCapacity(); }
-	FORCEINLINE bool IsReserveAmmoEmpty() const { return _currentReserveAmmo <= 0; }
-	FORCEINLINE bool IsReserveAmmoFull() const { return _currentReserveAmmo == _weaponData->GetWeaponReserveAmmunition(); }
-	FORCEINLINE bool IsReloading() const { return _isReloading; }
-	FORCEINLINE void SetReloading(bool isReloading) { _isReloading = isReloading; }
-	FORCEINLINE bool CanFire() const { return _canFire; }
-	FORCEINLINE void SetCanFire(bool canFire) { _canFire = canFire; }
+	FORCEINLINE int GetCurrentAmmo() const { return _weaponRuntimeData.CurrentAmmo; }
+	FORCEINLINE void SetCurrentAmmo(int currentAmmo) { _weaponRuntimeData.CurrentAmmo = currentAmmo; }
+	FORCEINLINE void SubtractCurrentAmmo(int amount) { _weaponRuntimeData.CurrentAmmo -= amount; }
+	FORCEINLINE void ResetCurrentAmmo() { _weaponRuntimeData.CurrentAmmo = _weaponData->GetWeaponMagazineCapacity(); }
+	FORCEINLINE int GetCurrentReserveAmmo() const { return _weaponRuntimeData.CurrentReserveAmmo; }
+	FORCEINLINE void SetCurrentReserveAmmo(int currentReserveAmmo) { _weaponRuntimeData.CurrentReserveAmmo = currentReserveAmmo; }
+	FORCEINLINE void SubtractCurrentReserveAmmo(int amount) { _weaponRuntimeData.CurrentReserveAmmo -= amount; }
+	FORCEINLINE void ResetCurrentReserveAmmo() { _weaponRuntimeData.CurrentReserveAmmo = _weaponData->GetWeaponReserveAmmunition(); }
+	FORCEINLINE bool IsAmmoEmpty() const { return _weaponRuntimeData.CurrentAmmo <= 0; }
+	FORCEINLINE bool IsAmmoFull() const { return _weaponRuntimeData.CurrentAmmo == _weaponData->GetWeaponMagazineCapacity(); }
+	FORCEINLINE bool IsReserveAmmoEmpty() const { return _weaponRuntimeData.CurrentReserveAmmo <= 0; }
+	FORCEINLINE bool IsReserveAmmoFull() const { return _weaponRuntimeData.CurrentReserveAmmo == _weaponData->GetWeaponReserveAmmunition(); }
+	FORCEINLINE bool IsReloading() const { return _weaponRuntimeData.IsReloading; }
+	FORCEINLINE void SetReloading(bool isReloading) { _weaponRuntimeData.IsReloading = isReloading; }
+	FORCEINLINE bool CanFire() const { return _weaponRuntimeData.CanFire; }
+	FORCEINLINE void SetCanFire(bool canFire) { _weaponRuntimeData.CanFire = canFire; }
 
 	void TransferReserveAmmo();
 	void InitialiseWeapon(UPW_WeaponData* weaponData, UPW_WeaponVisualData* weaponVisualData);
@@ -80,5 +118,4 @@ protected:
 	
 public:	
 	virtual void Tick(float DeltaTime) override;
-
 };

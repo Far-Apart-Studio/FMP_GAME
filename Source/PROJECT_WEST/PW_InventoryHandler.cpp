@@ -2,7 +2,6 @@
 
 #include "PW_InventoryHandler.h"
 
-#include "DebugMacros.h"
 #include "PW_Character.h"
 #include "PW_InventorySlot.h"
 #include "PW_ItemObject.h"
@@ -28,6 +27,11 @@ void UPW_InventoryHandler::BeginPlay()
 void UPW_InventoryHandler::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UPW_InventoryHandler::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 bool UPW_InventoryHandler::TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot)
@@ -108,16 +112,6 @@ bool UPW_InventoryHandler::TryDropItem(UPW_InventorySlot* currentSlot)
 	slotItem->SetOwner(nullptr);
 	
 	return true;
-}
-
-void UPW_InventoryHandler::DropCurrentItem()
-{
-	UPW_InventorySlot* currentSlot = GetCurrentSlot();
-
-	if (currentSlot == nullptr)
-		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
-	
-	const bool successfulDrop = TryDropItem(currentSlot);
 }
 
 bool UPW_InventoryHandler::TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot)
@@ -202,18 +196,20 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 	const int targetedSlotIndex = _currentSlotIndex - 1;
 	const int overflowSlotIndex = _inventorySlots.Num() - 1;
 	const bool isIndexValid = _inventorySlots.IsValidIndex(targetedSlotIndex);
-	const UPW_InventorySlot* errorSlot = GetSlot(overflowSlotIndex);
-	const UPW_InventorySlot* targetedSlot = GetSlot(targetedSlotIndex);
 
-	ChangeSlot(!isIndexValid ? errorSlot : targetedSlot);
-	_currentSlotIndex = !isIndexValid ? overflowSlotIndex : targetedSlotIndex;
+	if (isIndexValid)
+	{
+		const UPW_InventorySlot* targetedSlot = GetSlot(targetedSlotIndex);
+		ChangeSlot(targetedSlot);
+		_currentSlotIndex = targetedSlotIndex;
+	}
+	else
+	{
+		const UPW_InventorySlot* errorSlot = GetSlot(overflowSlotIndex);
+		ChangeSlot(errorSlot);
+		_currentSlotIndex = overflowSlotIndex;
+	}
 }
-
-void UPW_InventoryHandler::CycleSlot()
-{
-	CycleNextSlot();
-}
-
 
 void UPW_InventoryHandler::AssignInputActions()
 {
@@ -221,5 +217,21 @@ void UPW_InventoryHandler::AssignInputActions()
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
 	
 	_ownerCharacter->OnCycleItemButtonPressed.AddDynamic(this, &UPW_InventoryHandler::CycleSlot);
+	_ownerCharacter->OnDropButtonPressed.AddDynamic(this, &UPW_InventoryHandler::DropCurrentItem);
+}
+
+void UPW_InventoryHandler::CycleSlot()
+{
+	CycleNextSlot();
+}
+
+void UPW_InventoryHandler::DropCurrentItem()
+{
+	UPW_InventorySlot* currentSlot = GetCurrentSlot();
+
+	if (currentSlot == nullptr)
+	{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
+	
+	const bool successfulDrop = TryDropItem(currentSlot);
 }
 

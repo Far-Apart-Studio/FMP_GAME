@@ -49,8 +49,11 @@ private:
 	float _hWeaponAccuracy;
 
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	float _hWeaponFallOffRange;
+	float _hWeaponMaximumDistance;
 
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	UCurveFloat* _hWeaponFallOffCurve;
+	
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	int _hProjectileCount;
 
@@ -59,28 +62,31 @@ private:
 
 	//------------------ Aimed Weapon Data ------------------//
 
-	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	EFireType _aWeaponFireType;
-
-	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	float _aWeaponDamage;
 
-	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	float _aWeaponFireRate;
 
-	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	FVector2D _aWeaponRecoil;
 
-	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	float _aWeaponAccuracy;
 
-	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
-	float _aWeaponFallOffRange;
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
+	float _aWeaponMaximumDistance;
 
-	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
+	UCurveFloat* _aWeaponFallOffCurve;
+	
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	int _aProjectileCount;
 
-	UPROPERTY(EditAnywhere, Category = "Aimed Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	float _aProjectileDelay;
 
 public:
@@ -93,7 +99,8 @@ public:
 	FORCEINLINE float GetHipWeaponFireRate() const { return _hWeaponFireRate; }
 	FORCEINLINE FVector2D GetHipWeaponRecoil() const { return _hWeaponRecoil; }
 	FORCEINLINE float GetHipWeaponAccuracy() const { return _hWeaponAccuracy; }
-	FORCEINLINE float GetHipWeaponFallOffRange() const { return _hWeaponFallOffRange; }
+	FORCEINLINE float GetHipWeaponMaximumDistance() const { return _hWeaponMaximumDistance; }
+	FORCEINLINE UCurveFloat* GetHipWeaponFallOffCurve() const { return _hWeaponFallOffCurve; }
 	FORCEINLINE int GetHipProjectileCount() const { return _hProjectileCount; }
 	FORCEINLINE float GetHipProjectileDelay() const { return _hProjectileDelay; }
 
@@ -102,7 +109,8 @@ public:
 	FORCEINLINE float GetAimedWeaponFireRate() const { return _aWeaponFireRate; }
 	FORCEINLINE FVector2D GetAimedWeaponRecoil() const { return _aWeaponRecoil; }
 	FORCEINLINE float GetAimedWeaponAccuracy() const { return _aWeaponAccuracy; }
-	FORCEINLINE float GetAimedWeaponFallOffRange() const { return _aWeaponFallOffRange; }
+	FORCEINLINE float GetAimedWeaponMaximumDistance() const { return _aWeaponMaximumDistance; }
+	FORCEINLINE UCurveFloat* GetAimedWeaponFallOffCurve() const { return _aWeaponFallOffCurve; }
 	FORCEINLINE int GetAimedProjectileCount() const { return _aProjectileCount; }
 	FORCEINLINE float GetAimedProjectileDelay() const { return _aProjectileDelay; }
 };
