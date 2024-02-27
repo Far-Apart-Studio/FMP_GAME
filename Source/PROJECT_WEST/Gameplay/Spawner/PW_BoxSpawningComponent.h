@@ -32,11 +32,11 @@ private:
 	TSubclassOf<AActor> testActorClass;
 
 public:	
-	// Sets default values for this component's properties
+
 	UPW_BoxSpawningComponent();
 
 protected:
-	// Called when the game starts
+
 	virtual void BeginPlay() override;
 
 public:	

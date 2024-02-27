@@ -41,11 +41,28 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	class UAnimationAsset* _catchAnimation;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	class UPW_ActorMoverComponent* _actorMoverComponent;
+
+	UPROPERTY (VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	class UArrowComponent* _point1;
+
+	UPROPERTY (VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	class UArrowComponent* _point2;
+
 	UPROPERTY(ReplicatedUsing = OnRep_OnStatsChanged, EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	bool _isSnareActive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	float _damageRate;
+
+	class APW_Character* _caughtCharacter;
+
 
 	UFUNCTION()
 	void OnRep_OnStatsChanged();
 
 	void MoveTrapUp();
+
+	void DrainHealthOfCaughtCharacter(float DeltaTime);
 };

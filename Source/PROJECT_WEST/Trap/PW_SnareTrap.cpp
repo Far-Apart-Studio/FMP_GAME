@@ -7,12 +7,16 @@
 #include "PROJECT_WEST/DebugMacros.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
+#include "Components/ArrowComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_ActorMoverComponent.h"
+#include "PROJECT_WEST/PW_HealthComponent.h"
 
 APW_SnareTrap::APW_SnareTrap()
 {
@@ -31,6 +35,16 @@ APW_SnareTrap::APW_SnareTrap()
 	_triggerVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	_triggerVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
 	_triggerVolume->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	_point1 = CreateDefaultSubobject<UArrowComponent>(TEXT("Point1"));
+	_point1->SetupAttachment(RootComponent);
+
+	_point2 = CreateDefaultSubobject<UArrowComponent>(TEXT("Point2"));
+	_point2->SetupAttachment(RootComponent);
+
+	_actorMoverComponent = CreateDefaultSubobject<UPW_ActorMoverComponent>(TEXT("ActorMoverComponent"));
+	
+	_damageRate = 10.0f;
 }
 
 void APW_SnareTrap::BeginPlay()
@@ -42,12 +56,19 @@ void APW_SnareTrap::BeginPlay()
 	{
 		_triggerVolume->OnComponentBeginOverlap.AddDynamic(this, &APW_SnareTrap::OnOverlapBegin);
 	}
+
+	FVector startPoint = GetActorLocation() + _point1->GetRelativeLocation();
+	FVector endPoint =  GetActorLocation() + _point2->GetRelativeLocation();
+	_actorMoverComponent->SetPoints(startPoint, endPoint);
 }
 
 void APW_SnareTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (HasAuthority())
+	{
+		DrainHealthOfCaughtCharacter(DeltaTime);
+	}
 }
 
 void APW_SnareTrap::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -63,26 +84,26 @@ void APW_SnareTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 		return;
 	}
 	
-	APW_Character* character = Cast<APW_Character>(OtherActor);
-	if (character)
+	_caughtCharacter = Cast<APW_Character>(OtherActor);
+	if (_caughtCharacter)
 	{
-		APW_PlayerController* playerController = Cast<APW_PlayerController>(character->GetController());
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(_caughtCharacter->GetController());
 		if (playerController)
 		{
 			_isSnareActive = true;
 			playerController->ClientTogglePlayerInput( false );
 
 
-			character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
-			character->GetCharacterMovement()->SetMovementMode( EMovementMode::MOVE_None);
-			character->GetCharacterMovement()->GravityScale =  0;
-			character->GetMesh()->SetEnableGravity(false);
-			character->AttachToComponent(_skeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-			character->SetActorLocation(_triggerVolume->GetComponentLocation());
+			_caughtCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+			_caughtCharacter->GetCharacterMovement()->SetMovementMode( EMovementMode::MOVE_None);
+			_caughtCharacter->GetCharacterMovement()->GravityScale =  0;
+			_caughtCharacter->GetMesh()->SetEnableGravity(false);
+			_caughtCharacter->AttachToComponent(_skeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			_caughtCharacter->SetActorLocation(_triggerVolume->GetComponentLocation());
 			
 			//playerController->ClientActivateTrapMode(this);
 			_skeletalMesh->PlayAnimation(_catchAnimation, false);
-			MoveTrapUp();
+			_actorMoverComponent->SetCanMove(true);
 		}
 	}
 }
@@ -96,5 +117,24 @@ void APW_SnareTrap::MoveTrapUp()
 {
 	float newZ = GetActorLocation().Z + 500.0f;
 	SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, newZ));
+}
+
+void APW_SnareTrap::DrainHealthOfCaughtCharacter(float DeltaTime)
+{
+	if(!_caughtCharacter) return;
+	
+	UPW_HealthComponent* healthComponent = _caughtCharacter->FindComponentByClass<UPW_HealthComponent>();
+	if(healthComponent && healthComponent->IsAlive())
+	{
+		_caughtCharacter->TakeDamage(_damageRate * DeltaTime, FDamageEvent(), nullptr, this);
+		if (!healthComponent->IsAlive())
+		{
+			_actorMoverComponent->SetMoveDirection(EMoveDirection::EMD_Backward);
+			_caughtCharacter->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			_caughtCharacter->GetMesh()->SetEnableGravity(true);
+			_caughtCharacter->GetCharacterMovement()->GravityScale = 1;
+			_caughtCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		}
+	}
 }
 

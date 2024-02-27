@@ -6,16 +6,12 @@
 #include "Components/BoxComponent.h"
 #include "PROJECT_WEST/DebugMacros.h"
 
-// Sets default values for this component's properties
 UPW_BoxSpawningComponent::UPW_BoxSpawningComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	_boxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	_boxComponent->SetupAttachment(this);
 }
-
 
 // Called when the game starts
 void UPW_BoxSpawningComponent::BeginPlay()
@@ -23,7 +19,6 @@ void UPW_BoxSpawningComponent::BeginPlay()
 	Super::BeginPlay();
 	// ...
 }
-
 
 // Called every frame
 void UPW_BoxSpawningComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
