@@ -5,6 +5,9 @@
 
 #include "Components/BoxComponent.h"
 #include "PROJECT_WEST/DebugMacros.h"
+#include "PROJECT_WEST/PW_Character.h"
+#include "PROJECT_WEST/PW_HealthComponent.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_MaterialEffectComponent.h"
 
 APW_EnemySpawner::APW_EnemySpawner()
 {
@@ -39,7 +42,11 @@ void APW_EnemySpawner::BeginPlay()
 void APW_EnemySpawner::OnDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	DEBUG_STRING("APW_EnemySpawner::OnDetectionBoxBeginOverlap");
+	APW_Character* character = Cast<APW_Character>(OtherActor);
+	if (character)
+	{
+		SpawnActorInBox(_actorsToSpawn.GetRandomActorClass());
+	}	
 }
 
 void APW_EnemySpawner::OnDetectionBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -58,8 +65,60 @@ AActor* APW_EnemySpawner::SpawnActorInBox(TSubclassOf<AActor> actorClass)
 {
 	FVector position, normal;
 	GetGroundPositionAndNormal(GetRandomPositionInSpawnArea(),position, normal);
-	AActor* actor = GetWorld()->SpawnActor<AActor> (actorClass, position, normal.Rotation());
-	return actor;
+	AActor* actorToSpawn = TryGetDeadActor(actorClass);
+	if (!actorToSpawn)
+	{
+		actorToSpawn = GetWorld()->SpawnActor<AActor> (actorClass, position, normal.Rotation());
+		TryFadeActorMaterial(actorToSpawn);
+		TryAssignDeathEvent(actorToSpawn);
+	}
+	if (actorToSpawn)
+	{
+		_spawnedActors.Add(actorToSpawn);
+	}
+	return actorToSpawn;
+}
+
+void APW_EnemySpawner::TryAssignDeathEvent(AActor* actor)
+{
+	UPW_HealthComponent* healthComponent = actor->FindComponentByClass<UPW_HealthComponent>();
+	if (healthComponent)
+	{
+		healthComponent->OnDeath.AddDynamic(this, &APW_EnemySpawner::OnActorDeath);
+	}
+}
+
+void APW_EnemySpawner::TryFadeActorMaterial(AActor* actor)
+{
+	UPW_MaterialEffectComponent* materialEffectComponent = actor->FindComponentByClass<UPW_MaterialEffectComponent>();
+	if (materialEffectComponent)
+	{
+		materialEffectComponent->ActivateEffect(EEffectDirection::ED_Backward);
+	}
+}
+
+void APW_EnemySpawner::OnActorDeath(AActor* DamageCauser, AController* DamageCauserController)
+{
+	_spawnedActors.Remove(DamageCauser);
+	_deadActors.Add(DamageCauser);
+}
+
+AActor* APW_EnemySpawner::TryGetDeadActor(TSubclassOf<AActor> actorClass)
+{
+	AActor* result = nullptr;
+	if (_deadActors.Num() > 0 && actorClass)
+	{
+		for (AActor* actor : _deadActors)
+		{
+			if (actor->IsA(actorClass))
+			{
+				result = actor;
+				break;
+			}
+		}
+	}
+	_deadActors.Remove(result);
+	return result;
 }
 
 FVector APW_EnemySpawner::GetRandomPositionInSpawnArea()

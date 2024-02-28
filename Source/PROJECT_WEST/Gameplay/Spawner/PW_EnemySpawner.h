@@ -65,6 +65,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* _detectionBox;
+
+	TArray<AActor*> _spawnedActors;
+
+	TArray<AActor*> _deadActors;
 	
 public:	
 
@@ -88,6 +92,14 @@ public:
 	AActor* SpawnActorInBox(TSubclassOf<AActor> actorClass);
 
 private:
+
+	void TryAssignDeathEvent(AActor* actor);
+	void TryFadeActorMaterial(AActor* actor);
+
+	UFUNCTION()
+	void OnActorDeath(AActor* DamageCauser, AController* DamageCauserController);
+
+	AActor*  TryGetDeadActor(TSubclassOf<AActor> actorClass);
 
 	FVector GetRandomPositionInSpawnArea();
 	bool IsPositionValid(FVector position);
