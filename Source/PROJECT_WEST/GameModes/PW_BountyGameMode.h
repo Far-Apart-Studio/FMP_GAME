@@ -77,7 +77,7 @@ public:
 	void SpawnLantern();
 	
 	UFUNCTION()
-	void OnBountyDead(AActor* DamageCauser, AController* DamageCauserController);
+	void OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController);
 	void SpawnBountyEnemy();
 	void SpawnBountyHead();
 	
@@ -89,7 +89,7 @@ public:
 	void SpawnWeapons();
 
 	UFUNCTION()
-	void EnemyEliminated(AActor* DamageCauser, AController* DamageCauserController);
+	void EnemyEliminated(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController);
 	void SpawnEnemies();
 
 	void SpawnCurrencies();

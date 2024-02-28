@@ -103,7 +103,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
-	void OnDeath(AActor* DamageCauser, AController* DamageCauserController);
+	void OnDeath(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController);
 	
 	UFUNCTION()
 	void OnHealthChanged();

@@ -196,7 +196,6 @@ void APW_Lantern::DIssolveEnemy(AActor* enemy)
 	if (HasAuthority())
 	{
 		LocalDissolveEnemy(enemy);
-		MulticastDIssolveEnemy(enemy);
 	}
 	else
 	{
@@ -208,13 +207,7 @@ void APW_Lantern::ServerDissolveEnemy_Implementation(AActor* enemy)
 {
 	if (!HasAuthority())
 		return;
-	MulticastDIssolveEnemy(enemy);
-}
-
-void APW_Lantern::MulticastDIssolveEnemy_Implementation(AActor* enemy)
-{
-	if (!HasAuthority())
-		LocalDissolveEnemy(enemy);
+	LocalDissolveEnemy(enemy);
 }
 
 void APW_Lantern::LocalDissolveEnemy(AActor* enemy)

@@ -27,6 +27,10 @@ APW_EnemySpawner::APW_EnemySpawner()
 	_detectionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("DetectionBox"));
 	_detectionBox->SetupAttachment(_root);
 	_detectionBox->SetCollisionProfileName(FName("OverlapAllDynamic"));
+
+	_spawnHeightOffset = 100.0f;
+	_spawnChance = 0.5f;
+	_spawnCooldown = 5.0f;
 }
 
 void APW_EnemySpawner::BeginPlay()
@@ -47,20 +51,25 @@ void APW_EnemySpawner::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	//DOREPLIFETIME(APW_EnemySpawner, _deadActors);
 }
 
-void APW_EnemySpawner::OnDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                                  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void APW_EnemySpawner::OnDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	APW_Character* character = Cast<APW_Character>(OtherActor);
 	if (character)
 	{
-		SpawnActorInBox(_actorsToSpawn.GetRandomActorClass());
+		_triggredActors.Add(OtherActor);
+		
+		if(CanSpawnEnemy())
+			SpawnEnemies();
 	}	
 }
 
-void APW_EnemySpawner::OnDetectionBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void APW_EnemySpawner::OnDetectionBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	
+	APW_Character* character = Cast<APW_Character>(OtherActor);
+	if (character)
+	{
+		_triggredActors.Remove(OtherActor);
+	}
 }
 
 void APW_EnemySpawner::Tick(float DeltaTime)
@@ -73,23 +82,36 @@ AActor* APW_EnemySpawner::SpawnActorInBox(TSubclassOf<AActor> actorClass)
 {
 	FVector position, normal;
 	GetGroundPositionAndNormal(GetRandomPositionInSpawnArea(),position, normal);
-	AActor* actorToSpawn = TryGetDeadActor(actorClass);
 	
-	if (!actorToSpawn)
-	{
-		DEBUG_STRING("Spawning New actor");
-		actorToSpawn = GetWorld()->SpawnActor<AActor> (actorClass, position, FRotator::ZeroRotator);
-		TryFadeActorMaterial(actorToSpawn);
-		TryAssignDeathEvent(actorToSpawn);
-	}
-	
+	AActor* actorToSpawn  = GetWorld()->SpawnActor<AActor> (actorClass, position, FRotator::ZeroRotator);
 	if (actorToSpawn)
 	{
-		_spawnedActors.AddUnique(actorToSpawn);
-		DEBUG_STRING("Actor Spawned at: " + FString::FromInt( _spawnedActors.Num()));
+		TryFadeActorMaterial(actorToSpawn);
+		TryAssignDeathEvent(actorToSpawn);
+		_spawnedActors.Add(actorToSpawn);
 	}
 	
 	return actorToSpawn;
+}
+
+void APW_EnemySpawner::SpawnEnemies()
+{
+	TArray<FEnemySpawnInfo> spawnInfo = _actorsToSpawn.GetRandomActorClass();
+	if (spawnInfo.Num() > 0)
+	{
+		for (const FEnemySpawnInfo& info : spawnInfo)
+		{
+			for (int i = 0; i < info._amount; i++)
+			{
+				SpawnActorInBox(info._actorClass);
+			}
+		}
+	}
+}
+
+bool APW_EnemySpawner::CanSpawnEnemy()
+{
+	return _spawnChance > FMath::FRand();
 }
 
 void APW_EnemySpawner::TryAssignDeathEvent(AActor* actor)
@@ -97,7 +119,6 @@ void APW_EnemySpawner::TryAssignDeathEvent(AActor* actor)
 	UPW_HealthComponent* healthComponent = actor->FindComponentByClass<UPW_HealthComponent>();
 	if (healthComponent)
 	{
-		DEBUG_STRING ("Assigning Death Event");
 		healthComponent->OnDeath.AddDynamic(this, &APW_EnemySpawner::OnActorDeath);
 	}
 }
@@ -111,35 +132,9 @@ void APW_EnemySpawner::TryFadeActorMaterial(AActor* actor)
 	}
 }
 
-void APW_EnemySpawner::OnActorDeath(AActor* DamageCauser, AController* DamageCauserController)
+void APW_EnemySpawner::OnActorDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController)
 {
-	_spawnedActors.Remove(DamageCauser);
-	_deadActors.Add(DamageCauser);
-	DEBUG_STRING("Actor Died at: " + FString::FromInt( _deadActors.Num()));
-}
-
-AActor* APW_EnemySpawner::TryGetDeadActor(TSubclassOf<AActor> actorClass)
-{
-	AActor* result = nullptr;
-	if (_deadActors.Num() > 0)
-	{
-		for (AActor* actor : _deadActors)
-		{
-			if (actor->IsA(actorClass))
-			{
-				result = actor;
-				break;
-			}
-		}
-	}
-	
-	if(result)
-	{
-		int index = _deadActors.Find(result);
-		_deadActors.RemoveAt(index);
-	}
-
-	return result;
+	_spawnedActors.Remove(OwnerActor);
 }
 
 FVector APW_EnemySpawner::GetRandomPositionInSpawnArea()
@@ -166,13 +161,12 @@ void APW_EnemySpawner::GetGroundPositionAndNormal(FVector origin, FVector& outPo
 {
 	FHitResult hit;
 	FVector end = origin - FVector::UpVector * 1000.0f;
-	const float outPositionZOffset = 100.f;
-	
+
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(GetOwner());
 	if (GetWorld()->LineTraceSingleByChannel(hit, origin, end, ECC_Visibility, params))
 	{
-		outPosition = hit.ImpactPoint + FVector::UpVector * outPositionZOffset;
+		outPosition = hit.ImpactPoint + FVector::UpVector * _spawnHeightOffset;
 		outNormal = hit.ImpactNormal;
 		
 		DRAW_LINE(origin, outPosition);

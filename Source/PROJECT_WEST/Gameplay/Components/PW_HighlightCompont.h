@@ -27,6 +27,7 @@ public:
 	void HideHighlight();
 
 private:
+	
 	TArray<UStaticMeshComponent*> _meshComps;
 	TArray<USkeletalMeshComponent*> _skeletalMeshComps;
 		

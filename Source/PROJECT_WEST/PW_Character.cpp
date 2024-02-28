@@ -40,7 +40,7 @@ void APW_Character::BeginPlay()
 	Super::BeginPlay();
 }
 
-void APW_Character::OnDeath(AActor* DamageCauser, AController* DamageCauserController)
+void APW_Character::OnDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController)
 {
 	_bountyGameMode = _bountyGameMode == nullptr ? GetWorld()->GetAuthGameMode<APW_BountyGameMode>() : _bountyGameMode;
 	if (_bountyGameMode)

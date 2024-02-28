@@ -42,6 +42,13 @@ void UPW_HealthComponent::RecoverHealth(float recoverValue)
 	_currentHealth = FMath::Clamp(_currentHealth + recoverValue, _minimumHealth, _maxHealth);
 }
 
+void UPW_HealthComponent::ResetHealth()
+{
+	OnResetHealth.Broadcast();
+	_currentHealth = _defaultHealth;
+	OnHealthChanged.Broadcast();
+}
+
 void UPW_HealthComponent::TakeDamage(AActor* damageActor, float damageAmount, const UDamageType*damageType, AController* instigatedBy, AActor* damageCauser)
 {
 	if (damageAmount <= 0.0f || !_isAlive)
@@ -54,6 +61,6 @@ void UPW_HealthComponent::TakeDamage(AActor* damageActor, float damageAmount, co
 	if (_currentHealth == _minimumHealth)
 	{
 		_isAlive = false;
-		OnDeath.Broadcast(damageCauser, instigatedBy );
+		OnDeath.Broadcast(GetOwner(),damageCauser, instigatedBy );
 	}
 }

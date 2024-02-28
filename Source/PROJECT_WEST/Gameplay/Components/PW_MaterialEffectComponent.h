@@ -25,6 +25,8 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -33,6 +35,9 @@ private:
 	
 	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	FName _effectName;
+
+	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
+	float _startingEffectValue;
 	
 	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	float _fadeSpeed;
@@ -43,7 +48,7 @@ private:
 	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	bool _autoGenerateMeshComponents;
 
-	UPROPERTY (VisibleAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (ReplicatedUsing= OnRep_EffectValueChanged, VisibleAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	float _currentEffectValue;
 
 	UPROPERTY (VisibleAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
@@ -59,6 +64,9 @@ private:
 	void GenerateMeshComponents();
 	void HandleEffect(float DeltaTime);
 	void SetMeshComponentsEffectValue(float value);
+
+	UFUNCTION()
+	void OnRep_EffectValueChanged();
 
 public:
 

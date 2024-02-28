@@ -230,7 +230,7 @@ void APW_BountyGameMode::SpawnLantern()
 	}
 }
 
-void APW_BountyGameMode::OnBountyDead(AActor* DamageCauser, AController* DamageCauserController)
+void APW_BountyGameMode::OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController)
 {
 	if (_bountySuccessful) return;
 	SpawnBountyHead();
@@ -313,7 +313,7 @@ void APW_BountyGameMode::SpawnWeapons()
 	}
 }
 
-void APW_BountyGameMode::EnemyEliminated(AActor* DamageCauser, AController* DamageCauserController)
+void APW_BountyGameMode::EnemyEliminated(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController)
 {
 	_enemyCount--;
 }

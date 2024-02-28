@@ -7,6 +7,19 @@
 #include "PW_EnemySpawner.generated.h"
 
 USTRUCT(BlueprintType)
+struct FEnemySpawnInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
+	TSubclassOf<AActor> _actorClass;
+	
+	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
+	int _amount;
+};
+
+
+USTRUCT(BlueprintType)
 struct FSpawnActorEntry
 {
 	GENERATED_BODY()
@@ -15,7 +28,7 @@ struct FSpawnActorEntry
 	float _weight;
 	
 	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
-	TSubclassOf<AActor> actorClass;
+	TArray<FEnemySpawnInfo> _enemySpawnInfoList;
 };
 
 USTRUCT(BlueprintType)
@@ -26,8 +39,10 @@ struct FSpawnActorInfo
 	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
 	TArray<FSpawnActorEntry> _actors;
 
-	TSubclassOf<AActor> GetRandomActorClass()
+	TArray<FEnemySpawnInfo> GetRandomActorClass()
 	{
+		TArray<FEnemySpawnInfo> result;
+		
 		float totalWeight = 0.0f;
 		for (const FSpawnActorEntry& entry : _actors)
 		{
@@ -40,10 +55,11 @@ struct FSpawnActorInfo
 			random -= entry._weight;
 			if (random <= 0.0f)
 			{
-				return entry.actorClass;
+				result = entry._enemySpawnInfoList;
+				break;
 			}
 		}
-		return nullptr;
+		return result;
 	}
 };
 
@@ -69,8 +85,17 @@ private:
 	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	TArray<AActor*> _spawnedActors;
 
+	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
+	float _spawnHeightOffset;
+
+	UPROPERTY(EditAnywhere, Category = "Gameplay" , meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float _spawnChance;
+
+	UPROPERTY(EditAnywhere, Category = "Gameplay" , meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float _spawnCooldown;
+
 	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	TArray<AActor*> _deadActors;
+	TArray<AActor*> _triggredActors;
 	
 public:	
 
@@ -96,14 +121,15 @@ public:
 
 private:
 
+	void SpawnEnemies();
+
+	bool CanSpawnEnemy();
 	void TryAssignDeathEvent(AActor* actor);
 	void TryFadeActorMaterial(AActor* actor);
 
 	UFUNCTION()
-	void OnActorDeath(AActor* DamageCauser, AController* DamageCauserController);
-
-	AActor*  TryGetDeadActor(TSubclassOf<AActor> actorClass);
-
+	void OnActorDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController);
+	
 	FVector GetRandomPositionInSpawnArea();
 	bool IsPositionValid(FVector position);
 	void GetGroundPositionAndNormal(FVector origin, FVector& outPosition, FVector& outNormal);

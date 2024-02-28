@@ -4,6 +4,7 @@
 #include "PW_MaterialEffectComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/DebugMacros.h"
 
 UPW_MaterialEffectComponent::UPW_MaterialEffectComponent()
@@ -13,6 +14,7 @@ UPW_MaterialEffectComponent::UPW_MaterialEffectComponent()
 	_effectName = "Make sure to set the effect name";
 	_fadeSpeed = 0.1f;
 	_autoGenerateMeshComponents = true;
+	_startingEffectValue = 0.0f;
 }
 
 void UPW_MaterialEffectComponent::BeginPlay()
@@ -24,7 +26,13 @@ void UPW_MaterialEffectComponent::BeginPlay()
 		GenerateMeshComponents();
 	}
 
-	SetMeshComponentsEffectValue(0.0f);
+	SetMeshComponentsEffectValue(_startingEffectValue);
+}
+
+void UPW_MaterialEffectComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UPW_MaterialEffectComponent, _currentEffectValue);
 }
 
 void UPW_MaterialEffectComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -68,6 +76,11 @@ void UPW_MaterialEffectComponent::SetMeshComponentsEffectValue(float value)
 	{
 		meshComponent->SetScalarParameterValueOnMaterials(_effectName, value);
 	}
+}
+
+void UPW_MaterialEffectComponent::OnRep_EffectValueChanged()
+{
+	SetMeshComponentsEffectValue(_currentEffectValue);
 }
 
 void UPW_MaterialEffectComponent::ActivateEffect(EEffectDirection direction)

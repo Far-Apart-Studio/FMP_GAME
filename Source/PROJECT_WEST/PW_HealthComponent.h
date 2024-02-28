@@ -8,7 +8,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReachedHealthThreshold);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHealthChanged);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDeath, AActor*, DamageCauser,AController*, DamageCauserController);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDeath,AActor*, OwnerActor, AActor*, DamageCauser,AController*, DamageCauserController);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnResetHealth);
 
 USTRUCT()
 struct FHealthMilestone
@@ -65,6 +66,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDeath OnDeath;
 
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnResetHealth OnResetHealth;
+
 public:	
 	UPW_HealthComponent();
 
@@ -78,7 +82,7 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void RecoverHealth(float recoverValue);
-
+	void ResetHealth();
 	UFUNCTION()
 	void TakeDamage(AActor* DamageActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 
