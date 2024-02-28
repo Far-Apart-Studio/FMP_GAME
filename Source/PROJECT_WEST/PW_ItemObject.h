@@ -41,12 +41,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	UStaticMeshComponent* _itemMesh;
 
-private:
-	void EnterHeldState();
-	void EnterDroppedState();
+	UPROPERTY(VisibleAnywhere, Category = "Item Object")
+	bool _isActive;
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EnterHeldState();
+	virtual void EnterDroppedState();
 
 public:
 	APW_ItemObject();
@@ -68,4 +69,6 @@ public:
 	FORCEINLINE EItemObjectState GetItemState() const { return _itemState; }
 	FORCEINLINE void SetItemState(EItemObjectState newState) { _itemState = newState; }
 	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return _itemMesh; }
+	FORCEINLINE void SetIsActive(bool isActive) { _isActive = isActive; }
+	FORCEINLINE bool GetIsActive() const { return _isActive; }
 };

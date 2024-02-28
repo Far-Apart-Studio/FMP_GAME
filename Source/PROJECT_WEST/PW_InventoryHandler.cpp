@@ -83,7 +83,7 @@ bool UPW_InventoryHandler::TryCollectItem(APW_ItemObject* collectedItem)
 	
 	USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
-	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	collectedItem->SetItemState(EItemObjectState::EHeld);
 	collectedItem->SetOwner(_ownerCharacter);
 	collectedItem->SetVisibility(false);

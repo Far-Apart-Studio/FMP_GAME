@@ -57,6 +57,7 @@ void APW_ItemObject::SetVisibility(bool isVisible)
 		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
 
 	_itemMesh->SetVisibility(isVisible);
+	_isActive = isVisible;
 }
 
 void APW_ItemObject::StartFocus_Implementation()
@@ -71,8 +72,6 @@ void APW_ItemObject::EndFocus_Implementation()
 
 void APW_ItemObject::StartInteract_Implementation(AActor* owner)
 {
-	PW_Utilities::Log("ITEM OBJECT: START INTERACT");
-	
 	const APW_Character* characterController = Cast<APW_Character>(owner);
 
 	if (characterController == nullptr)
