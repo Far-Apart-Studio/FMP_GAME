@@ -27,7 +27,6 @@ APW_PlayerController::APW_PlayerController()
 	_clientServerDelta = 0;
 	_timeSyncFrequency = 5;
 	_timeSyncRuningTime = 0;
-
 	_consoleCommandManager = CreateDefaultSubobject<UPW_ConsoleCommandManager>(TEXT("ConsoleCommandManager"));
 }
 
@@ -38,9 +37,8 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	// called when the player controller possesses a pawn
 	
 	ClientAddCharacterOverlayWidget();
-	_votedBountyIndex = -1;
-	_hasVoted = false;
-	LoadGameSessionData();
+	ClientOnLevelChanged();
+	SetNewPlayerName();
 }
 
 void APW_PlayerController::BeginPlay()
@@ -427,6 +425,14 @@ void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
 	TogglePlayerInput(bEnable);
 }
 
+void APW_PlayerController::ClientOnLevelChanged_Implementation()
+{
+	_votedBountyIndex = -1;
+	_hasVoted = false;
+	LoadGameSessionData();
+	DEBUG_STRING( "APW_PlayerController OnPossess Rest Data : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );
+}
+
 void APW_PlayerController::StartHighPingWarning()
 {
 	if (_characterOverlayWidget)
@@ -521,21 +527,30 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 	}
 }
 
-void APW_PlayerController::SetNewPlayerName(const FString& playerName)
+void APW_PlayerController::SetNewPlayerName()
 {
 	if (HasAuthority())
 	{
-		MulticastSetPlayerName(playerName);
+		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+		if (gameMode)
+		{
+			_playerName = gameMode->GetPlayerName(this);
+			MulticastSetPlayerName(gameMode->GetPlayerName(this));
+		}
 	}
 	else
 	{
-		ServerSetPlayerName(playerName);
+		ServerSetPlayerName();
 	}
 }
 
-void APW_PlayerController::ServerSetPlayerName_Implementation(const FString& playerName)
+void APW_PlayerController::ServerSetPlayerName_Implementation()
 {
-	MulticastSetPlayerName(playerName);
+	APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+	if (gameMode)
+	{
+		MulticastSetPlayerName(gameMode->GetPlayerName(this));
+	}
 }
 
 void APW_PlayerController::MulticastSetPlayerName_Implementation(const FString& playerName)
@@ -543,6 +558,7 @@ void APW_PlayerController::MulticastSetPlayerName_Implementation(const FString& 
 	APW_Character * character = Cast<APW_Character>(GetPawn());
 	if (character)
 	{
+		_playerName = playerName;
 		character->SetPlayerName(playerName);
 	}
 	else

@@ -205,7 +205,8 @@ void APW_BountyBoard::RefereshBountyDataList()
 
 void APW_BountyBoard::PopulateBountyVoteData(int numberOfBounties)
 {
-	_bountyVoteData._bountyVoteDataList.Empty();
+	_bountyVoteData = FBountyVoteData();
+	
 	for (int i = 0; i < numberOfBounties; i++)
 	{
 		FBountyVoteDataEntry entry;

@@ -104,6 +104,9 @@ protected:
 
 	UFUNCTION( Client, Reliable )
 	void ClientAddCharacterOverlayWidget();
+
+	UFUNCTION( Client, Reliable )
+	void ClientOnLevelChanged();
 	
 	void StartHighPingWarning();
 	void StopHighPingWarning();
@@ -189,9 +192,9 @@ public:
 
 	void OnMatchStateSet(FName matchState);
 
-	void SetNewPlayerName(const FString& playerName);
+	void SetNewPlayerName();
 	UFUNCTION( Server, Reliable )
-	void ServerSetPlayerName(const FString& playerName);
+	void ServerSetPlayerName();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSetPlayerName(const FString& playerName);
 	UFUNCTION( Client, Reliable )
