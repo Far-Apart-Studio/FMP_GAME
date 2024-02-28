@@ -32,6 +32,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* _overheadWidget;
 
+	UPROPERTY(VisibleAnywhere, Category = "Character")
+	class USpringArmComponent* _springArmComponent;
+
 	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
 
