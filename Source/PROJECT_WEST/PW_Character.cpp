@@ -12,6 +12,7 @@
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PW_ItemHandlerComponent.h"
 #include "PW_WeaponHandlerComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
@@ -19,9 +20,12 @@
 APW_Character::APW_Character()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	_springArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	_springArmComponent->SetupAttachment(GetMesh(), "head_root");
 	
 	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	_cameraComponent->SetupAttachment( GetMesh());
+	_cameraComponent->SetupAttachment( _springArmComponent);
 	_cameraComponent->bUsePawnControlRotation = true;
 	
 	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
