@@ -25,11 +25,25 @@ APW_WeaponObject::APW_WeaponObject()
 	_muzzleLocation->SetupAttachment(itemMesh);
 }
 
+void APW_WeaponObject::Tick(float DeltaSeconds)
+{
+	AActor* owner = GetOwner();
+	const APW_Character* ownerCharacter = Cast<APW_Character>(owner);
+	
+	if (ownerCharacter == nullptr)
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+
+	if (ownerCharacter->IsLocallyControlled())
+		_weaponRuntimeData.LastFiredTime += DeltaSeconds;
+}
+
 void APW_WeaponObject::ApplyBindingActions(APW_Character* characterOwner)
 {
 	characterOwner->OnShootButtonPressed.AddDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.AddDynamic(this, &APW_WeaponObject::CompleteFireSequence);
 	characterOwner->OnReloadButtonPressed.AddDynamic(this, &APW_WeaponObject::ReloadWeapon);
+
+	PW_Utilities::Log("BINDING WEAPON ACTIONS");
 }
 
 void APW_WeaponObject::RemoveBindingActions(APW_Character* characterOwner)
@@ -37,6 +51,8 @@ void APW_WeaponObject::RemoveBindingActions(APW_Character* characterOwner)
 	characterOwner->OnShootButtonPressed.RemoveDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.RemoveDynamic(this, &APW_WeaponObject::CompleteFireSequence);
 	characterOwner->OnReloadButtonPressed.RemoveDynamic(this, &APW_WeaponObject::ReloadWeapon);
+
+	PW_Utilities::Log("REMOVING WEAPON ACTIONS");
 }
 
 void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -47,12 +63,14 @@ void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void APW_WeaponObject::BeginFireSequence()
 {
-	/*_weaponRuntimeData.IsFiring = true;
+	PW_Utilities::Log("FIRE SEQUENCE BEGINS");
+	
+	_weaponRuntimeData.IsFiring = true;
 
 	if (_weaponData == nullptr)
 		{PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
-	CoreFireSequence();*/
+	CoreFireSequence();
 }
 
 void APW_WeaponObject::CoreFireSequence()
@@ -63,11 +81,13 @@ void APW_WeaponObject::CoreFireSequence()
 	if (_weaponData->GetHipWeaponFireType() == EFireType::Automatic)
 		QueueAutomaticFire();
 	
+	
 	if (IsAmmoEmpty())
 		{ ReloadWeapon(); return; }
 	
 	if (CalculateFireStatus())
 		CastBulletRays();
+	
 }
 
 void APW_WeaponObject::CompleteFireSequence()
@@ -78,6 +98,8 @@ void APW_WeaponObject::CompleteFireSequence()
 
 void APW_WeaponObject::CastBulletRays()
 {
+	PW_Utilities::Log("CASTING BULLET RAYS");
+	
 	const AActor* owner = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(owner);
 	
@@ -286,9 +308,13 @@ bool APW_WeaponObject::CalculateFireStatus()
 {
 	if (_weaponData == nullptr)
 		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return false; }
+
+	PW_Utilities::Log("CALCULATING FIRE STATUS");
 	
 	if (_weaponRuntimeData.LastFiredTime < _weaponData->GetHipWeaponFireRate())
 		return false;
+
+	PW_Utilities::Log("FIRE STATUS CALCULATED");
 
 	_weaponRuntimeData.LastFiredTime = 0.0f;
 	return true;

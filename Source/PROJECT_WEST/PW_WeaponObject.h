@@ -93,6 +93,7 @@ public:
 
 public:
 	APW_WeaponObject();
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void ApplyBindingActions(APW_Character* characterOwner) override;
 	virtual void RemoveBindingActions(APW_Character* characterOwner) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
