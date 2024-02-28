@@ -28,7 +28,7 @@ APW_Character::APW_Character()
 	_overheadWidget->SetupAttachment(RootComponent);
 
 	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
-	_itemHolder->SetupAttachment(_cameraComponent);
+	_itemHolder->SetupAttachment(GetMesh() , "gun_socket");
 }
 
 void APW_Character::BeginPlay()
