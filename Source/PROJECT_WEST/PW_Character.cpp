@@ -21,7 +21,7 @@ APW_Character::APW_Character()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	_cameraComponent->SetupAttachment( GetMesh());
+	_cameraComponent->SetupAttachment( GetMesh(), "head_root");
 	_cameraComponent->bUsePawnControlRotation = true;
 	
 	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
