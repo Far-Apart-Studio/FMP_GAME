@@ -4,6 +4,7 @@
 #include "PW_EnemySpawner.h"
 
 #include "Components/BoxComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
@@ -39,8 +40,15 @@ void APW_EnemySpawner::BeginPlay()
 	}
 }
 
+void APW_EnemySpawner::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	//DOREPLIFETIME(APW_EnemySpawner, _spawnedActors);
+	//DOREPLIFETIME(APW_EnemySpawner, _deadActors);
+}
+
 void APW_EnemySpawner::OnDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                                  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	APW_Character* character = Cast<APW_Character>(OtherActor);
 	if (character)
@@ -66,16 +74,21 @@ AActor* APW_EnemySpawner::SpawnActorInBox(TSubclassOf<AActor> actorClass)
 	FVector position, normal;
 	GetGroundPositionAndNormal(GetRandomPositionInSpawnArea(),position, normal);
 	AActor* actorToSpawn = TryGetDeadActor(actorClass);
+	
 	if (!actorToSpawn)
 	{
-		actorToSpawn = GetWorld()->SpawnActor<AActor> (actorClass, position, normal.Rotation());
+		DEBUG_STRING("Spawning New actor");
+		actorToSpawn = GetWorld()->SpawnActor<AActor> (actorClass, position, FRotator::ZeroRotator);
 		TryFadeActorMaterial(actorToSpawn);
 		TryAssignDeathEvent(actorToSpawn);
 	}
+	
 	if (actorToSpawn)
 	{
-		_spawnedActors.Add(actorToSpawn);
+		_spawnedActors.AddUnique(actorToSpawn);
+		DEBUG_STRING("Actor Spawned at: " + FString::FromInt( _spawnedActors.Num()));
 	}
+	
 	return actorToSpawn;
 }
 
@@ -84,6 +97,7 @@ void APW_EnemySpawner::TryAssignDeathEvent(AActor* actor)
 	UPW_HealthComponent* healthComponent = actor->FindComponentByClass<UPW_HealthComponent>();
 	if (healthComponent)
 	{
+		DEBUG_STRING ("Assigning Death Event");
 		healthComponent->OnDeath.AddDynamic(this, &APW_EnemySpawner::OnActorDeath);
 	}
 }
@@ -101,12 +115,13 @@ void APW_EnemySpawner::OnActorDeath(AActor* DamageCauser, AController* DamageCau
 {
 	_spawnedActors.Remove(DamageCauser);
 	_deadActors.Add(DamageCauser);
+	DEBUG_STRING("Actor Died at: " + FString::FromInt( _deadActors.Num()));
 }
 
 AActor* APW_EnemySpawner::TryGetDeadActor(TSubclassOf<AActor> actorClass)
 {
 	AActor* result = nullptr;
-	if (_deadActors.Num() > 0 && actorClass)
+	if (_deadActors.Num() > 0)
 	{
 		for (AActor* actor : _deadActors)
 		{
@@ -117,7 +132,13 @@ AActor* APW_EnemySpawner::TryGetDeadActor(TSubclassOf<AActor> actorClass)
 			}
 		}
 	}
-	_deadActors.Remove(result);
+	
+	if(result)
+	{
+		int index = _deadActors.Find(result);
+		_deadActors.RemoveAt(index);
+	}
+
 	return result;
 }
 
