@@ -13,13 +13,16 @@ APW_EnemySpawner::APW_EnemySpawner()
 	bReplicates = true;
 	SetReplicates( true );
 
-	//_spawnArea = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawnArea"));
-	//_spawnArea->SetupAttachment(GetRootComponent());
-	//_spawnArea->SetCollisionProfileName(FName("OverlapAllDynamic"));
+	_root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(_root);
 
-	//_detectionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("DetectionBox"));
-	//_detectionBox->SetupAttachment(GetRootComponent());
-	//_detectionBox->SetCollisionProfileName(FName("OverlapAllDynamic"));
+	_spawnArea = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawnArea"));
+	_spawnArea->SetupAttachment(_root);
+	_spawnArea->SetCollisionProfileName(FName("OverlapAllDynamic"));
+
+	_detectionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("DetectionBox"));
+	_detectionBox->SetupAttachment(_root);
+	_detectionBox->SetCollisionProfileName(FName("OverlapAllDynamic"));
 }
 
 void APW_EnemySpawner::BeginPlay()

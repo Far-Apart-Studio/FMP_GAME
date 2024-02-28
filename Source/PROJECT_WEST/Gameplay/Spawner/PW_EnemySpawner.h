@@ -57,6 +57,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	FSpawnActorInfo _actorsToSpawn;
 
+	UPROPERTY (VisibleAnywhere , meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* _root;
+
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* _spawnArea;
 
