@@ -47,12 +47,12 @@ void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void APW_WeaponObject::BeginFireSequence()
 {
-	_weaponRuntimeData.IsFiring = true;
+	/*_weaponRuntimeData.IsFiring = true;
 
 	if (_weaponData == nullptr)
 		{PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
-	CoreFireSequence();
+	CoreFireSequence();*/
 }
 
 void APW_WeaponObject::CoreFireSequence()
