@@ -12,7 +12,7 @@ UPW_DistanceUnloaderComponent::UPW_DistanceUnloaderComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	_isUnLoaded = false;
-	_distanceToUnload = 1000.0f;
+	_distanceToUnload = 10000.0f;
 }
 
 void UPW_DistanceUnloaderComponent::BeginPlay()

@@ -57,6 +57,7 @@ void UPW_MaterialEffectComponent::HandleEffect(float DeltaTime)
 		if (_direction == EEffectDirection::ED_Forward && _currentEffectValue >= 1.0f || _direction == EEffectDirection::ED_Backward && _currentEffectValue <= 0.0f)
 		{
 			_isEffectActive = false;
+			_onHighlightComplete.Broadcast(_direction);
 			return;
 		}
 		

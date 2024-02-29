@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_MaterialEffectComponent.h"
 #include "PW_SnareTrap.generated.h"
 
 UCLASS()
@@ -18,6 +19,12 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+	
+	UFUNCTION()
+	void OnHealthChanged();
+
+	UFUNCTION()
+	void OnDeath(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController);
 
 public:	
 
@@ -40,10 +47,19 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	class UAnimationAsset* _catchAnimation;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	class UAnimationAsset* _releaseAnimation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	class UPW_ActorMoverComponent* _actorMoverComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	class UPW_HealthComponent* _healthComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	class UPW_MaterialEffectComponent* _materialEffectComponent;
+	
 	UPROPERTY (VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	class UArrowComponent* _point1;
 
@@ -61,6 +77,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_OnStatsChanged();
+
+	UFUNCTION()
+	void OnHighlightComplete(EEffectDirection Direction);
 
 	void DrainHealthOfCaughtCharacter(float DeltaTime);
 };

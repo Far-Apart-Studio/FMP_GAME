@@ -17,6 +17,7 @@
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/Gameplay/Components/PW_ActorMoverComponent.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_MaterialEffectComponent.h"
 
 APW_SnareTrap::APW_SnareTrap()
 {
@@ -43,6 +44,10 @@ APW_SnareTrap::APW_SnareTrap()
 	_point2->SetupAttachment(RootComponent);
 
 	_actorMoverComponent = CreateDefaultSubobject<UPW_ActorMoverComponent>(TEXT("ActorMoverComponent"));
+
+	_healthComponent = CreateDefaultSubobject<UPW_HealthComponent>(TEXT("HealthComponent"));
+
+	_materialEffectComponent = CreateDefaultSubobject<UPW_MaterialEffectComponent>(TEXT("MaterialEffectComponent"));
 	
 	_damageRate = 10.0f;
 }
@@ -55,11 +60,43 @@ void APW_SnareTrap::BeginPlay()
 	if (HasAuthority())
 	{
 		_triggerVolume->OnComponentBeginOverlap.AddDynamic(this, &APW_SnareTrap::OnOverlapBegin);
+		_healthComponent->OnHealthChanged.AddDynamic(this, &APW_SnareTrap::OnHealthChanged);
+		_healthComponent->OnDeath.AddDynamic(this, &APW_SnareTrap::OnDeath);
+		_materialEffectComponent->_onHighlightComplete.AddDynamic(this, &APW_SnareTrap::OnHighlightComplete);
 	}
 
 	FVector startPoint = GetActorLocation() + _point1->GetRelativeLocation();
 	FVector endPoint =  GetActorLocation() + _point2->GetRelativeLocation();
 	_actorMoverComponent->SetPoints(startPoint, endPoint);
+}
+
+void APW_SnareTrap::OnHealthChanged()
+{
+	DEBUG_STRING("Snare trap health changed");
+}
+
+void APW_SnareTrap::OnDeath(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController)
+{
+	_actorMoverComponent->SetMoveDirection(EMoveDirection::EMD_Backward);
+	
+	if(_caughtCharacter)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(_caughtCharacter->GetController());
+		if (playerController)
+		{
+			playerController->ClientTogglePlayerInput( true );
+		}
+	
+		_caughtCharacter->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		_caughtCharacter->GetMesh()->SetEnableGravity(true);
+		_caughtCharacter->GetCharacterMovement()->GravityScale = 1;
+		_caughtCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		_skeletalMesh->PlayAnimation(_releaseAnimation, false);
+	}
+
+	_materialEffectComponent->ActivateEffect(EEffectDirection::ED_Forward);
+	_isSnareActive = false;
+	_caughtCharacter = nullptr;
 }
 
 void APW_SnareTrap::Tick(float DeltaTime)
@@ -79,7 +116,7 @@ void APW_SnareTrap::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 void APW_SnareTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (_isSnareActive)
+	if (_isSnareActive || !_healthComponent->IsAlive())
 	{ 
 		return;
 	}
@@ -99,9 +136,8 @@ void APW_SnareTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 			_caughtCharacter->GetCharacterMovement()->GravityScale =  0;
 			_caughtCharacter->GetMesh()->SetEnableGravity(false);
 			_caughtCharacter->AttachToComponent(_skeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-			_caughtCharacter->SetActorLocation(_triggerVolume->GetComponentLocation());
+			_caughtCharacter->SetActorLocation(_triggerVolume->GetComponentLocation() + FVector(0,0,100));
 			
-			//playerController->ClientActivateTrapMode(this);
 			_skeletalMesh->PlayAnimation(_catchAnimation, false);
 			_actorMoverComponent->SetCanMove(true);
 		}
@@ -110,7 +146,20 @@ void APW_SnareTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void APW_SnareTrap::OnRep_OnStatsChanged()
 {
-	_skeletalMesh->PlayAnimation(_catchAnimation, false);	
+	if(_isSnareActive)
+	_skeletalMesh->PlayAnimation(_catchAnimation, false);
+	else
+	{
+		_skeletalMesh->PlayAnimation(_releaseAnimation, false);
+	}
+}
+
+void APW_SnareTrap::OnHighlightComplete(EEffectDirection Direction)
+{
+	if (Direction == EEffectDirection::ED_Forward)
+	{
+		Destroy();
+	}
 }
 
 void APW_SnareTrap::DrainHealthOfCaughtCharacter(float DeltaTime)
@@ -123,11 +172,7 @@ void APW_SnareTrap::DrainHealthOfCaughtCharacter(float DeltaTime)
 		_caughtCharacter->TakeDamage(_damageRate * DeltaTime, FDamageEvent(), nullptr, this);
 		if (!healthComponent->IsAlive())
 		{
-			_actorMoverComponent->SetMoveDirection(EMoveDirection::EMD_Backward);
-			_caughtCharacter->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			_caughtCharacter->GetMesh()->SetEnableGravity(true);
-			_caughtCharacter->GetCharacterMovement()->GravityScale = 1;
-			_caughtCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+			OnDeath(nullptr, nullptr, nullptr);
 		}
 	}
 }

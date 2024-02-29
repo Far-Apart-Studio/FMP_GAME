@@ -13,6 +13,9 @@ enum class EEffectDirection: uint8
 	ED_Backward UMETA(DisplayName = "Backward")
 };
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHighightComplete, EEffectDirection, Direction);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_MaterialEffectComponent : public UActorComponent
 {
@@ -30,6 +33,9 @@ protected:
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UPROPERTY(BlueprintAssignable, Category = "Gameplay")
+	FOnHighightComplete _onHighlightComplete;
 
 private:
 	
