@@ -54,7 +54,7 @@ void APW_BountyGameMode::BeginPlay()
 	SpawnBountyEnemy();
 	SpawnLantern();
 	SpawnExtractionPoint();
-	SpawnEnemies();
+	//SpawnEnemies();
 	SpawnWeapons();
 	SpawnCurrencies();
 	
@@ -81,6 +81,7 @@ void APW_BountyGameMode::Tick(float DeltaSeconds)
 	//FString matchStateString = FName::NameToDisplayString( MatchState.ToString(), false );
 	//DEBUG_STRING( "MatchState: " + matchStateString );
 }
+
 void APW_BountyGameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
