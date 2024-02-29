@@ -101,7 +101,6 @@ void APW_AutoEnemySpawner::SpawnEnemies()
 				AActor* actorToSpawn = GetWorld()->SpawnActor<AActor> (info._actorClass, spawnPosition, FRotator::ZeroRotator);
 				if (actorToSpawn)
 				{
-					TryFadeActorMaterial(actorToSpawn);
 					TryAssignDeathEvent(actorToSpawn);
 					TryAssignUnloaderEvent(actorToSpawn);
 					_spawnedActors.Add(actorToSpawn);
