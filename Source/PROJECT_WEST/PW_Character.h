@@ -7,6 +7,11 @@
 #include "Items/PW_Item.h"
 #include "PW_Character.generated.h"
 
+class UCameraComponent;
+class UPW_ItemHandlerComponent;
+class UPW_HealthComponent;
+class USpringArmComponent;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FButtonPressedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAxisModifiedDelegate, float, value);
 
@@ -16,24 +21,23 @@ class PROJECT_WEST_API APW_Character : public ACharacter
 	GENERATED_BODY()
 
 private:
-
 	UPROPERTY(EditAnywhere, Category = "Character")
 	USceneComponent* _itemHolder;
 	
 	UPROPERTY(EditAnywhere, Category = "Character")
-	class UCameraComponent* _cameraComponent;
+	UCameraComponent* _cameraComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Character")
-	class UPW_ItemHandlerComponent* _itemHandlerComponent;
+	UPW_ItemHandlerComponent* _itemHandlerComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Character")
-	class UPW_HealthComponent* _healthComponent;
+	UPW_HealthComponent* _healthComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* _overheadWidget;
+	UWidgetComponent* _overheadWidget;
 
 	UPROPERTY(VisibleAnywhere, Category = "Character")
-	class USpringArmComponent* _springArmComponent;
+	USpringArmComponent* _springArmComponent;
 
 	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
@@ -144,4 +148,16 @@ public:
 	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
 	FORCEINLINE void SetPlayerName(const FString& playerName) { _playerName = playerName; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetItemHolderComponent(USceneComponent* itemHolderComponent) { _itemHolder = itemHolderComponent; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetCameraComponent(UCameraComponent* cameraComponent) { _cameraComponent = cameraComponent; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetSpringArmComponent(USpringArmComponent* springArmComponent) { _springArmComponent = springArmComponent; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetWidgetComponent(UWidgetComponent* widgetComponent) { _overheadWidget = widgetComponent; }
 };

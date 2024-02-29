@@ -21,7 +21,7 @@ APW_Character::APW_Character()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	_springArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	/*_springArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	_springArmComponent->SetupAttachment(GetMesh(), "head_root");
 	
 	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
@@ -29,10 +29,10 @@ APW_Character::APW_Character()
 	_cameraComponent->bUsePawnControlRotation = true;
 	
 	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
-	_overheadWidget->SetupAttachment(RootComponent);
+	_overheadWidget->SetupAttachment(RootComponent);*/
 
-	_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
-	_itemHolder->SetupAttachment(GetMesh() , "gun_socket");
+	/*_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
+	_itemHolder->SetupAttachment(GetMesh() , "gun_socket");*/
 }
 
 void APW_Character::BeginPlay()
