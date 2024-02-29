@@ -39,6 +39,7 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	ClientAddCharacterOverlayWidget();
 	ClientOnLevelChanged();
 	SetNewPlayerName();
+	SpawnAutoEnemySpawner();
 }
 
 void APW_PlayerController::BeginPlay()
@@ -172,6 +173,37 @@ void APW_PlayerController::LocalPayDebtCollector()
 	if (lobbyGameMode)
 	{
 		lobbyGameMode->TryPayDebtCollector();
+	}
+}
+
+void APW_PlayerController::SpawnAutoEnemySpawner()
+{
+	APW_Character* controlledCharacter = Cast<APW_Character>(GetPawn());
+	if (!controlledCharacter) return;
+	if (HasAuthority())
+	{
+		LocalSpawnAutoEnemySpawner(controlledCharacter);
+	}
+	else
+	{
+		ServerSpawnAutoEnemySpawner(controlledCharacter);
+	}
+}
+
+void APW_PlayerController::ServerSpawnAutoEnemySpawner_Implementation(APW_Character* controlledCharacter)
+{
+	if (HasAuthority())
+	{
+		LocalSpawnAutoEnemySpawner(controlledCharacter);
+	}
+}
+
+void APW_PlayerController::LocalSpawnAutoEnemySpawner(APW_Character* controlledCharacter)
+{
+	APW_BountyGameMode* gameMode = Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(this));
+	if (gameMode)
+	{
+		gameMode->SpawnAutoEnemySpawner(controlledCharacter);
 	}
 }
 
@@ -430,7 +462,7 @@ void APW_PlayerController::ClientOnLevelChanged_Implementation()
 	_votedBountyIndex = -1;
 	_hasVoted = false;
 	LoadGameSessionData();
-	DEBUG_STRING( "APW_PlayerController OnPossess Rest Data : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );
+	//DEBUG_STRING( "APW_PlayerController OnPossess Rest Data : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );
 }
 
 void APW_PlayerController::StartHighPingWarning()

@@ -57,6 +57,9 @@ public:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<class APW_Currency> _currencyClass;
+	
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
+	TSubclassOf<class APW_AutoEnemySpawner > _autoSpawnerClass;
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	int32 _numOfCurrencies;
@@ -87,6 +90,8 @@ public:
 	void SpawnExtractionPoint();
 
 	void SpawnWeapons();
+	
+	void SpawnAutoEnemySpawner(ACharacter *character);
 
 	UFUNCTION()
 	void EnemyEliminated(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController);

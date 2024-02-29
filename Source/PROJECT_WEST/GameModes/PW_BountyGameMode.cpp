@@ -12,10 +12,12 @@
 #include "PROJECT_WEST/Gameplay/Spawner/PW_SpawnPointsManager.h"
 #include "PROJECT_WEST/Gameplay/Spawner/PW_SpawnPointsHandlerComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/Items/PW_BountyHead.h"
 #include "PROJECT_WEST/Bounty System/PW_ExtractionPoint.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
+#include "PROJECT_WEST/Gameplay/Spawner/PW_AutoEnemySpawner.h"
 #include "PROJECT_WEST/Items/PW_Currency.h"
 
 namespace MatchState
@@ -310,6 +312,16 @@ void APW_BountyGameMode::SpawnWeapons()
 			weapon->SetActorRotation(FRotator(0, 0, 0));
 			weapon->SetOwner(nullptr);
 		}
+	}
+}
+
+void APW_BountyGameMode::SpawnAutoEnemySpawner(ACharacter* character)
+{
+	if (!_autoSpawnerClass) return;
+	APW_AutoEnemySpawner* enemySpawner = GetWorld()->SpawnActor<APW_AutoEnemySpawner>(_autoSpawnerClass);
+	if (enemySpawner)
+	{
+		enemySpawner->SetCharacter(character);
 	}
 }
 

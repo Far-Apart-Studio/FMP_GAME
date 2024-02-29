@@ -30,15 +30,12 @@ protected:
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UFUNCTION(BlueprintCallable)
-	AActor* SpawnActorInBox(TSubclassOf<AActor> actorClass);
-	void GetGroundPositionAndNormal(FVector& outPosition, FVector& outNormal);
-	FORCEINLINE void SetBoxComponent(UBoxComponent* boxComponent) { _boxComponent = boxComponent; }
 	
-private:
+	bool GetGroundPositionAndNormal(FVector origin, FVector& outPosition);
 	
 	FVector GetRandomPositionInBox();
-	bool IsPositionValid(FVector position);
 
+	FVector GetRandomPositionInBoxEdge();
+
+	FORCEINLINE void SetBoxComponent(UBoxComponent* boxComponent) { _boxComponent = boxComponent; }
 };

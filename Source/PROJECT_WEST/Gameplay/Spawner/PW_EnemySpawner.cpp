@@ -84,7 +84,9 @@ void APW_EnemySpawner::Tick(float DeltaTime)
 
 AActor* APW_EnemySpawner::SpawnActor(TSubclassOf<AActor> actorClass)
 {
-	AActor* actorToSpawn = _boxSpawningComponent->SpawnActorInBox(actorClass);
+	FVector spawnPosition = FVector::ZeroVector;
+	_boxSpawningComponent->GetGroundPositionAndNormal(_boxSpawningComponent->GetRandomPositionInBox(), spawnPosition);
+	AActor* actorToSpawn = GetWorld()->SpawnActor<AActor> (actorClass, spawnPosition, FRotator::ZeroRotator);
 	if (actorToSpawn)
 	{
 		TryFadeActorMaterial(actorToSpawn);
