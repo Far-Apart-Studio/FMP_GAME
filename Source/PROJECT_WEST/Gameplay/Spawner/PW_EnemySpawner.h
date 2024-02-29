@@ -3,65 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PW_WeightedSpawner.h"
 #include "GameFramework/Actor.h"
 #include "PW_EnemySpawner.generated.h"
-
-USTRUCT(BlueprintType)
-struct FEnemySpawnInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
-	TSubclassOf<AActor> _actorClass;
-	
-	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
-	int _amount;
-};
-
-
-USTRUCT(BlueprintType)
-struct FSpawnActorEntry
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo" , meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float _weight;
-	
-	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
-	TArray<FEnemySpawnInfo> _enemySpawnInfoList;
-};
-
-USTRUCT(BlueprintType)
-struct FSpawnActorInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
-	TArray<FSpawnActorEntry> _actors;
-
-	TArray<FEnemySpawnInfo> GetRandomActorClass()
-	{
-		TArray<FEnemySpawnInfo> result;
-		
-		float totalWeight = 0.0f;
-		for (const FSpawnActorEntry& entry : _actors)
-		{
-			totalWeight += entry._weight;
-		}
-
-		float random = FMath::FRandRange(0.0f, totalWeight);
-		for (const FSpawnActorEntry& entry : _actors)
-		{
-			random -= entry._weight;
-			if (random <= 0.0f)
-			{
-				result = entry._enemySpawnInfoList;
-				break;
-			}
-		}
-		return result;
-	}
-};
 
 UCLASS()
 class PROJECT_WEST_API APW_EnemySpawner : public AActor
@@ -69,9 +13,6 @@ class PROJECT_WEST_API APW_EnemySpawner : public AActor
 	GENERATED_BODY()
 
 private:
-
-	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
-	FSpawnActorInfo _actorsToSpawn;
 
 	UPROPERTY (VisibleAnywhere , meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* _root;
@@ -86,7 +27,7 @@ private:
 	TArray<AActor*> _spawnedActors;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
-	float _spawnHeightOffset;
+	FWeightedSpawn _weightedSpawn;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay" , meta = (ClampMin = "0.0", ClampMax = "1.0"))
 	float _spawnChance;
@@ -96,6 +37,9 @@ private:
 
 	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	TArray<AActor*> _triggredActors;
+
+	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	class UPW_BoxSpawningComponent* _boxSpawningComponent;
 	
 public:	
 
@@ -113,11 +57,11 @@ protected:
 	void OnDetectionBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 public:	
-	// Called every frame
+
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	AActor* SpawnActorInBox(TSubclassOf<AActor> actorClass);
+	AActor* SpawnActor(TSubclassOf<AActor> actorClass);
 
 private:
 
@@ -126,11 +70,11 @@ private:
 	bool CanSpawnEnemy();
 	void TryAssignDeathEvent(AActor* actor);
 	void TryFadeActorMaterial(AActor* actor);
+	void TryAssignUnloaderEvent(AActor* actor);
 
 	UFUNCTION()
 	void OnActorDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController);
-	
-	FVector GetRandomPositionInSpawnArea();
-	bool IsPositionValid(FVector position);
-	void GetGroundPositionAndNormal(FVector origin, FVector& outPosition, FVector& outNormal);
+
+	UFUNCTION()
+	void OnActorUnloaded(AActor* UnloadedActor);
 };

@@ -9,29 +9,24 @@
 UPW_BoxSpawningComponent::UPW_BoxSpawningComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	_boxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
-	_boxComponent->SetupAttachment(this);
+	_spawnHeightOffset = 100.0f;
 }
 
-// Called when the game starts
 void UPW_BoxSpawningComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	// ...
 }
 
-// Called every frame
 void UPW_BoxSpawningComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	// ...
 }
 
 AActor* UPW_BoxSpawningComponent::SpawnActorInBox(TSubclassOf<AActor> actorClass)
 {
 	FVector position, normal;
 	GetGroundPositionAndNormal(position, normal);
-	AActor* actor = GetWorld()->SpawnActor<AActor> (actorClass, position, normal.Rotation());
+	AActor* actor = GetWorld()->SpawnActor<AActor> (actorClass, position, FRotator::ZeroRotator);
 	return actor;
 }
 
@@ -60,13 +55,12 @@ void UPW_BoxSpawningComponent::GetGroundPositionAndNormal(FVector& outPosition, 
 	FHitResult hit;
 	FVector start = GetRandomPositionInBox();
 	FVector end = start - FVector::UpVector * 1000.0f;
-	const float outPositionZOffset = 100.f;
 	
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(GetOwner());
 	if (GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, params))
 	{
-		outPosition = hit.ImpactPoint + FVector::UpVector * outPositionZOffset;
+		outPosition = hit.ImpactPoint + FVector::UpVector * _spawnHeightOffset;
 		outNormal = hit.ImpactNormal;
 		
 		DRAW_LINE(start, outPosition);
