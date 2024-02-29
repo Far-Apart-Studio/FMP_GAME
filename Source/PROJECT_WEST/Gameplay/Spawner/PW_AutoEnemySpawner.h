@@ -46,6 +46,9 @@ private:
 	FWeightedSpawn _weightedSpawn;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
+	float _distanceFromPlayer;
+
+	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	float _spawnRate;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))

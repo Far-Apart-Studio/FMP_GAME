@@ -60,8 +60,8 @@ bool UPW_BoxSpawningComponent::GetGroundPositionAndNormal(FVector origin,FVector
 	if (GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, params))
 	{
 		outPosition = hit.ImpactPoint + FVector::UpVector * _spawnHeightOffset;
-		DRAW_LINE(start, outPosition);
-		DRAW_SPHERE(hit.ImpactPoint);
+		//DRAW_LINE_SingleFrame(start, outPosition);
+		//DRAW_SPHERE_SingleFrame(hit.ImpactPoint);
 		return true;
 	}
 	else

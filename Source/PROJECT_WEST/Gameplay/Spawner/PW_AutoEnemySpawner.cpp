@@ -32,6 +32,7 @@ APW_AutoEnemySpawner::APW_AutoEnemySpawner()
 	_maxSpawnedEnemies = 5;
 	_minDistanceToPlayer = 1000;
 	_whileLoopBreakerMaxCount = 50;
+	_distanceFromPlayer = 5000;
 }
 
 void APW_AutoEnemySpawner::BeginPlay()
@@ -48,8 +49,6 @@ void APW_AutoEnemySpawner::Tick(float DeltaTime)
 		HandleSpawnTimer(DeltaTime);
 		HandlePositioning();
 	}
-
-
 }
 
 void APW_AutoEnemySpawner::HandleSpawnTimer(float DeltaTime)
@@ -62,9 +61,12 @@ void APW_AutoEnemySpawner::HandleSpawnTimer(float DeltaTime)
 	{
 		if (_spawnedActors.Num() < _maxSpawnedEnemies)
 		{
-			//DEBUG_STRING("Spawning enemies")
 			SpawnEnemies();
 			_spawnTimer = _spawnRate;
+		}
+		else
+		{
+			//DEBUG_STRING("Max enemies spawned");
 		}
 	}
 }
@@ -76,7 +78,7 @@ void APW_AutoEnemySpawner::HandlePositioning()
 		FVector playerMovingDirection = _character->GetVelocity();
 		playerMovingDirection.Z = 0;
 		playerMovingDirection.Normalize();
-		FVector newLocation = _character->GetActorLocation() + playerMovingDirection * 1000;
+		FVector newLocation = _character->GetActorLocation() + playerMovingDirection * _distanceFromPlayer;
 		SetActorLocation(newLocation);
 		FRotator newRotation = playerMovingDirection.Rotation();
 		SetActorRotation(newRotation);
@@ -99,7 +101,6 @@ void APW_AutoEnemySpawner::SpawnEnemies()
 				AActor* actorToSpawn = GetWorld()->SpawnActor<AActor> (info._actorClass, spawnPosition, FRotator::ZeroRotator);
 				if (actorToSpawn)
 				{
-					DEBUG_STRING ("Spawning actor")
 					TryFadeActorMaterial(actorToSpawn);
 					TryAssignDeathEvent(actorToSpawn);
 					TryAssignUnloaderEvent(actorToSpawn);
@@ -108,6 +109,8 @@ void APW_AutoEnemySpawner::SpawnEnemies()
 			}
 		}
 	}
+
+	//DEBUG_STRING( "Spawn position: " + FString::SanitizeFloat(_spawnedActors.Num()));
 }
 
 bool APW_AutoEnemySpawner::GetValidSpawnPosition(FVector& outPosition)
@@ -127,7 +130,6 @@ bool APW_AutoEnemySpawner::GetValidSpawnPosition(FVector& outPosition)
 
 	if (whileLoopBreaker >= 100)
 	{
-		DEBUG_STRING("While loop breaker reached max count")
 		return false;
 	}
 	
