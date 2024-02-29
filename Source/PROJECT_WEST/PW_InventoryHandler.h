@@ -49,18 +49,21 @@ public:
 	
 	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
 	bool TryCollectItem(APW_ItemObject* collectedItem);
-	bool TryDropItem(UPW_InventorySlot* currentSlot);
 	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
 
+	void DropItem(UPW_InventorySlot* inventorySlot);
 	void ChangeSlot(const UPW_InventorySlot* updatedSlot, bool forceChangeSlot = false);
-	void ShowItem(APW_ItemObject* selectedItem);
-	void HideItem(APW_ItemObject* selectedItem);
+	void EnableItem(APW_ItemObject* inventoryItem);
+	void DisableItem(APW_ItemObject* selectedItem);
 	void CycleNextSlot(); 
 	void CyclePreviousSlot();
 
 	FORCEINLINE UPW_InventorySlot* GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
 	FORCEINLINE UPW_InventorySlot* GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
 	
-	UFUNCTION() void CycleSlot();
-	UFUNCTION() void DropCurrentItem();
+	UFUNCTION(BlueprintCallable) void CycleUp();
+	UFUNCTION(BlueprintCallable) void CycleDown();
+	UFUNCTION(BlueprintCallable) void ToSlot(int slotIndex);
+	UFUNCTION(BlueprintCallable) void DropCurrentItem();
+	UFUNCTION(BlueprintCallable) void DropAll();
 };

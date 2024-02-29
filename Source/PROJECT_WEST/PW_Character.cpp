@@ -17,22 +17,16 @@
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
-APW_Character::APW_Character()
+APW_Character::APW_Character(): _itemHolder(nullptr),
+								_cameraComponent(nullptr),
+								_itemHandlerComponent(nullptr),
+                                _healthComponent(nullptr),
+                                _overheadWidget(nullptr),
+                                _springArmComponent(nullptr),
+                                _playerController(nullptr),
+                                _bountyGameMode(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	/*_springArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	_springArmComponent->SetupAttachment(GetMesh(), "head_root");
-	
-	_cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	_cameraComponent->SetupAttachment( _springArmComponent);
-	_cameraComponent->bUsePawnControlRotation = true;
-	
-	_overheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
-	_overheadWidget->SetupAttachment(RootComponent);*/
-
-	/*_itemHolder = CreateDefaultSubobject<USceneComponent>(TEXT("ItemHolder"));
-	_itemHolder->SetupAttachment(GetMesh() , "gun_socket");*/
 }
 
 void APW_Character::BeginPlay()
@@ -109,6 +103,12 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APW_Character::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APW_Character::AimButtonReleased);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APW_Character::ReloadButtonPressed);
+	PlayerInputComponent->BindAction("MouseWheelUp", IE_Pressed, this, &APW_Character::MouseWheelUpAxisPressed);
+	PlayerInputComponent->BindAction("MouseWheelDown", IE_Pressed, this, &APW_Character::MouseWheelDownAxisPressed);
+	PlayerInputComponent->BindAction("SlotOne", IE_Pressed, this, &APW_Character::SlotOnePressed);
+	PlayerInputComponent->BindAction("SlotTwo", IE_Pressed, this, &APW_Character::SlotTwoPressed);
+	PlayerInputComponent->BindAction("SlotThree", IE_Pressed, this, &APW_Character::SlotThreePressed);
+	PlayerInputComponent->BindAction("SlotFour", IE_Pressed, this, &APW_Character::SlotFourPressed);
 }
 
 void APW_Character::ReloadButtonPressed()
@@ -136,6 +136,36 @@ void APW_Character::EndInteractButtonPressed()
 	OnEndInteractButtonPressed.Broadcast();
 }
 
+void APW_Character::MouseWheelUpAxisPressed()
+{
+	OnMouseDownPressed.Broadcast();
+}
+
+void APW_Character::MouseWheelDownAxisPressed()
+{
+	OnMouseDownPressed.Broadcast();
+}
+
+void APW_Character::SlotOnePressed()
+{
+	OnSlotPressed.Broadcast(0);
+}
+
+void APW_Character::SlotTwoPressed()
+{
+	OnSlotPressed.Broadcast(1);
+}
+
+void APW_Character::SlotThreePressed()
+{
+	OnSlotPressed.Broadcast(2);
+}
+
+void APW_Character::SlotFourPressed()
+{
+	OnSlotPressed.Broadcast(3);
+}
+
 void APW_Character::JumpButtonPressed()
 {
 	OnJumpButtonPressed.Broadcast();
@@ -144,11 +174,6 @@ void APW_Character::JumpButtonPressed()
 void APW_Character::SprintButtonPressed()
 {
 	OnSprintButtonPressed.Broadcast();
-}
-
-void APW_Character::ToggleMovement(bool canMove)
-{
-	
 }
 
 void APW_Character::MoveForwardAxisPressed(float value)

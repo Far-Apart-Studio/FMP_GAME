@@ -85,7 +85,7 @@ void APW_WeaponObject::CoreFireSequence()
 	if (IsAmmoEmpty())
 		{ ReloadWeapon(); return; }
 	
-	if (CalculateFireStatus())
+	if (CanFire())
 		CastBulletRays();
 	
 }
@@ -304,17 +304,16 @@ float APW_WeaponObject::CalculateDamage(const FHitResult& hitResult)
 	return calculatedDamage;
 }
 
-bool APW_WeaponObject::CalculateFireStatus()
+bool APW_WeaponObject::CanFire()
 {
 	if (_weaponData == nullptr)
 		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return false; }
 
-	PW_Utilities::Log("CALCULATING FIRE STATUS");
+	if (_weaponRuntimeData.IsReloading)
+		return false;
 	
 	if (_weaponRuntimeData.LastFiredTime < _weaponData->GetHipWeaponFireRate())
 		return false;
-
-	PW_Utilities::Log("FIRE STATUS CALCULATED");
 
 	_weaponRuntimeData.LastFiredTime = 0.0f;
 	return true;

@@ -36,10 +36,10 @@ private:
 	EItemType _itemType;
 
 	UPROPERTY(EditAnywhere, Category = "Item Object")
-	EItemObjectState _itemState;
-
-	UPROPERTY(EditAnywhere, Category = "Item Object")
 	UStaticMeshComponent* _itemMesh;
+	
+	UPROPERTY(EditAnywhere, Category = "Item Object")
+	EItemObjectState _itemState;
 
 	UPROPERTY(VisibleAnywhere, Category = "Item Object")
 	bool _isActive;
@@ -67,7 +67,6 @@ public:
 
 	FORCEINLINE EItemType GetItemType() const { return _itemType; }
 	FORCEINLINE EItemObjectState GetItemState() const { return _itemState; }
-	FORCEINLINE void SetItemState(EItemObjectState newState) { _itemState = newState; }
 	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return _itemMesh; }
 	FORCEINLINE void SetIsActive(bool isActive) { _isActive = isActive; }
 	FORCEINLINE bool GetIsActive() const { return _isActive; }

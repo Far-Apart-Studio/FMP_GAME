@@ -105,7 +105,7 @@ public:
 	void ApplyDamage(const FHitResult& hitResult);
 	void LocalApplyDamage(const FHitResult& hitResult);
 	float CalculateDamage(const FHitResult& hitResult);
-	bool CalculateFireStatus();
+	bool CanFire();
 	void LocalReloadWeapon();
 	void OnReloadWeaponComplete();
 	void CoreFireSequence();

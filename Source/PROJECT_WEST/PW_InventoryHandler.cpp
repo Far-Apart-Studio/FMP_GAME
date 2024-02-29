@@ -7,7 +7,7 @@
 #include "PW_ItemObject.h"
 #include "PW_Utilities.h"
 
-UPW_InventoryHandler::UPW_InventoryHandler()
+UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -32,6 +32,7 @@ void UPW_InventoryHandler::TickComponent(float DeltaTime, ELevelTick TickType, F
 void UPW_InventoryHandler::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
 }
 
 bool UPW_InventoryHandler::TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot)
@@ -55,15 +56,15 @@ void UPW_InventoryHandler::ChangeSlot(const UPW_InventorySlot* updatedSlot, bool
 	if (currentSlot == updatedSlot && !forceChangeSlot)
 		{ PW_Utilities::Log("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
 
-	APW_ItemObject* currentItem = currentSlot->GetCurrentItem();
+	APW_ItemObject* currentItem = currentSlot->GetItem();
 	
 	if (currentItem != nullptr)
-		HideItem(currentItem);
+		DisableItem(currentItem);
 
-	APW_ItemObject* updatedItem = updatedSlot->GetCurrentItem();
+	APW_ItemObject* updatedItem = updatedSlot->GetItem();
 	
 	if (updatedItem != nullptr)
-		ShowItem(updatedItem);
+		EnableItem(updatedItem);
 }
 
 bool UPW_InventoryHandler::TryCollectItem(APW_ItemObject* collectedItem)
@@ -83,8 +84,7 @@ bool UPW_InventoryHandler::TryCollectItem(APW_ItemObject* collectedItem)
 	
 	USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
-	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	collectedItem->SetItemState(EItemObjectState::EHeld);
+	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	collectedItem->SetOwner(_ownerCharacter);
 	collectedItem->SetVisibility(false);
 
@@ -94,24 +94,20 @@ bool UPW_InventoryHandler::TryCollectItem(APW_ItemObject* collectedItem)
 	return true;
 }
 
-bool UPW_InventoryHandler::TryDropItem(UPW_InventorySlot* currentSlot)
+void UPW_InventoryHandler::DropItem(UPW_InventorySlot* inventorySlot)
 {
-	if (currentSlot == nullptr)
-		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return false; }
+	if (inventorySlot == nullptr)
+		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
 	
-	APW_ItemObject* slotItem = currentSlot->GetCurrentItem();
+	APW_ItemObject* slotItem = inventorySlot->GetItem();
 	
 	if (slotItem == nullptr)
-		{ PW_Utilities::Log("SLOT IS EMPTY!"); return false; }
+		{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
 
-	currentSlot->RemoveItem();
-	slotItem->RemoveBindingActions(_ownerCharacter);
+	inventorySlot->RemoveItem();
 	slotItem->UpdateItemState(EItemObjectState::EDropped);
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	slotItem->SetItemState(EItemObjectState::EDropped);
 	slotItem->SetOwner(nullptr);
-	
-	return true;
 }
 
 bool UPW_InventoryHandler::TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot)
@@ -130,35 +126,22 @@ bool UPW_InventoryHandler::TryGetAvailableSlot(EItemType itemType, UPW_Inventory
 	return false; 
 }
 
-void UPW_InventoryHandler::ShowItem(APW_ItemObject* selectedItem)
+void UPW_InventoryHandler::EnableItem(APW_ItemObject* inventoryItem)
 {
-	if (selectedItem == nullptr)
+	if (inventoryItem == nullptr)
 		{ PW_Utilities::Log("SELECTED ITEM IS NULL!"); return; }
 	
-	selectedItem->SetVisibility(true);
-	selectedItem->ApplyBindingActions(_ownerCharacter);
+	inventoryItem->SetVisibility(true);
+	inventoryItem->ApplyBindingActions(_ownerCharacter);
 }
 
-void UPW_InventoryHandler::HideItem(APW_ItemObject* selectedItem)
+void UPW_InventoryHandler::DisableItem(APW_ItemObject* inventoryItem)
 {
-	if (selectedItem == nullptr)
+	if (inventoryItem == nullptr)
 		{ PW_Utilities::Log("SELECTED ITEM IS NULL!"); return; }
 	
-	selectedItem->SetVisibility(false);
-	selectedItem->RemoveBindingActions(_ownerCharacter);
-}
-
-void UPW_InventoryHandler::GetOwnerCharacter()
-{
-	AActor* ownerActor = GetOwner();
-	
-	if (ownerActor == nullptr)
-		{ PW_Utilities::Log("OWNER ACTOR NOT FOUND!"); return; }
-
-	_ownerCharacter = Cast<APW_Character>(ownerActor);
-	
-	if (_ownerCharacter == nullptr)
-		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
+	inventoryItem->SetVisibility(false);
+	inventoryItem->RemoveBindingActions(_ownerCharacter);
 }
 
 void UPW_InventoryHandler::CreateInventoryConfiguration()
@@ -211,18 +194,32 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 	}
 }
 
-void UPW_InventoryHandler::AssignInputActions()
+void UPW_InventoryHandler::CycleUp()
 {
-	if (_ownerCharacter == nullptr)
-		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
+	if (_inventorySlots.IsEmpty())
+		{ PW_Utilities::Log("INVENTORY SLOTS ARE EMPTY, CANNOT CYCLE UP!"); return; }
 	
-	_ownerCharacter->OnCycleItemButtonPressed.AddDynamic(this, &UPW_InventoryHandler::CycleSlot);
-	_ownerCharacter->OnDropButtonPressed.AddDynamic(this, &UPW_InventoryHandler::DropCurrentItem);
+	CycleNextSlot();
 }
 
-void UPW_InventoryHandler::CycleSlot()
+void UPW_InventoryHandler::CycleDown()
 {
-	CycleNextSlot();
+	if (_inventorySlots.IsEmpty())
+		{ PW_Utilities::Log("INVENTORY SLOTS ARE EMPTY, CANNOT CYCLE DOWN!"); return; }
+	
+	CyclePreviousSlot();
+}
+
+void UPW_InventoryHandler::ToSlot(int slotIndex)
+{
+	UPW_InventorySlot* targetedSlot = nullptr;
+	const bool foundSlot = TryGetSlot(slotIndex, targetedSlot);
+
+	if (!foundSlot)
+		{ PW_Utilities::Log("TARGETED SLOT NOT FOUND!"); return; }
+
+	ChangeSlot(targetedSlot);
+	_currentSlotIndex = slotIndex;
 }
 
 void UPW_InventoryHandler::DropCurrentItem()
@@ -230,8 +227,52 @@ void UPW_InventoryHandler::DropCurrentItem()
 	UPW_InventorySlot* currentSlot = GetCurrentSlot();
 
 	if (currentSlot == nullptr)
-	{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
+		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
+
+	APW_ItemObject* slotItem = currentSlot->GetItem();
+
+	if (slotItem == nullptr)
+		{ PW_Utilities::Log("SLOT ITEM IS NULL!"); return; }
 	
-	const bool successfulDrop = TryDropItem(currentSlot);
+	DropItem(currentSlot);
+	slotItem->RemoveBindingActions(_ownerCharacter);
+}
+
+void UPW_InventoryHandler::DropAll()
+{
+	for (UPW_InventorySlot* inventorySlot : _inventorySlots)
+	{
+		APW_ItemObject* slotItem = inventorySlot->GetItem();
+		
+		if (slotItem != nullptr)
+			slotItem->SetVisibility(true);
+		
+		DropItem(inventorySlot);
+	}
+}
+
+void UPW_InventoryHandler::AssignInputActions()
+{
+	if (_ownerCharacter == nullptr)
+		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
+	
+	_ownerCharacter->OnCycleItemButtonPressed.AddDynamic(this, &UPW_InventoryHandler::CycleNextSlot);
+	_ownerCharacter->OnMouseDownPressed.AddDynamic(this, &UPW_InventoryHandler::CycleDown);
+	_ownerCharacter->OnMouseUpPressed.AddDynamic(this, &UPW_InventoryHandler::CycleUp);
+	_ownerCharacter->OnDropButtonPressed.AddDynamic(this, &UPW_InventoryHandler::DropCurrentItem);
+	_ownerCharacter->OnSlotPressed.AddDynamic(this, &UPW_InventoryHandler::ToSlot);
+}
+
+void UPW_InventoryHandler::GetOwnerCharacter()
+{
+	AActor* ownerActor = GetOwner();
+	
+	if (ownerActor == nullptr)
+		{ PW_Utilities::Log("OWNER ACTOR NOT FOUND!"); return; }
+
+	_ownerCharacter = Cast<APW_Character>(ownerActor);
+	
+	if (_ownerCharacter == nullptr)
+		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
 }
 
