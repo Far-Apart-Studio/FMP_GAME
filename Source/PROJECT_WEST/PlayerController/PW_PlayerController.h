@@ -249,4 +249,9 @@ public:
 	UFUNCTION( Server, Reliable )
 	void ServerPayDebtCollector();
 	void LocalPayDebtCollector();
+
+	void SpawnAutoEnemySpawner();
+	UFUNCTION( Server, Reliable )
+	void ServerSpawnAutoEnemySpawner(class APW_Character* controlledCharacter);
+	void LocalSpawnAutoEnemySpawner(APW_Character* controlledCharacter);
 };

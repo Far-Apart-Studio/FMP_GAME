@@ -6,30 +6,18 @@
 #include "Components/SceneComponent.h"
 #include "PW_BoxSpawningComponent.generated.h"
 
-USTRUCT(BlueprintType)
-struct FSpawnItemInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo" , meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float _weight;
-	
-	UPROPERTY(EditAnywhere, Category = "SpawnItemInfo")
-	TSubclassOf<AActor> itemClass;
-};
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_WEST_API UPW_BoxSpawningComponent : public USceneComponent
+class PROJECT_WEST_API UPW_BoxSpawningComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 private:
 
-	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* _boxComponent;
-
-	UPROPERTY(EditAnywhere, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AActor> testActorClass;
+	
+	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
+	float _spawnHeightOffset;
 
 public:	
 
@@ -42,13 +30,12 @@ protected:
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UFUNCTION(BlueprintCallable)
-	AActor* SpawnActorInBox(TSubclassOf<AActor> actorClass);
 	
-private:
+	bool GetGroundPositionAndNormal(FVector origin, FVector& outPosition);
 	
 	FVector GetRandomPositionInBox();
-	bool IsPositionValid(FVector position);
-	void GetGroundPositionAndNormal(FVector& outPosition, FVector& outNormal);
+
+	FVector GetRandomPositionInBoxEdge();
+
+	FORCEINLINE void SetBoxComponent(UBoxComponent* boxComponent) { _boxComponent = boxComponent; }
 };

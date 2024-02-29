@@ -9,30 +9,17 @@
 UPW_BoxSpawningComponent::UPW_BoxSpawningComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	_boxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
-	_boxComponent->SetupAttachment(this);
+	_spawnHeightOffset = 100.0f;
 }
 
-// Called when the game starts
 void UPW_BoxSpawningComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	// ...
 }
 
-// Called every frame
 void UPW_BoxSpawningComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	// ...
-}
-
-AActor* UPW_BoxSpawningComponent::SpawnActorInBox(TSubclassOf<AActor> actorClass)
-{
-	FVector position, normal;
-	GetGroundPositionAndNormal(position, normal);
-	AActor* actor = GetWorld()->SpawnActor<AActor> (actorClass, position, normal.Rotation());
-	return actor;
 }
 
 FVector UPW_BoxSpawningComponent::GetRandomPositionInBox()
@@ -47,35 +34,40 @@ FVector UPW_BoxSpawningComponent::GetRandomPositionInBox()
 	return result;
 }
 
-bool UPW_BoxSpawningComponent::IsPositionValid(FVector position)
+FVector UPW_BoxSpawningComponent::GetRandomPositionInBoxEdge()
 {
-	FHitResult hit;
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(GetOwner());
-	return !GetWorld()->SweepSingleByChannel(hit, position, position, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(50.0f), params);
+	FVector result = FVector::ZeroVector;
+	if (_boxComponent)
+	{
+		FVector origin = _boxComponent->GetComponentLocation();
+		FVector extent = _boxComponent->GetScaledBoxExtent();
+		FVector min = origin - extent;
+		FVector max = origin + extent;
+		FVector edge = FVector(FMath::RandRange(min.X, max.X), FMath::RandRange(min.Y, max.Y), FMath::RandRange(min.Z, max.Z));
+		result = edge;
+	}
+	return result;
 }
 
-void UPW_BoxSpawningComponent::GetGroundPositionAndNormal(FVector& outPosition, FVector& outNormal)
+bool UPW_BoxSpawningComponent::GetGroundPositionAndNormal(FVector origin,FVector& outPosition)
 {
 	FHitResult hit;
-	FVector start = GetRandomPositionInBox();
-	FVector end = start - FVector::UpVector * 1000.0f;
-	const float outPositionZOffset = 100.f;
+	FVector start = origin;
+	FVector end = start - FVector::UpVector * 5000.0f;
 	
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(GetOwner());
 	if (GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, params))
 	{
-		outPosition = hit.ImpactPoint + FVector::UpVector * outPositionZOffset;
-		outNormal = hit.ImpactNormal;
-		
-		DRAW_LINE(start, outPosition);
-		DRAW_SPHERE(hit.ImpactPoint);
+		outPosition = hit.ImpactPoint + FVector::UpVector * _spawnHeightOffset;
+		//DRAW_LINE_SingleFrame(start, outPosition);
+		//DRAW_SPHERE_SingleFrame(hit.ImpactPoint);
+		return true;
 	}
 	else
 	{
 		outPosition = start;
-		outNormal = FVector::UpVector;
+		return false;
 	}
 }
 
