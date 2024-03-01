@@ -28,13 +28,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	FWeightedSpawn _weightedSpawn;
-
-	UPROPERTY(EditAnywhere, Category = "Gameplay" , meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float _spawnChance;
-
-	UPROPERTY(EditAnywhere, Category = "Gameplay" , meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float _spawnCooldown;
-
+	
 	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	TArray<AActor*> _triggredActors;
 
@@ -65,8 +59,9 @@ public:
 private:
 
 	void SpawnEnemies();
-
 	bool CanSpawnEnemy();
+	int GetNumberOfCharactersInLevel();
+	
 	void TryAssignDeathEvent(AActor* actor);
 	void TryFadeActorMaterial(AActor* actor);
 	void TryAssignUnloaderEvent(AActor* actor);

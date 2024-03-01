@@ -5,6 +5,7 @@
 
 #include "PW_BoxSpawningComponent.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/PW_Character.h"
@@ -32,9 +33,6 @@ APW_EnemySpawner::APW_EnemySpawner()
 
 	_boxSpawningComponent = CreateDefaultSubobject<UPW_BoxSpawningComponent>(TEXT("BoxSpawningComponent"));
 	_boxSpawningComponent->SetBoxComponent(_spawnArea);
-	
-	_spawnChance = 0.5f;
-	_spawnCooldown = 5.0f;
 }
 
 void APW_EnemySpawner::BeginPlay()
@@ -53,10 +51,10 @@ void APW_EnemySpawner::OnDetectionBoxBeginOverlap(UPrimitiveComponent* Overlappe
 	APW_Character* character = Cast<APW_Character>(OtherActor);
 	if (character)
 	{
-		_triggredActors.Add(OtherActor);
-		
 		if(CanSpawnEnemy())
 			SpawnEnemies();
+		
+		_triggredActors.Add(OtherActor);
 	}	
 }
 
@@ -82,7 +80,6 @@ AActor* APW_EnemySpawner::SpawnActor(TSubclassOf<AActor> actorClass)
 	AActor* actorToSpawn = GetWorld()->SpawnActor<AActor> (actorClass, spawnPosition, FRotator::ZeroRotator);
 	if (actorToSpawn)
 	{
-		TryFadeActorMaterial(actorToSpawn);
 		TryAssignDeathEvent(actorToSpawn);
 		TryAssignUnloaderEvent(actorToSpawn);
 		_spawnedActors.Add(actorToSpawn);
@@ -92,14 +89,17 @@ AActor* APW_EnemySpawner::SpawnActor(TSubclassOf<AActor> actorClass)
 
 void APW_EnemySpawner::SpawnEnemies()
 {
-	TArray<FSpawnInfo> spawnInfo = _weightedSpawn.GetRandomActorClass();
-	if (spawnInfo.Num() > 0)
+	for (int i = 0; i < GetNumberOfCharactersInLevel(); i++)
 	{
-		for (const FSpawnInfo& info : spawnInfo)
+		TArray<FSpawnInfo> spawnInfo = _weightedSpawn.GetRandomActorClass();
+		if (spawnInfo.Num() > 0)
 		{
-			for (int i = 0; i < info._amount; i++)
+			for (const FSpawnInfo& info : spawnInfo)
 			{
-				SpawnActor(info._actorClass);
+				for (int j = 0; j < info._amount; j++)
+				{
+					SpawnActor(info._actorClass);
+				}
 			}
 		}
 	}
@@ -107,7 +107,14 @@ void APW_EnemySpawner::SpawnEnemies()
 
 bool APW_EnemySpawner::CanSpawnEnemy()
 {
-	return _spawnChance >= FMath::FRand();
+	return _triggredActors.Num() == 0 && _spawnedActors.Num() == 0;
+}
+
+int APW_EnemySpawner::GetNumberOfCharactersInLevel()
+{
+	TArray< AActor* > players;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APW_Character::StaticClass(), players);
+	return players.Num();
 }
 
 void APW_EnemySpawner::TryAssignDeathEvent(AActor* actor)

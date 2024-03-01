@@ -57,6 +57,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	int32 _minDistanceToPlayer;
 
+	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
+	int32 _zpositionOffset;
+
 	float _spawnTimer;
 
 	float _whileLoopBreakerMaxCount;
