@@ -139,7 +139,7 @@ void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
 void APW_ItemObject::BindActions(APW_Character* characterOwner)
 {
 	DEBUG_STRING("BIND ACTIONS");
-	HasAuthority() ? LocalBindActions(characterOwner) : ClientBindActions(characterOwner);
+	HasAuthority() ? ClientBindActions(characterOwner) : LocalBindActions(characterOwner);
 }
 
 void APW_ItemObject::ClientBindActions_Implementation(APW_Character* characterOwner)

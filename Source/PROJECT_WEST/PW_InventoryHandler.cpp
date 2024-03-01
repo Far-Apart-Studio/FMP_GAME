@@ -146,7 +146,7 @@ void UPW_InventoryHandler::EnableItem(APW_ItemObject* inventoryItem)
 		{ PW_Utilities::Log("SELECTED ITEM IS NULL!"); return; }
 	
 	inventoryItem->SetVisibility(true);
-	inventoryItem->LocalBindActions(_ownerCharacter);
+	inventoryItem->BindActions(_ownerCharacter);
 }
 
 void UPW_InventoryHandler::DisableItem(APW_ItemObject* inventoryItem)
