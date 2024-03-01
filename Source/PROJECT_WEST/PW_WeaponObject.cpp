@@ -37,7 +37,7 @@ void APW_WeaponObject::Tick(float DeltaSeconds)
 		_weaponRuntimeData.LastFiredTime += DeltaSeconds;
 }
 
-void APW_WeaponObject::ApplyBindingActions(APW_Character* characterOwner)
+void APW_WeaponObject::LocalBindActions(APW_Character* characterOwner)
 {
 	characterOwner->OnShootButtonPressed.AddDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.AddDynamic(this, &APW_WeaponObject::CompleteFireSequence);

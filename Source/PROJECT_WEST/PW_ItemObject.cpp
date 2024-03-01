@@ -5,6 +5,7 @@
 #include "PW_Character.h"
 #include "PW_InventoryHandler.h"
 #include "PW_Utilities.h"
+#include "Net/UnrealNetwork.h"
 
 
 APW_ItemObject::APW_ItemObject()
@@ -12,6 +13,7 @@ APW_ItemObject::APW_ItemObject()
 	PrimaryActorTick.bCanEverTick = true;
 	_itemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
 	_itemMesh->SetIsReplicated(true);
+	
 	SetRootComponent(_itemMesh);
 
 	_itemMesh->SetCollisionResponseToAllChannels(ECR_Block);
@@ -23,6 +25,10 @@ APW_ItemObject::APW_ItemObject()
 void APW_ItemObject::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
+	
 	EnterDroppedState();
 }
 
@@ -31,33 +37,18 @@ void APW_ItemObject::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
+void APW_ItemObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	switch (updatedState)
-	{
-		case EItemObjectState::EHeld:
-			EnterHeldState();
-			break;
-		case EItemObjectState::EDropped:
-			EnterDroppedState();
-			break;
-	}
-
-	_itemState = updatedState;
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(APW_ItemObject, _itemState);
+	DOREPLIFETIME(APW_ItemObject, _isActive);
+	DOREPLIFETIME(APW_ItemObject, _itemMesh);
 }
 
 void APW_ItemObject::UpdateItemType(EItemType updatedType)
 {
 	_itemType = updatedType;
-}
-
-void APW_ItemObject::SetVisibility(bool isVisible)
-{
-	if (_itemMesh == nullptr)
-		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
-
-	_itemMesh->SetVisibility(isVisible);
-	_isActive = isVisible;
 }
 
 void APW_ItemObject::StartFocus_Implementation()
@@ -72,6 +63,8 @@ void APW_ItemObject::EndFocus_Implementation()
 
 void APW_ItemObject::StartInteract_Implementation(AActor* owner)
 {
+	DEBUG_STRING("START INTERACT");
+	
 	const APW_Character* characterController = Cast<APW_Character>(owner);
 
 	if (characterController == nullptr)
@@ -84,7 +77,7 @@ void APW_ItemObject::StartInteract_Implementation(AActor* owner)
 		{ PW_Utilities::Log("ITEM OBJECT: INVENTORY HANDLER IS NULL!"); return; }
 	
 	if (characterController->IsLocallyControlled())
-		inventoryHandler->TryCollectItem(this);
+		inventoryHandler->CollectItem(this);
 }
 
 void APW_ItemObject::EnterHeldState()
@@ -111,5 +104,55 @@ void APW_ItemObject::EnterDroppedState()
 	_itemMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+}
+#pragma region SetVisibility
+void APW_ItemObject::SetVisibility(bool isVisible)
+{
+	if (_itemMesh == nullptr)
+	{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+
+	_itemMesh->SetVisibility(isVisible);
+	_isActive = isVisible;
+}
+#pragma endregion SetVisibility
+
+#pragma region UpdateItemState
+
+void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
+{
+	switch (updatedState)
+	{
+	case EItemObjectState::EHeld:
+		EnterHeldState();
+		break;
+	case EItemObjectState::EDropped:
+		EnterDroppedState();
+		break;
+	}
+
+	_itemState = updatedState;
+}
+
+#pragma endregion UpdateItemStateNetworked
+
+
+void APW_ItemObject::BindActions(APW_Character* characterOwner)
+{
+	DEBUG_STRING("BIND ACTIONS");
+	HasAuthority() ? LocalBindActions(characterOwner) : ClientBindActions(characterOwner);
+}
+
+void APW_ItemObject::ClientBindActions_Implementation(APW_Character* characterOwner)
+{
+	if (characterOwner == nullptr)
+		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return; }
+
+	if (characterOwner->IsLocallyControlled())
+		LocalBindActions(characterOwner);
+}
+
+void APW_ItemObject::LocalBindActions(APW_Character* characterOwner)
+{
+	DEBUG_STRING("APPLY BINDING ACTIONS");
 }
 

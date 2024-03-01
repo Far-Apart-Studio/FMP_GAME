@@ -35,13 +35,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	EItemType _itemType;
 
-	UPROPERTY(EditAnywhere, Category = "Item Object")
+	UPROPERTY(Replicated, EditAnywhere, Category = "Item Object")
 	UStaticMeshComponent* _itemMesh;
 	
-	UPROPERTY(EditAnywhere, Category = "Item Object")
+	UPROPERTY(Replicated, EditAnywhere, Category = "Item Object")
 	EItemObjectState _itemState;
 
-	UPROPERTY(VisibleAnywhere, Category = "Item Object")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Item Object")
 	bool _isActive;
 
 protected:
@@ -53,10 +53,14 @@ public:
 	APW_ItemObject();
 	
 	virtual void Tick(float DeltaTime) override;
-	
-	virtual void ApplyBindingActions(APW_Character* characterOwner) {}
-	virtual void RemoveBindingActions(APW_Character* characterOwner) {}
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	void BindActions(APW_Character* characterOwner);
+	virtual void LocalBindActions(APW_Character* characterOwner);
+	UFUNCTION(Client, Reliable) void ClientBindActions(APW_Character* characterOwner);
+	
+	virtual void RemoveBindingActions(APW_Character* characterOwner) {}
+	
 	void UpdateItemState(EItemObjectState updatedState);
 	void UpdateItemType(EItemType updatedType);
 	void SetVisibility(bool isVisible);

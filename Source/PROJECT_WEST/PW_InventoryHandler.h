@@ -47,11 +47,16 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
-	bool TryCollectItem(APW_ItemObject* collectedItem);
-	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
+	void CollectItem(APW_ItemObject* collectedItem);
+	void LocalCollectItem(APW_ItemObject* collectedItem);
+	UFUNCTION(Server, Reliable) void ServerCollectItem(APW_ItemObject* collectedItem);
 
 	void DropItem(UPW_InventorySlot* inventorySlot);
+	void LocalDropCurrentItem();
+	UFUNCTION(Server, Reliable) void ServerDropCurrentItem();
+	
+	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
+	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
 	void ChangeSlot(const UPW_InventorySlot* updatedSlot, bool forceChangeSlot = false);
 	void EnableItem(APW_ItemObject* inventoryItem);
 	void DisableItem(APW_ItemObject* selectedItem);

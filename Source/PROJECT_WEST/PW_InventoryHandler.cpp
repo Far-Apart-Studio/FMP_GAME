@@ -67,10 +67,16 @@ void UPW_InventoryHandler::ChangeSlot(const UPW_InventorySlot* updatedSlot, bool
 		EnableItem(updatedItem);
 }
 
-bool UPW_InventoryHandler::TryCollectItem(APW_ItemObject* collectedItem)
+#pragma region CollectItem
+void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
+{
+	_ownerCharacter->HasAuthority() ? LocalCollectItem(collectedItem) : ServerCollectItem(collectedItem);
+}
+
+void UPW_InventoryHandler::LocalCollectItem(APW_ItemObject* collectedItem)
 {
 	if (collectedItem == nullptr)
-		{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return false; }
+	{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
 
 	const EItemType itemType = collectedItem->GetItemType();
 
@@ -78,37 +84,45 @@ bool UPW_InventoryHandler::TryCollectItem(APW_ItemObject* collectedItem)
 	const bool foundSlot = TryGetAvailableSlot(itemType, availableSlot);
 
 	if (!foundSlot)
-		{ PW_Utilities::Log("NO AVAILABLE SLOT!"); return false; }
+	{ PW_Utilities::Log("NO AVAILABLE SLOT!"); return; }
 	
 	availableSlot->SetItem(collectedItem);
 	
 	USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
+	collectedItem->SetOwner(_ownerCharacter);
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	collectedItem->SetOwner(_ownerCharacter);
 	collectedItem->SetVisibility(false);
 
 	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
 	ChangeSlot(currentSlot, true);
-	
-	return true;
 }
+
+void UPW_InventoryHandler::ServerCollectItem_Implementation(APW_ItemObject* collectedItem)
+{
+	if (_ownerCharacter->HasAuthority())
+		LocalCollectItem(collectedItem);
+}
+#pragma endregion CollectItem
 
 void UPW_InventoryHandler::DropItem(UPW_InventorySlot* inventorySlot)
 {
+	DEBUG_STRING("LOCAL DROP ITEM");
+	
 	if (inventorySlot == nullptr)
-		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
+	{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
 	
 	APW_ItemObject* slotItem = inventorySlot->GetItem();
 	
 	if (slotItem == nullptr)
-		{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
+	{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
 
 	inventorySlot->RemoveItem();
 	slotItem->UpdateItemState(EItemObjectState::EDropped);
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	slotItem->SetOwner(nullptr);
 }
+
 
 bool UPW_InventoryHandler::TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot)
 {
@@ -132,7 +146,7 @@ void UPW_InventoryHandler::EnableItem(APW_ItemObject* inventoryItem)
 		{ PW_Utilities::Log("SELECTED ITEM IS NULL!"); return; }
 	
 	inventoryItem->SetVisibility(true);
-	inventoryItem->ApplyBindingActions(_ownerCharacter);
+	inventoryItem->LocalBindActions(_ownerCharacter);
 }
 
 void UPW_InventoryHandler::DisableItem(APW_ItemObject* inventoryItem)
@@ -222,21 +236,34 @@ void UPW_InventoryHandler::ToSlot(int slotIndex)
 	_currentSlotIndex = slotIndex;
 }
 
+#pragma region DropCurrentItem
 void UPW_InventoryHandler::DropCurrentItem()
+{
+	_ownerCharacter->HasAuthority() ? LocalDropCurrentItem() : ServerDropCurrentItem();
+}
+
+void UPW_InventoryHandler::LocalDropCurrentItem()
 {
 	UPW_InventorySlot* currentSlot = GetCurrentSlot();
 
 	if (currentSlot == nullptr)
-		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
+	{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
 
 	APW_ItemObject* slotItem = currentSlot->GetItem();
 
 	if (slotItem == nullptr)
-		{ PW_Utilities::Log("SLOT ITEM IS NULL!"); return; }
+	{ PW_Utilities::Log("SLOT ITEM IS NULL!"); return; }
 	
 	DropItem(currentSlot);
 	slotItem->RemoveBindingActions(_ownerCharacter);
 }
+
+void UPW_InventoryHandler::ServerDropCurrentItem_Implementation()
+{
+	if (_ownerCharacter->HasAuthority())
+		LocalDropCurrentItem();
+}
+#pragma endregion DropCurrentItem
 
 void UPW_InventoryHandler::DropAll()
 {
