@@ -33,6 +33,7 @@ APW_AutoEnemySpawner::APW_AutoEnemySpawner()
 	_minDistanceToPlayer = 1000;
 	_whileLoopBreakerMaxCount = 50;
 	_distanceFromPlayer = 5000;
+	_zpositionOffset = 1000;
 }
 
 void APW_AutoEnemySpawner::BeginPlay()
@@ -85,7 +86,7 @@ void APW_AutoEnemySpawner::HandlePositioning()
 		playerMovingDirection.Z = 0;
 		playerMovingDirection.Normalize();
 		FVector newLocation = _character->GetActorLocation() + playerMovingDirection * _distanceFromPlayer;
-		SetActorLocation(newLocation);
+		SetActorLocation(newLocation + FVector(0, 0, _zpositionOffset));
 		FRotator newRotation = playerMovingDirection.Rotation();
 		SetActorRotation(newRotation);
 	}
