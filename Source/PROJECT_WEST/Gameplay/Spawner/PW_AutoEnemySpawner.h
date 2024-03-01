@@ -23,7 +23,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	FORCEINLINE void SetCharacter(ACharacter* character) { _character = character; }
+	void SetCharacter(ACharacter* character);
 
 private:
 	
@@ -60,6 +60,8 @@ private:
 	float _spawnTimer;
 
 	float _whileLoopBreakerMaxCount;
+
+	class UPW_HealthComponent* _healthComponent;
 
 private:
 

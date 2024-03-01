@@ -81,8 +81,9 @@ void APW_SnareTrap::OnDeath(AActor* OwnerActor, AActor* DamageCauser, AControlle
 	
 	if(_caughtCharacter)
 	{
+		UPW_HealthComponent* healthComponent = _caughtCharacter->FindComponentByClass<UPW_HealthComponent>();
 		APW_PlayerController* playerController = Cast<APW_PlayerController>(_caughtCharacter->GetController());
-		if (playerController)
+		if (playerController && healthComponent->IsAlive())
 		{
 			playerController->ClientTogglePlayerInput( true );
 		}
@@ -91,6 +92,7 @@ void APW_SnareTrap::OnDeath(AActor* OwnerActor, AActor* DamageCauser, AControlle
 		_caughtCharacter->GetMesh()->SetEnableGravity(true);
 		_caughtCharacter->GetCharacterMovement()->GravityScale = 1;
 		_caughtCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
 		_skeletalMesh->PlayAnimation(_releaseAnimation, false);
 	}
 
@@ -129,8 +131,7 @@ void APW_SnareTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 		{
 			_isSnareActive = true;
 			playerController->ClientTogglePlayerInput( false );
-
-
+			
 			_caughtCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 			_caughtCharacter->GetCharacterMovement()->SetMovementMode( EMovementMode::MOVE_None);
 			_caughtCharacter->GetCharacterMovement()->GravityScale =  0;

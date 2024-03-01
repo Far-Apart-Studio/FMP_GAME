@@ -44,11 +44,17 @@ void APW_AutoEnemySpawner::BeginPlay()
 void APW_AutoEnemySpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (HasAuthority())
+	if (HasAuthority() && _character && _healthComponent && _healthComponent->IsAlive())
 	{
 		HandleSpawnTimer(DeltaTime);
 		HandlePositioning();
 	}
+}
+
+void APW_AutoEnemySpawner::SetCharacter(ACharacter* character)
+{
+	_character = character;
+	_healthComponent = character->FindComponentByClass<UPW_HealthComponent>();
 }
 
 void APW_AutoEnemySpawner::HandleSpawnTimer(float DeltaTime)
