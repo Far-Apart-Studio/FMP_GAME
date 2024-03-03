@@ -135,24 +135,47 @@ void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
 
 #pragma endregion UpdateItemStateNetworked
 
+#pragma region ApplyActionBindings
 
-void APW_ItemObject::BindActions(APW_Character* characterOwner)
+void APW_ItemObject::ApplyActionBindings(APW_Character* characterOwner)
 {
-	DEBUG_STRING("BIND ACTIONS");
-	HasAuthority() ? ClientBindActions(characterOwner) : LocalBindActions(characterOwner);
+	HasAuthority() ? ClientApplyActionBindings(characterOwner) : LocalApplyActionBindings(characterOwner);
 }
 
-void APW_ItemObject::ClientBindActions_Implementation(APW_Character* characterOwner)
+void APW_ItemObject::ClientApplyActionBindings_Implementation(APW_Character* characterOwner)
 {
 	if (characterOwner == nullptr)
 		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return; }
 
 	if (characterOwner->IsLocallyControlled())
-		LocalBindActions(characterOwner);
+		LocalApplyActionBindings(characterOwner);
 }
 
-void APW_ItemObject::LocalBindActions(APW_Character* characterOwner)
+void APW_ItemObject::LocalApplyActionBindings(APW_Character* characterOwner)
 {
 	DEBUG_STRING("APPLY BINDING ACTIONS");
 }
+#pragma endregion ApplyActionBindings
+
+#pragma region RemoveActionBindings
+
+void APW_ItemObject::RemoveActionBindings(APW_Character* characterOwner)
+{
+	HasAuthority() ? ClientRemoveActionBindings(characterOwner) : LocalRemoveActionBindings(characterOwner);
+}
+
+void APW_ItemObject::ClientRemoveActionBindings_Implementation(APW_Character* characterOwner)
+{
+	if (characterOwner == nullptr)
+		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return; }
+
+	if (characterOwner->IsLocallyControlled())
+		LocalRemoveActionBindings(characterOwner);
+}
+
+void APW_ItemObject::LocalRemoveActionBindings(APW_Character* characterOwner)
+{
+	DEBUG_STRING("REMOVE BINDING ACTIONS");
+}
+#pragma endregion RemoveActionBindings
 

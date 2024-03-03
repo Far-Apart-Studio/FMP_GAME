@@ -55,11 +55,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void BindActions(APW_Character* characterOwner);
-	virtual void LocalBindActions(APW_Character* characterOwner);
-	UFUNCTION(Client, Reliable) void ClientBindActions(APW_Character* characterOwner);
-	
-	virtual void RemoveBindingActions(APW_Character* characterOwner) {}
+	void ApplyActionBindings(APW_Character* characterOwner);
+	virtual void LocalApplyActionBindings(APW_Character* characterOwner);
+	UFUNCTION(Client, Reliable) void ClientApplyActionBindings(APW_Character* characterOwner);
+
+	void RemoveActionBindings(APW_Character* characterOwner);
+	virtual void LocalRemoveActionBindings(APW_Character* characterOwner);
+	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
 	
 	void UpdateItemState(EItemObjectState updatedState);
 	void UpdateItemType(EItemType updatedType);

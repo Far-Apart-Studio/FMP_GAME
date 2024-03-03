@@ -26,7 +26,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Inventory")
 	TArray<FInventorySlot> _slotConfiguration;
 
-	UPROPERTY(Transient, VisibleAnywhere, Category = "Inventory")
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	TArray<UPW_InventorySlot*> _inventorySlots;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
@@ -52,8 +52,8 @@ public:
 	UFUNCTION(Server, Reliable) void ServerCollectItem(APW_ItemObject* collectedItem);
 
 	void DropItem(UPW_InventorySlot* inventorySlot);
-	void LocalDropCurrentItem();
-	UFUNCTION(Server, Reliable) void ServerDropCurrentItem();
+	void LocalDropItem(UPW_InventorySlot* inventorySlot);
+	UFUNCTION(Server, Reliable) void ServerDropItem(UPW_InventorySlot* inventorySlot);
 	
 	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
 	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);

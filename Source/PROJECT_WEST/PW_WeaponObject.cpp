@@ -37,7 +37,7 @@ void APW_WeaponObject::Tick(float DeltaSeconds)
 		_weaponRuntimeData.LastFiredTime += DeltaSeconds;
 }
 
-void APW_WeaponObject::LocalBindActions(APW_Character* characterOwner)
+void APW_WeaponObject::LocalApplyActionBindings(APW_Character* characterOwner)
 {
 	characterOwner->OnShootButtonPressed.AddDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.AddDynamic(this, &APW_WeaponObject::CompleteFireSequence);
@@ -46,7 +46,7 @@ void APW_WeaponObject::LocalBindActions(APW_Character* characterOwner)
 	PW_Utilities::Log("BINDING WEAPON ACTIONS");
 }
 
-void APW_WeaponObject::RemoveBindingActions(APW_Character* characterOwner)
+void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 {
 	characterOwner->OnShootButtonPressed.RemoveDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.RemoveDynamic(this, &APW_WeaponObject::CompleteFireSequence);

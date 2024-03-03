@@ -17,8 +17,13 @@ void UPW_InventoryHandler::BeginPlay()
 	Super::BeginPlay();
 	
 	GetOwnerCharacter();
-	AssignInputActions();
 	CreateInventoryConfiguration();
+
+	if (_ownerCharacter == nullptr)
+		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
+
+	if (_ownerCharacter->IsLocallyControlled())
+		AssignInputActions();
 
 	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
 	ChangeSlot(currentSlot, true);
@@ -105,25 +110,6 @@ void UPW_InventoryHandler::ServerCollectItem_Implementation(APW_ItemObject* coll
 }
 #pragma endregion CollectItem
 
-void UPW_InventoryHandler::DropItem(UPW_InventorySlot* inventorySlot)
-{
-	DEBUG_STRING("LOCAL DROP ITEM");
-	
-	if (inventorySlot == nullptr)
-	{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
-	
-	APW_ItemObject* slotItem = inventorySlot->GetItem();
-	
-	if (slotItem == nullptr)
-	{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
-
-	inventorySlot->RemoveItem();
-	slotItem->UpdateItemState(EItemObjectState::EDropped);
-	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	slotItem->SetOwner(nullptr);
-}
-
-
 bool UPW_InventoryHandler::TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot)
 {
 	for (UPW_InventorySlot* inventorySlot : _inventorySlots)
@@ -146,7 +132,7 @@ void UPW_InventoryHandler::EnableItem(APW_ItemObject* inventoryItem)
 		{ PW_Utilities::Log("SELECTED ITEM IS NULL!"); return; }
 	
 	inventoryItem->SetVisibility(true);
-	inventoryItem->BindActions(_ownerCharacter);
+	inventoryItem->ApplyActionBindings(_ownerCharacter);
 }
 
 void UPW_InventoryHandler::DisableItem(APW_ItemObject* inventoryItem)
@@ -155,7 +141,7 @@ void UPW_InventoryHandler::DisableItem(APW_ItemObject* inventoryItem)
 		{ PW_Utilities::Log("SELECTED ITEM IS NULL!"); return; }
 	
 	inventoryItem->SetVisibility(false);
-	inventoryItem->RemoveBindingActions(_ownerCharacter);
+	inventoryItem->RemoveActionBindings(_ownerCharacter);
 }
 
 void UPW_InventoryHandler::CreateInventoryConfiguration()
@@ -236,46 +222,22 @@ void UPW_InventoryHandler::ToSlot(int slotIndex)
 	_currentSlotIndex = slotIndex;
 }
 
-#pragma region DropCurrentItem
 void UPW_InventoryHandler::DropCurrentItem()
 {
-	_ownerCharacter->HasAuthority() ? LocalDropCurrentItem() : ServerDropCurrentItem();
-}
-
-void UPW_InventoryHandler::LocalDropCurrentItem()
-{
+	DEBUG_STRING("ATTEMPT DROP CURRENT ITEM");
+	
 	UPW_InventorySlot* currentSlot = GetCurrentSlot();
 
 	if (currentSlot == nullptr)
-	{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
-
-	APW_ItemObject* slotItem = currentSlot->GetItem();
-
-	if (slotItem == nullptr)
-	{ PW_Utilities::Log("SLOT ITEM IS NULL!"); return; }
+		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
 	
 	DropItem(currentSlot);
-	slotItem->RemoveBindingActions(_ownerCharacter);
 }
-
-void UPW_InventoryHandler::ServerDropCurrentItem_Implementation()
-{
-	if (_ownerCharacter->HasAuthority())
-		LocalDropCurrentItem();
-}
-#pragma endregion DropCurrentItem
 
 void UPW_InventoryHandler::DropAll()
 {
 	for (UPW_InventorySlot* inventorySlot : _inventorySlots)
-	{
-		APW_ItemObject* slotItem = inventorySlot->GetItem();
-		
-		if (slotItem != nullptr)
-			slotItem->SetVisibility(true);
-		
 		DropItem(inventorySlot);
-	}
 }
 
 void UPW_InventoryHandler::AssignInputActions()
@@ -303,3 +265,40 @@ void UPW_InventoryHandler::GetOwnerCharacter()
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
 }
 
+#pragma region DropItem
+void UPW_InventoryHandler::DropItem(UPW_InventorySlot* inventorySlot)
+{
+	_ownerCharacter->HasAuthority() ? LocalDropItem(inventorySlot) : ServerDropItem(inventorySlot);
+}
+
+void UPW_InventoryHandler::LocalDropItem(UPW_InventorySlot* inventorySlot)
+{
+	if (inventorySlot == nullptr)
+		{ PW_Utilities::Log("[LOCAL] CURRENT SLOT IS NULL!"); return; }
+	
+	APW_ItemObject* slotItem = inventorySlot->GetItem();
+	
+	if (slotItem == nullptr)
+		{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
+
+	DEBUG_STRING("LOCAL DROP ITEM");
+
+	inventorySlot->RemoveItem();
+	slotItem->RemoveActionBindings(_ownerCharacter);
+	slotItem->UpdateItemState(EItemObjectState::EDropped);
+	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	slotItem->SetVisibility(true);
+	slotItem->SetOwner(nullptr);
+}
+
+void UPW_InventoryHandler::ServerDropItem_Implementation(UPW_InventorySlot* inventorySlot)
+{
+	if (_ownerCharacter->HasAuthority())
+	{
+		DEBUG_STRING("SERVER DROP ITEM");
+		LocalDropItem(inventorySlot);
+	}
+}
+
+
+#pragma endregion DropItem
