@@ -39,6 +39,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtMaxIncreaseAmount;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	int32 _debtIncreaseValue;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtAmount;

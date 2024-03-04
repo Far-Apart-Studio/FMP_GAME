@@ -36,6 +36,8 @@ APW_Lantern::APW_Lantern()
 
 	_currentBeamScale = _minBeamScale = .5f;
 	_maxBeamScale = 2.0f;
+
+	_maxCorrectAngle = 30.0f;
 	
 	_maxFuel = 100.0f;
 	_fuelPerCharge = 10.0f;
@@ -48,7 +50,7 @@ void APW_Lantern::BeginPlay()
 	_pointLight->SetIntensity(_currentLightIntensity);
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
 	ToggleLightVisibility(false);
-	_currentFuel = 0.0f;
+	_currentFuel = 100.0f;
 
 	if (HasAuthority())
 	{
@@ -114,25 +116,21 @@ void APW_Lantern::OnItemStateSet()
 void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
 	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
-
-	//_currentSearchDistance = FMath::Lerp (_minSearchDistance, _maxSearchDistance, _currentFuel / _maxFuel);
 	
 	AActor* player = GetOwner ();
 	if (!player) return;
-	
-	//const float dotProduct = FVector::DotProduct (player->GetActorForwardVector (), _target->GetActorForwardVector ());
 	
 	FVector playerForward = player->GetActorForwardVector();
 	FVector toTarget = _target->GetActorLocation() - player->GetActorLocation();
 	playerForward.Normalize();
 	toTarget.Normalize();
+	
 	const float dotProduct = FVector::DotProduct (playerForward, toTarget);
-
-	//DEBUG_STRING( "Dot Product: " + FString::SanitizeFloat(dotProduct) );
-	
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
-	
-	const float normalisedAngle =  angle / 180.0f;
+	const float correctAngle = FMath::Lerp (_maxCorrectAngle, 0.0f, _currentFuel / _maxFuel);
+	const float normalisedAngle = FMath::Clamp ((angle - correctAngle) / (180.0f - correctAngle), 0.0f, 1.0f);
+
+	//DEBUG_STRING ( "Normalised Fuel: " + FString::SanitizeFloat (_currentFuel / _maxFuel) + " - " + "Normalised Angle: " + FString::SanitizeFloat (normalisedAngle) );
 	
 	HandleLightIntensity (normalisedAngle);
 	HandleLightBeamScale (normalisedAngle);
@@ -153,7 +151,7 @@ void APW_Lantern::HandleLightBeamScale(float normalisedAngle)
 void APW_Lantern::HandleDrainFuel(float DeltaTime)
 {
 	if (_currentFuel <= 0.0f) return;
-	LocalModifyFuel(_fuelDrainRate * DeltaTime);
+	ReduceFuel(_fuelDrainRate * DeltaTime);
 }
 
 void APW_Lantern::AddFuel(float amount)

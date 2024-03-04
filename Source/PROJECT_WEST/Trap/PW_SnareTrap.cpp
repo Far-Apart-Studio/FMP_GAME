@@ -68,6 +68,8 @@ void APW_SnareTrap::BeginPlay()
 	FVector startPoint = GetActorLocation() + _point1->GetRelativeLocation();
 	FVector endPoint =  GetActorLocation() + _point2->GetRelativeLocation();
 	_actorMoverComponent->SetPoints(startPoint, endPoint);
+
+	ToggleCollisionQuery(false);
 }
 
 void APW_SnareTrap::OnHealthChanged()
@@ -123,26 +125,7 @@ void APW_SnareTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 		return;
 	}
 	
-	_caughtCharacter = Cast<APW_Character>(OtherActor);
-	if (_caughtCharacter)
-	{
-		APW_PlayerController* playerController = Cast<APW_PlayerController>(_caughtCharacter->GetController());
-		if (playerController)
-		{
-			_isSnareActive = true;
-			playerController->ClientTogglePlayerInput( false );
-			
-			_caughtCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
-			_caughtCharacter->GetCharacterMovement()->SetMovementMode( EMovementMode::MOVE_None);
-			_caughtCharacter->GetCharacterMovement()->GravityScale =  0;
-			_caughtCharacter->GetMesh()->SetEnableGravity(false);
-			_caughtCharacter->AttachToComponent(_skeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-			_caughtCharacter->SetActorLocation(_triggerVolume->GetComponentLocation() + FVector(0,0,100));
-			
-			_skeletalMesh->PlayAnimation(_catchAnimation, false);
-			_actorMoverComponent->SetCanMove(true);
-		}
-	}
+	CaughtCharacter(Cast<APW_Character>(OtherActor));
 }
 
 void APW_SnareTrap::OnRep_OnStatsChanged()
@@ -163,6 +146,35 @@ void APW_SnareTrap::OnHighlightComplete(EEffectDirection Direction)
 	}
 }
 
+void APW_SnareTrap::CaughtCharacter(APW_Character* Character)
+{
+	if (Character)
+	{
+		_caughtCharacter = Character;
+		
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(_caughtCharacter->GetController());
+		if (playerController)
+		{
+			_isSnareActive = true;
+			playerController->ClientTogglePlayerInput( false );
+			
+			_caughtCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+			_caughtCharacter->GetCharacterMovement()->SetMovementMode( EMovementMode::MOVE_None);
+			_caughtCharacter->GetCharacterMovement()->GravityScale =  0;
+			_caughtCharacter->GetMesh()->SetEnableGravity(false);
+			_caughtCharacter->AttachToComponent(_skeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			_caughtCharacter->SetActorLocation(_triggerVolume->GetComponentLocation() + FVector(0,0,100));
+
+			// UnCrouch the character if it is crouched
+			
+			_skeletalMesh->PlayAnimation(_catchAnimation, false);
+			_actorMoverComponent->SetCanMove(true);
+
+			ToggleCollisionQuery(true);
+		}
+	}
+}
+
 void APW_SnareTrap::DrainHealthOfCaughtCharacter(float DeltaTime)
 {
 	if(!_caughtCharacter) return;
@@ -176,5 +188,10 @@ void APW_SnareTrap::DrainHealthOfCaughtCharacter(float DeltaTime)
 			OnDeath(nullptr, nullptr, nullptr);
 		}
 	}
+}
+
+void APW_SnareTrap::ToggleCollisionQuery(bool bEnable)
+{
+	_mesh->SetCollisionEnabled(bEnable ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
 }
 

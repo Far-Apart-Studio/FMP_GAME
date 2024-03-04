@@ -69,7 +69,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnResetHealth OnResetHealth;
 
-public:	
+public:
+	
 	UPW_HealthComponent();
 
 protected:

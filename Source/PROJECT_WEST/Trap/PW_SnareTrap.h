@@ -81,5 +81,8 @@ private:
 	UFUNCTION()
 	void OnHighlightComplete(EEffectDirection Direction);
 
+	void CaughtCharacter( APW_Character* Character );
 	void DrainHealthOfCaughtCharacter(float DeltaTime);
+
+	void ToggleCollisionQuery(bool bEnable);
 };

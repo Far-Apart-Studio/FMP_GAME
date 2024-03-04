@@ -20,6 +20,7 @@ APW_DebtCollector::APW_DebtCollector()
 	_debtMinIncreaseAmount = 100;
 	_debtMaxIncreaseAmount = 500;
 	_isActivated = true;
+	_debtIncreaseValue = 100;
 }
 
 void APW_DebtCollector::BeginPlay()
@@ -88,6 +89,9 @@ void APW_DebtCollector::HandleBounty(AActor* owner)
 
 	_isActivated = false;
 	playerController->PayDebtCollector();
+
+	_debtMinIncreaseAmount += _debtIncreaseValue;
+	_debtMaxIncreaseAmount += _debtIncreaseValue;
 
 	DEBUG_STRING("Debt paid");
 }
