@@ -54,10 +54,11 @@ void APW_Lantern::BeginPlay()
 	_pointLight->SetIntensity(_currentLightIntensity);
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
 	ToggleLightVisibility(false);
-	_currentFuel = 0.0f;
+	_currentFuel = 100.0f;
 
 	float random = FMath::RandRange(0, 1);
-	_offsetToTarget = FMath::RandRange(_minOffsetToTarget, _maxOffsetToTarget) * random >= 0.5 ? 1 : -1;
+	_offsetToTarget = FMath::RandRange(_minOffsetToTarget, _maxOffsetToTarget);
+	_offsetToTarget *= random >= 0.5 ? 1 : -1;
 
 	_currentCorrectAngle = FMath::RandRange(_minCorrectAngle, _maxCorrectAngle);
 	
@@ -114,6 +115,8 @@ void APW_Lantern::Tick(float DeltaTime)
 	{
 		HandleDrainFuel(DeltaTime);
 	}
+
+	//GetTargetLocation();
 }
 
 void APW_Lantern::OnItemStateSet()
@@ -133,6 +136,8 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 
 	const float currentOffsetToTarget = FMath::Lerp( _offsetToTarget, 0.0f, _currentFuel / _maxFuel);
 	const FVector targetLocation = _target->GetActorLocation() + _target->GetActorRightVector() * currentOffsetToTarget;
+
+	//DRAW_SPHERE_SingleFrame (targetLocation);
 	
 	FVector toTarget = targetLocation - player->GetActorLocation();
 	playerForward.Normalize();
@@ -237,6 +242,19 @@ void APW_Lantern::ToggleLightVisibility(bool visible)
 {
 	_lightBeamMesh->SetVisibility(visible);
 	_pointLight->SetVisibility(visible);
+}
+
+FVector APW_Lantern::GetTargetLocation()
+{
+	AActor* player = GetOwner ();
+	if (!player) return FVector::ZeroVector;
+	FVector targetLocation = FVector::ZeroVector;
+	FVector directionToTarget = _target->GetActorLocation() - player->GetActorLocation();
+	directionToTarget.Normalize();
+	//targetLocation = _target->GetActorLocation() - directionToTarget * _target->GetActorRightVector() * 300;
+	targetLocation = _target->GetActorLocation() - directionToTarget * 300;
+	DRAW_SPHERE_SingleFrame(targetLocation);
+	return targetLocation;
 }
 
 float APW_Lantern::GetNormalisedFuel()

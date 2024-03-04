@@ -118,8 +118,10 @@ public:
 
 	void ToggleLightVisibility(bool visible);
 
-	FORCEINLINE void SetTarget(AActor* target) { _target = target; }
+	FVector GetTargetLocation();
 
 	UFUNCTION(BlueprintCallable)
 	float GetNormalisedFuel();
+
+	FORCEINLINE void SetTarget(AActor* target) { _target = target; }
 };
