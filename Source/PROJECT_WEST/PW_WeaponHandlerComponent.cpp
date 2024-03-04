@@ -57,12 +57,12 @@ void UPW_WeaponHandlerComponent::BeginFireSequence()
 	APW_Weapon* currentWeapon = TryGetCurrentWeapon();
 	
 	if (currentWeapon == nullptr)
-	{PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+		{PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
 
 	UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
 
 	if (weaponData == nullptr)
-	{PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+		{PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
 	CoreFireSequence(currentWeapon, weaponData);
 }
@@ -76,7 +76,7 @@ void UPW_WeaponHandlerComponent::CoreFireSequence(APW_Weapon* currentWeapon, UPW
 		QueueAutomaticFire(currentWeapon, weaponData);
 
 	if (currentWeapon->IsAmmoEmpty())
-	{ ReloadWeapon(); return; }
+		{ ReloadWeapon(); return; }
 
 	const bool canFire = CalculateFireStatus();
 	

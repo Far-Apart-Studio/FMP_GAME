@@ -14,6 +14,7 @@ class USpringArmComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FButtonPressedDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAxisModifiedDelegate, float, value);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSlotPressedDelegate, int, slotIndex);
 
 UCLASS()
 class PROJECT_WEST_API APW_Character : public ACharacter
@@ -39,7 +40,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	USpringArmComponent* _springArmComponent;
 
-	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
 
 	class APW_PlayerController* _playerController;
@@ -96,6 +97,18 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FAxisModifiedDelegate OnMoveRightAxisPressed;
+
+	UPROPERTY(BlueprintAssignable)
+	FButtonPressedDelegate OnMouseUpPressed;
+
+	UPROPERTY(BlueprintAssignable)
+	FButtonPressedDelegate OnMouseDownPressed;
+
+	UPROPERTY(BlueprintAssignable)
+	FSlotPressedDelegate OnSlotPressed;
+
+	UPROPERTY(BlueprintCallable)
+	FButtonPressedDelegate OnCameraRotationChange;
 	
 	void Elim(bool leftGame);
 
@@ -137,9 +150,15 @@ public:
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
 	void SprintButtonPressed();
-	void ToggleMovement(bool canMove);
+	void ToggleMovement(bool canMove) {}
 	void StartInteractButtonPressed();
 	void EndInteractButtonPressed();
+	void MouseWheelUpAxisPressed();
+	void MouseWheelDownAxisPressed();
+	void SlotOnePressed();
+	void SlotTwoPressed();
+	void SlotThreePressed();
+	void SlotFourPressed();
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;

@@ -26,7 +26,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Inventory")
 	TArray<FInventorySlot> _slotConfiguration;
 
-	UPROPERTY(Transient, VisibleAnywhere, Category = "Inventory")
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	TArray<UPW_InventorySlot*> _inventorySlots;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
@@ -47,20 +47,28 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
-	bool TryCollectItem(APW_ItemObject* collectedItem);
-	bool TryDropItem(UPW_InventorySlot* currentSlot);
-	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
+	void CollectItem(APW_ItemObject* collectedItem);
+	void LocalCollectItem(APW_ItemObject* collectedItem);
+	UFUNCTION(Server, Reliable) void ServerCollectItem(APW_ItemObject* collectedItem);
 
-	void ChangeSlot(const UPW_InventorySlot* updatedSlot, bool forceChangeSlot = false);
-	void ShowItem(APW_ItemObject* selectedItem);
-	void HideItem(APW_ItemObject* selectedItem);
+	void DropItem(int slotIndex);
+	void LocalDropItem(int slotIndex);
+	UFUNCTION(Server, Reliable) void ServerDropItem(int slotIndex);
+
+	void ChangeSlot(const UPW_InventorySlot* targetedSlot, bool forceChangeSlot = false);
+	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
+	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
+	void EnableItem(APW_ItemObject* inventoryItem);
+	void DisableItem(APW_ItemObject* selectedItem);
 	void CycleNextSlot(); 
 	void CyclePreviousSlot();
 
 	FORCEINLINE UPW_InventorySlot* GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
 	FORCEINLINE UPW_InventorySlot* GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
 	
-	UFUNCTION() void CycleSlot();
-	UFUNCTION() void DropCurrentItem();
+	UFUNCTION(BlueprintCallable) void CycleUp();
+	UFUNCTION(BlueprintCallable) void CycleDown();
+	UFUNCTION(BlueprintCallable) void ToSlot(int slotIndex);
+	UFUNCTION(BlueprintCallable) void DropCurrentItem();
+	UFUNCTION(BlueprintCallable) void DropAll();
 };

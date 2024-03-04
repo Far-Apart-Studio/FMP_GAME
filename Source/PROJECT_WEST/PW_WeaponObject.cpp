@@ -31,13 +31,13 @@ void APW_WeaponObject::Tick(float DeltaSeconds)
 	const APW_Character* ownerCharacter = Cast<APW_Character>(owner);
 	
 	if (ownerCharacter == nullptr)
-		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+		return;
 
 	if (ownerCharacter->IsLocallyControlled())
 		_weaponRuntimeData.LastFiredTime += DeltaSeconds;
 }
 
-void APW_WeaponObject::ApplyBindingActions(APW_Character* characterOwner)
+void APW_WeaponObject::LocalApplyActionBindings(APW_Character* characterOwner)
 {
 	characterOwner->OnShootButtonPressed.AddDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.AddDynamic(this, &APW_WeaponObject::CompleteFireSequence);
@@ -46,7 +46,7 @@ void APW_WeaponObject::ApplyBindingActions(APW_Character* characterOwner)
 	PW_Utilities::Log("BINDING WEAPON ACTIONS");
 }
 
-void APW_WeaponObject::RemoveBindingActions(APW_Character* characterOwner)
+void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 {
 	characterOwner->OnShootButtonPressed.RemoveDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.RemoveDynamic(this, &APW_WeaponObject::CompleteFireSequence);
@@ -85,7 +85,7 @@ void APW_WeaponObject::CoreFireSequence()
 	if (IsAmmoEmpty())
 		{ ReloadWeapon(); return; }
 	
-	if (CalculateFireStatus())
+	if (CanFire())
 		CastBulletRays();
 	
 }
@@ -304,17 +304,16 @@ float APW_WeaponObject::CalculateDamage(const FHitResult& hitResult)
 	return calculatedDamage;
 }
 
-bool APW_WeaponObject::CalculateFireStatus()
+bool APW_WeaponObject::CanFire()
 {
 	if (_weaponData == nullptr)
 		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return false; }
 
-	PW_Utilities::Log("CALCULATING FIRE STATUS");
+	if (_weaponRuntimeData.IsReloading)
+		return false;
 	
 	if (_weaponRuntimeData.LastFiredTime < _weaponData->GetHipWeaponFireRate())
 		return false;
-
-	PW_Utilities::Log("FIRE STATUS CALCULATED");
 
 	_weaponRuntimeData.LastFiredTime = 0.0f;
 	return true;
