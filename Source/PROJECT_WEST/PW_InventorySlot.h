@@ -30,7 +30,6 @@ private:
 	APW_ItemObject* _currentItem;
 
 public:
-	
 	FORCEINLINE APW_ItemObject* GetItem() const { return _currentItem; }
 	FORCEINLINE bool IsSlotAvailable() const { return _currentItem == nullptr; }
 	FORCEINLINE void SetItem(APW_ItemObject* item) { _currentItem = item; }

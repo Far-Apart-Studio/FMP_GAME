@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
-
-#include "DebugMacros.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -189,11 +187,13 @@ void APW_Character::MoveRightAxisPressed(float value)
 void APW_Character::LookRightAxisPressed(float value)
 {
 	AddControllerYawInput(value);
+	OnCameraRotationChange.Broadcast();
 }
 
 void APW_Character::LookUpAxisPressed(float value)
 {
 	AddControllerPitchInput(value);
+	OnCameraRotationChange.Broadcast();
 }
 
 void APW_Character::UseButtonPressed()
