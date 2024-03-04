@@ -31,7 +31,7 @@ void APW_WeaponObject::Tick(float DeltaSeconds)
 	const APW_Character* ownerCharacter = Cast<APW_Character>(owner);
 	
 	if (ownerCharacter == nullptr)
-		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+		return;
 
 	if (ownerCharacter->IsLocallyControlled())
 		_weaponRuntimeData.LastFiredTime += DeltaSeconds;

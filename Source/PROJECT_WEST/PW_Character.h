@@ -147,7 +147,7 @@ public:
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
 	void SprintButtonPressed();
-	void ToggleMovement(bool canMove);
+	void ToggleMovement(bool canMove) {}
 	void StartInteractButtonPressed();
 	void EndInteractButtonPressed();
 	void MouseWheelUpAxisPressed();

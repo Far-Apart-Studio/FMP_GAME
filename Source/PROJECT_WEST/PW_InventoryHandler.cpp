@@ -51,14 +51,14 @@ bool UPW_InventoryHandler::TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot
 	return true;
 }
 
-void UPW_InventoryHandler::ChangeSlot(const UPW_InventorySlot* updatedSlot, bool forceChangeSlot)
+void UPW_InventoryHandler::ChangeSlot(const UPW_InventorySlot* targetedSlot, bool forceChangeSlot)
 {
-	if (updatedSlot == nullptr)
+	if (targetedSlot == nullptr)
 		{ PW_Utilities::Log("UPDATED SLOT IS NULL!"); return; }
 	
 	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
 
-	if (currentSlot == updatedSlot && !forceChangeSlot)
+	if (currentSlot == targetedSlot && !forceChangeSlot)
 		{ PW_Utilities::Log("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
 
 	APW_ItemObject* currentItem = currentSlot->GetItem();
@@ -66,7 +66,7 @@ void UPW_InventoryHandler::ChangeSlot(const UPW_InventorySlot* updatedSlot, bool
 	if (currentItem != nullptr)
 		DisableItem(currentItem);
 
-	APW_ItemObject* updatedItem = updatedSlot->GetItem();
+	APW_ItemObject* updatedItem = targetedSlot->GetItem();
 	
 	if (updatedItem != nullptr)
 		EnableItem(updatedItem);
@@ -224,20 +224,13 @@ void UPW_InventoryHandler::ToSlot(int slotIndex)
 
 void UPW_InventoryHandler::DropCurrentItem()
 {
-	DEBUG_STRING("ATTEMPT DROP CURRENT ITEM");
-	
-	UPW_InventorySlot* currentSlot = GetCurrentSlot();
-
-	if (currentSlot == nullptr)
-		{ PW_Utilities::Log("CURRENT SLOT IS NULL!"); return; }
-	
-	DropItem(currentSlot);
+	DropItem(_currentSlotIndex);
 }
 
 void UPW_InventoryHandler::DropAll()
 {
-	for (UPW_InventorySlot* inventorySlot : _inventorySlots)
-		DropItem(inventorySlot);
+	for (int i = 0; i < _inventorySlots.Num(); i++)
+		DropItem(i);
 }
 
 void UPW_InventoryHandler::AssignInputActions()
@@ -266,13 +259,19 @@ void UPW_InventoryHandler::GetOwnerCharacter()
 }
 
 #pragma region DropItem
-void UPW_InventoryHandler::DropItem(UPW_InventorySlot* inventorySlot)
+void UPW_InventoryHandler::DropItem(int slotIndex)
 {
-	_ownerCharacter->HasAuthority() ? LocalDropItem(inventorySlot) : ServerDropItem(inventorySlot);
+	_ownerCharacter->HasAuthority() ? LocalDropItem(slotIndex) : ServerDropItem(slotIndex);
 }
 
-void UPW_InventoryHandler::LocalDropItem(UPW_InventorySlot* inventorySlot)
+void UPW_InventoryHandler::LocalDropItem(int slotIndex)
 {
+	UPW_InventorySlot* inventorySlot = nullptr;
+	const bool foundSlot = TryGetSlot(slotIndex, inventorySlot);
+
+	if (!foundSlot)
+		{ PW_Utilities::Log("[LOCAL] SLOT NOT FOUND!"); return; }
+	
 	if (inventorySlot == nullptr)
 		{ PW_Utilities::Log("[LOCAL] CURRENT SLOT IS NULL!"); return; }
 	
@@ -280,8 +279,6 @@ void UPW_InventoryHandler::LocalDropItem(UPW_InventorySlot* inventorySlot)
 	
 	if (slotItem == nullptr)
 		{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
-
-	DEBUG_STRING("LOCAL DROP ITEM");
 
 	inventorySlot->RemoveItem();
 	slotItem->RemoveActionBindings(_ownerCharacter);
@@ -291,13 +288,10 @@ void UPW_InventoryHandler::LocalDropItem(UPW_InventorySlot* inventorySlot)
 	slotItem->SetOwner(nullptr);
 }
 
-void UPW_InventoryHandler::ServerDropItem_Implementation(UPW_InventorySlot* inventorySlot)
+void UPW_InventoryHandler::ServerDropItem_Implementation(int slotIndex)
 {
 	if (_ownerCharacter->HasAuthority())
-	{
-		DEBUG_STRING("SERVER DROP ITEM");
-		LocalDropItem(inventorySlot);
-	}
+		LocalDropItem(slotIndex);
 }
 
 
