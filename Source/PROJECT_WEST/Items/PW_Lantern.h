@@ -59,6 +59,15 @@ private:
 	float _currentBeamScale;
 
 	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _minOffsetToTarget;
+
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _maxOffsetToTarget;
+
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
+	float _offsetToTarget;
+
+	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	float _maxCorrectAngle;
 
 	UPROPERTY (EditAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))

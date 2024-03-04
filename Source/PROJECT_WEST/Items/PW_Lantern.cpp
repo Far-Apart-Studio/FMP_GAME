@@ -42,6 +42,9 @@ APW_Lantern::APW_Lantern()
 	_maxFuel = 100.0f;
 	_fuelPerCharge = 10.0f;
 	_fuelDrainRate = 10.0f;
+
+	_minOffsetToTarget = 500.0f;
+	_maxOffsetToTarget = 1000.0f;
 }
 
 void APW_Lantern::BeginPlay()
@@ -51,6 +54,8 @@ void APW_Lantern::BeginPlay()
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
 	ToggleLightVisibility(false);
 	_currentFuel = 100.0f;
+	
+	_offsetToTarget = FMath::RandRange(_minOffsetToTarget, _maxOffsetToTarget);
 
 	if (HasAuthority())
 	{
@@ -121,7 +126,11 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	if (!player) return;
 	
 	FVector playerForward = player->GetActorForwardVector();
-	FVector toTarget = _target->GetActorLocation() - player->GetActorLocation();
+
+	float currentOffsetToTarget = FMath::Lerp( _offsetToTarget, 0.0f, _currentFuel / _maxFuel);
+	FVector targetLocation = _target->GetActorLocation() + _target->GetActorRightVector() * currentOffsetToTarget;
+	
+	FVector toTarget = targetLocation - player->GetActorLocation();
 	playerForward.Normalize();
 	toTarget.Normalize();
 	
@@ -130,7 +139,9 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	const float correctAngle = FMath::Lerp (_maxCorrectAngle, 0.0f, _currentFuel / _maxFuel);
 	const float normalisedAngle = FMath::Clamp ((angle - correctAngle) / (180.0f - correctAngle), 0.0f, 1.0f);
 
-	//DEBUG_STRING ( "Normalised Fuel: " + FString::SanitizeFloat (_currentFuel / _maxFuel) + " - " + "Normalised Angle: " + FString::SanitizeFloat (normalisedAngle) );
+	DEBUG_STRING ( "Normalised Fuel: " + FString::SanitizeFloat (_currentFuel / _maxFuel) +
+	" - " + "Current Offset: " + FString::SanitizeFloat (currentOffsetToTarget) +
+		" - " + "Normalised Angle: " + FString::SanitizeFloat (normalisedAngle) );
 	
 	HandleLightIntensity (normalisedAngle);
 	HandleLightBeamScale (normalisedAngle);
