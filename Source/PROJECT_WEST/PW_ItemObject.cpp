@@ -28,7 +28,6 @@ void APW_ItemObject::BeginPlay()
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
-	
 	EnterDroppedState();
 }
 
@@ -108,12 +107,37 @@ void APW_ItemObject::EnterDroppedState()
 #pragma region SetVisibility
 void APW_ItemObject::SetVisibility(bool isVisible)
 {
+	HasAuthority() ? LocalSetVisibility(isVisible) : ServerSetVisibility(isVisible);
+}
+
+void APW_ItemObject::LocalSetVisibility(bool isVisible)
+{
 	if (_itemMesh == nullptr)
-	{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
 
 	_itemMesh->SetVisibility(isVisible);
+	
+	TArray<USceneComponent*> childMeshes;
+	_itemMesh->GetChildrenComponents(true, childMeshes);
+
+	PW_Utilities::Log("CHILD MESHES: " + FString::FromInt(childMeshes.Num()));
+	
+	for (USceneComponent* childMesh : childMeshes)
+	{
+		UMeshComponent* staticMesh = Cast<UMeshComponent>(childMesh);
+		if (staticMesh != nullptr)
+			staticMesh->SetVisibility(isVisible);
+	}
+
 	_isActive = isVisible;
 }
+
+void APW_ItemObject::ServerSetVisibility_Implementation(bool isVisible)
+{
+	if (HasAuthority())
+		LocalSetVisibility(isVisible);
+}
+
 #pragma endregion SetVisibility
 
 #pragma region UpdateItemState
@@ -177,5 +201,19 @@ void APW_ItemObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 {
 	DEBUG_STRING("REMOVE BINDING ACTIONS");
 }
+
 #pragma endregion RemoveActionBindings
+
+
+void APW_ItemObject::EnableItem(APW_Character* characterOwner)
+{
+	ApplyActionBindings(characterOwner);
+	SetVisibility(true);
+}
+
+void APW_ItemObject::DisableItem(APW_Character* characterOwner)
+{
+	RemoveActionBindings(characterOwner);
+	SetVisibility(false);
+}
 

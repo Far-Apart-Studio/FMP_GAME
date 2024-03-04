@@ -32,9 +32,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	int _currentSlotIndex = 0;
 
-public:	
-	UPW_InventoryHandler();
-
 private:
 	void AssignInputActions();
 	void GetOwnerCharacter();
@@ -44,6 +41,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UPW_InventoryHandler();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
@@ -52,14 +50,12 @@ public:
 	UFUNCTION(Server, Reliable) void ServerCollectItem(APW_ItemObject* collectedItem);
 
 	void DropItem(int slotIndex);
-	void LocalDropItem(int slotIndex);
-	UFUNCTION(Server, Reliable) void ServerDropItem(int slotIndex);
-
+	void LocalDropItem(APW_ItemObject* slotItem);
+	UFUNCTION(Server, Reliable) void ServerDropItem(APW_ItemObject* slotItem);
+	
 	void ChangeSlot(const UPW_InventorySlot* targetedSlot, bool forceChangeSlot = false);
 	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
 	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
-	void EnableItem(APW_ItemObject* inventoryItem);
-	void DisableItem(APW_ItemObject* selectedItem);
 	void CycleNextSlot(); 
 	void CyclePreviousSlot();
 

@@ -58,6 +58,8 @@ void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(APW_WeaponObject, _weaponMesh);
 	DOREPLIFETIME(APW_WeaponObject, _weaponRuntimeData);
 }
 
