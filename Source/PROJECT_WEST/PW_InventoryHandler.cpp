@@ -98,7 +98,7 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 		ChangeSlot(currentSlot, true);
 	});
 
-	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.05f, false);
+	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.1f, false);
 }
 
 void UPW_InventoryHandler::LocalCollectItem(APW_ItemObject* collectedItem)
@@ -286,6 +286,18 @@ void UPW_InventoryHandler::LocalDropItem(APW_ItemObject* slotItem)
 	slotItem->UpdateItemState(EItemObjectState::EDropped);
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	slotItem->SetOwner(nullptr);
+
+	if (_ownerCharacter == nullptr)
+	{ PW_Utilities::Log("[LOCAL] OWNER CHARACTER IS NULL!"); return; }
+	
+	const FVector characterVelocity = _ownerCharacter->GetVelocity();
+	const FVector itemVelocity = characterVelocity * 5;
+
+	UMeshComponent* itemMesh = slotItem->GetItemMesh();
+	if (itemMesh == nullptr)
+	{ PW_Utilities::Log("[LOCAL] ITEM MESH IS NULL!"); return; }
+
+	itemMesh->AddImpulse(itemVelocity);
 }
 
 void UPW_InventoryHandler::ServerDropItem_Implementation(APW_ItemObject* slotItem)
