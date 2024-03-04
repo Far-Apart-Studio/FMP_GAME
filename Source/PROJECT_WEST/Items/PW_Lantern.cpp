@@ -37,7 +37,7 @@ APW_Lantern::APW_Lantern()
 	_currentBeamScale = _minBeamScale = .5f;
 	_maxBeamScale = 2.0f;
 
-	_maxCorrectAngle = 30.0f;
+	_maxCorrectAngle = 60.0f;
 	
 	_maxFuel = 100.0f;
 	_fuelPerCharge = 10.0f;
@@ -53,10 +53,11 @@ void APW_Lantern::BeginPlay()
 	_pointLight->SetIntensity(_currentLightIntensity);
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
 	ToggleLightVisibility(false);
-	_currentFuel = 100.0f;
-	
-	_offsetToTarget = FMath::RandRange(_minOffsetToTarget, _maxOffsetToTarget);
+	_currentFuel = 0.0f;
 
+	float random = FMath::RandRange(0, 1);
+	_offsetToTarget = FMath::RandRange(_minOffsetToTarget, _maxOffsetToTarget) * random >= 0.5 ? 1 : -1;
+	
 	if (HasAuthority())
 	{
 		_bodyDetectionBox->OnComponentBeginOverlap.AddDynamic(this, &APW_Lantern::OnBodyDetectionBoxBeginOverlap);
@@ -127,8 +128,8 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	
 	FVector playerForward = player->GetActorForwardVector();
 
-	float currentOffsetToTarget = FMath::Lerp( _offsetToTarget, 0.0f, _currentFuel / _maxFuel);
-	FVector targetLocation = _target->GetActorLocation() + _target->GetActorRightVector() * currentOffsetToTarget;
+	const float currentOffsetToTarget = FMath::Lerp( _offsetToTarget, 0.0f, _currentFuel / _maxFuel);
+	const FVector targetLocation = _target->GetActorLocation() + _target->GetActorRightVector() * currentOffsetToTarget;
 	
 	FVector toTarget = targetLocation - player->GetActorLocation();
 	playerForward.Normalize();
@@ -139,9 +140,9 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	const float correctAngle = FMath::Lerp (_maxCorrectAngle, 0.0f, _currentFuel / _maxFuel);
 	const float normalisedAngle = FMath::Clamp ((angle - correctAngle) / (180.0f - correctAngle), 0.0f, 1.0f);
 
-	DEBUG_STRING ( "Normalised Fuel: " + FString::SanitizeFloat (_currentFuel / _maxFuel) +
-	" - " + "Current Offset: " + FString::SanitizeFloat (currentOffsetToTarget) +
-		" - " + "Normalised Angle: " + FString::SanitizeFloat (normalisedAngle) );
+	//DEBUG_STRING ( "Normalised Fuel: " + FString::SanitizeFloat (_currentFuel / _maxFuel) +
+	//" - " + "Current Offset: " + FString::SanitizeFloat (currentOffsetToTarget) +
+	//	" - " + "Normalised Angle: " + FString::SanitizeFloat (normalisedAngle) );
 	
 	HandleLightIntensity (normalisedAngle);
 	HandleLightBeamScale (normalisedAngle);
