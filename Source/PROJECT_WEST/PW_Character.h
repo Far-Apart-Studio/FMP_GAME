@@ -107,7 +107,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FSlotPressedDelegate OnSlotPressed;
 
-	UPROPERTY(BlueprintCallable)
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnCameraRotationChange;
 	
 	void Elim(bool leftGame);
