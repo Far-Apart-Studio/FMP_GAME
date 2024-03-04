@@ -37,6 +37,7 @@ APW_Lantern::APW_Lantern()
 	_currentBeamScale = _minBeamScale = .5f;
 	_maxBeamScale = 2.0f;
 
+	_minCorrectAngle = 30.0f;
 	_maxCorrectAngle = 60.0f;
 	
 	_maxFuel = 100.0f;
@@ -57,6 +58,8 @@ void APW_Lantern::BeginPlay()
 
 	float random = FMath::RandRange(0, 1);
 	_offsetToTarget = FMath::RandRange(_minOffsetToTarget, _maxOffsetToTarget) * random >= 0.5 ? 1 : -1;
+
+	_currentCorrectAngle = FMath::RandRange(_minCorrectAngle, _maxCorrectAngle);
 	
 	if (HasAuthority())
 	{
@@ -137,7 +140,8 @@ void APW_Lantern::HandleTargetDetection(float DeltaTime)
 	
 	const float dotProduct = FVector::DotProduct (playerForward, toTarget);
 	const float angle = FMath::RadiansToDegrees (FMath::Acos (dotProduct));
-	const float correctAngle = FMath::Lerp (_maxCorrectAngle, 0.0f, _currentFuel / _maxFuel);
+	
+	const float correctAngle = FMath::Lerp (_currentCorrectAngle, 0.0f, _currentFuel / _maxFuel);
 	const float normalisedAngle = FMath::Clamp ((angle - correctAngle) / (180.0f - correctAngle), 0.0f, 1.0f);
 
 	//DEBUG_STRING ( "Normalised Fuel: " + FString::SanitizeFloat (_currentFuel / _maxFuel) +
