@@ -164,8 +164,7 @@ void APW_SnareTrap::CaughtCharacter(APW_Character* Character)
 			_caughtCharacter->GetMesh()->SetEnableGravity(false);
 			_caughtCharacter->AttachToComponent(_skeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			_caughtCharacter->SetActorLocation(_triggerVolume->GetComponentLocation() + FVector(0,0,100));
-
-			// UnCrouch the character if it is crouched
+			_caughtCharacter->StopCrouching();
 			
 			_skeletalMesh->PlayAnimation(_catchAnimation, false);
 			_actorMoverComponent->SetCanMove(true);

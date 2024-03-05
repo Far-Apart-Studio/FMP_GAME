@@ -159,6 +159,9 @@ public:
 	void SlotTwoPressed();
 	void SlotThreePressed();
 	void SlotFourPressed();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void StopCrouching();
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
