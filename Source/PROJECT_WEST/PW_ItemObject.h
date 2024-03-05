@@ -62,10 +62,17 @@ public:
 	void RemoveActionBindings(APW_Character* characterOwner);
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner);
 	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
+
+	void SetVisibility(bool isVisible);
+	void LocalSetVisibility(bool isVisible);
+	UFUNCTION(Server, Reliable) void ServerSetVisibility(bool isVisible);
+
+	UFUNCTION(NetMulticast, Reliable) void MulticastSetChildVisibility(bool isVisible);
 	
+	void EnableItem(APW_Character* characterOwner);
+	void DisableItem(APW_Character* characterOwner);
 	void UpdateItemState(EItemObjectState updatedState);
 	void UpdateItemType(EItemType updatedType);
-	void SetVisibility(bool isVisible);
 
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;

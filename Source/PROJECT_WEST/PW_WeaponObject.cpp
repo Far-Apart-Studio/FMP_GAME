@@ -58,13 +58,13 @@ void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(APW_WeaponObject, _weaponMesh);
 	DOREPLIFETIME(APW_WeaponObject, _weaponRuntimeData);
 }
 
 void APW_WeaponObject::BeginFireSequence()
 {
-	PW_Utilities::Log("FIRE SEQUENCE BEGINS");
-	
 	_weaponRuntimeData.IsFiring = true;
 
 	if (_weaponData == nullptr)
@@ -78,7 +78,7 @@ void APW_WeaponObject::CoreFireSequence()
 	if (!_weaponRuntimeData.IsFiring)
 		return;
 
-	if (_weaponData->GetHipWeaponFireType() == EFireType::Automatic)
+	if (_weaponData->GetWeaponFireType(_weaponFireMode) == EFireType::Automatic)
 		QueueAutomaticFire();
 	
 	
@@ -98,8 +98,6 @@ void APW_WeaponObject::CompleteFireSequence()
 
 void APW_WeaponObject::CastBulletRays()
 {
-	PW_Utilities::Log("CASTING BULLET RAYS");
-	
 	const AActor* owner = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(owner);
 	
@@ -112,8 +110,8 @@ void APW_WeaponObject::CastBulletRays()
 		{ PW_Utilities::Log("NO CAMERA COMPONENT FOUND!"); return; }
 
 	OnWeaponFireDelegate.Broadcast();
-	int projectileCount = _weaponData->GetHipProjectileCount();
-	const float defaultProjectileDelay = _weaponData->GetHipProjectileDelay();
+	int projectileCount = _weaponData->GetProjectileCount(_weaponFireMode);
+	const float defaultProjectileDelay = _weaponData->GetProjectileDelay(_weaponFireMode);
 	float currentDelay = -defaultProjectileDelay;
 
 	const int availableAmmo = _weaponRuntimeData.CurrentAmmo;
@@ -174,7 +172,7 @@ void APW_WeaponObject::CastBulletRay(UCameraComponent* cameraComponent)
 
 void APW_WeaponObject::SimulateBulletSpread(FVector& rayDirection)
 {
-	const float weaponSpread = _weaponData->GetHipWeaponAccuracy();
+	const float weaponSpread = _weaponData->GetWeaponAccuracy(_weaponFireMode);
 	const FVector spreadVector = FMath::VRandCone(rayDirection, weaponSpread);
 	rayDirection = spreadVector;
 }
@@ -195,7 +193,7 @@ bool APW_WeaponObject::CastRay(const FVector& rayStart, const FVector& rayDestin
 
 void APW_WeaponObject::QueueAutomaticFire()
 {
-	const float fireRate = _weaponData->GetHipWeaponFireRate();
+	const float fireRate = _weaponData->GetWeaponFireRate(_weaponFireMode);
 	FTimerDelegate automaticFireDelegate;
 	automaticFireDelegate.BindLambda([this](){ CoreFireSequence(); });
 	GetWorld()->GetTimerManager().SetTimer(_fireTimerHandle, automaticFireDelegate, fireRate, false);
@@ -270,7 +268,7 @@ void APW_WeaponObject::LocalApplyDamage(const FHitResult& hitResult)
 	APW_Character* ownerCharacter = Cast<APW_Character>(owner);
 	
 	if(ownerCharacter == nullptr)
-	{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
 	
 	_weaponRuntimeData.CurrentAmmo--;
 	
@@ -290,11 +288,11 @@ void APW_WeaponObject::LocalApplyDamage(const FHitResult& hitResult)
 float APW_WeaponObject::CalculateDamage(const FHitResult& hitResult)
 {
 	const float shotDistance = hitResult.Location.Distance(hitResult.TraceStart, hitResult.ImpactPoint);
-	const float maximumDistance = _weaponData->GetHipWeaponMaximumDistance();
+	const float maximumDistance = _weaponData->GetWeaponMaximumDistance(_weaponFireMode);
 	const float normalisedDistance = PWMath::Clamp01(1.0f - (shotDistance / maximumDistance));
-	const float weaponDamage = _weaponData->GetHipWeaponDamage();
+	const float weaponDamage = _weaponData->GetWeaponDamage(_weaponFireMode);
 
-	const UCurveFloat* fallOffCurve = _weaponData->GetHipWeaponFallOffCurve();
+	const UCurveFloat* fallOffCurve = _weaponData->GetWeaponFallOffCurve(_weaponFireMode);
 
 	const float normalisedFallOff = fallOffCurve == nullptr
 		                                ? normalisedDistance
@@ -312,7 +310,7 @@ bool APW_WeaponObject::CanFire()
 	if (_weaponRuntimeData.IsReloading)
 		return false;
 	
-	if (_weaponRuntimeData.LastFiredTime < _weaponData->GetHipWeaponFireRate())
+	if (_weaponRuntimeData.LastFiredTime < _weaponData->GetWeaponFireRate(_weaponFireMode))
 		return false;
 
 	_weaponRuntimeData.LastFiredTime = 0.0f;
