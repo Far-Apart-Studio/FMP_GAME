@@ -116,26 +116,15 @@ void APW_ItemObject::LocalSetVisibility(bool isVisible)
 		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
 
 	_itemMesh->SetVisibility(isVisible);
-	
-	TArray<USceneComponent*> childMeshes;
-	_itemMesh->GetChildrenComponents(true, childMeshes);
-
-	PW_Utilities::Log("CHILD MESHES: " + FString::FromInt(childMeshes.Num()));
-	
-	for (USceneComponent* childMesh : childMeshes)
-	{
-		UMeshComponent* staticMesh = Cast<UMeshComponent>(childMesh);
-		if (staticMesh != nullptr)
-			staticMesh->SetVisibility(isVisible);
-	}
-
-	_isActive = isVisible;
+	MulticastSetChildVisibility(isVisible);
 }
 
 void APW_ItemObject::ServerSetVisibility_Implementation(bool isVisible)
 {
 	if (HasAuthority())
+	{
 		LocalSetVisibility(isVisible);
+	}
 }
 
 #pragma endregion SetVisibility
@@ -204,6 +193,21 @@ void APW_ItemObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 
 #pragma endregion RemoveActionBindings
 
+
+void APW_ItemObject::MulticastSetChildVisibility_Implementation(bool isVisible)
+{
+	TArray<USceneComponent*> childMeshes;
+	_itemMesh->GetChildrenComponents(true, childMeshes);
+	
+	for (USceneComponent* childMesh : childMeshes)
+	{
+		UMeshComponent* staticMesh = Cast<UMeshComponent>(childMesh);
+		if (staticMesh != nullptr)
+			staticMesh->SetVisibility(isVisible);
+	}
+
+	_isActive = isVisible;
+}
 
 void APW_ItemObject::EnableItem(APW_Character* characterOwner)
 {

@@ -66,6 +66,8 @@ public:
 	void SetVisibility(bool isVisible);
 	void LocalSetVisibility(bool isVisible);
 	UFUNCTION(Server, Reliable) void ServerSetVisibility(bool isVisible);
+
+	UFUNCTION(NetMulticast, Reliable) void MulticastSetChildVisibility(bool isVisible);
 	
 	void EnableItem(APW_Character* characterOwner);
 	void DisableItem(APW_Character* characterOwner);

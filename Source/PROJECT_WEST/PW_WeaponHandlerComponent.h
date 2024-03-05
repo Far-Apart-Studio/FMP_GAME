@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PW_WeaponData.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ActorComponent.h"
 #include "PW_WeaponHandlerComponent.generated.h"
@@ -16,6 +17,10 @@ class PROJECT_WEST_API UPW_WeaponHandlerComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
+	EFireMode _fireMode = EFireMode::Hip;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Handler", meta = (AllowPrivateAccess = "true"))
 	class UPW_WeaponData* _defaultWeaponData;
 

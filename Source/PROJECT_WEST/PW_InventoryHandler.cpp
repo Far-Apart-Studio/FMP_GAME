@@ -288,14 +288,14 @@ void UPW_InventoryHandler::LocalDropItem(APW_ItemObject* slotItem)
 	slotItem->SetOwner(nullptr);
 
 	if (_ownerCharacter == nullptr)
-	{ PW_Utilities::Log("[LOCAL] OWNER CHARACTER IS NULL!"); return; }
+		{ PW_Utilities::Log("[LOCAL] OWNER CHARACTER IS NULL!"); return; }
 	
 	const FVector characterVelocity = _ownerCharacter->GetVelocity();
-	const FVector itemVelocity = characterVelocity * 5;
+	const FVector itemVelocity = characterVelocity * _throwVelocityMultiplier;
 
 	UMeshComponent* itemMesh = slotItem->GetItemMesh();
 	if (itemMesh == nullptr)
-	{ PW_Utilities::Log("[LOCAL] ITEM MESH IS NULL!"); return; }
+		{PW_Utilities::Log("[LOCAL] ITEM MESH IS NULL!"); return; }
 
 	itemMesh->AddImpulse(itemVelocity);
 }

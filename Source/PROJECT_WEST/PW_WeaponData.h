@@ -14,6 +14,13 @@ enum class EFireType : uint8
 	Manual
 };
 
+UENUM()
+enum class EFireMode : uint8
+{
+	Hip,
+	Aimed
+};
+
 
 UCLASS()
 class PROJECT_WEST_API UPW_WeaponData : public UDataAsset
@@ -21,7 +28,6 @@ class PROJECT_WEST_API UPW_WeaponData : public UDataAsset
 	GENERATED_BODY()
 
 private:
-	
 	UPROPERTY(EditAnywhere, Category = "General Weapon Data")
 	float _weaponMagazineCapacity;
 
@@ -94,23 +100,13 @@ public:
 	FORCEINLINE float GetWeaponReserveAmmunition() const { return _weaponReserveAmmunition; }
 	FORCEINLINE float GetWeaponReloadTime() const { return _weaponReloadTime; }
 
-	FORCEINLINE EFireType GetHipWeaponFireType() const { return _hWeaponFireType; }
-	FORCEINLINE float GetHipWeaponDamage() const { return _hWeaponDamage; }
-	FORCEINLINE float GetHipWeaponFireRate() const { return _hWeaponFireRate; }
-	FORCEINLINE FVector2D GetHipWeaponRecoil() const { return _hWeaponRecoil; }
-	FORCEINLINE float GetHipWeaponAccuracy() const { return _hWeaponAccuracy; }
-	FORCEINLINE float GetHipWeaponMaximumDistance() const { return _hWeaponMaximumDistance; }
-	FORCEINLINE UCurveFloat* GetHipWeaponFallOffCurve() const { return _hWeaponFallOffCurve; }
-	FORCEINLINE int GetHipProjectileCount() const { return _hProjectileCount; }
-	FORCEINLINE float GetHipProjectileDelay() const { return _hProjectileDelay; }
-
-	FORCEINLINE EFireType GetAimedWeaponFireType() const { return _aWeaponFireType; }
-	FORCEINLINE float GetAimedWeaponDamage() const { return _aWeaponDamage; }
-	FORCEINLINE float GetAimedWeaponFireRate() const { return _aWeaponFireRate; }
-	FORCEINLINE FVector2D GetAimedWeaponRecoil() const { return _aWeaponRecoil; }
-	FORCEINLINE float GetAimedWeaponAccuracy() const { return _aWeaponAccuracy; }
-	FORCEINLINE float GetAimedWeaponMaximumDistance() const { return _aWeaponMaximumDistance; }
-	FORCEINLINE UCurveFloat* GetAimedWeaponFallOffCurve() const { return _aWeaponFallOffCurve; }
-	FORCEINLINE int GetAimedProjectileCount() const { return _aProjectileCount; }
-	FORCEINLINE float GetAimedProjectileDelay() const { return _aProjectileDelay; }
+	FORCEINLINE EFireType GetWeaponFireType(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponFireType : _aWeaponFireType; }
+	FORCEINLINE float GetWeaponDamage(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponDamage : _aWeaponDamage; }
+	FORCEINLINE float GetWeaponFireRate(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponFireRate : _aWeaponFireRate; }
+	FORCEINLINE FVector2D GetWeaponRecoil(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponRecoil : _aWeaponRecoil; }
+	FORCEINLINE float GetWeaponAccuracy(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponAccuracy : _aWeaponAccuracy; }
+	FORCEINLINE float GetWeaponMaximumDistance(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponMaximumDistance : _aWeaponMaximumDistance; }
+	FORCEINLINE UCurveFloat* GetWeaponFallOffCurve(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponFallOffCurve : _aWeaponFallOffCurve; }
+	FORCEINLINE int GetProjectileCount(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hProjectileCount : _aProjectileCount; }
+	FORCEINLINE float GetProjectileDelay(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hProjectileDelay : _aProjectileDelay; }
 };

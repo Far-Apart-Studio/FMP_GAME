@@ -26,6 +26,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Inventory")
 	TArray<FInventorySlot> _slotConfiguration;
 
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	float _throwVelocityMultiplier = 5.0f;
+
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	TArray<UPW_InventorySlot*> _inventorySlots;
 

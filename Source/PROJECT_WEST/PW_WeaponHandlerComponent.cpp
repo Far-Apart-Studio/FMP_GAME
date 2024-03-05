@@ -72,7 +72,7 @@ void UPW_WeaponHandlerComponent::CoreFireSequence(APW_Weapon* currentWeapon, UPW
 	if (!_isFiring)
 		return;
 
-	if (weaponData->GetHipWeaponFireType() == EFireType::Automatic)
+	if (weaponData->GetWeaponFireType(_fireMode) == EFireType::Automatic)
 		QueueAutomaticFire(currentWeapon, weaponData);
 
 	if (currentWeapon->IsAmmoEmpty())
@@ -106,8 +106,8 @@ void UPW_WeaponHandlerComponent::CastBulletRays(const UPW_WeaponData* weaponData
 	if (cameraComponent == nullptr)
 		{ PW_Utilities::Log("NO CAMERA COMPONENT FOUND!"); return; }
 
-	int projectileCount = weaponData->GetHipProjectileCount();
-	const float defaultProjectileDelay = weaponData->GetHipProjectileDelay();
+	int projectileCount = weaponData->GetProjectileCount(_fireMode);
+	const float defaultProjectileDelay = weaponData->GetProjectileDelay(_fireMode);
 	float currentDelay = -defaultProjectileDelay;
 
 	const int availableAmmo = currentWeapon->GetCurrentAmmo();
@@ -164,7 +164,7 @@ void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent
 
 void UPW_WeaponHandlerComponent::SimulateBulletSpread(FVector& rayDirection, const UPW_WeaponData* weaponData)
 {
-	const float weaponSpread = weaponData->GetHipWeaponAccuracy();
+	const float weaponSpread = weaponData->GetWeaponAccuracy(_fireMode);
 	const FVector spreadVector = FMath::VRandCone(rayDirection, weaponSpread);
 	rayDirection = spreadVector;
 }
@@ -185,7 +185,7 @@ bool UPW_WeaponHandlerComponent::CastRay(const FVector& rayStart, const FVector&
 
 void UPW_WeaponHandlerComponent::QueueAutomaticFire(APW_Weapon* currentWeapon, UPW_WeaponData* weaponData)
 {
-	const float fireRate = currentWeapon->GetWeaponData()->GetHipWeaponFireRate();
+	const float fireRate = currentWeapon->GetWeaponData()->GetWeaponFireRate(_fireMode);
 	FTimerDelegate automaticFireDelegate;
 	automaticFireDelegate.BindLambda([this, currentWeapon, weaponData]()
 		{ CoreFireSequence(currentWeapon, weaponData); });
@@ -280,11 +280,11 @@ void UPW_WeaponHandlerComponent::LocalApplyDamage(const FHitResult& hitResult)
 float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult, const UPW_WeaponData* weaponData)
 {
 	const float shotDistance = hitResult.Location.Distance(hitResult.TraceStart, hitResult.ImpactPoint);
-	const float maximumDistance = weaponData->GetHipWeaponMaximumDistance();
+	const float maximumDistance = weaponData->GetWeaponMaximumDistance(_fireMode);
 	const float normalisedDistance = PWMath::Clamp01(1.0f - (shotDistance / maximumDistance));
-	const float weaponDamage = weaponData->GetHipWeaponDamage();
+	const float weaponDamage = weaponData->GetWeaponDamage(_fireMode);
 
-	const UCurveFloat* fallOffCurve = weaponData->GetHipWeaponFallOffCurve();
+	const UCurveFloat* fallOffCurve = weaponData->GetWeaponFallOffCurve(_fireMode);
 
 	const float normalisedFallOff = fallOffCurve == nullptr
 		                                ? normalisedDistance
@@ -301,7 +301,7 @@ bool UPW_WeaponHandlerComponent::CalculateFireStatus()
 	if (weaponData == nullptr)
 		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return false; }
 	
-	if (_lastFiredTime < weaponData->GetHipWeaponFireRate())
+	if (_lastFiredTime < weaponData->GetWeaponFireRate(_fireMode))
 		return false;
 
 	_lastFiredTime = 0.0f;

@@ -45,6 +45,9 @@ class PROJECT_WEST_API APW_WeaponObject : public APW_ItemObject
 	GENERATED_BODY()
 
 private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	EFireMode _weaponFireMode = EFireMode::Hip;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UPW_WeaponData* _weaponData;
 
@@ -97,7 +100,7 @@ public:
 	virtual void LocalApplyActionBindings(APW_Character* characterOwner) override;
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+	
 	void CastBulletRays();
 	void CastBulletRay(UCameraComponent* cameraComponent);
 	void SimulateBulletSpread(FVector& rayDirection);
@@ -110,6 +113,7 @@ public:
 	void OnReloadWeaponComplete();
 	void CoreFireSequence();
 	void QueueAutomaticFire();
+	void TransferReserveAmmo();
 	
 	UFUNCTION() void BeginFireSequence();
 	UFUNCTION() void CompleteFireSequence();
@@ -118,10 +122,9 @@ public:
 	UFUNCTION(Server, Reliable) void ServerReloadWeapon();
 	UFUNCTION(Server, Reliable) void ServerApplyDamage(const FHitResult& hitResult);
 
-	void TransferReserveAmmo();
-
 	FORCEINLINE bool IsAmmoEmpty() const { return _weaponRuntimeData.CurrentAmmo <= 0; }
 	FORCEINLINE bool IsAmmoFull() const { return _weaponRuntimeData.CurrentAmmo == _weaponData->GetWeaponMagazineCapacity(); }
 	FORCEINLINE bool IsReserveAmmoEmpty() const { return _weaponRuntimeData.CurrentReserveAmmo <= 0; }
 	FORCEINLINE bool IsReserveAmmoFull() const { return _weaponRuntimeData.CurrentReserveAmmo == _weaponData->GetWeaponReserveAmmunition(); }
+	FORCEINLINE void SetFireMode(EFireMode fireMode) { _weaponFireMode = fireMode; }
 };
