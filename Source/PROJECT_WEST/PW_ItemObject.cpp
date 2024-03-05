@@ -115,7 +115,7 @@ void APW_ItemObject::LocalSetVisibility(bool isVisible)
 	if (_itemMesh == nullptr)
 		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
 
-	_itemMesh->SetVisibility(isVisible);
+	//_itemMesh->SetVisibility(isVisible);
 	MulticastSetChildVisibility(isVisible);
 }
 
@@ -200,11 +200,7 @@ void APW_ItemObject::MulticastSetChildVisibility_Implementation(bool isVisible)
 	_itemMesh->GetChildrenComponents(true, childMeshes);
 	
 	for (USceneComponent* childMesh : childMeshes)
-	{
-		UMeshComponent* staticMesh = Cast<UMeshComponent>(childMesh);
-		if (staticMesh != nullptr)
-			staticMesh->SetVisibility(isVisible);
-	}
+		childMesh->SetVisibility(isVisible);
 
 	_isActive = isVisible;
 }

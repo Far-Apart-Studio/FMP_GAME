@@ -18,16 +18,14 @@ void UPW_InventoryHandler::BeginPlay()
 	Super::BeginPlay();
 	
 	GetOwnerCharacter();
-	CreateInventoryConfiguration();
 
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
 
 	if (_ownerCharacter->IsLocallyControlled())
 		AssignInputActions();
-
-	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
-	ChangeSlot(currentSlot, true);
+	
+	ChangeSlot(_currentSlotIndex, true);
 }
 
 void UPW_InventoryHandler::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -38,35 +36,28 @@ void UPW_InventoryHandler::TickComponent(float DeltaTime, ELevelTick TickType, F
 void UPW_InventoryHandler::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UPW_InventoryHandler, _inventorySlots);
 }
 
-bool UPW_InventoryHandler::TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot)
+bool UPW_InventoryHandler::IsSlotValid(int slotIndex)
 {
-	const bool isIndexValid = slotIndex >= 0 && slotIndex < _slotConfiguration.Num();
-	
-	if (!isIndexValid)
-		{ PW_Utilities::Log("INVALID SLOT INDEX!"); return false; }
-
-	outSlot = GetSlot(slotIndex);
-	return true;
+	return slotIndex >= 0 && slotIndex < _inventorySlots.Num();
 }
 
-void UPW_InventoryHandler::ChangeSlot(const UPW_InventorySlot* targetedSlot, bool forceChangeSlot)
+void UPW_InventoryHandler::ChangeSlot(int targetedSlotIndex, bool forceChangeSlot)
 {
-	if (targetedSlot == nullptr)
-		{ PW_Utilities::Log("UPDATED SLOT IS NULL!"); return; }
-	
-	const UPW_InventorySlot* currentSlot = GetCurrentSlot();
-
-	if (currentSlot == targetedSlot && !forceChangeSlot)
+	if (_currentSlotIndex == targetedSlotIndex && !forceChangeSlot)
 		{ PW_Utilities::Log("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
 
-	APW_ItemObject* currentItem = currentSlot->GetItem();
+	if (!IsSlotValid(targetedSlotIndex))
+		{ PW_Utilities::Log("SLOT INDEX IS INVALID!"); return; }
+	
+	APW_ItemObject* currentItem = _inventorySlots[_currentSlotIndex].GetItem();
 	
 	if (currentItem != nullptr)
 		currentItem->DisableItem(_ownerCharacter);
 
-	APW_ItemObject* updatedItem = targetedSlot->GetItem();
+	APW_ItemObject* updatedItem = _inventorySlots[targetedSlotIndex].GetItem();
 	
 	if (updatedItem != nullptr)
 		updatedItem->EnableItem(_ownerCharacter);
@@ -77,15 +68,21 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 {
 	if (collectedItem == nullptr)
 		{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
+	
+	const EItemObjectState itemState = collectedItem->GetItemState();
+
+	if (itemState != EItemObjectState::EDropped)
+		{ PW_Utilities::Log("ITEM STATE IS NOT DROPPED!"); return; }
 
 	const EItemType itemType = collectedItem->GetItemType();
-	UPW_InventorySlot* availableSlot = nullptr;
-	const bool foundSlot = TryGetAvailableSlot(itemType, availableSlot);
+
+	int slotIndex = 0;
+	const bool foundSlot = TryGetSlotIndex(itemType, slotIndex);
 	
 	if (!foundSlot)
 		{ PW_Utilities::Log("NO AVAILABLE SLOT!"); return; }
 
-	availableSlot->SetItem(collectedItem);
+	_inventorySlots[slotIndex].SetItem(collectedItem);
 	
 	_ownerCharacter->HasAuthority() ? LocalCollectItem(collectedItem) : ServerCollectItem(collectedItem);
 
@@ -94,8 +91,7 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 
 	itemDelegate.BindLambda([collectedItem, this]()
 	{
-		const UPW_InventorySlot* currentSlot = GetCurrentSlot();
-		ChangeSlot(currentSlot, true);
+		ChangeSlot(_currentSlotIndex, true);
 	});
 
 	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.1f, false);
@@ -124,30 +120,20 @@ void UPW_InventoryHandler::ServerCollectItem_Implementation(APW_ItemObject* coll
 }
 #pragma endregion CollectItem
 
-bool UPW_InventoryHandler::TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot)
+bool UPW_InventoryHandler::TryGetSlotIndex(EItemType itemType, int& outIndex)
 {
-	for (UPW_InventorySlot* inventorySlot : _inventorySlots)
+	for (int i = 0; i < _inventorySlots.Num(); i++)
 	{
-		if (inventorySlot->GetSlotType() != itemType)
+		if (_inventorySlots[i].GetSlotType() != itemType)
 			continue;
 
-		if (!inventorySlot->IsSlotAvailable())
+		if (!_inventorySlots[i].IsSlotAvailable())
 			continue;
 
-		outSlot = inventorySlot;
+		outIndex = i;
 		return true;
 	}
-	return false; 
-}
-
-void UPW_InventoryHandler::CreateInventoryConfiguration()
-{
-	for (const FInventorySlot inventorySlotConfiguration : _slotConfiguration)
-	{
-		UPW_InventorySlot* createdSlot = NewObject<UPW_InventorySlot>();
-		createdSlot->SetSlotType(inventorySlotConfiguration.SlotType);
-		_inventorySlots.Add(createdSlot);
-	}
+	return false;
 }
 
 void UPW_InventoryHandler::CycleNextSlot()
@@ -158,14 +144,12 @@ void UPW_InventoryHandler::CycleNextSlot()
 
 	if (isIndexValid)
 	{
-		const UPW_InventorySlot* targetedSlot = GetSlot(targetedSlotIndex);
-		ChangeSlot(targetedSlot);
+		ChangeSlot(targetedSlotIndex);
 		_currentSlotIndex = targetedSlotIndex;
 	}
 	else
 	{
-		const UPW_InventorySlot* errorSlot = GetSlot(overflowSlotIndex);
-		ChangeSlot(errorSlot);
+		ChangeSlot(overflowSlotIndex);
 		_currentSlotIndex = overflowSlotIndex;
 	}
 }
@@ -178,14 +162,12 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 
 	if (isIndexValid)
 	{
-		const UPW_InventorySlot* targetedSlot = GetSlot(targetedSlotIndex);
-		ChangeSlot(targetedSlot);
+		ChangeSlot(targetedSlotIndex);
 		_currentSlotIndex = targetedSlotIndex;
 	}
 	else
 	{
-		const UPW_InventorySlot* errorSlot = GetSlot(overflowSlotIndex);
-		ChangeSlot(errorSlot);
+		ChangeSlot(overflowSlotIndex);
 		_currentSlotIndex = overflowSlotIndex;
 	}
 }
@@ -206,16 +188,13 @@ void UPW_InventoryHandler::CycleDown()
 	CyclePreviousSlot();
 }
 
-void UPW_InventoryHandler::ToSlot(int slotIndex)
+void UPW_InventoryHandler::ToSlot(int targetedSlotIndex)
 {
-	UPW_InventorySlot* targetedSlot = nullptr;
-	const bool foundSlot = TryGetSlot(slotIndex, targetedSlot);
+	if (!IsSlotValid(targetedSlotIndex))
+		{ PW_Utilities::Log("SLOT INDEX IS INVALID!"); return; }
 
-	if (!foundSlot)
-		{ PW_Utilities::Log("TARGETED SLOT NOT FOUND!"); return; }
-
-	ChangeSlot(targetedSlot);
-	_currentSlotIndex = slotIndex;
+	ChangeSlot(targetedSlotIndex);
+	_currentSlotIndex = targetedSlotIndex;
 }
 
 void UPW_InventoryHandler::DropCurrentItem()
@@ -257,21 +236,15 @@ void UPW_InventoryHandler::GetOwnerCharacter()
 #pragma region DropItem
 void UPW_InventoryHandler::DropItem(int slotIndex)
 {
-	UPW_InventorySlot* inventorySlot = nullptr;
-	const bool foundSlot = TryGetSlot(slotIndex, inventorySlot);
+	if (!IsSlotValid(slotIndex))
+		{ PW_Utilities::Log("SLOT INDEX IS INVALID!"); return; }
 
-	if (!foundSlot)
-		{ PW_Utilities::Log("[LOCAL] SLOT NOT FOUND!"); return; }
-
-	if (inventorySlot == nullptr)
-		{ PW_Utilities::Log("[LOCAL] CURRENT SLOT IS NULL!"); return; }
-
-	APW_ItemObject* slotItem = inventorySlot->GetItem();
+	APW_ItemObject* slotItem = _inventorySlots[_currentSlotIndex].GetItem();
 
 	if (slotItem == nullptr)
 		{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
 
-	inventorySlot->RemoveItem();
+	_inventorySlots[_currentSlotIndex].RemoveItem();
 	slotItem->RemoveActionBindings(_ownerCharacter);
 	slotItem->SetVisibility(true);
 	

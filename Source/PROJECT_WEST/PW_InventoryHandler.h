@@ -23,14 +23,11 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Inventory")
 	APW_Character* _ownerCharacter;
 	
-	UPROPERTY(EditAnywhere, Category = "Inventory")
-	TArray<FInventorySlot> _slotConfiguration;
+	UPROPERTY(Replicated, EditAnywhere, Category = "Inventory")
+	TArray<FInventorySlot> _inventorySlots;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory")
 	float _throwVelocityMultiplier = 5.0f;
-
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	TArray<UPW_InventorySlot*> _inventorySlots;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	int _currentSlotIndex = 0;
@@ -38,7 +35,6 @@ private:
 private:
 	void AssignInputActions();
 	void GetOwnerCharacter();
-	void CreateInventoryConfiguration();
 
 protected:
 	virtual void BeginPlay() override;
@@ -56,18 +52,18 @@ public:
 	void LocalDropItem(APW_ItemObject* slotItem);
 	UFUNCTION(Server, Reliable) void ServerDropItem(APW_ItemObject* slotItem);
 	
-	void ChangeSlot(const UPW_InventorySlot* targetedSlot, bool forceChangeSlot = false);
-	bool TryGetSlot(int slotIndex, UPW_InventorySlot*& outSlot);
-	bool TryGetAvailableSlot(EItemType itemType, UPW_InventorySlot*& outSlot);
+	void ChangeSlot(int targetedSlotIndex, bool forceChangeSlot = false);
+	bool IsSlotValid(int slotIndex);
+	bool TryGetSlotIndex(EItemType itemType, int& outIndex);
 	void CycleNextSlot(); 
 	void CyclePreviousSlot();
 
-	FORCEINLINE UPW_InventorySlot* GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
-	FORCEINLINE UPW_InventorySlot* GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
+	FORCEINLINE FInventorySlot& GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
+	FORCEINLINE FInventorySlot& GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
 	
 	UFUNCTION(BlueprintCallable) void CycleUp();
 	UFUNCTION(BlueprintCallable) void CycleDown();
-	UFUNCTION(BlueprintCallable) void ToSlot(int slotIndex);
+	UFUNCTION(BlueprintCallable) void ToSlot(int targetedSlotIndex);
 	UFUNCTION(BlueprintCallable) void DropCurrentItem();
 	UFUNCTION(BlueprintCallable) void DropAll();
 };

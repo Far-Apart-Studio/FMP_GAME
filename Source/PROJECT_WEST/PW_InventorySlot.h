@@ -14,18 +14,8 @@ struct FInventorySlot
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category = "Inventory")
-	EItemType SlotType;
-};
-
-UCLASS()
-class PROJECT_WEST_API UPW_InventorySlot : public UObject
-{
-	GENERATED_BODY()
-
-private:
-	UPROPERTY(EditAnywhere, Category = "Inventory")
 	EItemType _slotType;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	APW_ItemObject* _currentItem;
 
