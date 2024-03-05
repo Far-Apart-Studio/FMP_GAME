@@ -3,10 +3,3 @@
 
 #include "FRecoilAction.h"
 
-FRecoilAction::FRecoilAction()
-{
-}
-
-FRecoilAction::~FRecoilAction()
-{
-}
