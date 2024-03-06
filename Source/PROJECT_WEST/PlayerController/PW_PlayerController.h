@@ -143,6 +143,7 @@ protected:
 	void LoadGameSessionData();
 	UFUNCTION( Server, Reliable )
 	void SeverLoadGameSessionData();
+	
 	UFUNCTION( Client, Reliable )
 	void ClientLoadGameSessionData(FGameSessionData GameSessionData);
 	
@@ -255,12 +256,9 @@ public:
 	UFUNCTION( Server, Reliable )
 	void ServerSpawnAutoEnemySpawner(class APW_Character* controlledCharacter);
 	void LocalSpawnAutoEnemySpawner(APW_Character* controlledCharacter);
-
-	void LoadInventoryData();
-	UFUNCTION( Server, Reliable )
-	void ServerLoadInventoryData();
-	UFUNCTION( Client, Reliable )
-	void ClientLoadInventoryItemsByID (const TArray<FString>& itemIDs);
+	
+	void LoadInventoryItemsByID (const TArray<FString>& itemIDs);
+	
 	UFUNCTION( Client, Reliable )
 	void ClientLoadInventoryItems (const TArray<class APW_ItemObject*>& items);
 };

@@ -62,7 +62,7 @@ public:
 	void ChangeSlot(int targetedSlotIndex, bool forceChangeSlot = false);
 	bool IsSlotValid(int slotIndex);
 	bool TryGetSlotIndex(EItemType itemType, int& outIndex);
-	void CycleNextSlot(); 
+
 	void CyclePreviousSlot();
 	
 	void LoadItems (const TArray<APW_ItemObject*>& items);
@@ -77,7 +77,8 @@ public:
 	FORCEINLINE FInventorySlot& GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
 	FORCEINLINE FInventorySlot& GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
 	FORCEINLINE TArray<FInventorySlot>& GetInventorySlots() { return _inventorySlots; }
-	
+
+	UFUNCTION(BlueprintCallable) void CycleNextSlot(); 
 	UFUNCTION(BlueprintCallable) void CycleUp();
 	UFUNCTION(BlueprintCallable) void CycleDown();
 	UFUNCTION(BlueprintCallable) void ToSlot(int targetedSlotIndex);

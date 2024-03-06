@@ -11,6 +11,7 @@
 UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicated(true);
 }
 
 void UPW_InventoryHandler::BeginPlay()
@@ -97,14 +98,14 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 	});
 
 	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.1f, false);
-
-	//DEBUG_STRING("Collected Item");
 }
 
 void UPW_InventoryHandler::LocalCollectItem(APW_ItemObject* collectedItem)
 {
 	if (collectedItem == nullptr)
 		{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
+
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	
 	USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
 
@@ -115,6 +116,8 @@ void UPW_InventoryHandler::LocalCollectItem(APW_ItemObject* collectedItem)
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	collectedItem->SetVisibility(false);
+
+	DEBUG_STRING("Collected Item");
 }
 
 void UPW_InventoryHandler::ServerCollectItem_Implementation(APW_ItemObject* collectedItem)
@@ -179,7 +182,10 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 void UPW_InventoryHandler::LoadItems(const TArray<APW_ItemObject*>& items)
 {
 	for (int i = 0; i < items.Num(); i++)
+	{
 		CollectItem(items[i]);
+		DEBUG_STRING("Collected Item");
+	}
 }
 
 void UPW_InventoryHandler::LoadItemsByID(const TArray<FString>& itemIDs)

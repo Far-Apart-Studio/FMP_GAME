@@ -38,10 +38,10 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	// called when the player controller possesses a pawn
 	
 	ClientAddCharacterOverlayWidget();
-	ClientOnLevelChanged();
 	SetNewPlayerName();
+	ClientOnLevelChanged();
 	SpawnAutoEnemySpawner();
-	LoadInventoryData();
+	//LoadInventoryData();
 }
 
 void APW_PlayerController::BeginPlay()
@@ -209,49 +209,18 @@ void APW_PlayerController::LocalSpawnAutoEnemySpawner(APW_Character* controlledC
 	}
 }
 
-void APW_PlayerController::LoadInventoryData()
+void APW_PlayerController::LoadInventoryItemsByID(const TArray<FString>& itemIDs)
 {
-	if (HasAuthority())
+	if(GetPawn())
 	{
-		APW_GameMode* gameMode =  Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
-		if (gameMode)
-		{
-			//gameMode->LoadPlayerInventoryData(this);
-			TArray<FString> itemIDs = gameMode->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(_playerName);
-			//DEBUG_STRING( "ServerLoadInventoryData_Implementation" + FString::FromInt(itemIDs.Num()));
-
-			UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
-			if (inventoryHandler)
-			{
-				//DEBUG_STRING( "ServerLoadInventoryData_Implementation inventoryHandler ");
-				inventoryHandler->LoadItemsByID(itemIDs);
-			}
-		}
+		DEBUG_STRING ("Pawn Found");
 	}
 	else
 	{
-		ServerLoadInventoryData();
+		DEBUG_STRING( "No Pawn Found" );
+		return;
 	}
-}
-
-void APW_PlayerController::ServerLoadInventoryData_Implementation()
-{
-	if (!HasAuthority()) return;;
 	
-	APW_GameMode* gameMode =  Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
-	if (gameMode)
-	{
-		//gameMode->LoadPlayerInventoryData(this);
-		TArray<FString> itemIDs = gameMode->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(_playerName);
-		ClientLoadInventoryItemsByID (itemIDs);
-		//DEBUG_STRING( "ServerLoadInventoryData_Implementation" + FString::FromInt(itemIDs.Num()));
-	}
-}
-
-
-void APW_PlayerController::ClientLoadInventoryItemsByID_Implementation(const TArray<FString>& itemIDs)
-{
-	if(!GetPawn()) return;
 	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
 	if (inventoryHandler)
 	{
@@ -259,7 +228,6 @@ void APW_PlayerController::ClientLoadInventoryItemsByID_Implementation(const TAr
 		DEBUG_STRING( "ClientLoadInventoryItemsByID_Implementation : " + FString::FromInt(itemIDs.Num()));
 	}
 }
-
 
 void APW_PlayerController::ClientLoadInventoryItems_Implementation(const TArray<APW_ItemObject*>& items)
 {
@@ -954,6 +922,9 @@ void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSession
 	DEBUG_STRING ("Loaded Game Session Data : Money - " + FString::FromInt(GameSessionData._money) + " Day - " + FString::FromInt(GameSessionData._dayIndex));
 	_money = GameSessionData._money;
 	_dayIndex = GameSessionData._dayIndex;
+	
+	TArray<FString> itemIDs = GameSessionData._playersInventoryData.GetInventoryItemIDs(_playerName);
+	LoadInventoryItemsByID(itemIDs);
 }
 
 void APW_PlayerController::ServerRequestTime_Implementation(float timeOfClientRequest)
