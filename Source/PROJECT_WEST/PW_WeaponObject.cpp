@@ -3,6 +3,7 @@
 
 #include "PW_WeaponObject.h"
 
+#include "FRecoilAction.h"
 #include "PWMath.h"
 #include "PW_Character.h"
 #include "PW_Utilities.h"
@@ -101,7 +102,7 @@ void APW_WeaponObject::CastBulletRays()
 	const AActor* owner = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(owner);
 	
-	if(ownerCharacter == nullptr)
+	if (ownerCharacter == nullptr)
 		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
 	
 	UCameraComponent* cameraComponent = ownerCharacter->GetCameraComponent();
@@ -152,7 +153,9 @@ void APW_WeaponObject::CastBulletRay(UCameraComponent* cameraComponent)
 	FHitResult hitResult;
 
 	bool isActorHit = CastRay(rayStart, rayDestination, collisionQueryParams, hitResult);
+	
 	OnWeaponHit.Broadcast(hitResult, rayStart, rayDestination);
+	QueueWeaponRecoil();
 	
 	if (isActorHit)
 	{
@@ -214,6 +217,41 @@ void APW_WeaponObject::TransferReserveAmmo()
 	
 	_weaponRuntimeData.CurrentAmmo += ammoToTransfer;
 	_weaponRuntimeData.CurrentReserveAmmo -= ammoToTransfer;
+}
+
+void APW_WeaponObject::QueueWeaponRecoil()
+{
+	AActor* ownerActor = GetOwner();
+	APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
+
+	if (ownerCharacter == nullptr)
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+
+	const FVector2D minimumRecoil = _weaponData->GetMinimumWeaponRecoil(_weaponFireMode);
+	const FVector2D maximumRecoil = _weaponData->GetMaximumWeaponRecoil(_weaponFireMode);
+	const float recoilRecoverySpeed = _weaponData->GetWeaponRecoilSpeed(_weaponFireMode);
+
+	const float recoilAmountX = FMath::RandRange(minimumRecoil.X, maximumRecoil.X);
+	const float recoilAmountY = FMath::RandRange(minimumRecoil.Y, maximumRecoil.Y);
+	const FVector2D recoilAmount = FVector2D(recoilAmountX, recoilAmountY);
+
+	FLatentActionInfo latentActionInfo = FLatentActionInfo();
+	latentActionInfo.CallbackTarget = this;
+	latentActionInfo.ExecutionFunction = "CompleteWeaponRecoil";
+
+	const FGuid UUID = FGuid::NewGuid();
+	TUniquePtr<FRecoilAction> recoilAction = MakeUnique<FRecoilAction>
+		(recoilRecoverySpeed, recoilAmount, ownerCharacter, latentActionInfo);
+	
+	FLatentActionManager& latentActionManager = GetWorld()->GetLatentActionManager();
+	latentActionManager.AddNewAction(this, UUID.A, recoilAction.Get());
+	
+	recoilAction.Release();
+}
+
+void APW_WeaponObject::CompleteWeaponRecoil()
+{
+	DEBUG_STRING("COMPLETE WEAPON RECOIL");
 }
 
 void APW_WeaponObject::ServerReloadWeapon_Implementation()
