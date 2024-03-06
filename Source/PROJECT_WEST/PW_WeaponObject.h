@@ -114,7 +114,9 @@ public:
 	void CoreFireSequence();
 	void QueueAutomaticFire();
 	void TransferReserveAmmo();
-	
+	void QueueWeaponRecoil();
+
+	UFUNCTION() void CompleteWeaponRecoil();
 	UFUNCTION() void BeginFireSequence();
 	UFUNCTION() void CompleteFireSequence();
 	UFUNCTION() void ReloadWeapon();
