@@ -29,42 +29,48 @@ class PROJECT_WEST_API UPW_WeaponData : public UDataAsset
 
 private:
 	UPROPERTY(EditAnywhere, Category = "General Weapon Data")
-	float _weaponMagazineCapacity;
+	float _weaponMagazineCapacity = 10;
 
 	UPROPERTY(EditAnywhere, Category = "General Weapon Data")
-	float _weaponReserveAmmunition;
+	float _weaponReserveAmmunition = 90;
 
 	UPROPERTY(EditAnywhere, Category = "General Weapon Data")
-	float _weaponReloadTime;
+	float _weaponReloadTime = 0.5f;
 
 	//------------------ Hip Fire Weapon Data ------------------//
 	
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	EFireType _hWeaponFireType;
+	EFireType _hWeaponFireType = EFireType::Automatic;
 	
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	float _hWeaponDamage;
+	float _hWeaponDamage = 10;
 
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	float _hWeaponFireRate;
+	float _hWeaponFireRate = 0.1f;
 
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	FVector2D _hWeaponRecoil;
+	FVector2D _hMaximumWeaponRecoil = FVector2D(10, -10);
 
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	float _hWeaponAccuracy;
+	FVector2D _hMinimumWeaponRecoil = FVector2D(-10, -7);
 
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	float _hWeaponMaximumDistance;
+	float _hWeaponRecoilSpeed = 0.1f;
+
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	float _hWeaponAccuracy = 0.025f;
+
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	float _hWeaponMaximumDistance = 10000;
 
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	UCurveFloat* _hWeaponFallOffCurve;
 	
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	int _hProjectileCount;
+	int _hProjectileCount = 1;
 
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
-	float _hProjectileDelay;
+	float _hProjectileDelay = 0;
 
 	//------------------ Aimed Weapon Data ------------------//
 
@@ -77,8 +83,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	float _aWeaponFireRate;
 
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	FVector2D _aMaximumWeaponRecoil;
+
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	FVector2D _aMinimumWeaponRecoil;
+
 	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
-	FVector2D _aWeaponRecoil;
+	float _aWeaponRecoilSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	float _aWeaponAccuracy;
@@ -103,10 +115,12 @@ public:
 	FORCEINLINE EFireType GetWeaponFireType(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponFireType : _aWeaponFireType; }
 	FORCEINLINE float GetWeaponDamage(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponDamage : _aWeaponDamage; }
 	FORCEINLINE float GetWeaponFireRate(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponFireRate : _aWeaponFireRate; }
-	FORCEINLINE FVector2D GetWeaponRecoil(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponRecoil : _aWeaponRecoil; }
+	FORCEINLINE FVector2D GetMinimumWeaponRecoil(EFireMode fireMode) const{ return fireMode == EFireMode::Hip ? _hMinimumWeaponRecoil : _aMinimumWeaponRecoil; }
+	FORCEINLINE FVector2D GetMaximumWeaponRecoil(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hMaximumWeaponRecoil : _aMaximumWeaponRecoil; }
 	FORCEINLINE float GetWeaponAccuracy(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponAccuracy : _aWeaponAccuracy; }
 	FORCEINLINE float GetWeaponMaximumDistance(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponMaximumDistance : _aWeaponMaximumDistance; }
 	FORCEINLINE UCurveFloat* GetWeaponFallOffCurve(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponFallOffCurve : _aWeaponFallOffCurve; }
 	FORCEINLINE int GetProjectileCount(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hProjectileCount : _aProjectileCount; }
 	FORCEINLINE float GetProjectileDelay(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hProjectileDelay : _aProjectileDelay; }
+	FORCEINLINE float GetWeaponRecoilSpeed(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponRecoilSpeed : _aWeaponRecoilSpeed; }
 };
