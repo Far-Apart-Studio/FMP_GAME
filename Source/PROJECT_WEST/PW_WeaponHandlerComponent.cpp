@@ -2,6 +2,8 @@
 
 
 #include "PW_WeaponHandlerComponent.h"
+
+#include "FRecoilAction.h"
 #include "PWMath.h"
 #include "PW_Character.h"
 #include "PW_Utilities.h"
@@ -144,6 +146,8 @@ void UPW_WeaponHandlerComponent::CastBulletRay(UCameraComponent* cameraComponent
 	FHitResult hitResult;
 
 	bool isActorHit = CastRay(rayStart, rayDestination, collisionQueryParams, hitResult);
+
+	QueueWeaponRecoil();
 	currentWeapon->OnWeaponHit.Broadcast(hitResult, rayStart, rayDestination);
 	
 	if (isActorHit)
@@ -275,6 +279,49 @@ void UPW_WeaponHandlerComponent::LocalApplyDamage(const FHitResult& hitResult)
 	const float calculatedDamage = CalculateDamage(hitResult, weaponData);
 	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
 	_ownerCharacter->GetController(), _ownerCharacter);
+}
+
+void UPW_WeaponHandlerComponent::QueueWeaponRecoil()
+{
+	AActor* ownerActor = GetOwner();
+	APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
+
+	if (ownerCharacter == nullptr)
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+
+	const APW_Weapon* currentWeapon = TryGetCurrentWeapon();
+	if (currentWeapon == nullptr)
+		{ PW_Utilities::Log("NO CURRENT WEAPON EQUIPPED!"); return; }
+
+	const UPW_WeaponData* weaponData = currentWeapon->GetWeaponData();
+	if (weaponData == nullptr)
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }	
+
+	const FVector2D minimumRecoil = weaponData->GetMinimumWeaponRecoil(_fireMode);
+	const FVector2D maximumRecoil = weaponData->GetMaximumWeaponRecoil(_fireMode);
+	const float recoilRecoverySpeed = weaponData->GetWeaponRecoilSpeed(_fireMode);
+
+	const float recoilAmountX = FMath::RandRange(minimumRecoil.X, maximumRecoil.X);
+	const float recoilAmountY = FMath::RandRange(minimumRecoil.Y, maximumRecoil.Y);
+	const FVector2D recoilAmount = FVector2D(recoilAmountX, recoilAmountY);
+
+	FLatentActionInfo latentActionInfo = FLatentActionInfo();
+	latentActionInfo.CallbackTarget = this;
+	latentActionInfo.ExecutionFunction = "CompleteWeaponRecoil";
+
+	const FGuid UUID = FGuid::NewGuid();
+	TUniquePtr<FRecoilAction> recoilAction = MakeUnique<FRecoilAction>
+		(recoilRecoverySpeed, recoilAmount, ownerCharacter, latentActionInfo);
+	
+	FLatentActionManager& latentActionManager = GetWorld()->GetLatentActionManager();
+	latentActionManager.AddNewAction(this, UUID.A, recoilAction.Get());
+	
+	recoilAction.Release();
+}
+
+void UPW_WeaponHandlerComponent::CompleteWeaponRecoil()
+{
+	
 }
 
 float UPW_WeaponHandlerComponent::CalculateDamage(const FHitResult& hitResult, const UPW_WeaponData* weaponData)

@@ -59,6 +59,8 @@ public:
 	bool CastRay(const FVector& rayStart, const FVector& rayDestination, const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const;
 	void ApplyDamage(const FHitResult& hitResult);
 	void LocalApplyDamage(const FHitResult& hitResult);
+	void QueueWeaponRecoil();
+	void CompleteWeaponRecoil();
 	float CalculateDamage(const FHitResult& hitResult, const UPW_WeaponData* weaponData);
 	bool CalculateFireStatus();
 	void AssignInputActions();
