@@ -17,14 +17,18 @@ UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr)
 void UPW_InventoryHandler::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	GetOwnerCharacter();
 
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
 
 	if (_ownerCharacter->IsLocallyControlled())
+	{
 		AssignInputActions();
+		for (int i = 0; i < _defaultSlotTypes.Num(); i++)
+			_inventorySlots.Add(FInventorySlot(_defaultSlotTypes[i]));
+	}
 	
 	ChangeSlot(_currentSlotIndex, true);
 }
@@ -212,17 +216,25 @@ void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
 		items.Add(GetWorld()->SpawnActor<APW_ItemObject>(itemClass));
 		DEBUG_STRING("Spawned Item");
 	}
-	
-	for (int i = 0; i < items.Num(); i++)
-		CollectItem(items[i]);
+
+	FTimerHandle itemTimer;
+	FTimerDelegate itemDelegate;
+
+	itemDelegate.BindLambda([items, this]()
+	{
+		for (int i = 0; i < items.Num(); i++)
+			CollectItem(items[i]);
+	});
+
+	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.2f, false);
 }
 
 TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()
 {
-	TArray<FString> itemIDs;
-	for (const FInventorySlot& slot : _inventorySlots)
+	TArray<FString> itemIDs = TArray<FString>();
+	for (int i = 0; i < _inventorySlots.Num(); i++)
 	{
-		APW_ItemObject* item = slot.GetItem();
+		APW_ItemObject* item = _inventorySlots[i].GetItem();
 		if (item == nullptr)
 			continue;
 		itemIDs.Add(item->GetItemID());

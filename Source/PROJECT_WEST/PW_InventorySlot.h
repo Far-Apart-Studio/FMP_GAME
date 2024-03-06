@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PW_ItemObject.h"
 #include "Engine/DataTable.h"
 #include "PW_InventorySlot.generated.h"
 
@@ -19,6 +20,18 @@ struct FInventorySlot
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	APW_ItemObject* _currentItem;
+
+	FInventorySlot()
+	{
+		_currentItem = nullptr;
+		_slotType = EItemType::EMeleeWeapon;
+	}
+
+	FInventorySlot(EItemType slotType)
+	{
+		_currentItem = nullptr;
+		_slotType = slotType;		
+	}
 
 public:
 	
@@ -62,15 +75,17 @@ struct FPlayersInventoryData
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Data)
 	TArray<FPlayerInventoryDataEntry> _playerInventorys;
 	
-	void AddInventory(FString playerName, const TArray<FString>& inventoryItemIDs)
+	void AddInventory(const FString& playerName, const TArray<FString>& inventoryItemIDs)
 	{
-		RemoveInventory (playerName);
-		
 		FPlayerInventoryDataEntry newEntry;
 		newEntry._playerName = playerName;
-		newEntry._itemIDs.Empty();
 		newEntry._itemIDs = inventoryItemIDs;
 		_playerInventorys.Add(newEntry);
+	}
+
+	void Reset()
+	{
+		_playerInventorys.Empty();
 	}
 
 	TArray<FString> GetInventoryItemIDs(FString playerName)
@@ -83,17 +98,5 @@ struct FPlayersInventoryData
 			}
 		}
 		return TArray<FString>();
-	}
-
-	void RemoveInventory(FString playerName)
-	{
-		for (int i = 0; i < _playerInventorys.Num(); i++)
-		{
-			if (_playerInventorys[i]._playerName == playerName)
-			{
-				_playerInventorys.RemoveAt(i);
-				break;
-			}
-		}
 	}
 };

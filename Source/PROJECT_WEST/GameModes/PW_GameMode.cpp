@@ -131,6 +131,8 @@ void APW_GameMode::NofigyPlayersOfDay()
 
 void APW_GameMode::SaveAllPlayersInventoryData()
 {
+	_gameInstance->GetGameSessionData()._playersInventoryData.Reset();
+	
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
@@ -139,25 +141,20 @@ void APW_GameMode::SaveAllPlayersInventoryData()
 			SavePlayerInventoryData(playerController);
 		}
 	}
+
+	for (auto& playerInventory : _gameInstance->GetGameSessionData()._playersInventoryData._playerInventorys)
+	{
+		for (auto& itemID : playerInventory._itemIDs)
+		{
+			DEBUG_STRING(playerInventory._playerName  + " : " + itemID);
+		}
+	}
 }
 
 void APW_GameMode::SavePlayerInventoryData(APW_PlayerController* playerController)
 {
-	APW_Character* character = playerController->GetPawn<APW_Character>();
-	if (!character) return;
-	UPW_InventoryHandler* inventoryHandler  = character->FindComponentByClass<UPW_InventoryHandler>();
-	if (!inventoryHandler) return;
-	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory( GetPlayerName(playerController), inventoryHandler->GetInventoryItemIDs());
-
-	for (auto& playerInventory : _gameInstance->GetGameSessionData()._playersInventoryData._playerInventorys)
-	{
-		DEBUG_STRING("Player : " + playerInventory._playerName);
-
-		for (auto& itemID : playerInventory._itemIDs)
-		{
-			DEBUG_STRING(" Save Item : " + itemID + " for " +  GetPlayerName(playerController));
-		}
-	}
+	DEBUG_STRING("Starting Save Player Inventory Data for " +  playerController->GetPlayerName() + " - " + FString::FromInt( playerController->GetInventoryItemIDs().Num()));
+	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory(playerController->GetPlayerName(), playerController->GetInventoryItemIDs());
 }
 
 void APW_GameMode::LoadAllPlayersInventoryData()

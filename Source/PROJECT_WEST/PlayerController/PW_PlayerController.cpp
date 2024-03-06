@@ -229,6 +229,21 @@ void APW_PlayerController::LoadInventoryItemsByID(const TArray<FString>& itemIDs
 	}
 }
 
+TArray<FString> APW_PlayerController::GetInventoryItemIDs()
+{
+	TArray<FString > itemIDs;
+	APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(character->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+		if (inventoryHandler)
+		{
+			itemIDs = inventoryHandler->GetInventoryItemIDs();
+		}
+	}
+	return itemIDs;
+}
+
 void APW_PlayerController::ClientLoadInventoryItems_Implementation(const TArray<APW_ItemObject*>& items)
 {
 	if(!GetPawn()) return;
@@ -897,6 +912,8 @@ void APW_PlayerController::LoadGameSessionData()
 		if (gameMode)
 		{
 			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+			
+			//gameMode->LoadPlayerInventoryData(this);
 		}
 	}
 	else
@@ -913,6 +930,8 @@ void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 		if (gameMode)
 		{
 			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+
+			//gameMode->LoadPlayerInventoryData(this);
 		}
 	}
 }

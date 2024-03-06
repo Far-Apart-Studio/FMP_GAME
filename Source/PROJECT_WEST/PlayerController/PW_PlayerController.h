@@ -261,4 +261,8 @@ public:
 	
 	UFUNCTION( Client, Reliable )
 	void ClientLoadInventoryItems (const TArray<class APW_ItemObject*>& items);
+
+	TArray<FString> GetInventoryItemIDs();
+
+	FORCEINLINE FString GetPlayerName() const { return _playerName; }
 };

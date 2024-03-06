@@ -22,16 +22,19 @@ class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
 
 private:
 	
-	UPROPERTY(VisibleDefaultsOnly, Category = "Inventory")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
 	APW_Character* _ownerCharacter;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
+	TArray<EItemType> _defaultSlotTypes;
 	
-	UPROPERTY(Replicated, EditAnywhere, Category = "Inventory")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
 	TArray<FInventorySlot> _inventorySlots;
 
-	UPROPERTY(EditAnywhere, Category = "Inventory")
+	UPROPERTY(EditAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
 	float _throwVelocityMultiplier = 5.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	UPROPERTY(VisibleAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
 	int _currentSlotIndex = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
