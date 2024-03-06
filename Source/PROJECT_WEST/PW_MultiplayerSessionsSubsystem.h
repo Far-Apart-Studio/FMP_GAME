@@ -75,7 +75,8 @@ public:
 	void JoinSessionTrigger(FOnlineSessionSearchResult* sessionToJoin);
 	void JoinSessionDone(FName sessionName, bool success);
 	bool _isSeachingForSingleSession;
-	
+
+	UFUNCTION(BlueprintCallable)
 	void DestroySessionTrigger();
 	void DestroySessionDone(bool success);
 	bool _createSessionAfterDestroy;

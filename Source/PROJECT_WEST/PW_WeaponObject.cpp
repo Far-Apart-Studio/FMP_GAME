@@ -251,7 +251,7 @@ void APW_WeaponObject::QueueWeaponRecoil()
 
 void APW_WeaponObject::CompleteWeaponRecoil()
 {
-	DEBUG_STRING("COMPLETE WEAPON RECOIL");
+	
 }
 
 void APW_WeaponObject::ServerReloadWeapon_Implementation()
