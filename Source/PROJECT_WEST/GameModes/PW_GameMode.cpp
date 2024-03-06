@@ -162,6 +162,8 @@ void APW_GameMode::SavePlayerInventoryData(APW_PlayerController* playerControlle
 
 void APW_GameMode::LoadAllPlayersInventoryData()
 {
+	DEBUG_STRING("Players In Session + " + FString::FromInt(GetNumPlayerInSession()));
+	
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
@@ -249,7 +251,7 @@ void APW_GameMode::LoadGameSessionData()
 	_gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
 	if (_gameInstance)
 	{
-		NotifyPlayersOfMoney();
+		//NotifyPlayersOfMoney();
 		//DEBUG_STRING("LoadGameSessionData Found");
 		//LoadAllPlayersInventoryData();
 	}

@@ -97,6 +97,8 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 	});
 
 	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.1f, false);
+
+	//DEBUG_STRING("Collected Item");
 }
 
 void UPW_InventoryHandler::LocalCollectItem(APW_ItemObject* collectedItem)
@@ -190,6 +192,7 @@ void UPW_InventoryHandler::LoadItemsByID(const TArray<FString>& itemIDs)
 void UPW_InventoryHandler::ServerLoadItems_Implementation(const TArray<FString>& itemIDs)
 {
 	if(!_ownerCharacter->HasAuthority()) return;;
+	LocalLoadItems(itemIDs);
 }
 
 void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
@@ -201,6 +204,7 @@ void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
 		if (itemClass == nullptr)
 		{ PW_Utilities::Log("ITEM CLASS IS NULL!"); continue; }
 		items.Add(GetWorld()->SpawnActor<APW_ItemObject>(itemClass));
+		DEBUG_STRING("Spawned Item");
 	}
 	
 	for (int i = 0; i < items.Num(); i++)

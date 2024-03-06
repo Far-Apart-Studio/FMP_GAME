@@ -213,6 +213,23 @@ void APW_PlayerController::LoadInventoryData()
 {
 	if (HasAuthority())
 	{
+		APW_GameMode* gameMode =  Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+		if (gameMode)
+		{
+			//gameMode->LoadPlayerInventoryData(this);
+			TArray<FString> itemIDs = gameMode->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(_playerName);
+			//DEBUG_STRING( "ServerLoadInventoryData_Implementation" + FString::FromInt(itemIDs.Num()));
+
+			UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+			if (inventoryHandler)
+			{
+				//DEBUG_STRING( "ServerLoadInventoryData_Implementation inventoryHandler ");
+				inventoryHandler->LoadItemsByID(itemIDs);
+			}
+		}
+	}
+	else
+	{
 		ServerLoadInventoryData();
 	}
 }
@@ -224,9 +241,10 @@ void APW_PlayerController::ServerLoadInventoryData_Implementation()
 	APW_GameMode* gameMode =  Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 	if (gameMode)
 	{
+		//gameMode->LoadPlayerInventoryData(this);
 		TArray<FString> itemIDs = gameMode->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(_playerName);
 		ClientLoadInventoryItemsByID (itemIDs);
-		DEBUG_STRING( "ServerLoadInventoryData_Implementation" + FString::FromInt(itemIDs.Num()));
+		//DEBUG_STRING( "ServerLoadInventoryData_Implementation" + FString::FromInt(itemIDs.Num()));
 	}
 }
 
@@ -905,8 +923,18 @@ void APW_PlayerController::LocalRemoveMoney(int32 amount)
 
 void APW_PlayerController::LoadGameSessionData()
 {
-	if(!HasAuthority()) return;
-	SeverLoadGameSessionData();
+	if(HasAuthority())
+	{
+		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+		if (gameMode)
+		{
+			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+		}
+	}
+	else
+	{
+		SeverLoadGameSessionData();
+	}
 }
 
 void APW_PlayerController::SeverLoadGameSessionData_Implementation()
@@ -916,14 +944,14 @@ void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 		if (gameMode)
 		{
-			ClientLoadGameSessionData(gameMode->GetGameSessionData());
-			DEBUG_STRING ("Loaded Game Session Data")
+			ClientLoadGameSessionData( gameMode->GetGameSessionData());
 		}
 	}
 }
 
 void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSessionData GameSessionData)
 {
+	DEBUG_STRING ("Loaded Game Session Data : Money - " + FString::FromInt(GameSessionData._money) + " Day - " + FString::FromInt(GameSessionData._dayIndex));
 	_money = GameSessionData._money;
 	_dayIndex = GameSessionData._dayIndex;
 }
