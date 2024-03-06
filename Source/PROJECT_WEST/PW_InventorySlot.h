@@ -73,6 +73,18 @@ struct FPlayersInventoryData
 		_playerInventorys.Add(newEntry);
 	}
 
+	TArray<FString> GetInventoryItemIDs(FString playerName)
+	{
+		for (int i = 0; i < _playerInventorys.Num(); i++)
+		{
+			if (_playerInventorys[i]._playerName == playerName)
+			{
+				return _playerInventorys[i]._itemIDs;
+			}
+		}
+		return TArray<FString>();
+	}
+
 	void RemoveInventory(FString playerName)
 	{
 		for (int i = 0; i < _playerInventorys.Num(); i++)

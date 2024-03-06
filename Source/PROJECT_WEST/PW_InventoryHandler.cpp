@@ -83,6 +83,8 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 		{ PW_Utilities::Log("NO AVAILABLE SLOT!"); return; }
 
 	_inventorySlots[slotIndex].SetItem(collectedItem);
+
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	
 	_ownerCharacter->HasAuthority() ? LocalCollectItem(collectedItem) : ServerCollectItem(collectedItem);
 
@@ -172,6 +174,39 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 	}
 }
 
+void UPW_InventoryHandler::LoadItems(const TArray<APW_ItemObject*>& items)
+{
+	for (int i = 0; i < items.Num(); i++)
+		CollectItem(items[i]);
+}
+
+void UPW_InventoryHandler::LoadItemsByID(const TArray<FString>& itemIDs)
+{
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
+	if (_ownerCharacter == nullptr) return;;
+	_ownerCharacter->HasAuthority() ? LocalLoadItems(itemIDs) : ServerLoadItems(itemIDs);
+}
+
+void UPW_InventoryHandler::ServerLoadItems_Implementation(const TArray<FString>& itemIDs)
+{
+	if(!_ownerCharacter->HasAuthority()) return;;
+}
+
+void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
+{
+	TArray<APW_ItemObject*> items = TArray<APW_ItemObject*>();
+	for (int i = 0; i < itemIDs.Num(); i++)
+	{
+		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(itemIDs[i]);
+		if (itemClass == nullptr)
+		{ PW_Utilities::Log("ITEM CLASS IS NULL!"); continue; }
+		items.Add(GetWorld()->SpawnActor<APW_ItemObject>(itemClass));
+	}
+	
+	for (int i = 0; i < items.Num(); i++)
+		CollectItem(items[i]);
+}
+
 TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()
 {
 	TArray<FString> itemIDs;
@@ -244,6 +279,20 @@ void UPW_InventoryHandler::GetOwnerCharacter()
 	
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
+}
+
+TSubclassOf<APW_ItemObject> UPW_InventoryHandler::GetItemObjectFromDataTable(FString id)
+{
+	TSubclassOf<APW_ItemObject> itemClass = nullptr;
+	if (_ItemDataTable)
+	{
+		FItems* itemData = _ItemDataTable->FindRow<FItems>(*id, "");
+		if (itemData)
+		{
+			itemClass = itemData->_itemClass;
+		}
+	}
+	return itemClass;
 }
 
 #pragma region DropItem

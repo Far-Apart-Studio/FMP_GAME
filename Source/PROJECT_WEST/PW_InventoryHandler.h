@@ -6,6 +6,7 @@
 #include "PW_InventorySlot.h"
 #include "PW_WeaponObject.h"
 #include "Components/ActorComponent.h"
+#include "Engine/DataTable.h"
 #include "PW_InventoryHandler.generated.h"
 
 class APW_ItemObject;
@@ -20,6 +21,7 @@ class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
 	GENERATED_BODY()
 
 private:
+	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Inventory")
 	APW_Character* _ownerCharacter;
 	
@@ -32,11 +34,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	int _currentSlotIndex = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UDataTable* _ItemDataTable;
+
 private:
 	void AssignInputActions();
 	void GetOwnerCharacter();
-
+	TSubclassOf<class APW_ItemObject> GetItemObjectFromDataTable(FString id);
+	
 protected:
+	
 	virtual void BeginPlay() override;
 
 public:
@@ -57,6 +64,13 @@ public:
 	bool TryGetSlotIndex(EItemType itemType, int& outIndex);
 	void CycleNextSlot(); 
 	void CyclePreviousSlot();
+	
+	void LoadItems (const TArray<APW_ItemObject*>& items);
+
+	void LoadItemsByID (const TArray<FString>& itemIDs);
+	UFUNCTION( Server, Reliable )
+	void ServerLoadItems(const TArray<FString>& itemIDs);
+	void LocalLoadItems(const TArray<FString>& itemIDs);
 
 	TArray<FString> GetInventoryItemIDs();
 

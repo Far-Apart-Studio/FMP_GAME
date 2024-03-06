@@ -251,7 +251,16 @@ public:
 	void LocalPayDebtCollector();
 
 	void SpawnAutoEnemySpawner();
+	
 	UFUNCTION( Server, Reliable )
 	void ServerSpawnAutoEnemySpawner(class APW_Character* controlledCharacter);
 	void LocalSpawnAutoEnemySpawner(APW_Character* controlledCharacter);
+
+	void LoadInventoryData();
+	UFUNCTION( Server, Reliable )
+	void ServerLoadInventoryData();
+	UFUNCTION( Client, Reliable )
+	void ClientLoadInventoryItemsByID (const TArray<FString>& itemIDs);
+	UFUNCTION( Client, Reliable )
+	void ClientLoadInventoryItems (const TArray<class APW_ItemObject*>& items);
 };

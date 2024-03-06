@@ -20,6 +20,7 @@
 #include "PROJECT_WEST/PW_ConsoleCommandManager.h"
 #include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
 #include "PROJECT_WEST/Items/PW_Currency.h"
+#include "PROJECT_WEST/PW_InventoryHandler.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -40,6 +41,7 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	ClientOnLevelChanged();
 	SetNewPlayerName();
 	SpawnAutoEnemySpawner();
+	LoadInventoryData();
 }
 
 void APW_PlayerController::BeginPlay()
@@ -204,6 +206,50 @@ void APW_PlayerController::LocalSpawnAutoEnemySpawner(APW_Character* controlledC
 	if (gameMode)
 	{
 		gameMode->SpawnAutoEnemySpawner(controlledCharacter);
+	}
+}
+
+void APW_PlayerController::LoadInventoryData()
+{
+	if (HasAuthority())
+	{
+		ServerLoadInventoryData();
+	}
+}
+
+void APW_PlayerController::ServerLoadInventoryData_Implementation()
+{
+	if (!HasAuthority()) return;;
+	
+	APW_GameMode* gameMode =  Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+	if (gameMode)
+	{
+		TArray<FString> itemIDs = gameMode->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(_playerName);
+		ClientLoadInventoryItemsByID (itemIDs);
+		DEBUG_STRING( "ServerLoadInventoryData_Implementation" + FString::FromInt(itemIDs.Num()));
+	}
+}
+
+
+void APW_PlayerController::ClientLoadInventoryItemsByID_Implementation(const TArray<FString>& itemIDs)
+{
+	if(!GetPawn()) return;
+	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+	if (inventoryHandler)
+	{
+		inventoryHandler->LoadItemsByID(itemIDs);
+		DEBUG_STRING( "ClientLoadInventoryItemsByID_Implementation : " + FString::FromInt(itemIDs.Num()));
+	}
+}
+
+
+void APW_PlayerController::ClientLoadInventoryItems_Implementation(const TArray<APW_ItemObject*>& items)
+{
+	if(!GetPawn()) return;
+	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+	if (inventoryHandler)
+	{
+		inventoryHandler->LoadItems(items);
 	}
 }
 
@@ -859,7 +905,7 @@ void APW_PlayerController::LocalRemoveMoney(int32 amount)
 
 void APW_PlayerController::LoadGameSessionData()
 {
-	if(HasAuthority()) return;
+	if(!HasAuthority()) return;
 	SeverLoadGameSessionData();
 }
 
@@ -870,7 +916,8 @@ void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 		if (gameMode)
 		{
-			ClientLoadGameSessionData(gameMode->GetCurrentGameInstance()->GetGameSessionData());
+			ClientLoadGameSessionData(gameMode->GetGameSessionData());
+			DEBUG_STRING ("Loaded Game Session Data")
 		}
 	}
 }
