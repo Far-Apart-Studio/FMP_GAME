@@ -11,6 +11,7 @@
 #include "PROJECT_WEST/PW_MultiplayerSessionsSubsystem.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "PROJECT_WEST/Items/PW_Currency.h"
+#include "PROJECT_WEST/PW_InventoryHandler.h"
 
 APW_GameMode::APW_GameMode()
 {
@@ -128,6 +129,37 @@ void APW_GameMode::NofigyPlayersOfDay()
 	}
 }
 
+void APW_GameMode::SaveAllPlayersInventoryData()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			SavePlayerInventoryData(playerController);
+		}
+	}
+}
+
+void APW_GameMode::SavePlayerInventoryData(APW_PlayerController* playerController)
+{
+	APW_Character* character = playerController->GetPawn<APW_Character>();
+	if (!character) return;
+	UPW_InventoryHandler* inventoryHandler  = character->FindComponentByClass<UPW_InventoryHandler>();
+	if (!inventoryHandler) return;
+	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory( GetPlayerName(playerController), inventoryHandler->GetInventoryItemIDs());
+
+	for (auto& playerInventory : _gameInstance->GetGameSessionData()._playersInventoryData._playerInventorys)
+	{
+		DEBUG_STRING("Player : " + playerInventory._playerName);
+
+		for (auto& itemID : playerInventory._itemIDs)
+		{
+			DEBUG_STRING("Item : " + itemID);
+		}
+	}
+}
+
 void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColor color, float duration)
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
@@ -166,6 +198,16 @@ void APW_GameMode::LoadGameSessionData()
 	{
 		NotifyPlayersOfMoney();
 		//DEBUG_STRING("LoadGameSessionData Found");
+		
+		for (auto& playerInventory : _gameInstance->GetGameSessionData()._playersInventoryData._playerInventorys)
+		{
+			DEBUG_STRING("Player : " + playerInventory._playerName);
+
+			for (auto& itemID : playerInventory._itemIDs)
+			{
+				DEBUG_STRING("Item : " + itemID);
+			}
+		}
 	}
 }
 
@@ -194,6 +236,20 @@ void APW_GameMode::ToggleSessionLock(bool lock)
 		//DEBUG_STRING("MultiplayerSessionsSubsystem Found");
 		multiplayerSessionsSubsystem->ToggleSessionStatus(lock);
 	}
+}
+
+TSubclassOf<class APW_ItemObject> APW_GameMode::GetItemObjectFromDataTable(FString id)
+{
+	TSubclassOf<class APW_ItemObject>  itemClass = nullptr;
+	if (_ItemDataTable)
+	{
+		FItems* itemData = _ItemDataTable->FindRow<FItems>(*id, "");
+		if (itemData)
+		{
+			itemClass = itemData->_itemClass;
+		}
+	}
+	return itemClass;
 }
 
 void APW_GameMode::OnMatchStateSet()

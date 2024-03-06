@@ -172,6 +172,19 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 	}
 }
 
+TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()
+{
+	TArray<FString> itemIDs;
+	for (const FInventorySlot& slot : _inventorySlots)
+	{
+		APW_ItemObject* item = slot.GetItem();
+		if (item == nullptr)
+			continue;
+		itemIDs.Add(item->GetItemID());
+	}
+	return itemIDs;
+}
+
 void UPW_InventoryHandler::CycleUp()
 {
 	if (_inventorySlots.IsEmpty())

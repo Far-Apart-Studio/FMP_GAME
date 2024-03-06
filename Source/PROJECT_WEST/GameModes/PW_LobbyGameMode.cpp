@@ -67,6 +67,7 @@ void APW_LobbyGameMode::OnTransitionCompleted()
 	ToggleAllPlayersInput(false);
 	FBountyDataEntry bounty = _bountyBoard->GetBountyWithHighestVotes();
 	_gameInstance->GetGameSessionData()._bountyDataEntry = bounty;
+	SaveAllPlayersInventoryData();
 	RemoveMoney(bounty._bountyCost);
 	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
 }

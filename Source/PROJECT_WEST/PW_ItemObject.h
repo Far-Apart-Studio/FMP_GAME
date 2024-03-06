@@ -32,6 +32,10 @@ class PROJECT_WEST_API APW_ItemObject : public AActor, public IPW_InteractableIn
 	GENERATED_BODY()
 
 private:
+
+	UPROPERTY(EditAnywhere, Category = "Item Object")
+	FString _itemID;
+	
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	EItemType _itemType;
 
@@ -50,6 +54,7 @@ protected:
 	virtual void EnterDroppedState();
 
 public:
+	
 	APW_ItemObject();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -77,6 +82,7 @@ public:
 	virtual void EndFocus_Implementation() override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
 
+	FORCEINLINE FString GetItemID() const { return _itemID; }
 	FORCEINLINE EItemType GetItemType() const { return _itemType; }
 	FORCEINLINE EItemObjectState GetItemState() const { return _itemState; }
 	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return _itemMesh; }

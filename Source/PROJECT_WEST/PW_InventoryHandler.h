@@ -58,12 +58,16 @@ public:
 	void CycleNextSlot(); 
 	void CyclePreviousSlot();
 
+	TArray<FString> GetInventoryItemIDs();
+
 	FORCEINLINE FInventorySlot& GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
 	FORCEINLINE FInventorySlot& GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
+	FORCEINLINE TArray<FInventorySlot>& GetInventorySlots() { return _inventorySlots; }
 	
 	UFUNCTION(BlueprintCallable) void CycleUp();
 	UFUNCTION(BlueprintCallable) void CycleDown();
 	UFUNCTION(BlueprintCallable) void ToSlot(int targetedSlotIndex);
 	UFUNCTION(BlueprintCallable) void DropCurrentItem();
 	UFUNCTION(BlueprintCallable) void DropAll();
+
 };

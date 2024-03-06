@@ -131,6 +131,7 @@ void APW_BountyGameMode::BountyFailed()
 	_mathEndCooldownTime += GetWorld()->GetTimeSeconds() - _levelStartTime;
 	_bountySuccessful = false;
 	ToggleAllPlayersInput(false);
+	SaveAllPlayersInventoryData();
 	SetMatchState(MatchState::Cooldown);
 }
 
@@ -138,6 +139,7 @@ void APW_BountyGameMode::BountySuccessful()
 {
 	_bountySuccessful = true;
 	ToggleAllPlayersInput(false);
+	SaveAllPlayersInventoryData();
 	SetMatchState(MatchState::Cooldown);
 
 	// Give money to players

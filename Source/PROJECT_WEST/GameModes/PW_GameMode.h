@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "GameFramework/GameMode.h"
 #include "PW_GameMode.generated.h"
 
@@ -19,6 +20,10 @@ protected:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
 	class UPW_GameInstance* _gameInstance = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UDataTable* _ItemDataTable;
+
 
 protected:
 
@@ -42,6 +47,7 @@ protected:
 
 	void ToggleSessionLock(bool lock);
 
+	TSubclassOf<class APW_ItemObject> GetItemObjectFromDataTable(FString id);
 	
 public:
 
@@ -60,6 +66,9 @@ public:
 
 	void SetDay(int day);
 	void NofigyPlayersOfDay();
+
+	void SaveAllPlayersInventoryData();
+	void SavePlayerInventoryData( class APW_PlayerController* playerController);
 
 	void CollectCurrency(class APW_Currency* Currency);;
 
