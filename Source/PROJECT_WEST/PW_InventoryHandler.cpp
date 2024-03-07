@@ -246,7 +246,7 @@ void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
 			CollectItem(items[i]);
 	});
 
-	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.2f, false);
+	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 1.0f, false);
 }
 
 TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()

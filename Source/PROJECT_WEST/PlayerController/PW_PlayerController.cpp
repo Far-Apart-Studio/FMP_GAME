@@ -42,6 +42,8 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	ClientOnLevelChanged();
 	SpawnAutoEnemySpawner();
 	//LoadInventoryData();
+
+	//DEBUG_STRING( "APW_PlayerController OnPossess : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );	
 }
 
 void APW_PlayerController::BeginPlay()
