@@ -53,14 +53,19 @@ public:
 	UPW_InventoryHandler();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void LoadDefaultSlots();
+	UFUNCTION(Server, Reliable)
+	void ServerLoadDefaultSlotsByID();
+	void LocalLoadDefaultSlotsByID();
 	
 	void CollectItem(APW_ItemObject* collectedItem);
-	void LocalCollectItem(APW_ItemObject* collectedItem);
-	UFUNCTION(Server, Reliable) void ServerCollectItem(APW_ItemObject* collectedItem);
+	void LocalCollectItem(int slotIndex, APW_ItemObject* collectedItem);
+	UFUNCTION(Server, Reliable) void ServerCollectItem(int slotIndex, APW_ItemObject* collectedItem);
 
 	void DropItem(int slotIndex);
-	void LocalDropItem(APW_ItemObject* slotItem);
-	UFUNCTION(Server, Reliable) void ServerDropItem(APW_ItemObject* slotItem);
+	void LocalDropItem(int slotIndex);
+	UFUNCTION(Server, Reliable) void ServerDropItem(int slotIndex);
 	
 	void ChangeSlot(int targetedSlotIndex, bool forceChangeSlot = false);
 	bool IsSlotValid(int slotIndex);
