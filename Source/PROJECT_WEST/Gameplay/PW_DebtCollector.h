@@ -59,5 +59,8 @@ public:
 
 	void HandleBounty(AActor* owner);
 
+	UFUNCTION(BlueprintImplementableEvent,BlueprintCallable, Category = "Gameplay")
+	void OnInteracted(bool status);
+
 	FORCEINLINE int32 GetDebtAmount() const { return _debtAmount; }
 };

@@ -143,6 +143,7 @@ protected:
 	void LoadGameSessionData();
 	UFUNCTION( Server, Reliable )
 	void SeverLoadGameSessionData();
+	
 	UFUNCTION( Client, Reliable )
 	void ClientLoadGameSessionData(FGameSessionData GameSessionData);
 	
@@ -191,6 +192,9 @@ public:
 	void SetMatchEndCountdown(float time);
 
 	void OnMatchStateSet(FName matchState);
+
+	UFUNCTION( Client, Reliable )
+	void ClientOnLoadedInGameMode();
 
 	void SetNewPlayerName();
 	UFUNCTION( Server, Reliable )
@@ -251,7 +255,17 @@ public:
 	void LocalPayDebtCollector();
 
 	void SpawnAutoEnemySpawner();
+	
 	UFUNCTION( Server, Reliable )
 	void ServerSpawnAutoEnemySpawner(class APW_Character* controlledCharacter);
 	void LocalSpawnAutoEnemySpawner(APW_Character* controlledCharacter);
+	
+	void LoadInventoryItemsByID (const TArray<FString>& itemIDs);
+	
+	UFUNCTION( Client, Reliable )
+	void ClientLoadInventoryItems (const TArray<class APW_ItemObject*>& items);
+
+	TArray<FString> GetInventoryItemIDs();
+
+	FORCEINLINE FString GetPlayerName() const { return _playerName; }
 };

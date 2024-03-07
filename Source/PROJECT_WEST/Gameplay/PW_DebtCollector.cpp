@@ -95,4 +95,3 @@ void APW_DebtCollector::HandleBounty(AActor* owner)
 
 	DEBUG_STRING("Debt paid");
 }
-

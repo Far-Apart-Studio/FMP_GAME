@@ -20,6 +20,7 @@
 #include "PROJECT_WEST/PW_ConsoleCommandManager.h"
 #include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
 #include "PROJECT_WEST/Items/PW_Currency.h"
+#include "PROJECT_WEST/PW_InventoryHandler.h"
 
 APW_PlayerController::APW_PlayerController()
 {
@@ -37,9 +38,12 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	// called when the player controller possesses a pawn
 	
 	ClientAddCharacterOverlayWidget();
-	ClientOnLevelChanged();
 	SetNewPlayerName();
+	ClientOnLevelChanged();
 	SpawnAutoEnemySpawner();
+	//LoadInventoryData();
+
+	//DEBUG_STRING( "APW_PlayerController OnPossess : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );	
 }
 
 void APW_PlayerController::BeginPlay()
@@ -207,6 +211,51 @@ void APW_PlayerController::LocalSpawnAutoEnemySpawner(APW_Character* controlledC
 	}
 }
 
+void APW_PlayerController::LoadInventoryItemsByID(const TArray<FString>& itemIDs)
+{
+	if(GetPawn())
+	{
+		DEBUG_STRING ("Pawn Found");
+	}
+	else
+	{
+		DEBUG_STRING( "No Pawn Found" );
+		return;
+	}
+	
+	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+	if (inventoryHandler)
+	{
+		inventoryHandler->LoadItemsByID(itemIDs);
+		DEBUG_STRING( "ClientLoadInventoryItemsByID_Implementation : " + FString::FromInt(itemIDs.Num()));
+	}
+}
+
+TArray<FString> APW_PlayerController::GetInventoryItemIDs()
+{
+	TArray<FString > itemIDs;
+	APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(character->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+		if (inventoryHandler)
+		{
+			itemIDs = inventoryHandler->GetInventoryItemIDs();
+		}
+	}
+	return itemIDs;
+}
+
+void APW_PlayerController::ClientLoadInventoryItems_Implementation(const TArray<APW_ItemObject*>& items)
+{
+	if(!GetPawn()) return;
+	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+	if (inventoryHandler)
+	{
+		inventoryHandler->LoadItems(items);
+	}
+}
+
 void APW_PlayerController::ClientJoinMidGame_Implementation(FName stateOfMatch, float matchTime, float levelStartTime,float endMatchCountdown)
 {
 	_matchState = stateOfMatch;
@@ -303,6 +352,11 @@ void APW_PlayerController::ToggleHUDVisibility(bool bShow)
 void APW_PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
+}
+
+void APW_PlayerController::ClientOnLoadedInGameMode_Implementation()
+{
+	
 }
 
 void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation()
@@ -859,8 +913,20 @@ void APW_PlayerController::LocalRemoveMoney(int32 amount)
 
 void APW_PlayerController::LoadGameSessionData()
 {
-	if(HasAuthority()) return;
-	SeverLoadGameSessionData();
+	if(HasAuthority())
+	{
+		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
+		if (gameMode)
+		{
+			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+			
+			//gameMode->LoadPlayerInventoryData(this);
+		}
+	}
+	else
+	{
+		SeverLoadGameSessionData();
+	}
 }
 
 void APW_PlayerController::SeverLoadGameSessionData_Implementation()
@@ -870,15 +936,21 @@ void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 		if (gameMode)
 		{
-			ClientLoadGameSessionData(gameMode->GetCurrentGameInstance()->GetGameSessionData());
+			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+
+			//gameMode->LoadPlayerInventoryData(this);
 		}
 	}
 }
 
 void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSessionData GameSessionData)
 {
+	DEBUG_STRING ("Loaded Game Session Data : Money - " + FString::FromInt(GameSessionData._money) + " Day - " + FString::FromInt(GameSessionData._dayIndex));
 	_money = GameSessionData._money;
 	_dayIndex = GameSessionData._dayIndex;
+	
+	TArray<FString> itemIDs = GameSessionData._playersInventoryData.GetInventoryItemIDs(_playerName);
+	LoadInventoryItemsByID(itemIDs);
 }
 
 void APW_PlayerController::ServerRequestTime_Implementation(float timeOfClientRequest)

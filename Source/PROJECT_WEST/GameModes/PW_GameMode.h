@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "GameFramework/GameMode.h"
 #include "PW_GameMode.generated.h"
 
+
+struct FGameSessionData;
 /**
  * 
  */
@@ -19,6 +22,10 @@ protected:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
 	class UPW_GameInstance* _gameInstance = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UDataTable* _ItemDataTable;
+
 
 protected:
 
@@ -42,6 +49,7 @@ protected:
 
 	void ToggleSessionLock(bool lock);
 
+	TSubclassOf<class APW_ItemObject> GetItemObjectFromDataTable(FString id);
 	
 public:
 
@@ -61,11 +69,19 @@ public:
 	void SetDay(int day);
 	void NofigyPlayersOfDay();
 
+	void SaveAllPlayersInventoryData();
+	void SavePlayerInventoryData( class APW_PlayerController* playerController);
+
+	void LoadAllPlayersInventoryData();
+	void LoadPlayerInventoryData(class APW_PlayerController* playerController);
+
 	void CollectCurrency(class APW_Currency* Currency);;
 
 	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration);
 
 	FString GetPlayerName(APlayerController* playerController) const;
+
+	FGameSessionData& GetGameSessionData();
 
 	FORCEINLINE class UPW_GameInstance* GetCurrentGameInstance() const { return _gameInstance; }
 };

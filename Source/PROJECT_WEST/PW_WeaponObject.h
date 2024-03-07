@@ -96,6 +96,8 @@ public:
 
 public:
 	APW_WeaponObject();
+
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void LocalApplyActionBindings(APW_Character* characterOwner) override;
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner) override;

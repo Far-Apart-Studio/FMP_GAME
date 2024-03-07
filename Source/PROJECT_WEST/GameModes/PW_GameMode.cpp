@@ -2,6 +2,8 @@
 
 
 #include "PW_GameMode.h"
+
+#include "EngineUtils.h"
 #include "GameFramework/GameState.h"
 #include "GameFramework/PlayerState.h"
 #include  "PROJECT_WEST/PlayerState/PW_PlayerState.h"
@@ -11,6 +13,10 @@
 #include "PROJECT_WEST/PW_MultiplayerSessionsSubsystem.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "PROJECT_WEST/Items/PW_Currency.h"
+#include "PROJECT_WEST/PW_InventoryHandler.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 APW_GameMode::APW_GameMode()
 {
@@ -34,9 +40,11 @@ void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 		APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer);
 		if (playerController)
 		{
+			//DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
+			playerController->ClientOnLoadedInGameMode();
 			//playerController->SetNewPlayerName(playerName);
 		}
-		DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
+		//DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
 	}
 }
 
@@ -128,6 +136,77 @@ void APW_GameMode::NofigyPlayersOfDay()
 	}
 }
 
+void APW_GameMode::SaveAllPlayersInventoryData()
+{
+	_gameInstance->GetGameSessionData()._playersInventoryData.Reset();
+	
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			SavePlayerInventoryData(playerController);
+		}
+	}
+
+	for (auto& playerInventory : _gameInstance->GetGameSessionData()._playersInventoryData._playerInventorys)
+	{
+		for (auto& itemID : playerInventory._itemIDs)
+		{
+			DEBUG_STRING(playerInventory._playerName  + " : " + itemID);
+		}
+	}
+}
+
+void APW_GameMode::SavePlayerInventoryData(APW_PlayerController* playerController)
+{
+	DEBUG_STRING("Starting Save Player Inventory Data for " +  playerController->GetPlayerName() + " - " + FString::FromInt( playerController->GetInventoryItemIDs().Num()));
+	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory(playerController->GetPlayerName(), playerController->GetInventoryItemIDs());
+}
+
+void APW_GameMode::LoadAllPlayersInventoryData()
+{
+	DEBUG_STRING("Players In Session + " + FString::FromInt(GetNumPlayerInSession()));
+	
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
+		if (playerController)
+		{
+			DEBUG_STRING("Player found : " + GetPlayerName(playerController)); 
+			LoadPlayerInventoryData(playerController);
+		}
+	}
+}
+
+void APW_GameMode::LoadPlayerInventoryData(APW_PlayerController* playerController)
+{
+	TArray<FString> itemIDs = _gameInstance->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(GetPlayerName(playerController));
+	TArray<APW_ItemObject*> items = TArray<APW_ItemObject*>();
+	for (int i = 0; i < itemIDs.Num(); i++)
+	{
+		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(itemIDs[i]);
+		if (itemClass == nullptr)
+		{
+			DEBUG_STRING ("Class not found!")
+			continue;
+		}
+
+		items.Add(GetWorld()->SpawnActor<APW_ItemObject>(itemClass));
+
+		DEBUG_STRING("Spawn Item  for player: " + itemIDs[i] + " FOR " +  GetPlayerName(playerController));
+	}
+	
+	playerController->ClientLoadInventoryItems(items);
+	
+	//APW_Character* character = playerController->GetPawn<APW_Character>();
+	//if (!character) return;
+	//UPW_InventoryHandler* inventoryHandler  = character->FindComponentByClass<UPW_InventoryHandler>();
+	//if (!inventoryHandler) return;
+	//TArray<FString> itemIDs = _gameInstance->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(GetPlayerName(playerController));
+	//inventoryHandler->LoadItems(itemIDs);
+}
+
 void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColor color, float duration)
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
@@ -154,6 +233,18 @@ FString APW_GameMode::GetPlayerName(APlayerController* playerController) const
 	return playerName;
 }
 
+FGameSessionData& APW_GameMode::GetGameSessionData()
+{
+	FGameSessionData sessionData;
+	_gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
+	if(_gameInstance)
+	{
+		return _gameInstance->GetGameSessionData();
+	}
+	DEBUG_STRING("_gameInstance not Found");
+	return sessionData;
+}
+
 void APW_GameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -164,8 +255,9 @@ void APW_GameMode::LoadGameSessionData()
 	_gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
 	if (_gameInstance)
 	{
-		NotifyPlayersOfMoney();
+		//NotifyPlayersOfMoney();
 		//DEBUG_STRING("LoadGameSessionData Found");
+		//LoadAllPlayersInventoryData();
 	}
 }
 
@@ -194,6 +286,20 @@ void APW_GameMode::ToggleSessionLock(bool lock)
 		//DEBUG_STRING("MultiplayerSessionsSubsystem Found");
 		multiplayerSessionsSubsystem->ToggleSessionStatus(lock);
 	}
+}
+
+TSubclassOf<class APW_ItemObject> APW_GameMode::GetItemObjectFromDataTable(FString id)
+{
+	TSubclassOf<class APW_ItemObject>  itemClass = nullptr;
+	if (_ItemDataTable)
+	{
+		FItems* itemData = _ItemDataTable->FindRow<FItems>(*id, "");
+		if (itemData)
+		{
+			itemClass = itemData->_itemClass;
+		}
+	}
+	return itemClass;
 }
 
 void APW_GameMode::OnMatchStateSet()

@@ -26,6 +26,14 @@ APW_WeaponObject::APW_WeaponObject()
 	_muzzleLocation->SetupAttachment(itemMesh);
 }
 
+void APW_WeaponObject::BeginPlay()
+{
+	Super::BeginPlay();
+
+	_weaponRuntimeData.CurrentAmmo = _weaponData->GetWeaponMagazineCapacity();
+	_weaponRuntimeData.CurrentReserveAmmo = _weaponData->GetWeaponReserveAmmunition();
+}
+
 void APW_WeaponObject::Tick(float DeltaSeconds)
 {
 	AActor* owner = GetOwner();

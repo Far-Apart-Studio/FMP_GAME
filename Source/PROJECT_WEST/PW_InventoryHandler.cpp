@@ -11,19 +11,29 @@
 UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicated(true);
 }
 
 void UPW_InventoryHandler::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	GetOwnerCharacter();
 
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
 
+	LoadDefaultSlots();
+
 	if (_ownerCharacter->IsLocallyControlled())
+	{
 		AssignInputActions();
+	}
+	else
+	{
+		DEBUG_STRING( "NOT LOCALLY CONTROLLED" );
+		AttachAllItems();
+	}
 	
 	ChangeSlot(_currentSlotIndex, true);
 }
@@ -37,6 +47,26 @@ void UPW_InventoryHandler::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UPW_InventoryHandler, _inventorySlots);
+}
+
+void UPW_InventoryHandler::LoadDefaultSlots()
+{
+	if (_ownerCharacter->HasAuthority())
+		LocalLoadDefaultSlotsByID();
+	else
+		ServerLoadDefaultSlotsByID();
+}
+
+void UPW_InventoryHandler::ServerLoadDefaultSlotsByID_Implementation()
+{
+	if (!_ownerCharacter->HasAuthority())
+		LocalLoadDefaultSlotsByID();
+}
+
+void UPW_InventoryHandler::LocalLoadDefaultSlotsByID()
+{
+	for (int i = 0; i < _defaultSlotTypes.Num(); i++)
+		_inventorySlots.Add(FInventorySlot(_defaultSlotTypes[i]));
 }
 
 bool UPW_InventoryHandler::IsSlotValid(int slotIndex)
@@ -80,27 +110,21 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 	const bool foundSlot = TryGetSlotIndex(itemType, slotIndex);
 	
 	if (!foundSlot)
-		{ PW_Utilities::Log("NO AVAILABLE SLOT!"); return; }
+	{ PW_Utilities::Log("NO AVAILABLE SLOT!"); return; }
 
-	_inventorySlots[slotIndex].SetItem(collectedItem);
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	
-	_ownerCharacter->HasAuthority() ? LocalCollectItem(collectedItem) : ServerCollectItem(collectedItem);
-
-	FTimerHandle itemTimer;
-	FTimerDelegate itemDelegate;
-
-	itemDelegate.BindLambda([collectedItem, this]()
-	{
-		ChangeSlot(_currentSlotIndex, true);
-	});
-
-	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.1f, false);
+	_ownerCharacter->HasAuthority() ? LocalCollectItem(slotIndex, collectedItem) : ServerCollectItem(slotIndex, collectedItem);
 }
 
-void UPW_InventoryHandler::LocalCollectItem(APW_ItemObject* collectedItem)
+void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* collectedItem)
 {
 	if (collectedItem == nullptr)
 		{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
+
+	_inventorySlots[slotIndex].SetItem(collectedItem);
+
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	
 	USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
 
@@ -111,12 +135,15 @@ void UPW_InventoryHandler::LocalCollectItem(APW_ItemObject* collectedItem)
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	collectedItem->SetVisibility(false);
+	
+	ChangeSlot(_currentSlotIndex, true);
+	DEBUG_STRING("Collected Item");
 }
 
-void UPW_InventoryHandler::ServerCollectItem_Implementation(APW_ItemObject* collectedItem)
+void UPW_InventoryHandler::ServerCollectItem_Implementation(int slotIndex, APW_ItemObject* collectedItem)
 {
 	if (_ownerCharacter->HasAuthority())
-		LocalCollectItem(collectedItem);
+		LocalCollectItem(slotIndex,collectedItem);
 }
 #pragma endregion CollectItem
 
@@ -170,6 +197,130 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 		ChangeSlot(overflowSlotIndex);
 		_currentSlotIndex = overflowSlotIndex;
 	}
+}
+
+void UPW_InventoryHandler::LoadItems(const TArray<APW_ItemObject*>& items)
+{
+	for (int i = 0; i < items.Num(); i++)
+	{
+		CollectItem(items[i]);
+		DEBUG_STRING("Collected Item");
+	}
+}
+
+void UPW_InventoryHandler::LoadItemsByID(const TArray<FString>& itemIDs)
+{
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
+	if (_ownerCharacter == nullptr) return;;
+	_ownerCharacter->HasAuthority() ? LocalLoadItems(itemIDs) : ServerLoadItems(itemIDs);
+}
+
+void UPW_InventoryHandler::ServerLoadItems_Implementation(const TArray<FString>& itemIDs)
+{
+	if(!_ownerCharacter->HasAuthority()) return;;
+	LocalLoadItems(itemIDs);
+}
+
+void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
+{
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
+	TArray<APW_ItemObject*> items = TArray<APW_ItemObject*>();
+	for (int i = 0; i < itemIDs.Num(); i++)
+	{
+		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(itemIDs[i]);
+		if (itemClass == nullptr)
+		{ PW_Utilities::Log("ITEM CLASS IS NULL!"); continue; }
+		APW_ItemObject* item = GetWorld()->SpawnActor<APW_ItemObject>(itemClass, _ownerCharacter->GetActorLocation(), FRotator::ZeroRotator);
+		items.Add(item);
+		DEBUG_STRING("Spawned Item");
+	}
+
+	//CollectItems(items);
+
+	FTimerHandle itemTimer;
+	FTimerDelegate itemDelegate;
+
+	itemDelegate.BindLambda([items, this]()
+	{
+		CollectItems(items);
+	});
+	
+	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 1.0f, false);
+}
+
+void UPW_InventoryHandler::CollectItems(const TArray<APW_ItemObject*>& items)
+{
+	for ( int i = 0; i < items.Num(); i++)
+	{
+		APW_ItemObject* collectedItem = items[i];
+		
+		if (collectedItem == nullptr)
+		{DEBUG_STRING("COLLECTED ITEM IS NULL!"); return;}
+			
+		const EItemType itemType = items[i]->GetItemType();
+
+		int slotIndex = 0;
+		const bool foundSlot = TryGetSlotIndex(itemType, slotIndex);
+
+		if (!foundSlot)
+		{DEBUG_STRING("NO AVAILABLE SLOT!"); return; }
+
+		_inventorySlots[slotIndex].SetItem(collectedItem);
+
+		_ownerCharacter = Cast<APW_Character>(GetOwner());
+	
+		USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
+
+		if (itemPosition == nullptr)
+		{ DEBUG_STRING("ITEM POSITION IS NULL!"); return; }
+	
+		collectedItem->SetOwner(_ownerCharacter);
+		collectedItem->UpdateItemState(EItemObjectState::EHeld);
+		collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		collectedItem->SetVisibility(false);
+	}
+
+	ChangeSlot(_currentSlotIndex, true);
+}
+
+void UPW_InventoryHandler::AttachAllItems()
+{
+	if (_ownerCharacter->HasAuthority())
+		LocalAttachAllItems();
+	else
+		SeverAttachAllItems();
+}
+
+void UPW_InventoryHandler::SeverAttachAllItems_Implementation()
+{
+	if (_ownerCharacter->HasAuthority())
+		LocalAttachAllItems();
+}
+
+void UPW_InventoryHandler::LocalAttachAllItems()
+{
+	for (int i = 0; i < _inventorySlots.Num(); i++)
+	{
+		APW_ItemObject* item = _inventorySlots[i].GetItem();
+		if (item == nullptr)
+			continue;
+
+		DEBUG_STRING ("ATTACHING ITEM TO CHARACTER : " + item->GetName());
+		item->AttachToComponent(_ownerCharacter->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+}
+
+TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()
+{
+	TArray<FString> itemIDs = TArray<FString>();
+	for (int i = 0; i < _inventorySlots.Num(); i++)
+	{
+		APW_ItemObject* item = _inventorySlots[i].GetItem();
+		if (item == nullptr)
+			continue;
+		itemIDs.Add(item->GetItemID());
+	}
+	return itemIDs;
 }
 
 void UPW_InventoryHandler::CycleUp()
@@ -233,6 +384,20 @@ void UPW_InventoryHandler::GetOwnerCharacter()
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
 }
 
+TSubclassOf<APW_ItemObject> UPW_InventoryHandler::GetItemObjectFromDataTable(FString id)
+{
+	TSubclassOf<APW_ItemObject> itemClass = nullptr;
+	if (_ItemDataTable)
+	{
+		FItems* itemData = _ItemDataTable->FindRow<FItems>(*id, "");
+		if (itemData)
+		{
+			itemClass = itemData->_itemClass;
+		}
+	}
+	return itemClass;
+}
+
 #pragma region DropItem
 void UPW_InventoryHandler::DropItem(int slotIndex)
 {
@@ -243,18 +408,21 @@ void UPW_InventoryHandler::DropItem(int slotIndex)
 
 	if (slotItem == nullptr)
 		{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
-
-	_inventorySlots[_currentSlotIndex].RemoveItem();
+	
 	slotItem->RemoveActionBindings(_ownerCharacter);
 	slotItem->SetVisibility(true);
 	
-	_ownerCharacter->HasAuthority() ? LocalDropItem(slotItem) : ServerDropItem(slotItem);
+	_ownerCharacter->HasAuthority() ? LocalDropItem(slotIndex) : ServerDropItem(slotIndex);
 }
 
-void UPW_InventoryHandler::LocalDropItem(APW_ItemObject* slotItem)
+void UPW_InventoryHandler::LocalDropItem(int slotIndex)
 {
+	APW_ItemObject* slotItem = _inventorySlots[slotIndex].GetItem();
+	
 	if (slotItem == nullptr)
 		{ PW_Utilities::Log("[LOCAL] SLOT ITEM IS NULL!"); return; }
+
+	_inventorySlots[slotIndex].RemoveItem();
 	
 	slotItem->UpdateItemState(EItemObjectState::EDropped);
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
@@ -273,10 +441,10 @@ void UPW_InventoryHandler::LocalDropItem(APW_ItemObject* slotItem)
 	itemMesh->AddImpulse(itemVelocity);
 }
 
-void UPW_InventoryHandler::ServerDropItem_Implementation(APW_ItemObject* slotItem)
+void UPW_InventoryHandler::ServerDropItem_Implementation(int slotIndex)
 {
 	if (_ownerCharacter->HasAuthority())
-		LocalDropItem(slotItem);
+		LocalDropItem(slotIndex);
 }
 
 #pragma endregion DropItem
