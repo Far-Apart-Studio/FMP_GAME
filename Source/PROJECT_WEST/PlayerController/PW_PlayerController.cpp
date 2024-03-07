@@ -354,6 +354,11 @@ void APW_PlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 }
 
+void APW_PlayerController::ClientOnLoadedInGameMode_Implementation()
+{
+	
+}
+
 void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation()
 {
 	_hud = GetHUD <APW_HUD>();

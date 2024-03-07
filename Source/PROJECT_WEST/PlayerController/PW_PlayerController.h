@@ -193,6 +193,9 @@ public:
 
 	void OnMatchStateSet(FName matchState);
 
+	UFUNCTION( Client, Reliable )
+	void ClientOnLoadedInGameMode();
+
 	void SetNewPlayerName();
 	UFUNCTION( Server, Reliable )
 	void ServerSetPlayerName();

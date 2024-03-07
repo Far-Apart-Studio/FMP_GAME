@@ -31,6 +31,7 @@ void UPW_InventoryHandler::BeginPlay()
 	}
 	else
 	{
+		DEBUG_STRING( "NOT LOCALLY CONTROLLED" );
 		AttachAllItems();
 	}
 	
@@ -222,16 +223,19 @@ void UPW_InventoryHandler::ServerLoadItems_Implementation(const TArray<FString>&
 
 void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
 {
+	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	TArray<APW_ItemObject*> items = TArray<APW_ItemObject*>();
 	for (int i = 0; i < itemIDs.Num(); i++)
 	{
 		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(itemIDs[i]);
 		if (itemClass == nullptr)
 		{ PW_Utilities::Log("ITEM CLASS IS NULL!"); continue; }
-		APW_ItemObject* item = GetWorld()->SpawnActor<APW_ItemObject>(itemClass);
+		APW_ItemObject* item = GetWorld()->SpawnActor<APW_ItemObject>(itemClass, _ownerCharacter->GetActorLocation(), FRotator::ZeroRotator);
 		items.Add(item);
 		DEBUG_STRING("Spawned Item");
 	}
+
+	//CollectItems(items);
 
 	FTimerHandle itemTimer;
 	FTimerDelegate itemDelegate;
@@ -300,6 +304,8 @@ void UPW_InventoryHandler::LocalAttachAllItems()
 		APW_ItemObject* item = _inventorySlots[i].GetItem();
 		if (item == nullptr)
 			continue;
+
+		DEBUG_STRING ("ATTACHING ITEM TO CHARACTER : " + item->GetName());
 		item->AttachToComponent(_ownerCharacter->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 }

@@ -17,13 +17,12 @@ APW_ItemObject::APW_ItemObject()
 	
 	SetRootComponent(_itemMesh);
 
+	_itemMesh->SetSimulatePhysics(true);
+	_itemMesh->SetEnableGravity(true);
+	_itemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	_itemMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	_itemMesh->SetSimulatePhysics(true);
-	_itemMesh->SetEnableGravity(true);
-
 }
 
 void APW_ItemObject::BeginPlay()
