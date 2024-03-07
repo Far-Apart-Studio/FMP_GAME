@@ -23,12 +23,16 @@ void UPW_InventoryHandler::BeginPlay()
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
 
+	LoadDefaultSlots();
+
 	if (_ownerCharacter->IsLocallyControlled())
 	{
 		AssignInputActions();
 	}
-
-	LoadDefaultSlots();
+	else
+	{
+		AttachAllItems();
+	}
 	
 	ChangeSlot(_currentSlotIndex, true);
 }
@@ -273,6 +277,31 @@ void UPW_InventoryHandler::CollectItems(const TArray<APW_ItemObject*>& items)
 	}
 
 	ChangeSlot(_currentSlotIndex, true);
+}
+
+void UPW_InventoryHandler::AttachAllItems()
+{
+	if (_ownerCharacter->HasAuthority())
+		LocalAttachAllItems();
+	else
+		SeverAttachAllItems();
+}
+
+void UPW_InventoryHandler::SeverAttachAllItems_Implementation()
+{
+	if (_ownerCharacter->HasAuthority())
+		LocalAttachAllItems();
+}
+
+void UPW_InventoryHandler::LocalAttachAllItems()
+{
+	for (int i = 0; i < _inventorySlots.Num(); i++)
+	{
+		APW_ItemObject* item = _inventorySlots[i].GetItem();
+		if (item == nullptr)
+			continue;
+		item->AttachToComponent(_ownerCharacter->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
 }
 
 TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()
