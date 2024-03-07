@@ -299,7 +299,7 @@ void APW_PlayerController::Destroyed()
 	// Drop all items when player controller is destroyed
 	if (_hasVoted && !HasAuthority())
 	{
-
+		ServerClearVote();
 	}
 
 	DropAllItems();
