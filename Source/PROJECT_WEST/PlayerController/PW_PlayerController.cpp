@@ -467,10 +467,10 @@ void APW_PlayerController::DropAllItems()
 	APW_Character* character = Cast<APW_Character>(GetPawn());
 	if (character)
 	{
-		UPW_ItemHandlerComponent* itemHandlerComponent = Cast<UPW_ItemHandlerComponent>( character->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
-		if (itemHandlerComponent)
+		UPW_InventoryHandler* InventoryHandler = Cast<UPW_InventoryHandler>( character->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+		if (InventoryHandler)
 		{
-			itemHandlerComponent->DoDropAllItems();
+			InventoryHandler->DropAllItems();
 		}
 	}
 }

@@ -112,6 +112,11 @@ void APW_ItemObject::EnterDroppedState()
 	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
+void APW_ItemObject::OnRep_ItemStateChanged()
+{
+	OnUpdateItemState();
+}
+
 void APW_ItemObject::OnRep_VisibilityChange()
 {
 	OnSetVisibility();
@@ -144,7 +149,13 @@ void APW_ItemObject::OnSetVisibility()
 
 void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
 {
-	switch (updatedState)
+	_itemState = updatedState;
+	OnUpdateItemState();
+}
+
+void APW_ItemObject::OnUpdateItemState()
+{
+	switch (_itemState)
 	{
 	case EItemObjectState::EHeld:
 		EnterHeldState();
@@ -153,8 +164,6 @@ void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
 		EnterDroppedState();
 		break;
 	}
-
-	_itemState = updatedState;
 }
 
 #pragma endregion UpdateItemStateNetworked

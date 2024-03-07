@@ -71,7 +71,6 @@ public:
 	UFUNCTION(Server, Reliable)
 	void SeverChangeSlot(int targetedSlotIndex);
 	void LocalChangeSlot(int targetedSlotIndex);
-
 	
 	bool IsSlotValid(int slotIndex);
 	bool TryGetSlotIndex(EItemType itemType, int& outIndex);
@@ -85,10 +84,16 @@ public:
 	void CollectItems (const TArray<APW_ItemObject*>& items);
 	
 	void AttachAllItems();
+	
 	UFUNCTION( Server, Reliable )
 	void SeverAttachAllItems();
 	void DoAttachAllItems();
 	void LocalAttachAllItems();
+
+	void DropAllItems();
+	UFUNCTION( Server, Reliable )
+	void ServerDropAllItems();
+	void LocalDropAllItems();
 
 	TArray<FString> GetInventoryItemIDs();
 
@@ -101,6 +106,5 @@ public:
 	UFUNCTION(BlueprintCallable) void CycleDown();
 	UFUNCTION(BlueprintCallable) void ToSlot(int targetedSlotIndex);
 	UFUNCTION(BlueprintCallable) void DropCurrentItem();
-	UFUNCTION(BlueprintCallable) void DropAll();
 
 };

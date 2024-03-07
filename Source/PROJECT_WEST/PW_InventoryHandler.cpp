@@ -102,12 +102,8 @@ void UPW_InventoryHandler::LocalChangeSlot(int targetedSlotIndex)
 	
 	if (updatedItem != nullptr)
 		updatedItem->EnableItem(_ownerCharacter);
-
-	DEBUG_STRING (" LocalChangeSlot currentSlotIndex: " + FString::FromInt(_currentSlotIndex ));
-
+	
 	_currentSlotIndex = targetedSlotIndex;
-
-	DEBUG_STRING (" LocalChangeSlot targetedSlotIndex "  + FString::FromInt(targetedSlotIndex));
 }
 
 #pragma region CollectItem
@@ -149,7 +145,6 @@ void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* colle
 	collectedItem->SetOwner(_ownerCharacter);
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	collectedItem->SetVisibility(false);
 	
 	ChangeSlot(slotIndex, true);
 	DEBUG_STRING("Collected Item");
@@ -325,6 +320,23 @@ void UPW_InventoryHandler::LocalAttachAllItems()
 	}
 }
 
+void UPW_InventoryHandler::DropAllItems()
+{
+	GetOwner() ? ServerDropAllItems() : LocalDropAllItems();
+}
+
+void UPW_InventoryHandler::ServerDropAllItems_Implementation()
+{
+	if (GetOwner())
+		LocalDropAllItems();
+}
+
+void UPW_InventoryHandler::LocalDropAllItems()
+{
+	for (int i = 0; i < _inventorySlots.Num(); i++)
+		DropItem(i);
+}
+
 TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()
 {
 	TArray<FString> itemIDs = TArray<FString>();
@@ -365,12 +377,6 @@ void UPW_InventoryHandler::ToSlot(int targetedSlotIndex)
 void UPW_InventoryHandler::DropCurrentItem()
 {
 	DropItem(_currentSlotIndex);
-}
-
-void UPW_InventoryHandler::DropAll()
-{
-	for (int i = 0; i < _inventorySlots.Num(); i++)
-		DropItem(i);
 }
 
 void UPW_InventoryHandler::AssignInputActions()
