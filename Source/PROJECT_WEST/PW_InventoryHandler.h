@@ -34,7 +34,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
 	float _throwVelocityMultiplier = 5.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
 	int _currentSlotIndex = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -68,6 +68,11 @@ public:
 	UFUNCTION(Server, Reliable) void ServerDropItem(int slotIndex);
 	
 	void ChangeSlot(int targetedSlotIndex, bool forceChangeSlot = false);
+	UFUNCTION(Server, Reliable)
+	void SeverChangeSlot(int targetedSlotIndex);
+	void LocalChangeSlot(int targetedSlotIndex);
+
+	
 	bool IsSlotValid(int slotIndex);
 	bool TryGetSlotIndex(EItemType itemType, int& outIndex);
 

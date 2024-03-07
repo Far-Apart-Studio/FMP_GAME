@@ -12,6 +12,9 @@ APW_Weapon::APW_Weapon()
 	
 	_currentWeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	_currentWeaponMesh->SetupAttachment(RootComponent);
+	_currentWeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	_currentWeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	_currentWeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	_muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	_muzzleLocation->SetupAttachment(_currentWeaponMesh);
