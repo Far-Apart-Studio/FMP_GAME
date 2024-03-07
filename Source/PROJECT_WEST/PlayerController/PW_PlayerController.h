@@ -260,9 +260,10 @@ public:
 	void ServerSpawnAutoEnemySpawner(class APW_Character* controlledCharacter);
 	void LocalSpawnAutoEnemySpawner(APW_Character* controlledCharacter);
 	
-	void LoadInventoryItemsByID (const TArray<FString>& itemIDs);
+	void LoadInventoryItemsByID (const FPlayerInventoryDataEntry& inventoryData);
 
 	TArray<FString> GetInventoryItemIDs();
+	int GetSelectedSlotIndex();
 
 	FORCEINLINE FString GetPlayerName() const { return _playerName; }
 };

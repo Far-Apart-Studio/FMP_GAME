@@ -210,7 +210,7 @@ void APW_PlayerController::LocalSpawnAutoEnemySpawner(APW_Character* controlledC
 	}
 }
 
-void APW_PlayerController::LoadInventoryItemsByID(const TArray<FString>& itemIDs)
+void APW_PlayerController::LoadInventoryItemsByID(const FPlayerInventoryDataEntry& inventoryData)
 {
 	if(GetPawn())
 	{
@@ -226,7 +226,7 @@ void APW_PlayerController::LoadInventoryItemsByID(const TArray<FString>& itemIDs
 	if (inventoryHandler)
 	{
 		//DEBUG_STRING( "ClientLoadInventoryItemsByID_Implementation : " + FString::FromInt(itemIDs.Num()));
-		inventoryHandler->LoadItemsByID(itemIDs);
+		inventoryHandler->LoadItemsFromData(inventoryData);
 	}
 }
 
@@ -243,6 +243,21 @@ TArray<FString> APW_PlayerController::GetInventoryItemIDs()
 		}
 	}
 	return itemIDs;
+}
+
+int APW_PlayerController::GetSelectedSlotIndex()
+{
+	int selectedSlotIndex = 0;
+	APW_Character* character = Cast<APW_Character>(GetPawn());
+	if (character)
+	{
+		UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(character->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+		if (inventoryHandler)
+		{
+			selectedSlotIndex = inventoryHandler->GetCurrentSlotIndex();
+		}
+	}
+	return selectedSlotIndex;
 }
 
 void APW_PlayerController::ClientJoinMidGame_Implementation(FName stateOfMatch, float matchTime, float levelStartTime,float endMatchCountdown)
@@ -937,8 +952,8 @@ void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSession
 	//DEBUG_STRING ("Loaded Game Session Data : Money - " + FString::FromInt(GameSessionData._money) + " Day - " + FString::FromInt(GameSessionData._dayIndex));
 	_money = GameSessionData._money;
 	_dayIndex = GameSessionData._dayIndex;
-	TArray<FString> itemIDs = GameSessionData._playersInventoryData.GetInventoryItemIDs(_playerName);
-	LoadInventoryItemsByID(itemIDs);
+	const FPlayerInventoryDataEntry inventoryData = GameSessionData._playersInventoryData.GetInventoryData(_playerName);
+	LoadInventoryItemsByID(inventoryData);
 }
 
 void APW_PlayerController::ServerRequestTime_Implementation(float timeOfClientRequest)

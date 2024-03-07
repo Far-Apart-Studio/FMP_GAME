@@ -74,7 +74,7 @@ bool UPW_InventoryHandler::IsSlotValid(int slotIndex)
 
 void UPW_InventoryHandler::ChangeSlot(int targetedSlotIndex, bool forceChangeSlot)
 {
-	DEBUG_STRING (" Before Changed Slot to currentSlotIndex: " + FString::FromInt(_currentSlotIndex ) + " targetedSlotIndex: " + FString::FromInt(targetedSlotIndex));
+	//DEBUG_STRING (" Before Changed Slot to currentSlotIndex: " + FString::FromInt(_currentSlotIndex ) + " targetedSlotIndex: " + FString::FromInt(targetedSlotIndex));
 	
 	if (_currentSlotIndex == targetedSlotIndex && !forceChangeSlot)
 	{ PW_Utilities::Log("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
@@ -205,25 +205,25 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 	}
 }
 
-void UPW_InventoryHandler::LoadItemsByID(const TArray<FString>& itemIDs)
+void UPW_InventoryHandler::LoadItemsFromData(const FPlayerInventoryDataEntry& inventoryData)
 {
 	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	if (_ownerCharacter == nullptr) return;;
-	_ownerCharacter->HasAuthority() ? LocalLoadItems(itemIDs) : ServerLoadItems(itemIDs);
+	_ownerCharacter->HasAuthority() ? LocalLoadFromData(inventoryData) : ServerLoadFromData(inventoryData);
 }
 
-void UPW_InventoryHandler::ServerLoadItems_Implementation(const TArray<FString>& itemIDs)
+void UPW_InventoryHandler::ServerLoadFromData_Implementation(const FPlayerInventoryDataEntry& inventoryData)
 {
 	if(!_ownerCharacter->HasAuthority()) return;;
-	LocalLoadItems(itemIDs);
+	LocalLoadFromData(inventoryData);
 }
 
-void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
+void UPW_InventoryHandler::LocalLoadFromData(const FPlayerInventoryDataEntry& inventoryData)
 {
 	TArray<APW_ItemObject*> items = TArray<APW_ItemObject*>();
-	for (int i = 0; i < itemIDs.Num(); i++)
+	for (int i = 0; i < inventoryData._itemIDs.Num(); i++)
 	{
-		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(itemIDs[i]);
+		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(inventoryData._itemIDs[i]);
 		if (itemClass == nullptr)
 		{ PW_Utilities::Log("ITEM CLASS IS NULL!"); continue; }
 		APW_ItemObject* item = GetWorld()->SpawnActor<APW_ItemObject>(itemClass, GetOwner()->GetActorLocation(), FRotator::ZeroRotator);
@@ -231,20 +231,22 @@ void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
 		DEBUG_STRING("Spawned Item");
 	}
 
+	int32 selectedIndex = inventoryData._selectedSlotIndex;
+
 	//CollectItems(items);
 
 	FTimerHandle itemTimer;
 	FTimerDelegate itemDelegate;
 
-	itemDelegate.BindLambda([items, this]()
+	itemDelegate.BindLambda([selectedIndex,items, this]()
 	{
-		CollectItems(items);
+		CollectItems(selectedIndex,items);
 	});
 	
 	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 1.0f, false);
 }
 
-void UPW_InventoryHandler::CollectItems(const TArray<APW_ItemObject*>& items)
+void UPW_InventoryHandler::CollectItems(const int32 selectedIndex,  const TArray<APW_ItemObject*>& items)
 {
 	for ( int i = 0; i < items.Num(); i++)
 	{
@@ -276,7 +278,7 @@ void UPW_InventoryHandler::CollectItems(const TArray<APW_ItemObject*>& items)
 		collectedItem->SetVisibility(false);
 	}
 
-	ChangeSlot(_currentSlotIndex, true);
+	ChangeSlot(selectedIndex, true);
 }
 
 void UPW_InventoryHandler::AttachAllItems()

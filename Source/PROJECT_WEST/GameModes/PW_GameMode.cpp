@@ -161,7 +161,7 @@ void APW_GameMode::SaveAllPlayersInventoryData()
 void APW_GameMode::SavePlayerInventoryData(APW_PlayerController* playerController)
 {
 	DEBUG_STRING("Starting Save Player Inventory Data for " +  playerController->GetPlayerName() + " - " + FString::FromInt( playerController->GetInventoryItemIDs().Num()));
-	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory(playerController->GetPlayerName(), playerController->GetInventoryItemIDs());
+	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory(playerController->GetPlayerName(), playerController->GetInventoryItemIDs(), playerController->GetSelectedSlotIndex());
 }
 
 void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColor color, float duration)

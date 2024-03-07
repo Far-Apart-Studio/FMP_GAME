@@ -14,6 +14,7 @@ class UPW_InventorySlot;
 class APW_Character;
 class APW_WeaponObject;
 struct FInventorySlot;
+struct FPlayerInventoryDataEntry;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
@@ -77,11 +78,11 @@ public:
 
 	void CyclePreviousSlot();
 
-	void LoadItemsByID (const TArray<FString>& itemIDs);
+	void LoadItemsFromData (const FPlayerInventoryDataEntry& inventoryData);
 	UFUNCTION( Server, Reliable )
-	void ServerLoadItems(const TArray<FString>& itemIDs);
-	void LocalLoadItems(const TArray<FString>& itemIDs);
-	void CollectItems (const TArray<APW_ItemObject*>& items);
+	void ServerLoadFromData (const FPlayerInventoryDataEntry& inventoryData);
+	void LocalLoadFromData (const FPlayerInventoryDataEntry& inventoryData);
+	void CollectItems (const int32 selectedIndex, const TArray<APW_ItemObject*>& items);
 	
 	void AttachAllItems();
 	
@@ -106,5 +107,5 @@ public:
 	UFUNCTION(BlueprintCallable) void CycleDown();
 	UFUNCTION(BlueprintCallable) void ToSlot(int targetedSlotIndex);
 	UFUNCTION(BlueprintCallable) void DropCurrentItem();
-
+	FORCENOINLINE int GetCurrentSlotIndex() const { return _currentSlotIndex; }
 };
