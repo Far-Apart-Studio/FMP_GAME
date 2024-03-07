@@ -72,9 +72,6 @@ public:
 	void SaveAllPlayersInventoryData();
 	void SavePlayerInventoryData( class APW_PlayerController* playerController);
 
-	void LoadAllPlayersInventoryData();
-	void LoadPlayerInventoryData(class APW_PlayerController* playerController);
-
 	void CollectCurrency(class APW_Currency* Currency);;
 
 	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration);

@@ -72,8 +72,6 @@ public:
 	bool TryGetSlotIndex(EItemType itemType, int& outIndex);
 
 	void CyclePreviousSlot();
-	
-	void LoadItems (const TArray<APW_ItemObject*>& items);
 
 	void LoadItemsByID (const TArray<FString>& itemIDs);
 	UFUNCTION( Server, Reliable )
@@ -84,6 +82,7 @@ public:
 	void AttachAllItems();
 	UFUNCTION( Server, Reliable )
 	void SeverAttachAllItems();
+	void DoAttachAllItems();
 	void LocalAttachAllItems();
 
 	TArray<FString> GetInventoryItemIDs();

@@ -261,9 +261,6 @@ public:
 	void LocalSpawnAutoEnemySpawner(APW_Character* controlledCharacter);
 	
 	void LoadInventoryItemsByID (const TArray<FString>& itemIDs);
-	
-	UFUNCTION( Client, Reliable )
-	void ClientLoadInventoryItems (const TArray<class APW_ItemObject*>& items);
 
 	TArray<FString> GetInventoryItemIDs();
 

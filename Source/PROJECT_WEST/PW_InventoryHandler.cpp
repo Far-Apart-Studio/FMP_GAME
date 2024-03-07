@@ -28,11 +28,8 @@ void UPW_InventoryHandler::BeginPlay()
 	if (_ownerCharacter->IsLocallyControlled())
 	{
 		AssignInputActions();
-	}
-	else
-	{
-		DEBUG_STRING( "NOT LOCALLY CONTROLLED" );
-		AttachAllItems();
+
+		//DoAttachAllItems();
 	}
 	
 	ChangeSlot(_currentSlotIndex, true);
@@ -199,15 +196,6 @@ void UPW_InventoryHandler::CyclePreviousSlot()
 	}
 }
 
-void UPW_InventoryHandler::LoadItems(const TArray<APW_ItemObject*>& items)
-{
-	for (int i = 0; i < items.Num(); i++)
-	{
-		CollectItem(items[i]);
-		DEBUG_STRING("Collected Item");
-	}
-}
-
 void UPW_InventoryHandler::LoadItemsByID(const TArray<FString>& itemIDs)
 {
 	_ownerCharacter = Cast<APW_Character>(GetOwner());
@@ -295,6 +283,20 @@ void UPW_InventoryHandler::SeverAttachAllItems_Implementation()
 {
 	if (_ownerCharacter->HasAuthority())
 		LocalAttachAllItems();
+}
+
+void UPW_InventoryHandler::DoAttachAllItems()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APW_Character* character = Cast<APW_Character>(It->Get()->GetPawn());
+		if (character == nullptr)
+			continue;
+		UPW_InventoryHandler* inventoryHandler = character->FindComponentByClass< UPW_InventoryHandler>();
+		if (inventoryHandler == nullptr)
+			continue;
+		inventoryHandler->LocalAttachAllItems();
+	}
 }
 
 void UPW_InventoryHandler::LocalAttachAllItems()

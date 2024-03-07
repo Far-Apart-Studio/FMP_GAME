@@ -164,49 +164,6 @@ void APW_GameMode::SavePlayerInventoryData(APW_PlayerController* playerControlle
 	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory(playerController->GetPlayerName(), playerController->GetInventoryItemIDs());
 }
 
-void APW_GameMode::LoadAllPlayersInventoryData()
-{
-	DEBUG_STRING("Players In Session + " + FString::FromInt(GetNumPlayerInSession()));
-	
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
-		if (playerController)
-		{
-			DEBUG_STRING("Player found : " + GetPlayerName(playerController)); 
-			LoadPlayerInventoryData(playerController);
-		}
-	}
-}
-
-void APW_GameMode::LoadPlayerInventoryData(APW_PlayerController* playerController)
-{
-	TArray<FString> itemIDs = _gameInstance->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(GetPlayerName(playerController));
-	TArray<APW_ItemObject*> items = TArray<APW_ItemObject*>();
-	for (int i = 0; i < itemIDs.Num(); i++)
-	{
-		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(itemIDs[i]);
-		if (itemClass == nullptr)
-		{
-			DEBUG_STRING ("Class not found!")
-			continue;
-		}
-
-		items.Add(GetWorld()->SpawnActor<APW_ItemObject>(itemClass));
-
-		DEBUG_STRING("Spawn Item  for player: " + itemIDs[i] + " FOR " +  GetPlayerName(playerController));
-	}
-	
-	playerController->ClientLoadInventoryItems(items);
-	
-	//APW_Character* character = playerController->GetPawn<APW_Character>();
-	//if (!character) return;
-	//UPW_InventoryHandler* inventoryHandler  = character->FindComponentByClass<UPW_InventoryHandler>();
-	//if (!inventoryHandler) return;
-	//TArray<FString> itemIDs = _gameInstance->GetGameSessionData()._playersInventoryData.GetInventoryItemIDs(GetPlayerName(playerController));
-	//inventoryHandler->LoadItems(itemIDs);
-}
-
 void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColor color, float duration)
 {
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
