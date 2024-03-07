@@ -63,8 +63,8 @@ void APW_Character::PostInitializeComponents()
 		_healthComponent = FindComponentByClass<UPW_HealthComponent>();
 		if (_healthComponent)
 		{
-			_healthComponent->OnHealthChanged.AddDynamic(this, &APW_Character::OnHealthChanged);
-			_healthComponent->OnDeath.AddDynamic(this, &APW_Character::OnDeath);
+			_healthComponent->OnHealthChangedGlobal.AddDynamic(this, &APW_Character::OnHealthChanged);
+			_healthComponent->OnDeathGlobal.AddDynamic(this, &APW_Character::OnDeath);
 		}
 	}
 }
