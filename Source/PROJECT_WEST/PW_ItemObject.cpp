@@ -6,6 +6,7 @@
 #include "PW_InventoryHandler.h"
 #include "PW_Utilities.h"
 #include "Net/UnrealNetwork.h"
+#include "PROJECT_WEST/PW_Character.h"
 
 
 APW_ItemObject::APW_ItemObject()
@@ -20,6 +21,9 @@ APW_ItemObject::APW_ItemObject()
 	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	_itemMesh->SetSimulatePhysics(true);
+	_itemMesh->SetEnableGravity(true);
+
 }
 
 void APW_ItemObject::BeginPlay()
@@ -104,6 +108,7 @@ void APW_ItemObject::EnterDroppedState()
 	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
+
 #pragma region SetVisibility
 void APW_ItemObject::SetVisibility(bool isVisible)
 {

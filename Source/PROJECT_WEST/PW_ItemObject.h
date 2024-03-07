@@ -49,6 +49,7 @@ private:
 	bool _isActive;
 
 protected:
+	
 	virtual void BeginPlay() override;
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();

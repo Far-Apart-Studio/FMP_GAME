@@ -79,6 +79,7 @@ public:
 	UFUNCTION( Server, Reliable )
 	void ServerLoadItems(const TArray<FString>& itemIDs);
 	void LocalLoadItems(const TArray<FString>& itemIDs);
+	void CollectItems (const TArray<APW_ItemObject*>& items);
 
 	TArray<FString> GetInventoryItemIDs();
 

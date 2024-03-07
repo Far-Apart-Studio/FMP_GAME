@@ -110,16 +110,6 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	
 	_ownerCharacter->HasAuthority() ? LocalCollectItem(slotIndex, collectedItem) : ServerCollectItem(slotIndex, collectedItem);
-
-	FTimerHandle itemTimer;
-	FTimerDelegate itemDelegate;
-
-	itemDelegate.BindLambda([collectedItem, this]()
-	{
-		ChangeSlot(_currentSlotIndex, true);
-	});
-
-	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 0.1f, false);
 }
 
 void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* collectedItem)
@@ -140,7 +130,8 @@ void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* colle
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	collectedItem->SetVisibility(false);
-
+	
+	ChangeSlot(_currentSlotIndex, true);
 	DEBUG_STRING("Collected Item");
 }
 
@@ -233,7 +224,8 @@ void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
 		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(itemIDs[i]);
 		if (itemClass == nullptr)
 		{ PW_Utilities::Log("ITEM CLASS IS NULL!"); continue; }
-		items.Add(GetWorld()->SpawnActor<APW_ItemObject>(itemClass));
+		APW_ItemObject* item = GetWorld()->SpawnActor<APW_ItemObject>(itemClass);
+		items.Add(item);
 		DEBUG_STRING("Spawned Item");
 	}
 
@@ -242,11 +234,45 @@ void UPW_InventoryHandler::LocalLoadItems(const TArray<FString>& itemIDs)
 
 	itemDelegate.BindLambda([items, this]()
 	{
-		for (int i = 0; i < items.Num(); i++)
-			CollectItem(items[i]);
+		CollectItems(items);
 	});
-
+	
 	GetWorld()->GetTimerManager().SetTimer(itemTimer, itemDelegate, 1.0f, false);
+}
+
+void UPW_InventoryHandler::CollectItems(const TArray<APW_ItemObject*>& items)
+{
+	for ( int i = 0; i < items.Num(); i++)
+	{
+		APW_ItemObject* collectedItem = items[i];
+		
+		if (collectedItem == nullptr)
+		{DEBUG_STRING("COLLECTED ITEM IS NULL!"); return;}
+			
+		const EItemType itemType = items[i]->GetItemType();
+
+		int slotIndex = 0;
+		const bool foundSlot = TryGetSlotIndex(itemType, slotIndex);
+
+		if (!foundSlot)
+		{DEBUG_STRING("NO AVAILABLE SLOT!"); return; }
+
+		_inventorySlots[slotIndex].SetItem(collectedItem);
+
+		_ownerCharacter = Cast<APW_Character>(GetOwner());
+	
+		USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
+
+		if (itemPosition == nullptr)
+		{ DEBUG_STRING("ITEM POSITION IS NULL!"); return; }
+	
+		collectedItem->SetOwner(_ownerCharacter);
+		collectedItem->UpdateItemState(EItemObjectState::EHeld);
+		collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		collectedItem->SetVisibility(false);
+	}
+
+	ChangeSlot(_currentSlotIndex, true);
 }
 
 TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()
