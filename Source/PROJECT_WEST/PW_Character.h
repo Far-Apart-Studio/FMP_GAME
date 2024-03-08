@@ -7,6 +7,7 @@
 #include "Items/PW_Item.h"
 #include "PW_Character.generated.h"
 
+class APW_BountyGameMode;
 class UCameraComponent;
 class UPW_ItemHandlerComponent;
 class UPW_HealthComponent;
@@ -40,12 +41,23 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	USpringArmComponent* _springArmComponent;
 
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float _sprintDoublePressTime = 0.2f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	APW_PlayerController* _playerController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	APW_BountyGameMode* _bountyGameMode;
+
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
-
-	class APW_PlayerController* _playerController;
-	class APW_BountyGameMode* _bountyGameMode;
+	
 	bool _LeftGame = false;
+	bool _isPressedSprint = false;
+	FTimerHandle _sprintTimerHandle;
+	FTimerDelegate _sprintTimerDelegate;
+	
 public:
 	
 	APW_Character();
@@ -78,6 +90,9 @@ public:
 	FButtonPressedDelegate OnLeftGameDelegate;
 
 	UPROPERTY(BlueprintAssignable)
+	FButtonPressedDelegate OnDashButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnStartInteractButtonPressed;
 
 	UPROPERTY(BlueprintAssignable)
@@ -91,6 +106,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnSprintButtonPressed;
+
+	UPROPERTY(BlueprintAssignable)
+	FButtonPressedDelegate OnSprintButtonReleased;
 
 	UPROPERTY(BlueprintAssignable)
 	FAxisModifiedDelegate OnMoveForwardAxisPressed;
@@ -136,7 +154,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	void ReloadButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
@@ -150,6 +168,7 @@ public:
 	void LookUpAxisPressed(float value);
 	void DropButtonPressed();
 	void SprintButtonPressed();
+	void SprintButtonReleased();
 	void ToggleMovement(bool canMove) {}
 	void StartInteractButtonPressed();
 	void EndInteractButtonPressed();

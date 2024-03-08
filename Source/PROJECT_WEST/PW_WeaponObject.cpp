@@ -154,19 +154,11 @@ void APW_WeaponObject::CastBulletRay(UCameraComponent* cameraComponent)
 
 	bool isActorHit = CastRay(rayStart, rayDestination, collisionQueryParams, hitResult);
 	
-	OnWeaponHit.Broadcast(hitResult, rayStart, rayDestination);
+	OnWeaponSuccessfulFire.Broadcast(hitResult, rayStart, rayDestination);
 	QueueWeaponRecoil();
 	
 	if (isActorHit)
-	{
-		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Green,
-			false, 2.0f, 0, 2.0f);
-	}
-	else
-	{
-		DrawDebugLine(GetWorld(), rayStart, rayDestination, FColor::Red,
-			false, 2.0f, 0, 2.0f);
-	}
+		OnWeaponHit.Broadcast(hitResult);
 	
 	ApplyDamage(hitResult);
 	if (IsAmmoEmpty())

@@ -3,11 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DebugMacros.h"
-#include "DelayAction.h"
 #include "LatentActions.h"
 #include "PW_Character.h"
-#include "Kismet/GameplayStatics.h"
 
 /**
  * 
@@ -39,7 +36,6 @@ public:
 		characterObject->AddControllerYawInput(horizontalRecoilThisFrame);
 		characterObject->AddControllerPitchInput(verticalRecoilThisFrame);
 		
-		Response.DoneIf(timeRemaining <= 0.0f);
 		Response.FinishAndTriggerIf(timeRemaining <= 0.0f, ExecutionFunction, 0 , CallbackTarget);
 	}
 };
