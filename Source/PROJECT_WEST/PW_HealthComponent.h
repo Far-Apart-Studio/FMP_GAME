@@ -52,6 +52,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
 	float _combatRecoveryDelay = 0.0f;
 
+	UPROPERTY(Replicated, EditAnywhere, Category = "Health Handler")
+	bool _canNaturallyRegenerate = false;
+
 	UPROPERTY(Replicated, VisibleAnywhere, Category = "Health Handler")
 	bool _isAlive = true;
 
@@ -105,6 +108,8 @@ public:
 	void LocalTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 	void SetIsInvulnerable(bool isInvulnerable);
 	void LocalSetIsInvulnerable(bool isInvulnerable);
+	void SetCanNaturallyRegenerate(bool canNaturallyRegenerate);
+	void LocalSetCanNaturallyRegenerate(bool canNaturallyRegenerate);
 	void RegenerateHealth();
 	bool CanReceiveDamage(float damageAmount) const;
 	bool CanRecoverHealth();
@@ -113,8 +118,10 @@ public:
 	UFUNCTION(Server, Reliable) void ServerRecoverHealth(float recoverValue);
 	UFUNCTION(Server, Reliable) void ServerTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 	UFUNCTION(Server, Reliable) void ServerSetIsInvulnerable(bool isInvulnerable);
+	UFUNCTION(Server, Reliable) void ServerSetCanNaturallyRegenerate(bool canNaturallyRegenerate);
 	UFUNCTION(NetMulticast, Reliable) void MulticastHealthModified(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController, float ModificationAmount);
 
 	FORCEINLINE bool IsAlive() const { return _isAlive; }
 	FORCEINLINE bool IsInvulnerable() const { return _isInvulnerable; }
+	FORCEINLINE bool CanNaturallyRegenerate() const { return _canNaturallyRegenerate; }
 };

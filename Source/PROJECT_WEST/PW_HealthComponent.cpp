@@ -26,6 +26,8 @@ void UPW_HealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UPW_HealthComponent, _currentHealth);
 	DOREPLIFETIME(UPW_HealthComponent, _isAlive);
+	DOREPLIFETIME(UPW_HealthComponent, _isInvulnerable);
+	DOREPLIFETIME(UPW_HealthComponent, _canNaturallyRegenerate);
 }
 
 void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -86,7 +88,7 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 }
 
 void UPW_HealthComponent::LocalTakeDamage(AActor* ownerActor, float damageAmount,
-	const UDamageType* damageType,AController* instigatedBy, AActor* damageCauser)
+                                          const UDamageType* damageType,AController* instigatedBy, AActor* damageCauser)
 {
 	AActor* actorOwner = GetOwner();
 	_currentHealth = FMath::Clamp(_currentHealth - damageAmount, _minimumHealth, _maxHealth);
@@ -125,8 +127,28 @@ void UPW_HealthComponent::ServerTakeDamage_Implementation(AActor* ownerActor, fl
 		LocalTakeDamage(ownerActor, damageAmount, damageType, instigatedBy, damageCauser);
 }
 
+void UPW_HealthComponent::SetCanNaturallyRegenerate(bool canNaturallyRegenerate)
+{
+	GetOwnerRole() == ROLE_Authority ? LocalSetCanNaturallyRegenerate(canNaturallyRegenerate)
+	: ServerSetCanNaturallyRegenerate(canNaturallyRegenerate);
+}
+
+void UPW_HealthComponent::LocalSetCanNaturallyRegenerate(bool canNaturallyRegenerate)
+{
+	_canNaturallyRegenerate = canNaturallyRegenerate;
+}
+
+void UPW_HealthComponent::ServerSetCanNaturallyRegenerate_Implementation(bool canNaturallyRegenerate)
+{
+	if (GetOwnerRole() == ROLE_Authority)
+		LocalSetCanNaturallyRegenerate(canNaturallyRegenerate);
+}
+
 void UPW_HealthComponent::RegenerateHealth()
 {
+	if (!_canNaturallyRegenerate)
+		return;
+	
 	if (!CanRecoverHealth())
 		return;
 	
