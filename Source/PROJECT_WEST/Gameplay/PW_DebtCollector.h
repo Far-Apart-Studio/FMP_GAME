@@ -7,6 +7,8 @@
 #include "PROJECT_WEST/Interfaces//PW_InteractableInterface.h"
 #include "PW_DebtCollector.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDebtAmountChanged, int32, DebtAmount);
+
 UCLASS()
 class PROJECT_WEST_API APW_DebtCollector : public ACharacter, public IPW_InteractableInterface
 {
@@ -43,11 +45,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtIncreaseValue;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	UPROPERTY(Replicated = OnRep_DebtChanged, VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtAmount;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	bool _isActivated;
+
+	UPROPERTY (BlueprintAssignable, Category = "Gameplay")
+	FOnDebtAmountChanged _onDebtAmountChanged;
+
+	UFUNCTION()
+	void OnRep_DebtChanged();
 
 public:	
 
