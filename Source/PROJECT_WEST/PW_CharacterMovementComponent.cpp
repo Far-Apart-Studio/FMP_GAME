@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_CharacterMovementComponent.h"
-
-#include "DebugMacros.h"
 #include "FDashAction.h"
 #include "FRecoilAction.h"
 #include "PW_Character.h"
@@ -10,7 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
-UPW_CharacterMovementComponent::UPW_CharacterMovementComponent(): _ownerCharacter(nullptr)
+UPW_CharacterMovementComponent::UPW_CharacterMovementComponent():
+	_ownerCharacter(nullptr), _dashData()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -69,7 +68,7 @@ void UPW_CharacterMovementComponent::Dash()
 	if (!CanDash(characterMovement))
 		return;
 
-	_canDash = false;
+	_dashData.CanDash = false;
 	OnDash.Broadcast();
 	
 	FLatentActionInfo latentActionInfo = FLatentActionInfo();
@@ -88,13 +87,14 @@ void UPW_CharacterMovementComponent::Dash()
 
 	const FGuid UUID = FGuid::NewGuid();
 	TUniquePtr<FDashAction> dashAction = MakeUnique<FDashAction>
-		(_dashDuration, _dashSpeed, dashDirection, _dashCurve, _ownerCharacter, latentActionInfo);
+		(_dashData.DashDuration, _dashData.DashSpeed, dashDirection,
+			_dashData.DashCurve, _ownerCharacter, latentActionInfo);
 
 	FLatentActionManager& latentActionManager = GetWorld()->GetLatentActionManager();
 	latentActionManager.AddNewAction(this, UUID.A, dashAction.Get());
 	
-	GetWorld()->GetTimerManager().SetTimer(_dashCooldownTimer, this,
-		&UPW_CharacterMovementComponent::CompleteDashCooldown, _dashCooldown, false);
+	GetWorld()->GetTimerManager().SetTimer(_dashData.DashCooldownTimer, this,
+		&UPW_CharacterMovementComponent::CompleteDashCooldown, _dashData.DashCooldown, false);
 	
 	dashAction.Release();
 }
@@ -107,12 +107,14 @@ void UPW_CharacterMovementComponent::CompleteDash()
 void UPW_CharacterMovementComponent::CompleteDashCooldown()
 {
 	OnDashCooldownComplete.Broadcast();
-	_canDash = true;
+	_dashData.CanDash = true;
 }
 
 bool UPW_CharacterMovementComponent::CanDash(const UCharacterMovementComponent* characterMovement)
 {
-	return characterMovement->IsWalking() && _canDash;
+	return characterMovement->IsWalking()
+	&& _dashData.CanDash
+	&& _ownerCharacter->IsLocallyControlled();
 }
 
 void UPW_CharacterMovementComponent::Sprint()
