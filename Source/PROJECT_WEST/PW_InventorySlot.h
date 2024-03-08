@@ -48,9 +48,6 @@ struct FItems: public FTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY( EditAnywhere,BlueprintReadOnly, Category = Data)
-	FString _id;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class APW_ItemObject> _itemClass;
 };
