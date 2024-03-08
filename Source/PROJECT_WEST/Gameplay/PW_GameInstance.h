@@ -30,5 +30,7 @@ protected:
 
 public:
 
+	UFUNCTION(BlueprintCallable)
+	void ResetGameData() { _gameSessionData = FGameSessionData(); }
 	FORCENOINLINE FGameSessionData& GetGameSessionData() { return _gameSessionData; }
 };

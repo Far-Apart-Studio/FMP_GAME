@@ -33,7 +33,7 @@ void APW_ItemObject::BeginPlay()
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
-	EnterDroppedState();
+	AttachToOwner();
 }
 
 void APW_ItemObject::Tick(float DeltaTime)
@@ -110,6 +110,22 @@ void APW_ItemObject::EnterDroppedState()
 	_itemMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+}
+
+void APW_ItemObject::AttachToOwner()
+{
+	if(GetOwner())
+	{
+		APW_Character* characterOwner = Cast<APW_Character>(GetOwner());
+		if(characterOwner)
+		{
+			if(characterOwner)
+			{
+				AttachToComponent( characterOwner->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				OnSetVisibility();
+			}
+		}
+	}
 }
 
 void APW_ItemObject::OnRep_ItemStateChanged()
