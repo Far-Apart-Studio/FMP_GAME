@@ -85,11 +85,6 @@ public:
 	void CollectItems (const int32 selectedIndex, const TArray<APW_ItemObject*>& items);
 	
 	void AttachAllItems();
-	
-	UFUNCTION( Server, Reliable )
-	void SeverAttachAllItems();
-	void DoAttachAllItems();
-	void LocalAttachAllItems();
 
 	void DropAllItems();
 	UFUNCTION( Server, Reliable )

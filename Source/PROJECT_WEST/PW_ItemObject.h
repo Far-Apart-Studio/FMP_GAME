@@ -57,6 +57,8 @@ protected:
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();
 
+	void AttachToOwner();
+
 	UFUNCTION()
 	virtual void OnRep_ItemStateChanged();	
 

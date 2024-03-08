@@ -6,6 +6,7 @@
 #include "PW_InventorySlot.h"
 #include "PW_ItemObject.h"
 #include "PW_Utilities.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr)
@@ -28,10 +29,8 @@ void UPW_InventoryHandler::BeginPlay()
 	if (_ownerCharacter->IsLocallyControlled())
 	{
 		AssignInputActions();
-
-		//DoAttachAllItems();
 	}
-	
+
 	ChangeSlot(_currentSlotIndex, true);
 }
 
@@ -279,47 +278,6 @@ void UPW_InventoryHandler::CollectItems(const int32 selectedIndex,  const TArray
 	}
 
 	ChangeSlot(selectedIndex, true);
-}
-
-void UPW_InventoryHandler::AttachAllItems()
-{
-	if (_ownerCharacter->HasAuthority())
-		LocalAttachAllItems();
-	else
-		SeverAttachAllItems();
-}
-
-void UPW_InventoryHandler::SeverAttachAllItems_Implementation()
-{
-	if (_ownerCharacter->HasAuthority())
-		LocalAttachAllItems();
-}
-
-void UPW_InventoryHandler::DoAttachAllItems()
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APW_Character* character = Cast<APW_Character>(It->Get()->GetPawn());
-		if (character == nullptr)
-			continue;
-		UPW_InventoryHandler* inventoryHandler = character->FindComponentByClass< UPW_InventoryHandler>();
-		if (inventoryHandler == nullptr)
-			continue;
-		inventoryHandler->LocalAttachAllItems();
-	}
-}
-
-void UPW_InventoryHandler::LocalAttachAllItems()
-{
-	for (int i = 0; i < _inventorySlots.Num(); i++)
-	{
-		APW_ItemObject* item = _inventorySlots[i].GetItem();
-		if (item == nullptr)
-			continue;
-
-		DEBUG_STRING ("ATTACHING ITEM TO CHARACTER : " + item->GetName());
-		item->AttachToComponent(_ownerCharacter->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	}
 }
 
 void UPW_InventoryHandler::DropAllItems()

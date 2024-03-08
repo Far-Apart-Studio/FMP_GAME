@@ -336,7 +336,7 @@ void APW_PlayerController::HideAccouncement()
 {
 	if (_announcementWidget != nullptr)
 	{
-		_announcementWidget->RemoveFromViewport();
+		_announcementWidget->RemoveFromParent();
 	}
 }
 

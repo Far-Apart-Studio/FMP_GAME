@@ -79,7 +79,7 @@ void APW_HUD::HideAccouncement()
 {
 	if (_announcementWidget != nullptr)
 	{
-		_announcementWidget->RemoveFromViewport();
+		_announcementWidget->RemoveFromParent();
 	}
 }
 
