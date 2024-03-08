@@ -13,7 +13,8 @@ class APW_Weapon;
 class UCameraComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FWeaponHitDelegate, FHitResult, HitResult, FVector, StartPoint, FVector, EndPoint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FWeaponSuccessfulFireDelegate, FHitResult, HitResult, FVector, StartPoint, FVector, EndPoint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponHitDelegate, FHitResult, HitResult);
 
 USTRUCT(BlueprintType)
 struct FWeaponObjectRuntimeData
@@ -90,6 +91,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
 	FWeaponDelegate OnHitDamageable;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponSuccessfulFireDelegate OnWeaponSuccessfulFire;
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
 	FWeaponHitDelegate OnWeaponHit;

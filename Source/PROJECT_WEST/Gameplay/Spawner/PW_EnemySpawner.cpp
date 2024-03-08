@@ -130,7 +130,7 @@ void APW_EnemySpawner::TryAssignDeathEvent(AActor* actor)
 	UPW_HealthComponent* healthComponent = actor->FindComponentByClass<UPW_HealthComponent>();
 	if (healthComponent)
 	{
-		healthComponent->OnDeath.AddDynamic(this, &APW_EnemySpawner::OnActorDeath);
+		healthComponent->OnDeathGlobal.AddDynamic(this, &APW_EnemySpawner::OnActorDeath);
 	}
 }
 

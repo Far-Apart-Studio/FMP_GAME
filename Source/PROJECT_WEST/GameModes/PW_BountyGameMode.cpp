@@ -255,7 +255,7 @@ void APW_BountyGameMode::SpawnBountyEnemy()
 		if (healthComponent)
 		{
 			//DEBUG_STRING( "Bounty enemy spawned and health component found" );
-			healthComponent->OnDeath.AddDynamic(this, &APW_BountyGameMode::OnBountyDead);
+			healthComponent->OnDeathGlobal.AddDynamic(this, &APW_BountyGameMode::OnBountyDead);
 		}
 	}
 }
@@ -351,7 +351,7 @@ void APW_BountyGameMode::SpawnEnemies()
 				UPW_HealthComponent* healthComponent = enemy->FindComponentByClass<UPW_HealthComponent>();
 				if (healthComponent)
 				{
-					healthComponent->OnDeath.AddDynamic(this, &APW_BountyGameMode::EnemyEliminated);
+					healthComponent->OnDeathGlobal.AddDynamic(this, &APW_BountyGameMode::EnemyEliminated);
 				}
 				_enemyCount++;
 			}

@@ -60,8 +60,8 @@ void APW_SnareTrap::BeginPlay()
 	if (HasAuthority())
 	{
 		_triggerVolume->OnComponentBeginOverlap.AddDynamic(this, &APW_SnareTrap::OnOverlapBegin);
-		_healthComponent->OnHealthChanged.AddDynamic(this, &APW_SnareTrap::OnHealthChanged);
-		_healthComponent->OnDeath.AddDynamic(this, &APW_SnareTrap::OnDeath);
+		_healthComponent->OnHealthChangedGlobal.AddDynamic(this, &APW_SnareTrap::OnHealthChanged);
+		_healthComponent->OnDeathGlobal.AddDynamic(this, &APW_SnareTrap::OnDeath);
 		_materialEffectComponent->_onHighlightComplete.AddDynamic(this, &APW_SnareTrap::OnHighlightComplete);
 	}
 

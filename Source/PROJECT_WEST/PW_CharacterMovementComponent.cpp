@@ -3,12 +3,14 @@
 #include "PW_CharacterMovementComponent.h"
 
 #include "DebugMacros.h"
+#include "FDashAction.h"
+#include "FRecoilAction.h"
 #include "PW_Character.h"
 #include "PW_Utilities.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
-UPW_CharacterMovementComponent::UPW_CharacterMovementComponent()
+UPW_CharacterMovementComponent::UPW_CharacterMovementComponent(): _ownerCharacter(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -54,6 +56,65 @@ void UPW_CharacterMovementComponent::Jump()
 	_ownerCharacter->Jump();
 }
 
+void UPW_CharacterMovementComponent::Dash()
+{
+	if (_ownerCharacter == nullptr)
+		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
+
+	const UCharacterMovementComponent* characterMovement = _ownerCharacter->GetCharacterMovement();
+
+	if (characterMovement == nullptr)
+		{ PW_Utilities::Log("CHARACTER MOVEMENT NOT FOUND!"); return; }
+
+	if (!CanDash(characterMovement))
+		return;
+
+	_canDash = false;
+	OnDash.Broadcast();
+	
+	FLatentActionInfo latentActionInfo = FLatentActionInfo();
+	latentActionInfo.CallbackTarget = this;
+	latentActionInfo.ExecutionFunction = "CompleteDash";
+
+	const float moveRight = _ownerCharacter->GetInputAxisValue("MoveRight");
+	const float moveForward = _ownerCharacter->GetInputAxisValue("MoveForward");
+
+	const FVector forwardDirection = _ownerCharacter->GetActorForwardVector() * moveForward;
+	const FVector rightDirection = _ownerCharacter->GetActorRightVector() * moveRight;
+	FVector dashDirection = forwardDirection + rightDirection;
+
+	if (dashDirection.Size() == 0.0f)
+		dashDirection = _ownerCharacter->GetActorForwardVector();
+
+	const FGuid UUID = FGuid::NewGuid();
+	TUniquePtr<FDashAction> dashAction = MakeUnique<FDashAction>
+		(_dashDuration, _dashSpeed, dashDirection, _dashCurve, _ownerCharacter, latentActionInfo);
+
+	FLatentActionManager& latentActionManager = GetWorld()->GetLatentActionManager();
+	latentActionManager.AddNewAction(this, UUID.A, dashAction.Get());
+	
+	GetWorld()->GetTimerManager().SetTimer(_dashCooldownTimer, this,
+		&UPW_CharacterMovementComponent::CompleteDashCooldown, _dashCooldown, false);
+	
+	dashAction.Release();
+}
+
+void UPW_CharacterMovementComponent::CompleteDash()
+{
+	OnDashComplete.Broadcast();
+}
+
+void UPW_CharacterMovementComponent::CompleteDashCooldown()
+{
+	OnDashCooldownComplete.Broadcast();
+	_canDash = true;
+}
+
+bool UPW_CharacterMovementComponent::CanDash(const UCharacterMovementComponent* characterMovement)
+{
+	return characterMovement->IsWalking() && _canDash;
+}
+
 void UPW_CharacterMovementComponent::Sprint()
 {
 	_ownerCharacter->HasAuthority() ? LocalSprint() : ServerSprint();
@@ -86,6 +147,12 @@ void UPW_CharacterMovementComponent::AssignInputActions()
 	
 	_ownerCharacter->OnSprintButtonPressed.AddDynamic
 		(this, &UPW_CharacterMovementComponent::Sprint);
+
+	_ownerCharacter->OnSprintButtonReleased.AddDynamic
+		(this, &UPW_CharacterMovementComponent::Sprint);
+
+	_ownerCharacter->OnDashButtonPressed.AddDynamic
+		(this, &UPW_CharacterMovementComponent::Dash);
 }
 
 void UPW_CharacterMovementComponent::GetOwnerCharacter()
@@ -99,9 +166,4 @@ void UPW_CharacterMovementComponent::GetOwnerCharacter()
 	
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
-}
-
-void UPW_CharacterMovementComponent::ServerMoveForward_Implementation(const FVector& moveDirection, float value)
-{
-	
 }

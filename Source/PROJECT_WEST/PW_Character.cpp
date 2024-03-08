@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
+
+#include "FRecoilAction.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -44,6 +46,7 @@ void APW_Character::OnDeath(AActor* OwnerActor,AActor* DamageCauser, AController
 
 void APW_Character::OnHealthChanged()
 {
+	
 }
 
 void APW_Character::PostInitializeComponents()
@@ -63,8 +66,8 @@ void APW_Character::PostInitializeComponents()
 		_healthComponent = FindComponentByClass<UPW_HealthComponent>();
 		if (_healthComponent)
 		{
-			_healthComponent->OnHealthChanged.AddDynamic(this, &APW_Character::OnHealthChanged);
-			_healthComponent->OnDeath.AddDynamic(this, &APW_Character::OnDeath);
+			_healthComponent->OnHealthChangedGlobal.AddDynamic(this, &APW_Character::OnHealthChanged);
+			_healthComponent->OnDeathGlobal.AddDynamic(this, &APW_Character::OnDeath);
 		}
 	}
 }
@@ -89,15 +92,12 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("PrimaryUse", IE_Pressed, this, &APW_Character::UseButtonPressed);
 	PlayerInputComponent->BindAction("PrimaryUse", IE_Released, this, &APW_Character::UseButtonReleased);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APW_Character::SprintButtonPressed);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APW_Character::SprintButtonReleased);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::StartInteractButtonPressed);
 	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::EndInteractButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Cycle", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
-	PlayerInputComponent->BindAxis("MoveForward", this, &APW_Character::MoveForwardAxisPressed);
-	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
-	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookUpAxisPressed);
-	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookRightAxisPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APW_Character::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APW_Character::AimButtonReleased);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APW_Character::ReloadButtonPressed);
@@ -107,6 +107,10 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("SlotTwo", IE_Pressed, this, &APW_Character::SlotTwoPressed);
 	PlayerInputComponent->BindAction("SlotThree", IE_Pressed, this, &APW_Character::SlotThreePressed);
 	PlayerInputComponent->BindAction("SlotFour", IE_Pressed, this, &APW_Character::SlotFourPressed);
+	PlayerInputComponent->BindAxis("MoveForward", this, &APW_Character::MoveForwardAxisPressed);
+	PlayerInputComponent->BindAxis("MoveRight", this, &APW_Character::MoveRightAxisPressed);
+	PlayerInputComponent->BindAxis("LookUp", this, &APW_Character::LookUpAxisPressed);
+	PlayerInputComponent->BindAxis("LookRight", this, &APW_Character::LookRightAxisPressed);
 }
 
 void APW_Character::ReloadButtonPressed()
@@ -172,6 +176,22 @@ void APW_Character::JumpButtonPressed()
 void APW_Character::SprintButtonPressed()
 {
 	OnSprintButtonPressed.Broadcast();
+
+	if (_isPressedSprint)
+		OnDashButtonPressed.Broadcast();
+	
+	_isPressedSprint = true;
+
+	_sprintTimerDelegate.BindLambda([this]()
+		{_isPressedSprint = false; });
+
+	GetWorldTimerManager().SetTimer(_sprintTimerHandle, _sprintTimerDelegate,
+		_sprintDoublePressTime, false);
+}
+
+void APW_Character::SprintButtonReleased()
+{
+	OnSprintButtonReleased.Broadcast();
 }
 
 void APW_Character::MoveForwardAxisPressed(float value)

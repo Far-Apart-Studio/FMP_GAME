@@ -6,10 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "PW_HealthComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReachedHealthThreshold);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHealthChanged);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDeath,AActor*, OwnerActor, AActor*, DamageCauser,AController*, DamageCauserController);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnResetHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHealthDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageReceivedDelegate, AActor*, OwnerActor, AActor*, DamageCauser, AController*, DamageCauserController, float, DamageAmount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDeathDelegate, AActor*, OwnerActor, AActor*, DamageCauser, AController*, DamageCauserController);
 
 USTRUCT()
 struct FHealthMilestone
@@ -20,7 +19,7 @@ struct FHealthMilestone
 	float HealthThreshold = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
-	FOnReachedHealthThreshold OnReachHealthThreshold;
+	FHealthDelegate OnReachHealthThreshold;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -35,11 +34,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _minimumHealth = 0.0f;
 
-	UPROPERTY(ReplicatedUsing = OnRep_OnHealthChange, EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _currentHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
 	float _defaultHealth = 100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Health Handler")
+	float _recoveryMaximumHealth = 50.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
 	float _healthRecoveryRate = 0.0f;
@@ -48,26 +50,47 @@ private:
 	float _healthRecoveryAmount = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
-	float _healthRecoveryDelay = 0.0f;
+	float _combatRecoveryDelay = 0.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Health Handler")
-	bool _canRecoverHealth = false;
+	UPROPERTY(Replicated, EditAnywhere, Category = "Health Handler")
+	bool _canNaturallyRegenerate = false;
 
-	UPROPERTY(Replicated,VisibleAnywhere, Category = "Health Handler")
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Health Handler")
 	bool _isAlive = true;
 
-	UPROPERTY(EditAnywhere, Category = "Health Handler")
-	TArray<FHealthMilestone> _healthMilestones;
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Health Handler")
+	bool _isInvulnerable = false;
+
+	float _lastRecoveredHealth = 0.0f;
+	float _lastTakenDamage = 0.0f;
 	
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
-	FOnHealthChanged OnHealthChanged;
-	
-	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
-	FOnDeath OnDeath;
+	FHealthDelegate OnHealthChangedGlobal;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
-	FOnResetHealth OnResetHealth;
+	FHealthDelegate OnHealthChangedLocal;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDamageReceivedDelegate OnDamageReceivedGlobal;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDamageReceivedDelegate OnDamageReceivedLocal;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDamageReceivedDelegate OnHealingReceivedGlobal;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDamageReceivedDelegate OnHealingReceivedLocal;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDeathDelegate OnDeathGlobal;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDeathDelegate OnDeathLocal;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FHealthDelegate OnInvulnerabilityGlobal;
 
 public:
 	
@@ -77,15 +100,28 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION()
-	void OnRep_OnHealthChange(float lastHealth);
-
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 	void RecoverHealth(float recoverValue);
-	void ResetHealth();
-	UFUNCTION()
-	void TakeDamage(AActor* DamageActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	void LocalRecoverHealth(float recoverValue);
+	void LocalTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	void SetIsInvulnerable(bool isInvulnerable);
+	void LocalSetIsInvulnerable(bool isInvulnerable);
+	void SetCanNaturallyRegenerate(bool canNaturallyRegenerate);
+	void LocalSetCanNaturallyRegenerate(bool canNaturallyRegenerate);
+	void RegenerateHealth();
+	bool CanReceiveDamage(float damageAmount) const;
+	bool CanRecoverHealth();
+	
+	UFUNCTION() void TakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	UFUNCTION(Server, Reliable) void ServerRecoverHealth(float recoverValue);
+	UFUNCTION(Server, Reliable) void ServerTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	UFUNCTION(Server, Reliable) void ServerSetIsInvulnerable(bool isInvulnerable);
+	UFUNCTION(Server, Reliable) void ServerSetCanNaturallyRegenerate(bool canNaturallyRegenerate);
+	UFUNCTION(NetMulticast, Reliable) void MulticastHealthModified(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController, float ModificationAmount);
 
 	FORCEINLINE bool IsAlive() const { return _isAlive; }
+	FORCEINLINE bool IsInvulnerable() const { return _isInvulnerable; }
+	FORCEINLINE bool CanNaturallyRegenerate() const { return _canNaturallyRegenerate; }
 };
