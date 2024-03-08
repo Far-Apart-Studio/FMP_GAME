@@ -14,6 +14,7 @@ class UPW_InventorySlot;
 class APW_Character;
 class APW_WeaponObject;
 struct FInventorySlot;
+struct FPlayerInventoryDataEntry;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
@@ -34,7 +35,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
 	float _throwVelocityMultiplier = 5.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Inventory",meta = (AllowPrivateAccess = "true"))
 	int _currentSlotIndex = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -68,23 +69,32 @@ public:
 	UFUNCTION(Server, Reliable) void ServerDropItem(int slotIndex);
 	
 	void ChangeSlot(int targetedSlotIndex, bool forceChangeSlot = false);
+	UFUNCTION(Server, Reliable)
+	void SeverChangeSlot(int targetedSlotIndex);
+	void LocalChangeSlot(int targetedSlotIndex);
+	
 	bool IsSlotValid(int slotIndex);
 	bool TryGetSlotIndex(EItemType itemType, int& outIndex);
 
 	void CyclePreviousSlot();
-	
-	void LoadItems (const TArray<APW_ItemObject*>& items);
 
-	void LoadItemsByID (const TArray<FString>& itemIDs);
+	void LoadItemsFromData (const FPlayerInventoryDataEntry& inventoryData);
 	UFUNCTION( Server, Reliable )
-	void ServerLoadItems(const TArray<FString>& itemIDs);
-	void LocalLoadItems(const TArray<FString>& itemIDs);
-	void CollectItems (const TArray<APW_ItemObject*>& items);
+	void ServerLoadFromData (const FPlayerInventoryDataEntry& inventoryData);
+	void LocalLoadFromData (const FPlayerInventoryDataEntry& inventoryData);
+	void CollectItems (const int32 selectedIndex, const TArray<APW_ItemObject*>& items);
 	
 	void AttachAllItems();
+	
 	UFUNCTION( Server, Reliable )
 	void SeverAttachAllItems();
+	void DoAttachAllItems();
 	void LocalAttachAllItems();
+
+	void DropAllItems();
+	UFUNCTION( Server, Reliable )
+	void ServerDropAllItems();
+	void LocalDropAllItems();
 
 	TArray<FString> GetInventoryItemIDs();
 
@@ -97,6 +107,5 @@ public:
 	UFUNCTION(BlueprintCallable) void CycleDown();
 	UFUNCTION(BlueprintCallable) void ToSlot(int targetedSlotIndex);
 	UFUNCTION(BlueprintCallable) void DropCurrentItem();
-	UFUNCTION(BlueprintCallable) void DropAll();
-
+	FORCENOINLINE int GetCurrentSlotIndex() const { return _currentSlotIndex; }
 };

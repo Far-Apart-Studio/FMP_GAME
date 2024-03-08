@@ -150,6 +150,10 @@ bool APW_AutoEnemySpawner::AnyPlayerInRange(FVector location)
 	
 	for (AActor* player : players)
 	{
+		UPW_HealthComponent* healthComponent = player->FindComponentByClass<UPW_HealthComponent>();
+		if (!healthComponent || !healthComponent->IsAlive())
+			continue;
+		
 		float distance = FVector::Dist(location, player->GetActorLocation());
 		if (distance < _minDistanceToPlayer)
 		{

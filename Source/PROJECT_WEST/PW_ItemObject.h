@@ -42,8 +42,11 @@ private:
 	UPROPERTY(Replicated, EditAnywhere, Category = "Item Object")
 	UStaticMeshComponent* _itemMesh;
 	
-	UPROPERTY(Replicated, EditAnywhere, Category = "Item Object")
+	UPROPERTY(ReplicatedUsing = OnRep_ItemStateChanged, EditAnywhere, Category = "Item Object")
 	EItemObjectState _itemState;
+
+	UPROPERTY(ReplicatedUsing = OnRep_VisibilityChange, VisibleAnywhere, Category = "Item Properties")
+	bool _isVisible;
 
 	UPROPERTY(Replicated, VisibleAnywhere, Category = "Item Object")
 	bool _isActive;
@@ -53,6 +56,12 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();
+
+	UFUNCTION()
+	virtual void OnRep_ItemStateChanged();	
+
+	UFUNCTION()
+	virtual void OnRep_VisibilityChange();
 
 public:
 	
@@ -68,16 +77,16 @@ public:
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner);
 	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
 
-	void SetVisibility(bool isVisible);
-	void LocalSetVisibility(bool isVisible);
-	UFUNCTION(Server, Reliable) void ServerSetVisibility(bool isVisible);
+	virtual void SetVisibility(bool isVisible);
+	void OnSetVisibility();
 
-	UFUNCTION(NetMulticast, Reliable) void MulticastSetChildVisibility(bool isVisible);
+	void UpdateItemType(EItemType updatedType);
 	
 	void EnableItem(APW_Character* characterOwner);
 	void DisableItem(APW_Character* characterOwner);
 	void UpdateItemState(EItemObjectState updatedState);
-	void UpdateItemType(EItemType updatedType);
+	void OnUpdateItemState();
+
 
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;

@@ -12,6 +12,8 @@
 APW_ItemObject::APW_ItemObject()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	
 	_itemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
 	_itemMesh->SetIsReplicated(true);
 	
@@ -44,6 +46,7 @@ void APW_ItemObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(APW_ItemObject, _itemState);
+	DOREPLIFETIME(APW_ItemObject, _isVisible);
 	DOREPLIFETIME(APW_ItemObject, _isActive);
 	DOREPLIFETIME(APW_ItemObject, _itemMesh);
 }
@@ -90,6 +93,7 @@ void APW_ItemObject::EnterHeldState()
 	_itemMesh->SetSimulatePhysics(false);
 	_itemMesh->SetEnableGravity(false);
 	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	_itemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 }
 
 void APW_ItemObject::EnterDroppedState()
@@ -108,27 +112,35 @@ void APW_ItemObject::EnterDroppedState()
 	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
+void APW_ItemObject::OnRep_ItemStateChanged()
+{
+	OnUpdateItemState();
+}
+
+void APW_ItemObject::OnRep_VisibilityChange()
+{
+	OnSetVisibility();
+}
+
 #pragma region SetVisibility
 void APW_ItemObject::SetVisibility(bool isVisible)
 {
-	HasAuthority() ? LocalSetVisibility(isVisible) : ServerSetVisibility(isVisible);
+	_isVisible = isVisible;
+	OnSetVisibility();
 }
 
-void APW_ItemObject::LocalSetVisibility(bool isVisible)
+void APW_ItemObject::OnSetVisibility()
 {
 	if (_itemMesh == nullptr)
-		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+	{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
 
-	//_itemMesh->SetVisibility(isVisible);
-	MulticastSetChildVisibility(isVisible);
-}
+	TArray<USceneComponent*> childMeshes;
+	_itemMesh->GetChildrenComponents(true, childMeshes);
+	
+	for (USceneComponent* childMesh : childMeshes)
+		childMesh->SetVisibility(_isVisible);
 
-void APW_ItemObject::ServerSetVisibility_Implementation(bool isVisible)
-{
-	if (HasAuthority())
-	{
-		LocalSetVisibility(isVisible);
-	}
+	_isActive = _isVisible;
 }
 
 #pragma endregion SetVisibility
@@ -137,7 +149,13 @@ void APW_ItemObject::ServerSetVisibility_Implementation(bool isVisible)
 
 void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
 {
-	switch (updatedState)
+	_itemState = updatedState;
+	OnUpdateItemState();
+}
+
+void APW_ItemObject::OnUpdateItemState()
+{
+	switch (_itemState)
 	{
 	case EItemObjectState::EHeld:
 		EnterHeldState();
@@ -146,8 +164,6 @@ void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
 		EnterDroppedState();
 		break;
 	}
-
-	_itemState = updatedState;
 }
 
 #pragma endregion UpdateItemStateNetworked
@@ -196,18 +212,6 @@ void APW_ItemObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 }
 
 #pragma endregion RemoveActionBindings
-
-
-void APW_ItemObject::MulticastSetChildVisibility_Implementation(bool isVisible)
-{
-	TArray<USceneComponent*> childMeshes;
-	_itemMesh->GetChildrenComponents(true, childMeshes);
-	
-	for (USceneComponent* childMesh : childMeshes)
-		childMesh->SetVisibility(isVisible);
-
-	_isActive = isVisible;
-}
 
 void APW_ItemObject::EnableItem(APW_Character* characterOwner)
 {

@@ -62,6 +62,9 @@ struct FPlayerInventoryDataEntry
 
 	UPROPERTY( EditAnywhere,BlueprintReadOnly, Category = Data)
 	FString _playerName;
+
+	UPROPERTY( EditAnywhere,BlueprintReadOnly, Category = Data)
+	int32 _selectedSlotIndex;
 	
 	UPROPERTY( EditAnywhere,BlueprintReadOnly,Category = Data)
 	TArray<FString> _itemIDs;
@@ -75,19 +78,27 @@ struct FPlayersInventoryData
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Data)
 	TArray<FPlayerInventoryDataEntry> _playerInventorys;
 	
-	void AddInventory(const FString& playerName, const TArray<FString>& inventoryItemIDs)
+	void AddInventory(const FString& playerName, const TArray<FString>& inventoryItemIDs, int32 selectedSlotIndex)
 	{
 		FPlayerInventoryDataEntry newEntry;
 		newEntry._playerName = playerName;
 		newEntry._itemIDs = inventoryItemIDs;
+		newEntry._selectedSlotIndex = selectedSlotIndex;
 		_playerInventorys.Add(newEntry);
 	}
 
-	void Reset()
+	FPlayerInventoryDataEntry GetInventoryData(const FString& playerName)
 	{
-		_playerInventorys.Empty();
+		for (int i = 0; i < _playerInventorys.Num(); i++)
+		{
+			if (_playerInventorys[i]._playerName == playerName)
+			{
+				return _playerInventorys[i];
+			}
+		}
+		return FPlayerInventoryDataEntry();
 	}
-
+	
 	TArray<FString> GetInventoryItemIDs(FString playerName)
 	{
 		for (int i = 0; i < _playerInventorys.Num(); i++)
@@ -99,4 +110,10 @@ struct FPlayersInventoryData
 		}
 		return TArray<FString>();
 	}
+
+	void Reset()
+	{
+		_playerInventorys.Empty();
+	}
+
 };

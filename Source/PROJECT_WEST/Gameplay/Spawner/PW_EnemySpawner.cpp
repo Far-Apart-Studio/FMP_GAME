@@ -112,9 +112,17 @@ bool APW_EnemySpawner::CanSpawnEnemy()
 
 int APW_EnemySpawner::GetNumberOfCharactersInLevel()
 {
+	int result = 0;
 	TArray< AActor* > players;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APW_Character::StaticClass(), players);
-	return players.Num();
+	for (AActor* player : players)
+	{
+		UPW_HealthComponent* healthComponent = player->FindComponentByClass<UPW_HealthComponent>();
+		if (!healthComponent || !healthComponent->IsAlive())
+			continue;
+		result++;
+	}
+	return result;
 }
 
 void APW_EnemySpawner::TryAssignDeathEvent(AActor* actor)
