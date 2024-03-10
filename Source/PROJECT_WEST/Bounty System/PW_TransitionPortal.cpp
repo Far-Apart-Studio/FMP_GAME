@@ -36,6 +36,8 @@ void APW_TransitionPortal::BeginPlay()
 	{
 		_lobbyGameMode = Cast<APW_LobbyGameMode>(GetWorld()->GetAuthGameMode());
 	}
+
+	OnActivationChangedDelegate.Broadcast(_isActivated);
 }
 
 void APW_TransitionPortal::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
