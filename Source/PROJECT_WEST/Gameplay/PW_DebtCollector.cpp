@@ -8,6 +8,7 @@
 #include  "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/PW_Character.h"
+#include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 APW_DebtCollector::APW_DebtCollector()
@@ -57,6 +58,16 @@ void APW_DebtCollector::EndFocus_Implementation()
 
 void APW_DebtCollector::StartInteract_Implementation(AActor* owner)
 {
+
+}
+
+bool APW_DebtCollector::HasServerInteraction_Implementation()
+{
+	return true;
+}
+
+void APW_DebtCollector::ServerStartInteract_Implementation(AActor* owner)
+{
 	HandleBounty(owner);
 }
 
@@ -89,17 +100,10 @@ void APW_DebtCollector::SetDebtAmount(int32 day)
 void APW_DebtCollector::HandleBounty(AActor* owner)
 {
 	if (!_isActivated) return;
-	
-	APW_Character* character = Cast<APW_Character>(owner);
-	if (!character) return;
-	
-	APW_PlayerController* playerController = Cast<APW_PlayerController>(character->GetController());
-	if (!playerController) return;
-
-	_isActivated = false;
-	playerController->PayDebtCollector();
-
-
-
-	DEBUG_STRING("Debt paid");
+	_isActivated = true;
+	APW_LobbyGameMode* lobbyGameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
+	if (lobbyGameMode)
+	{
+		lobbyGameMode->TryPayDebtCollector();
+	}
 }

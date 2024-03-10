@@ -38,5 +38,8 @@ public:
 	bool IsInteracting();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
+	bool HasServerInteraction();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
 	void ServerStartInteract(AActor* owner);
 };

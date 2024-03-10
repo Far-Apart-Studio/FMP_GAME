@@ -248,11 +248,6 @@ public:
 	void LocalCollectCurrency(class APW_Currency* currency);
 
 	bool IsAlive();
-	
-	void PayDebtCollector();
-	UFUNCTION( Server, Reliable )
-	void ServerPayDebtCollector();
-	void LocalPayDebtCollector();
 
 	void SpawnAutoEnemySpawner();
 	

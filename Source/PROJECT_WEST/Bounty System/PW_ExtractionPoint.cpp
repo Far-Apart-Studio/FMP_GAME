@@ -61,21 +61,20 @@ void APW_ExtractionPoint::EndFocus_Implementation()
 
 void APW_ExtractionPoint::StartInteract_Implementation(AActor* owner)
 {
-	CheckforWin();
+
 }
 
-void APW_ExtractionPoint::CheckforWin()
+bool APW_ExtractionPoint::HasServerInteraction_Implementation()
 {
-	HasAuthority() ? LocalCheckForWin() : ServerCheckForWin();
+	return true;
 }
 
-void APW_ExtractionPoint::ServerCheckForWin_Implementation()
+void APW_ExtractionPoint::ServerStartInteract_Implementation(AActor* owner)
 {
-	if (!HasAuthority()) return;
-	LocalCheckForWin();
+	CheckForWin();
 }
 
-void APW_ExtractionPoint::LocalCheckForWin()
+void APW_ExtractionPoint::CheckForWin()
 {
 	if(!_canInteract) return;
 	TArray<AActor*> overlappingActors;
@@ -104,7 +103,6 @@ void APW_ExtractionPoint::LocalCheckForWin()
 		}
 	
 		OnWinConditionMet.Broadcast( _winCondition,escapedPlayers );
-		//MulticastRPCWin();
 	}
 }
 

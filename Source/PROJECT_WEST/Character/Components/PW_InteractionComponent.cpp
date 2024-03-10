@@ -94,6 +94,11 @@ void UPW_InteractionComponent::TryStartInteractWithInteractable()
 	{
 		IPW_InteractableInterface::Execute_EndFocus(_lastInteractableActor);
 		IPW_InteractableInterface::Execute_StartInteract(_lastInteractableActor, GetOwner());
+
+		if (IPW_InteractableInterface::Execute_HasServerInteraction(_lastInteractableActor))
+		{
+			StartInteractWithInteractable(_lastInteractableActor, GetOwner());
+		}
 	}
 }
 
@@ -106,3 +111,25 @@ void UPW_InteractionComponent::TryEndInteractWithInteractable()
 	}
 }
 
+void UPW_InteractionComponent::StartInteractWithInteractable(AActor* _interatedActor,AActor* _interactableOwner)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		LocalStartInteractWithInteractable(_interatedActor, _interactableOwner);
+	}
+	else
+	{
+		ServerStartInteractWithInteractable(_interatedActor, _interactableOwner);
+	}
+}
+
+void UPW_InteractionComponent::LocalStartInteractWithInteractable(AActor* _interatedActor,AActor* _interactableOwner)
+{
+	IPW_InteractableInterface::Execute_ServerStartInteract(_interatedActor, _interactableOwner);
+}
+
+void UPW_InteractionComponent::ServerStartInteractWithInteractable_Implementation(AActor* _interatedActor,AActor* _interactableOwner)
+{
+	if (!GetOwner()->HasAuthority()) return;
+	LocalStartInteractWithInteractable(_interatedActor, _interactableOwner);
+}

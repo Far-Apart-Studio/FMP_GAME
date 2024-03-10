@@ -29,6 +29,8 @@ public:
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
+	virtual bool HasServerInteraction_Implementation() override;
+	virtual void ServerStartInteract_Implementation(AActor* owner) override;
 
 	UPROPERTY( BlueprintReadWrite, VisibleAnywhere )
 	bool _canInteract;
@@ -44,11 +46,8 @@ public:
 	
 	UPROPERTY (VisibleAnywhere)
 	class UBoxComponent* _extractionBox;
-
-	void CheckforWin();
-	UFUNCTION( Server, Reliable )
-	void ServerCheckForWin();
-	void LocalCheckForWin();
+	
+	void CheckForWin();
 
 	UPROPERTY(BlueprintAssignable)
 	FWinDelegate OnWinConditionMet;

@@ -26,6 +26,8 @@ protected:
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
+	virtual bool HasServerInteraction_Implementation() override;
+	virtual void ServerStartInteract_Implementation(AActor* owner) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	class UPW_HighlightCompont* _highlightComponent;
