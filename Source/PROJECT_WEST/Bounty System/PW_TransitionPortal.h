@@ -60,5 +60,7 @@ private:
 	void CheckForOverlap();
 
 	UFUNCTION()
-	void OnRep_ActivationChanged();
+	void OnRep_ActivationChanged() const;
+
+	bool _hasAuthority;
 };

@@ -32,11 +32,14 @@ void APW_TransitionPortal::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority())
+	_hasAuthority = HasAuthority();
+
+	if (_hasAuthority)
 	{
 		_lobbyGameMode = Cast<APW_LobbyGameMode>(GetWorld()->GetAuthGameMode());
 	}
 
+	if(_isActivated)
 	OnActivationChangedDelegate.Broadcast(_isActivated);
 }
 
@@ -60,7 +63,7 @@ void APW_TransitionPortal::ToggleActivation(bool value)
 
 void APW_TransitionPortal::CheckForOverlap()
 {
-	if(!HasAuthority() || _winCondition || !_isActivated) return;
+	if(!_hasAuthority || _winCondition || !_isActivated) return;
 	
 	TArray<AActor*> overlappingActors;
 	_extractionBox->GetOverlappingActors(overlappingActors, APW_Character::StaticClass());
@@ -73,7 +76,7 @@ void APW_TransitionPortal::CheckForOverlap()
 	}
 }
 
-void APW_TransitionPortal::OnRep_ActivationChanged()
+void APW_TransitionPortal::OnRep_ActivationChanged() const
 {
 	OnActivationChangedDelegate.Broadcast(_isActivated);
 }
