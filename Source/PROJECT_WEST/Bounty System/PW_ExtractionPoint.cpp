@@ -5,6 +5,7 @@
 #include "PROJECT_WEST/DebugMacros.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/PlayerState.h"
 #include  "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PW_ItemHandlerComponent.h"
 #include "PROJECT_WEST/Items/PW_BountyHead.h"
@@ -45,25 +46,54 @@ void APW_ExtractionPoint::BeginPlay()
 void APW_ExtractionPoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	CheckForWin();
+	//CheckForWin();
 }
 
-void APW_ExtractionPoint::CheckForWin()
+void APW_ExtractionPoint::StartFocus_Implementation()
 {
-	if(!HasAuthority() || !_canInteract) return;
+	DEBUG_STRING( "ExtractionPoint Focused" );
+}
+
+void APW_ExtractionPoint::EndFocus_Implementation()
+{
+	DEBUG_STRING ( "ExtractionPoint Unfocused" );
+}
+
+void APW_ExtractionPoint::StartInteract_Implementation(AActor* owner)
+{
+	CheckforWin();
+}
+
+void APW_ExtractionPoint::CheckforWin()
+{
+	HasAuthority() ? LocalCheckForWin() : ServerCheckForWin();
+}
+
+void APW_ExtractionPoint::ServerCheckForWin_Implementation()
+{
+	if (!HasAuthority()) return;
+	LocalCheckForWin();
+}
+
+void APW_ExtractionPoint::LocalCheckForWin()
+{
+	if(!_canInteract) return;
 	TArray<AActor*> overlappingActors;
 	_extractionBox->GetOverlappingActors(overlappingActors, APW_Character::StaticClass());
 	
 	if(overlappingActors.Num() > 0)
 	{
 		_canInteract = false;
-
 		bool _winCondition = false;
+		TArray<FString> escapedPlayers;
+		
 		for (AActor* actor : overlappingActors)
 		{
 			APW_Character* character = Cast<APW_Character>(actor);
 			if (character)
 			{
+				escapedPlayers.Add(character->GetPlayerState()->GetPlayerName());
+				
 				UPW_ItemHandlerComponent* itemHandler = Cast <UPW_ItemHandlerComponent>(character->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
 				if (itemHandler && itemHandler->HasItemType<APW_BountyHead>())
 				{
@@ -73,14 +103,8 @@ void APW_ExtractionPoint::CheckForWin()
 			}
 		}
 	
-		OnWinConditionMet.Broadcast( _winCondition );
+		OnWinConditionMet.Broadcast( _winCondition,escapedPlayers );
 		//MulticastRPCWin();
 	}
-}
-
-void APW_ExtractionPoint::MulticastRPCWin_Implementation()
-{
-	DEBUG_STRING( "APW_ExtractionPoint::MulticastRPCWin_Implementation" );
-	OnWinConditionMet.Broadcast( _canInteract );
 }
 

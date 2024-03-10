@@ -81,7 +81,8 @@ void APW_DebtCollector::SetDebtAmount(int32 day)
 	const int32 randomAmount = FMath::RandRange(_debtMinStartAmount, _debtMaxStartAmount);
 	const int32 randomIncrease = FMath::RandRange(_debtMinIncreaseAmount, _debtMaxIncreaseAmount);
 	_debtAmount = randomAmount + ((day - 1) * randomIncrease);
-
+	_debtMinIncreaseAmount += _debtIncreaseValue;
+	_debtMaxIncreaseAmount += _debtIncreaseValue;
 	_onDebtAmountChanged.Broadcast(_debtAmount);
 }
 
@@ -98,8 +99,7 @@ void APW_DebtCollector::HandleBounty(AActor* owner)
 	_isActivated = false;
 	playerController->PayDebtCollector();
 
-	_debtMinIncreaseAmount += _debtIncreaseValue;
-	_debtMaxIncreaseAmount += _debtIncreaseValue;
+
 
 	DEBUG_STRING("Debt paid");
 }

@@ -85,7 +85,7 @@ public:
 	void SpawnBountyHead();
 	
 	UFUNCTION()
-	void OnActivateExtrationPoint(bool bWinCondition);
+	void OnActivateExtrationPoint(bool bWinCondition,TArray<FString> escapedPlayers);
 	
 	void SpawnExtractionPoint();
 

@@ -33,6 +33,9 @@ public:
 	
 	UFUNCTION()
 	void TryEndInteractWithInteractable();
+
+	UFUNCTION()
+	void ServerStartInteractWithInteractable(AActor* interactableActor);
 	
 private:
 

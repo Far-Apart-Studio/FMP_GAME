@@ -17,6 +17,8 @@ UPW_InteractionComponent::UPW_InteractionComponent()
 void UPW_InteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	SetIsReplicated( true );
+	
 	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	if(_ownerCharacter && _ownerCharacter->IsLocallyControlled())
 	{

@@ -27,4 +27,7 @@ struct FGameSessionData
 
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
 	FPlayersInventoryData _playersInventoryData;
+
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	TArray<FString> _escapedPlayers;
 };

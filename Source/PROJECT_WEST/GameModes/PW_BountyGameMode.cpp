@@ -276,8 +276,15 @@ void APW_BountyGameMode::SpawnBountyHead()
 	}
 }
 
-void APW_BountyGameMode::OnActivateExtrationPoint(bool bWinCondition)
+void APW_BountyGameMode::OnActivateExtrationPoint(bool bWinCondition, TArray<FString> escapedPlayers)
 {
+	_gameInstance->GetGameSessionData()._escapedPlayers = escapedPlayers;
+	
+	for (FString playerName : escapedPlayers)
+	{
+		DEBUG_STRING( "Escaped player: " + playerName );
+	}
+	
 	if (bWinCondition)
 	{
 		BountySuccessful();

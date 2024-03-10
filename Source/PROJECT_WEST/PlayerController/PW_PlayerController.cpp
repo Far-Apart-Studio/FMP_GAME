@@ -952,8 +952,12 @@ void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSession
 	//DEBUG_STRING ("Loaded Game Session Data : Money - " + FString::FromInt(GameSessionData._money) + " Day - " + FString::FromInt(GameSessionData._dayIndex));
 	_money = GameSessionData._money;
 	_dayIndex = GameSessionData._dayIndex;
-	const FPlayerInventoryDataEntry inventoryData = GameSessionData._playersInventoryData.GetInventoryData(_playerName);
-	LoadInventoryItemsByID(inventoryData);
+
+	if (GameSessionData._escapedPlayers.Contains(_playerName))
+	{
+		const FPlayerInventoryDataEntry inventoryData = GameSessionData._playersInventoryData.GetInventoryData(_playerName);
+		LoadInventoryItemsByID(inventoryData);
+	}
 }
 
 void APW_PlayerController::ServerRequestTime_Implementation(float timeOfClientRequest)
