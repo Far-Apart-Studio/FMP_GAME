@@ -900,7 +900,7 @@ void APW_PlayerController::LoadGameSessionData()
 		{
 			ClientLoadGameSessionData( gameMode->GetGameSessionData());
 			APW_LobbyGameMode* lobbyGameMode = Cast<APW_LobbyGameMode>(gameMode);
-			ClientSetVulnerability (lobbyGameMode != nullptr);
+			SetVulnerability (lobbyGameMode != nullptr);
 		}
 	}
 	else
@@ -909,9 +909,14 @@ void APW_PlayerController::LoadGameSessionData()
 	}
 }
 
-void APW_PlayerController::ClientSetVulnerability_Implementation(bool state)
+void APW_PlayerController::SetVulnerability(bool state)
 {
-	if(!GetPawn()) return;
+	if(!GetPawn())
+	{
+		DEBUG_STRING( "No Pawn Found" );
+		return;
+	}
+	
 	UPW_HealthComponent* healthComponent = Cast<UPW_HealthComponent>(GetPawn()->GetComponentByClass(UPW_HealthComponent::StaticClass()));
 	if (healthComponent)
 	{
@@ -929,7 +934,7 @@ void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 			ClientLoadGameSessionData( gameMode->GetGameSessionData());
 
 			APW_LobbyGameMode* lobbyGameMode = Cast<APW_LobbyGameMode>(gameMode);
-			ClientSetVulnerability (lobbyGameMode != nullptr);
+			SetVulnerability (lobbyGameMode != nullptr);
 		}
 	}
 }
