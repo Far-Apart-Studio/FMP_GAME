@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PW_HealthComponent.h"
+#include "RegenerationHandle.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PW_CharacterMovementComponent.generated.h"
@@ -70,7 +72,13 @@ private:
 	FDashData _dashData;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
+	float _dashStaminaCost = 10.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
 	FStaminaData _staminaData;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	FRegenerationHandle _staminaRegenerationHandle;
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Character")

@@ -37,9 +37,12 @@ public:
 		_timeRemaining -= response.ElapsedTime();
 
 		const float normalisedTime = PWMath::Clamp01(1.0f - (_timeRemaining / _dashDuration));
-		const float dashCurve = _dashCurve->GetFloatValue(normalisedTime);
+		float dashCurveValue = 1.0f;
 		
-		const float actualDashSpeed = _dashSpeed * dashCurve;
+		if (_dashCurve != nullptr)
+			dashCurveValue = _dashCurve->GetFloatValue(normalisedTime);
+		
+		const float actualDashSpeed = _dashSpeed * dashCurveValue;
 		const FVector dashThisFrame = _dashDirection * actualDashSpeed;
 		
 		characterObject->GetCharacterMovement()->Velocity = dashThisFrame;

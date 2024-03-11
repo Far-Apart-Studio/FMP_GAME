@@ -28,6 +28,7 @@ void UPW_CharacterMovementComponent::BeginPlay()
 void UPW_CharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	_staminaRegenerationHandle.Regenerate(_staminaData.CurrentStamina, DeltaTime);
 }
 
 void UPW_CharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -47,7 +48,8 @@ void UPW_CharacterMovementComponent::MoveForward(float value)
 void UPW_CharacterMovementComponent::MoveRight(float value)
 {
 	const FVector moveDirection = _ownerCharacter->GetActorRightVector();
-	_ownerCharacter->AddMovementInput(moveDirection, value);
+	if (_ownerCharacter->IsLocallyControlled() || _ownerCharacter->HasAuthority())
+		_ownerCharacter->AddMovementInput(moveDirection, value);
 }
 
 void UPW_CharacterMovementComponent::Jump()
@@ -102,6 +104,7 @@ void UPW_CharacterMovementComponent::Dash()
 void UPW_CharacterMovementComponent::CompleteDash()
 {
 	OnDashComplete.Broadcast();
+	_staminaData.CurrentStamina -= _dashStaminaCost;
 }
 
 void UPW_CharacterMovementComponent::CompleteDashCooldown()
@@ -114,7 +117,8 @@ bool UPW_CharacterMovementComponent::CanDash(const UCharacterMovementComponent* 
 {
 	return characterMovement->IsWalking()
 	&& _dashData.CanDash
-	&& _ownerCharacter->IsLocallyControlled();
+	&& _ownerCharacter->IsLocallyControlled()
+	&& _staminaData.CurrentStamina >= _dashStaminaCost;
 }
 
 void UPW_CharacterMovementComponent::Sprint()
