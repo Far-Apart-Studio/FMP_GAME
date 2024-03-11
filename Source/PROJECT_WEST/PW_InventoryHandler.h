@@ -93,6 +93,9 @@ public:
 
 	TArray<FString> GetInventoryItemIDs();
 
+	template<class T>
+	bool HasItemType ();
+
 	FORCEINLINE FInventorySlot& GetSlot(int slotIndex) { return _inventorySlots[slotIndex]; }
 	FORCEINLINE FInventorySlot& GetCurrentSlot() { return GetSlot(_currentSlotIndex); }
 	FORCEINLINE TArray<FInventorySlot>& GetInventorySlots() { return _inventorySlots; }
@@ -104,3 +107,16 @@ public:
 	UFUNCTION(BlueprintCallable) void DropCurrentItem();
 	FORCENOINLINE int GetCurrentSlotIndex() const { return _currentSlotIndex; }
 };
+
+template <class T>
+bool UPW_InventoryHandler::HasItemType()
+{
+	for (FInventorySlot& slot : _inventorySlots)
+	{
+		if (slot.GetItem() && slot.GetItem()->IsA(T::StaticClass()))
+		{
+			return true;
+		}
+	}
+	return false;
+}

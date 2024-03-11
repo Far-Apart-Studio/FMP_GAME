@@ -17,6 +17,13 @@ APW_Lantern::APW_Lantern()
 	
 	bReplicates = true;
 	SetReplicateMovement(true);
+
+	_skeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LanternMesh"));
+	_skeletalMesh->SetupAttachment(_itemMesh);
+	_skeletalMesh->SetIsReplicated(true);
+	_skeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	_skeletalMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	_skeletalMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	
 	_lightBeamMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightBeamMesh"));
 	_lightBeamMesh->SetupAttachment(_itemMesh);
@@ -76,17 +83,17 @@ void APW_Lantern::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(APW_Lantern, _currentFuel);
 }
 
-void APW_Lantern::OnVisibilityChange(bool bIsVisible)
+void APW_Lantern::OnSetVisibility()
 {
-	Super::OnVisibilityChange(bIsVisible);
-	_lightBeamMesh->SetVisibility(bIsVisible);
-	_pointLight->SetVisibility(bIsVisible);
+	Super::OnSetVisibility();
+	_lightBeamMesh->SetVisibility(_isVisible);
+	_pointLight->SetVisibility(_isVisible);
 }
 
 void APW_Lantern::OnBodyDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
+	if(!_target  || !_isVisible || _itemState == EItemObjectState::EDropped) return;
 	if (OtherActor == nullptr || OtherActor == this) return;
 	
 	if(APW_Character* character = Cast<APW_Character>(OtherActor)) return;
@@ -119,15 +126,15 @@ void APW_Lantern::Tick(float DeltaTime)
 	//GetTargetLocation();
 }
 
-void APW_Lantern::OnItemStateSet()
+void APW_Lantern::OnUpdateItemState()
 {
-	Super::OnItemStateSet();
-	ToggleLightVisibility(_isVisible && _itemState == EItemState::EIS_Pickup);
+	Super::OnUpdateItemState();
+	ToggleLightVisibility(_isVisible && _itemState == EItemObjectState::EHeld);
 }
 
 void APW_Lantern::HandleTargetDetection(float DeltaTime)
 {
-	if(!_target  || !_isVisible || _itemState == EItemState::EIS_Dropped) return;
+	if(!_target  || !_isVisible || _itemState == EItemObjectState::EDropped) return;
 	
 	AActor* player = GetOwner ();
 	if (!player) return;
@@ -244,7 +251,7 @@ void APW_Lantern::ToggleLightVisibility(bool visible)
 	_pointLight->SetVisibility(visible);
 }
 
-FVector APW_Lantern::GetTargetLocation()
+FVector APW_Lantern::GetLocationOfTarget()
 {
 	AActor* player = GetOwner ();
 	if (!player) return FVector::ZeroVector;

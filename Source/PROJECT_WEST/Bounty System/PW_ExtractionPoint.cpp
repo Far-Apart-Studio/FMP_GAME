@@ -7,7 +7,7 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/PlayerState.h"
 #include  "PROJECT_WEST/PW_Character.h"
-#include "PROJECT_WEST/PW_ItemHandlerComponent.h"
+#include "PROJECT_WEST/PW_InventoryHandler.h"
 #include "PROJECT_WEST/Items/PW_BountyHead.h"
 
 
@@ -93,12 +93,13 @@ void APW_ExtractionPoint::CheckForWin()
 			{
 				escapedPlayers.Add(character->GetPlayerState()->GetPlayerName());
 				
-				UPW_ItemHandlerComponent* itemHandler = Cast <UPW_ItemHandlerComponent>(character->GetComponentByClass(UPW_ItemHandlerComponent::StaticClass()));
-				if (itemHandler && itemHandler->HasItemType<APW_BountyHead>())
+				UPW_InventoryHandler* inventoryHandler = Cast <UPW_InventoryHandler>(character->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
+				if (inventoryHandler && inventoryHandler->HasItemType<APW_BountyHead>())
 				{
 					_winCondition = true;
 					break;
 				}
+				
 			}
 		}
 	

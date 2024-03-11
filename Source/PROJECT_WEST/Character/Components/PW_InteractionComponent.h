@@ -34,17 +34,18 @@ public:
 	UFUNCTION()
 	void TryEndInteractWithInteractable();
 
-	void StartInteractWithInteractable(AActor* _interatedActor,AActor* _interactableOwner);
+	void StartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
 
 	UFUNCTION(Server, Reliable)
-	void ServerStartInteractWithInteractable(AActor* _interatedActor,AActor* _interactableOwner);
+	void ServerStartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
 	
-	void LocalStartInteractWithInteractable(AActor* _interatedActor,AActor* _interactableOwner);
+	void LocalStartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
 	
 private:
 
 	UPROPERTY(EditAnywhere)
 	class APW_Character* _ownerCharacter;
 
-	AActor* _lastInteractableActor;
+	UPROPERTY(VisibleAnywhere)
+	AActor* _lastIntractableActor;
 };

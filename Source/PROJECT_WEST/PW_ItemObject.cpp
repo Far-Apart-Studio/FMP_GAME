@@ -5,6 +5,7 @@
 #include "PW_Character.h"
 #include "PW_InventoryHandler.h"
 #include "PW_Utilities.h"
+#include "Gameplay/Components/PW_HighlightCompont.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_Character.h"
 
@@ -25,6 +26,8 @@ APW_ItemObject::APW_ItemObject()
 	_itemMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
+	_highlightComponent = CreateDefaultSubobject<UPW_HighlightCompont>(TEXT("HighlightComponent"));
 }
 
 void APW_ItemObject::BeginPlay()
@@ -58,12 +61,13 @@ void APW_ItemObject::UpdateItemType(EItemType updatedType)
 
 void APW_ItemObject::StartFocus_Implementation()
 {
-	
+	if (_itemState != EItemObjectState::EDropped) return;
+	_highlightComponent->ShowHighlight();
 }
 
 void APW_ItemObject::EndFocus_Implementation()
 {
-	
+	_highlightComponent->HideHighlight();
 }
 
 void APW_ItemObject::StartInteract_Implementation(AActor* owner)

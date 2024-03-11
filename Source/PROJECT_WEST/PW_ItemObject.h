@@ -31,7 +31,7 @@ class PROJECT_WEST_API APW_ItemObject : public AActor, public IPW_InteractableIn
 {
 	GENERATED_BODY()
 
-private:
+protected:
 
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	FString _itemID;
@@ -50,6 +50,9 @@ private:
 
 	UPROPERTY(Replicated, VisibleAnywhere, Category = "Item Object")
 	bool _isActive;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item Object") 
+	class UPW_HighlightCompont* _highlightComponent;
 
 protected:
 	
@@ -79,15 +82,15 @@ public:
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner);
 	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
 
-	virtual void SetVisibility(bool isVisible);
-	void OnSetVisibility();
+	void SetVisibility(bool isVisible);
+	virtual void OnSetVisibility();
 
 	void UpdateItemType(EItemType updatedType);
 	
 	void EnableItem(APW_Character* characterOwner);
 	void DisableItem(APW_Character* characterOwner);
 	void UpdateItemState(EItemObjectState updatedState);
-	void OnUpdateItemState();
+	virtual void OnUpdateItemState();
 
 
 	virtual void StartFocus_Implementation() override;

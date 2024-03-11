@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "PW_Item.h"
+#include "PROJECT_WEST/PW_ItemObject.h"
 #include "PW_Lantern.generated.h"
 
 UCLASS()
-class PROJECT_WEST_API APW_Lantern : public APW_Item
+class PROJECT_WEST_API APW_Lantern : public APW_ItemObject
 {
 	GENERATED_BODY()
 	
@@ -20,7 +20,7 @@ protected:
 
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	void OnVisibilityChange(bool bIsVisible) override;
+	virtual void OnSetVisibility() override;
 
 	UFUNCTION()
 	void OnBodyDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -30,6 +30,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Lantern", meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* _skeletalMesh;
 
 	UPROPERTY (VisibleAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* _lightBeamMesh;
@@ -93,7 +96,7 @@ private:
 
 public:
 
-	void OnItemStateSet() override;
+	void OnUpdateItemState() override;
 	
 	void HandleTargetDetection(float DeltaTime);
 	void HandleLightIntensity(float normalisedAngle);
@@ -118,7 +121,7 @@ public:
 
 	void ToggleLightVisibility(bool visible);
 
-	FVector GetTargetLocation();
+	FVector GetLocationOfTarget();
 
 	UFUNCTION(BlueprintCallable)
 	float GetNormalisedFuel();
