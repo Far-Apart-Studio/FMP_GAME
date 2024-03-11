@@ -5,22 +5,20 @@
 #include "OnlineSessionSettings.h"
 #include "DebugMacros.h"
 
-UPW_MultiplayerSessionsSubsystem::UPW_MultiplayerSessionsSubsystem()
+UPW_MultiplayerSessionsSubsystem::UPW_MultiplayerSessionsSubsystem(): _isSeachingForSingleSession(false),
+                                                                      _createSessionAfterDestroy(false),
+                                                                      _isSeachingForActivePublicSession(false),
+                                                                      _numberOfConnectionToCreate(0), _isPublic(false)
 {
-	_createSessionAfterDestroy = false;
-	_sessionToDestroyName = "";
-	_serverNameToFind = "";
-	_mapPath = "";
 }
 
 void UPW_MultiplayerSessionsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	IOnlineSubsystem* onlineSubsystem = IOnlineSubsystem::Get();
-	if (onlineSubsystem)
+	if (const IOnlineSubsystem* onlineSubsystem = IOnlineSubsystem::Get())
 	{
-		FString subsystemName = onlineSubsystem->GetSubsystemName().ToString();
+		const FString subsystemName = onlineSubsystem->GetSubsystemName().ToString();
 		DEBUG_STRING(subsystemName);
 
 		sessionInterface = onlineSubsystem->GetSessionInterface();
@@ -67,7 +65,7 @@ void UPW_MultiplayerSessionsSubsystem::OnFindSessionsComplete(bool success)
 	}
 }
 
-void UPW_MultiplayerSessionsSubsystem::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result)
+void UPW_MultiplayerSessionsSubsystem::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result) const
 {
 	JoinSessionDone(sessionName, result == EOnJoinSessionCompleteResult::Success);
 }
@@ -97,9 +95,8 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 	DEBUG_STRING(serverName);
 	
 	_numberOfConnectionToCreate = numberOfConnection;
-	
-	FNamedOnlineSession *ExistingSession =  sessionInterface->GetNamedSession(NAME_GameSession);
-	if (ExistingSession)
+
+	if (FNamedOnlineSession *ExistingSession =  sessionInterface->GetNamedSession(NAME_GameSession))
 	{
 		DEBUG_STRING( "Session Already Exists" );
 		_createSessionAfterDestroy = true;
@@ -146,18 +143,17 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionDone(bool success)
 	}
 }
 
-void UPW_MultiplayerSessionsSubsystem::JoinSessionTrigger(FOnlineSessionSearchResult* sessionToJoin)
+void UPW_MultiplayerSessionsSubsystem::JoinSessionTrigger(const FOnlineSessionSearchResult* sessionToJoin) const
 {
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	sessionInterface->JoinSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *sessionToJoin);
 }
 
-void UPW_MultiplayerSessionsSubsystem::JoinSessionDone(FName sessionName, bool success)
+void UPW_MultiplayerSessionsSubsystem::JoinSessionDone(FName sessionName, bool success) const
 {
-	_sessionJoinDelegate.Broadcast(success);
-
 	if(!success)
 	{
+		_sessionJoinDelegate.Broadcast(success);
 		DEBUG_STRING("Join Session Failed: " + sessionName.ToString());
 		return;
 	}
@@ -166,14 +162,14 @@ void UPW_MultiplayerSessionsSubsystem::JoinSessionDone(FName sessionName, bool s
 	success = sessionInterface->GetResolvedConnectString(NAME_GameSession, address);
 	if (success)
 	{
-		APlayerController* playerController = GetGameInstance()->GetFirstLocalPlayerController();
-		if (playerController)
+		if (APlayerController* playerController = GetGameInstance()->GetFirstLocalPlayerController())
 		{
 			playerController->ClientTravel(address, ETravelType::TRAVEL_Absolute);
 		}
 	}
 	else
 	{
+		_sessionJoinDelegate.Broadcast(false);
 		DEBUG_STRING("Could Not Get Connect String");
 	}
 }
@@ -196,11 +192,12 @@ void UPW_MultiplayerSessionsSubsystem::FindSessionTrigger(const FString& serverN
 
 	_serverNameToFind = serverName;
 	_isSeachingForSingleSession = true;
+	
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	sessionInterface->FindSessions(*localPlayer->GetPreferredUniqueNetId(), _sessionSearch.ToSharedRef());
 }
 
-void UPW_MultiplayerSessionsSubsystem::FindSessionDone(bool success)
+void UPW_MultiplayerSessionsSubsystem::FindSessionDone(bool success) const
 {
 	if (!success || _serverNameToFind.IsEmpty())
 	{
@@ -210,18 +207,20 @@ void UPW_MultiplayerSessionsSubsystem::FindSessionDone(bool success)
 	}
 
 	TArray<FOnlineSessionSearchResult> searchResults = _sessionSearch->SearchResults;
-	FOnlineSessionSearchResult* correctResult = nullptr;
-	
+
 	if (searchResults.Num() > 0)
 	{
+		const FOnlineSessionSearchResult* correctResult = nullptr;
 		for (FOnlineSessionSearchResult result : searchResults)
 		{
 			if (result.IsValid())
 			{
 				FString serverName = "No Name";
+				FString sessionStatus = "";
 				result.Session.SessionSettings.Get(FName("Session_Name"), serverName);
+				result.Session.SessionSettings.Get(FName("Session_Status"), sessionStatus);
 
-				if (serverName.Equals(_serverNameToFind))
+				if (serverName.Equals(_serverNameToFind) && sessionStatus.Equals("Open"))
 				{
 					correctResult = &result;
 					break;
@@ -279,7 +278,7 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionTrigger()
 	sessionInterface->FindSessions(*localPlayer->GetPreferredUniqueNetId(), _sessionSearch.ToSharedRef());
 }
 
-void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success)
+void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success) const
 {
 	if (!success)
 	{
@@ -329,8 +328,8 @@ void UPW_MultiplayerSessionsSubsystem::ToggleSessionStatus(bool locked)
 	 if (sessionInterface && _lastSessionSettings)
 	 {
 	 	DEBUG_STRING("Session Status Changed");
-	 	//_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-	 	//sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
+	 	_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	 	sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
 	 }
 }
 

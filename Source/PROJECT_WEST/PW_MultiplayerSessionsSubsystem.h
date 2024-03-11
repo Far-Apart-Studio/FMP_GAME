@@ -55,7 +55,7 @@ public:
 	void OnCreateSessionComplete(FName sessionName, bool success);
 	void OnStartSessionComplete(FName sessionName, bool success);
 	void OnFindSessionsComplete(bool success);
-	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
+	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result) const;
 	void OnDestroySessionComplete(FName sessionName, bool success);
 	
 	IOnlineSessionPtr sessionInterface;
@@ -70,10 +70,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void FindSessionTrigger(const FString& serverName);
-	void FindSessionDone(bool success);
+	void FindSessionDone(bool success) const;
 
-	void JoinSessionTrigger(FOnlineSessionSearchResult* sessionToJoin);
-	void JoinSessionDone(FName sessionName, bool success);
+	void JoinSessionTrigger(const FOnlineSessionSearchResult* sessionToJoin) const;
+	void JoinSessionDone(FName sessionName, bool success) const;
 	bool _isSeachingForSingleSession;
 
 	UFUNCTION(BlueprintCallable)
@@ -83,7 +83,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void FindActivePublicSessionTrigger();
-	void FindActivePublicSessionDone(bool success);
+	void FindActivePublicSessionDone(bool success) const;
 	bool _isSeachingForActivePublicSession;
 
 	UFUNCTION(BlueprintCallable)
