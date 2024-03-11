@@ -18,6 +18,7 @@
 #include "PROJECT_WEST/Bounty System/PW_BountyBoard.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "PROJECT_WEST/PW_ConsoleCommandManager.h"
+#include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/HUD/PW_AnnouncementWidget.h"
 #include "PROJECT_WEST/Items/PW_Currency.h"
 #include "PROJECT_WEST/PW_InventoryHandler.h"
@@ -898,11 +899,28 @@ void APW_PlayerController::LoadGameSessionData()
 		if (gameMode)
 		{
 			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+			APW_LobbyGameMode* lobbyGameMode = Cast<APW_LobbyGameMode>(gameMode);
+			SetVulnerability (lobbyGameMode != nullptr);
 		}
 	}
 	else
 	{
 		SeverLoadGameSessionData();
+	}
+}
+
+void APW_PlayerController::SetVulnerability(bool state)
+{
+	if(!GetPawn())
+	{
+		DEBUG_STRING( "No Pawn Found" );
+		return;
+	}
+	
+	UPW_HealthComponent* healthComponent = Cast<UPW_HealthComponent>(GetPawn()->GetComponentByClass(UPW_HealthComponent::StaticClass()));
+	if (healthComponent)
+	{
+		healthComponent->SetIsInvulnerable(state);
 	}
 }
 
@@ -914,6 +932,9 @@ void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 		if (gameMode)
 		{
 			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+
+			APW_LobbyGameMode* lobbyGameMode = Cast<APW_LobbyGameMode>(gameMode);
+			SetVulnerability (lobbyGameMode != nullptr);
 		}
 	}
 }
