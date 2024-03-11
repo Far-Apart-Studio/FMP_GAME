@@ -83,10 +83,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	float _aWeaponFireRate;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	FVector2D _aMaximumWeaponRecoil;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	FVector2D _aMinimumWeaponRecoil;
 
 	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")

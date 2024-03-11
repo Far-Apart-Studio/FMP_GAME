@@ -198,7 +198,12 @@ void APW_WeaponObject::QueueAutomaticFire()
 {
 	const float fireRate = _weaponData->GetWeaponFireRate(_weaponFireMode);
 	FTimerDelegate automaticFireDelegate;
-	automaticFireDelegate.BindLambda([this](){ CoreFireSequence(); });
+
+	TWeakObjectPtr<APW_WeaponObject> weakThis = this;
+	automaticFireDelegate.BindLambda([weakThis]()
+		{ if (APW_WeaponObject* thisPtr = weakThis.Get())
+			thisPtr->CoreFireSequence(); });
+	
 	GetWorld()->GetTimerManager().SetTimer(_fireTimerHandle, automaticFireDelegate, fireRate, false);
 }
 
