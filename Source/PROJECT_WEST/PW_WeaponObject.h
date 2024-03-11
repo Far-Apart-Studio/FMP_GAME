@@ -126,7 +126,9 @@ public:
 	UFUNCTION() void BeginFireSequence();
 	UFUNCTION() void CompleteFireSequence();
 	UFUNCTION() void ReloadWeapon();
-	
+	UFUNCTION() void FireModeAim();
+	UFUNCTION() void FireModeHip();
+
 	UFUNCTION(Server, Reliable) void ServerReloadWeapon();
 	UFUNCTION(Server, Reliable) void ServerApplyDamage(const FHitResult& hitResult);
 

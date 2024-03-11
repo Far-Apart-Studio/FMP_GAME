@@ -18,7 +18,7 @@ UENUM()
 enum class EFireMode : uint8
 {
 	Hip,
-	Aimed
+	Aim
 };
 
 

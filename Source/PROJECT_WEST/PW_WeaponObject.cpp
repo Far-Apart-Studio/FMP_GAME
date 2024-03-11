@@ -10,6 +10,8 @@
 #include "PW_WeaponData.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 APW_WeaponObject::APW_WeaponObject()
@@ -51,8 +53,8 @@ void APW_WeaponObject::LocalApplyActionBindings(APW_Character* characterOwner)
 	characterOwner->OnShootButtonPressed.AddDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.AddDynamic(this, &APW_WeaponObject::CompleteFireSequence);
 	characterOwner->OnReloadButtonPressed.AddDynamic(this, &APW_WeaponObject::ReloadWeapon);
-
-	PW_Utilities::Log("BINDING WEAPON ACTIONS");
+	characterOwner->OnAimButtonPressed.AddDynamic(this, &APW_WeaponObject::FireModeAim);
+	characterOwner->OnAimButtonReleased.AddDynamic(this, &APW_WeaponObject::FireModeHip);
 }
 
 void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
@@ -60,8 +62,8 @@ void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 	characterOwner->OnShootButtonPressed.RemoveDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.RemoveDynamic(this, &APW_WeaponObject::CompleteFireSequence);
 	characterOwner->OnReloadButtonPressed.RemoveDynamic(this, &APW_WeaponObject::ReloadWeapon);
-
-	PW_Utilities::Log("REMOVING WEAPON ACTIONS");
+	characterOwner->OnAimButtonPressed.RemoveDynamic(this, &APW_WeaponObject::FireModeAim);
+	characterOwner->OnAimButtonReleased.RemoveDynamic(this, &APW_WeaponObject::FireModeHip);
 }
 
 void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -84,6 +86,9 @@ void APW_WeaponObject::BeginFireSequence()
 
 void APW_WeaponObject::CoreFireSequence()
 {
+	if (!GetIsActive())
+		return;
+	
 	if (!_weaponRuntimeData.IsFiring)
 		return;
 
@@ -196,6 +201,9 @@ bool APW_WeaponObject::CastRay(const FVector& rayStart, const FVector& rayDestin
 
 void APW_WeaponObject::QueueAutomaticFire()
 {
+	if (!GetIsActive())
+		return;
+	
 	const float fireRate = _weaponData->GetWeaponFireRate(_weaponFireMode);
 	FTimerDelegate automaticFireDelegate;
 
@@ -292,15 +300,13 @@ void APW_WeaponObject::OnReloadWeaponComplete()
 
 void APW_WeaponObject::ApplyDamage(const FHitResult& hitResult)
 {
-	if (GetOwner()->HasAuthority())
-		LocalApplyDamage(hitResult);
-	else
-		ServerApplyDamage(hitResult);
+	GetOwner()->HasAuthority() ? LocalApplyDamage(hitResult) : ServerApplyDamage(hitResult);
 }
 
 void APW_WeaponObject::ServerApplyDamage_Implementation(const FHitResult& hitResult)
 {
-	if (!GetOwner()->HasAuthority()) return;
+	if (!GetOwner()->HasAuthority())
+		return;
 	
 	LocalApplyDamage(hitResult);
 }
@@ -310,8 +316,8 @@ void APW_WeaponObject::LocalApplyDamage(const FHitResult& hitResult)
 	AActor* owner = GetOwner();
 	APW_Character* ownerCharacter = Cast<APW_Character>(owner);
 	
-	if(ownerCharacter == nullptr)
-		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+	if (ownerCharacter == nullptr)
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; } 
 	
 	_weaponRuntimeData.CurrentAmmo--;
 	
@@ -358,5 +364,25 @@ bool APW_WeaponObject::CanFire()
 
 	_weaponRuntimeData.LastFiredTime = 0.0f;
 	return true;
+}
+
+void APW_WeaponObject::FireModeAim()
+{
+	AActor* ownerActor = GetOwner();
+	const APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
+
+	ownerCharacter->GetCameraComponent()->SetFieldOfView(60.0f);
+	ownerCharacter->GetCharacterMovement()->MaxWalkSpeed *= 0.5f;
+	_weaponFireMode = EFireMode::Aim;
+}
+
+void APW_WeaponObject::FireModeHip()
+{
+	AActor* ownerActor = GetOwner();
+	const APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
+
+	ownerCharacter->GetCameraComponent()->SetFieldOfView(90.0f);
+	ownerCharacter->GetCharacterMovement()->MaxWalkSpeed /= 0.5f;
+	_weaponFireMode = EFireMode::Hip;
 }
 
