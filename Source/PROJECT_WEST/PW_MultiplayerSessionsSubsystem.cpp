@@ -328,8 +328,8 @@ void UPW_MultiplayerSessionsSubsystem::ToggleSessionStatus(bool locked)
 	 if (sessionInterface && _lastSessionSettings)
 	 {
 	 	DEBUG_STRING("Session Status Changed");
-	 	//_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-	 	//sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
+	 	_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	 	sessionInterface->UpdateSession(NAME_GameSession, *_lastSessionSettings);
 	 }
 }
 
