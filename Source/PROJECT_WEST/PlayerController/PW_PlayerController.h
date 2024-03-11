@@ -143,9 +143,11 @@ protected:
 	void LoadGameSessionData();
 	UFUNCTION( Server, Reliable )
 	void SeverLoadGameSessionData();
-	
 	UFUNCTION( Client, Reliable )
 	void ClientLoadGameSessionData(FGameSessionData GameSessionData);
+
+	UFUNCTION( Client, Reliable )
+	void ClientSetVulnerability(bool state);
 	
 	UFUNCTION( Server, Reliable )
 	void ServerRequestTime(float timeOfClientRequest); // Request server time
