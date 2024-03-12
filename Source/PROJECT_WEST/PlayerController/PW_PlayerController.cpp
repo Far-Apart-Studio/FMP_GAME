@@ -14,7 +14,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
-#include "PROJECT_WEST/PW_ItemHandlerComponent.h"
 #include "PROJECT_WEST/Bounty System/PW_BountyBoard.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "PROJECT_WEST/PW_ConsoleCommandManager.h"

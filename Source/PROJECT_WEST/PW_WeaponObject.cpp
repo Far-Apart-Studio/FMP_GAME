@@ -20,9 +20,6 @@ APW_WeaponObject::APW_WeaponObject()
 	_weaponVisualData = nullptr;
 	
 	UStaticMeshComponent* itemMesh = GetItemMesh();
-
-	_weaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
-	_weaponMesh->SetupAttachment(itemMesh);
 	
 	_muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	_muzzleLocation->SetupAttachment(itemMesh);
@@ -31,6 +28,9 @@ APW_WeaponObject::APW_WeaponObject()
 void APW_WeaponObject::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (_weaponData == nullptr)
+		{ PW_Utilities::Log("WEAPON DATA NOT FOUND!"); return; }
 
 	_weaponRuntimeData.CurrentAmmo = _weaponData->GetWeaponMagazineCapacity();
 	_weaponRuntimeData.CurrentReserveAmmo = _weaponData->GetWeaponReserveAmmunition();
@@ -69,8 +69,6 @@ void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(APW_WeaponObject, _weaponMesh);
 	DOREPLIFETIME(APW_WeaponObject, _weaponRuntimeData);
 }
 
@@ -371,9 +369,36 @@ void APW_WeaponObject::FireModeAim()
 	AActor* ownerActor = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
 
-	ownerCharacter->GetCameraComponent()->SetFieldOfView(60.0f);
-	ownerCharacter->GetCharacterMovement()->MaxWalkSpeed *= 0.5f;
-	_weaponFireMode = EFireMode::Aim;
+	if (ownerCharacter == nullptr)
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+
+	UCameraComponent* cameraComponent = ownerCharacter->GetCameraComponent();
+	UCharacterMovementComponent* characterMovement = ownerCharacter->GetCharacterMovement();
+
+	if (cameraComponent == nullptr)
+		{ PW_Utilities::Log("NO CAMERA COMPONENT FOUND!"); return; }
+
+	if (characterMovement == nullptr)
+		{ PW_Utilities::Log("NO CHARACTER MOVEMENT COMPONENT FOUND!"); return; }
+
+	if (_weaponData == nullptr)
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+
+	const float fovModifier = _weaponData->GetFieldOfViewModifier();
+
+	if (fovModifier == 0.0f)
+		{ PW_Utilities::Log("FOV MODIFIER IS 0!"); return; }
+
+	OnWeaponFireModeAim.Broadcast();
+	
+	const float currentFov = cameraComponent->FieldOfView;
+	const float speedModifier = _weaponData->GetMovementSpeedModifier();
+
+	cameraComponent->SetFieldOfView(currentFov * fovModifier);
+	characterMovement->MaxWalkSpeed *= speedModifier;
+	
+	_weaponFireMode = _weaponData->GetInheritHipData()
+		? EFireMode::Hip : EFireMode::Aim;
 }
 
 void APW_WeaponObject::FireModeHip()
@@ -381,8 +406,32 @@ void APW_WeaponObject::FireModeHip()
 	AActor* ownerActor = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
 
-	ownerCharacter->GetCameraComponent()->SetFieldOfView(90.0f);
-	ownerCharacter->GetCharacterMovement()->MaxWalkSpeed /= 0.5f;
-	_weaponFireMode = EFireMode::Hip;
+	if (ownerCharacter == nullptr)
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; }
+
+	UCameraComponent* cameraComponent = ownerCharacter->GetCameraComponent();
+	UCharacterMovementComponent* characterMovement = ownerCharacter->GetCharacterMovement();
+
+	if (cameraComponent == nullptr)
+		{ PW_Utilities::Log("NO CAMERA COMPONENT FOUND!"); return; }
+
+	if (characterMovement == nullptr)
+		{ PW_Utilities::Log("NO CHARACTER MOVEMENT COMPONENT FOUND!"); return; }
+
+	if (_weaponData == nullptr)
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+  
+	const float fovModifier = _weaponData->GetFieldOfViewModifier();
+
+	if (fovModifier == 0.0f)
+		{ PW_Utilities::Log("FOV MODIFIER IS 0!"); return; }
+
+	OnWeaponFireModeHip.Broadcast();
+	
+	const float currentFov = cameraComponent->FieldOfView;
+	const float speedModifier = _weaponData->GetMovementSpeedModifier();
+
+	cameraComponent->SetFieldOfView(currentFov / fovModifier);
+	characterMovement->MaxWalkSpeed /= speedModifier;
 }
 

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RegenerationHandle.h"
 #include "Components/ActorComponent.h"
 #include "PW_HealthComponent.generated.h"
 

@@ -57,9 +57,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* _muzzleLocation;
-	
-	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* _weaponMesh;
 
 	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	FWeaponObjectRuntimeData _weaponRuntimeData;
@@ -97,6 +94,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
 	FWeaponHitDelegate OnWeaponHit;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponDelegate OnWeaponFireModeAim;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponDelegate OnWeaponFireModeHip;
 
 public:
 	APW_WeaponObject();
