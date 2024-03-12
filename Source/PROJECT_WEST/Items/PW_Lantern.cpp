@@ -19,22 +19,22 @@ APW_Lantern::APW_Lantern()
 	SetReplicateMovement(true);
 
 	_skeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LanternMesh"));
-	_skeletalMesh->SetupAttachment(_itemMesh);
+	_skeletalMesh->SetupAttachment(_itemCollisionMesh);
 	_skeletalMesh->SetIsReplicated(true);
 	_skeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	_skeletalMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	_skeletalMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	
 	_lightBeamMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightBeamMesh"));
-	_lightBeamMesh->SetupAttachment(_itemMesh);
+	_lightBeamMesh->SetupAttachment(_itemCollisionMesh);
 	_lightBeamMesh->SetIsReplicated(true);
 	
 	_pointLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
-	_pointLight->SetupAttachment(_itemMesh);
+	_pointLight->SetupAttachment(_itemCollisionMesh);
 	_pointLight->SetIsReplicated(true);
 
 	_bodyDetectionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyDetectionBox"));
-	_bodyDetectionBox->SetupAttachment(_itemMesh);
+	_bodyDetectionBox->SetupAttachment(_itemCollisionMesh);
 	_bodyDetectionBox->SetIsReplicated(true);
 	_bodyDetectionBox->SetCollisionProfileName("Trigger");
 

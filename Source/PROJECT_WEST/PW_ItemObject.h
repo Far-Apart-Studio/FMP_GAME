@@ -39,8 +39,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	EItemType _itemType;
 
-	UPROPERTY(Replicated, EditAnywhere, Category = "Item Object")
-	UStaticMeshComponent* _itemMesh;
+	UPROPERTY(EditAnywhere, Category = "Item Object")
+	UStaticMeshComponent* _itemCollisionMesh;
+
+	UPROPERTY(EditAnywhere, Category = "Item Object")
+	USkeletalMeshComponent* _itemMesh;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_ItemStateChanged, EditAnywhere, Category = "Item Object")
 	EItemObjectState _itemState;
@@ -73,6 +76,8 @@ public:
 	APW_ItemObject();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnUpdateItemState();
+	virtual void OnSetVisibility();
 
 	void ApplyActionBindings(APW_Character* characterOwner);
 	virtual void LocalApplyActionBindings(APW_Character* characterOwner);
@@ -83,15 +88,10 @@ public:
 	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
 
 	void SetVisibility(bool isVisible);
-	virtual void OnSetVisibility();
-
 	void UpdateItemType(EItemType updatedType);
-	
 	void EnableItem(APW_Character* characterOwner);
 	void DisableItem(APW_Character* characterOwner);
 	void UpdateItemState(EItemObjectState updatedState);
-	virtual void OnUpdateItemState();
-
 
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;
@@ -100,7 +100,7 @@ public:
 	FORCEINLINE FString GetItemID() const { return _itemID; }
 	FORCEINLINE EItemType GetItemType() const { return _itemType; }
 	FORCEINLINE EItemObjectState GetItemState() const { return _itemState; }
-	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return _itemMesh; }
+	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return _itemCollisionMesh; }
 	FORCEINLINE void SetIsActive(bool isActive) { _isActive = isActive; }
 	FORCEINLINE bool GetIsActive() const { return _isActive; }
 };

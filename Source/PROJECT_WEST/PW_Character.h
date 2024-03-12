@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Items/PW_Item.h"
 #include "PW_Character.generated.h"
 
+class APW_PlayerController;
 class APW_BountyGameMode;
 class UCameraComponent;
 class UPW_ItemHandlerComponent;
@@ -28,9 +28,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Character")
 	UCameraComponent* _cameraComponent;
-
-	UPROPERTY(VisibleAnywhere, Category = "Character")
-	UPW_ItemHandlerComponent* _itemHandlerComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	UPW_HealthComponent* _healthComponent;

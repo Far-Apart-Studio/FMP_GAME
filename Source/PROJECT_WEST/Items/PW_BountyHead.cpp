@@ -6,7 +6,7 @@
 APW_BountyHead::APW_BountyHead()
 {
 	_skeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
-	_skeletalMesh->SetupAttachment(_itemMesh);
+	_skeletalMesh->SetupAttachment(_itemCollisionMesh);
 	_skeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	_skeletalMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	_skeletalMesh->SetIsReplicated(true);

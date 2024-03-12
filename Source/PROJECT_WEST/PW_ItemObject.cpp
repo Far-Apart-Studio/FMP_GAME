@@ -7,25 +7,24 @@
 #include "PW_Utilities.h"
 #include "Gameplay/Components/PW_HighlightCompont.h"
 #include "Net/UnrealNetwork.h"
-#include "PROJECT_WEST/PW_Character.h"
-
 
 APW_ItemObject::APW_ItemObject()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	
-	_itemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
-	_itemMesh->SetIsReplicated(true);
-	
-	SetRootComponent(_itemMesh);
+	_itemCollisionMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CollisionMesh"));
+	SetRootComponent(_itemCollisionMesh);
 
-	_itemMesh->SetSimulatePhysics(true);
-	_itemMesh->SetEnableGravity(true);
-	_itemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	_itemMesh->SetCollisionResponseToAllChannels(ECR_Block);
-	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	_itemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemMesh"));
+	_itemMesh->SetupAttachment(_itemCollisionMesh);
+	
+	_itemCollisionMesh->SetSimulatePhysics(true);
+	_itemCollisionMesh->SetEnableGravity(true);
+	_itemCollisionMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	_itemCollisionMesh->SetCollisionResponseToAllChannels(ECR_Block);
+	_itemCollisionMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	_itemCollisionMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
 	_highlightComponent = CreateDefaultSubobject<UPW_HighlightCompont>(TEXT("HighlightComponent"));
 }
@@ -51,7 +50,6 @@ void APW_ItemObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(APW_ItemObject, _itemState);
 	DOREPLIFETIME(APW_ItemObject, _isVisible);
 	DOREPLIFETIME(APW_ItemObject, _isActive);
-	DOREPLIFETIME(APW_ItemObject, _itemMesh);
 }
 
 void APW_ItemObject::UpdateItemType(EItemType updatedType)
@@ -91,44 +89,44 @@ void APW_ItemObject::StartInteract_Implementation(AActor* owner)
 
 void APW_ItemObject::EnterHeldState()
 {
-	if (_itemMesh == nullptr)
+	if (_itemCollisionMesh == nullptr)
 		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
 	
-	_itemMesh->SetSimulatePhysics(false);
-	_itemMesh->SetEnableGravity(false);
-	_itemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	_itemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	_itemCollisionMesh->SetSimulatePhysics(false);
+	_itemCollisionMesh->SetEnableGravity(false);
+	_itemCollisionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	_itemCollisionMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 }
 
 void APW_ItemObject::EnterDroppedState()
 {
-	if (_itemMesh == nullptr)
+	if (_itemCollisionMesh == nullptr)
 		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
 	
 	const FDetachmentTransformRules detachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,
 	EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
-	_itemMesh->DetachFromComponent(detachmentRules);
-	_itemMesh->SetSimulatePhysics(true);
-	_itemMesh->SetEnableGravity(true);
-	_itemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	_itemMesh->SetCollisionResponseToAllChannels(ECR_Block);
-	_itemMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	_itemMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	_itemCollisionMesh->DetachFromComponent(detachmentRules);
+	_itemCollisionMesh->SetSimulatePhysics(true);
+	_itemCollisionMesh->SetEnableGravity(true);
+	_itemCollisionMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	_itemCollisionMesh->SetCollisionResponseToAllChannels(ECR_Block);
+	_itemCollisionMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	_itemCollisionMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 void APW_ItemObject::AttachToOwner()
 {
-	if(GetOwner())
+	AActor* ownerActor = GetOwner();
+
+	if (ownerActor == nullptr)
+		{ PW_Utilities::Log("OWNER IS NULL!"); return; }
+	
+	const APW_Character* characterOwner = Cast<APW_Character>(ownerActor);
+
+	if (characterOwner)
 	{
-		APW_Character* characterOwner = Cast<APW_Character>(GetOwner());
-		if(characterOwner)
-		{
-			if(characterOwner)
-			{
-				AttachToComponent( characterOwner->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-				OnSetVisibility();
-			}
-		}
+		AttachToComponent( characterOwner->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OnSetVisibility();
 	}
 }
 
@@ -151,11 +149,11 @@ void APW_ItemObject::SetVisibility(bool isVisible)
 
 void APW_ItemObject::OnSetVisibility()
 {
-	if (_itemMesh == nullptr)
+	if (_itemCollisionMesh == nullptr)
 	{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
 
 	TArray<USceneComponent*> childMeshes;
-	_itemMesh->GetChildrenComponents(true, childMeshes);
+	_itemCollisionMesh->GetChildrenComponents(true, childMeshes);
 	
 	for (USceneComponent* childMesh : childMeshes)
 		childMesh->SetVisibility(_isVisible);

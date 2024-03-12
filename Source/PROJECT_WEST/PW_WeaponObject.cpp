@@ -20,9 +20,6 @@ APW_WeaponObject::APW_WeaponObject()
 	_weaponVisualData = nullptr;
 	
 	UStaticMeshComponent* itemMesh = GetItemMesh();
-
-	_weaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
-	_weaponMesh->SetupAttachment(itemMesh);
 	
 	_muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	_muzzleLocation->SetupAttachment(itemMesh);
@@ -31,6 +28,9 @@ APW_WeaponObject::APW_WeaponObject()
 void APW_WeaponObject::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (_weaponData == nullptr)
+		{ PW_Utilities::Log("WEAPON DATA NOT FOUND!"); return; }
 
 	_weaponRuntimeData.CurrentAmmo = _weaponData->GetWeaponMagazineCapacity();
 	_weaponRuntimeData.CurrentReserveAmmo = _weaponData->GetWeaponReserveAmmunition();
@@ -69,8 +69,6 @@ void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(APW_WeaponObject, _weaponMesh);
 	DOREPLIFETIME(APW_WeaponObject, _weaponRuntimeData);
 }
 

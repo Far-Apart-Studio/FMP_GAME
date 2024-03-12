@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "PW_HealthComponent.h"
-#include "RegenerationHandle.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PW_CharacterMovementComponent.generated.h"

@@ -122,7 +122,7 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 	const bool foundSlot = TryGetSlotIndex(itemType, slotIndex);
 	
 	if (!foundSlot)
-	{DEBUG_STRING("NO AVAILABLE SLOT!"); return; }
+		{ DEBUG_STRING("NO AVAILABLE SLOT!"); return; }
 	
 	GetOwner()->HasAuthority() ? LocalCollectItem(slotIndex, collectedItem) : ServerCollectItem(slotIndex, collectedItem);
 }
@@ -282,12 +282,12 @@ void UPW_InventoryHandler::CollectItems(const int32 selectedIndex,  const TArray
 
 void UPW_InventoryHandler::DropAllItems()
 {
-	GetOwner() ? ServerDropAllItems() : LocalDropAllItems();
+	GetOwnerRole() == ROLE_Authority ? ServerDropAllItems() : LocalDropAllItems();
 }
 
 void UPW_InventoryHandler::ServerDropAllItems_Implementation()
 {
-	if (GetOwner())
+	if (GetOwnerRole() == ROLE_Authority)
 		LocalDropAllItems();
 }
 

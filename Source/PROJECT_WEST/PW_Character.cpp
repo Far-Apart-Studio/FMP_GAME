@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
-
-#include "FRecoilAction.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,8 +8,6 @@
 #include "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "PROJECT_WEST/GameModes/PW_BountyGameMode.h"
 #include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
-#include "PW_ItemHandlerComponent.h"
-#include "PW_WeaponHandlerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
@@ -19,7 +15,6 @@
 
 APW_Character::APW_Character(): _itemHolder(nullptr),
 								_cameraComponent(nullptr),
-								_itemHandlerComponent(nullptr),
                                 _healthComponent(nullptr),
                                 _overheadWidget(nullptr),
                                 _springArmComponent(nullptr),
@@ -52,14 +47,6 @@ void APW_Character::OnHealthChanged()
 void APW_Character::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	UPW_WeaponHandlerComponent* weaponHandler = FindComponentByClass<UPW_WeaponHandlerComponent>();
-	if (weaponHandler)
-		weaponHandler->SetOwnerCharacter(this);
-
-	_itemHandlerComponent = FindComponentByClass<UPW_ItemHandlerComponent>();
-	if (_itemHandlerComponent)
-		_itemHandlerComponent->SetOwnerCharacter(this);
 
 	if (HasAuthority())
 	{
@@ -235,14 +222,14 @@ void APW_Character::CrouchButtonPressed()
 
 void APW_Character::ServerLeaveGame_Implementation()
 {
-	APW_BountyGameMode * gameMode = Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	/*APW_BountyGameMode * gameMode = Cast<APW_BountyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	APW_PlayerState* playerState = GetPlayerState<APW_PlayerState>();
 	if (gameMode && playerState)
 	{
 		gameMode->PlayerLeftGame(playerState);
 	}
 
-	_itemHandlerComponent->DropAllItems();
+	_itemHandlerComponent->DropAllItems();*/
 }
 
 void APW_Character::Elim(bool leftGame)
