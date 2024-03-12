@@ -3,9 +3,53 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PW_HealthComponent.h"
+#include "RegenerationHandle.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PW_CharacterMovementComponent.generated.h"
+
+USTRUCT()
+struct FDashData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float DashSpeed = 1000.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float DashDuration = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float DashCooldown = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	UCurveFloat* DashCurve;
+
+	bool CanDash = true;
+	FTimerHandle DashCooldownTimer;
+};
+
+USTRUCT()
+struct FStaminaData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float MaxStamina = 100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float CurrentStamina = 100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float MinimumStamina = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float StaminaRecoveryRate = 1.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "Character")
+	float StaminaRecoveryAmount = 10.0f;
+};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCompleteDelegate);
 
@@ -25,19 +69,16 @@ private:
 	float _sprintMultiplier = 1.50f;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
-	float _dashSpeed = 1000.0f;
+	FDashData _dashData;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
-	float _dashDuration = 0.5f;
+	float _dashStaminaCost = 10.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
-	float _dashCooldown = 1.0f;
+	FStaminaData _staminaData;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
-	UCurveFloat* _dashCurve;
-
-	bool _canDash = true;
-	FTimerHandle _dashCooldownTimer;
+	FRegenerationHandle _staminaRegenerationHandle;
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Character")
@@ -48,9 +89,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FOnCompleteDelegate OnDashCooldownComplete;
-	
-public:	
-
 
 protected:
 	virtual void BeginPlay() override;
@@ -59,6 +97,7 @@ protected:
 public:
 	UPW_CharacterMovementComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 	UFUNCTION() void MoveForward(float value);
 	UFUNCTION() void MoveRight(float value);
 	UFUNCTION() void Jump();
@@ -72,6 +111,5 @@ public:
 	void CompleteDashCooldown();
 	bool CanDash(const UCharacterMovementComponent* characterMovement);
 
-	UFUNCTION(Server, Reliable)
-	void ServerSprint();
+	UFUNCTION(Server, Reliable) void ServerSprint();
 };

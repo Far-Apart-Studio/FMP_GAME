@@ -1,11 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_HealthComponent.h"
-
-#include "DebugMacros.h"
+#include "PW_Character.h"
 #include "Net/UnrealNetwork.h"
 
-UPW_HealthComponent::UPW_HealthComponent()
+UPW_HealthComponent::UPW_HealthComponent():
+	_characterOwner(nullptr),
+	_fallDamageData()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -15,10 +16,17 @@ void UPW_HealthComponent::BeginPlay()
 	Super::BeginPlay();
 	SetIsReplicated( true );
 	_currentHealth = _defaultHealth;
-	AActor* ownerActor = GetOwner();
 
-	if (ownerActor && ownerActor->HasAuthority())
-		ownerActor->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
+	AActor* ownerActor = GetOwner();
+	_characterOwner = Cast<APW_Character>(ownerActor);
+
+	if (_characterOwner && _characterOwner->HasAuthority())
+	{
+		_characterOwner->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
+		_regenerationHandle.RegenerationMethod.BindUObject(this, &UPW_HealthComponent::RecoverHealth);
+		_regenerationHandle.RegenerationCondition.BindUObject(this, &UPW_HealthComponent::CanRecoverHealth);
+		_characterOwner->LandedDelegate.AddDynamic(this, &UPW_HealthComponent::ApplyLandedDamage);
+	}
 }
 
 void UPW_HealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -27,7 +35,7 @@ void UPW_HealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(UPW_HealthComponent, _currentHealth);
 	DOREPLIFETIME(UPW_HealthComponent, _isAlive);
 	DOREPLIFETIME(UPW_HealthComponent, _isInvulnerable);
-	DOREPLIFETIME(UPW_HealthComponent, _canNaturallyRegenerate);
+	DOREPLIFETIME(UPW_HealthComponent, _regenerationHandle);
 }
 
 void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -35,9 +43,7 @@ void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	_lastTakenDamage += DeltaTime;
-	_lastRecoveredHealth += DeltaTime;
-	
-	RegenerateHealth();
+	_regenerationHandle.Regenerate(_currentHealth, DeltaTime);
 }
 
 void UPW_HealthComponent::RecoverHealth(float recoverValue)
@@ -135,7 +141,7 @@ void UPW_HealthComponent::SetCanNaturallyRegenerate(bool canNaturallyRegenerate)
 
 void UPW_HealthComponent::LocalSetCanNaturallyRegenerate(bool canNaturallyRegenerate)
 {
-	_canNaturallyRegenerate = canNaturallyRegenerate;
+	_regenerationHandle.AllowRegeneration = canNaturallyRegenerate;
 }
 
 void UPW_HealthComponent::ServerSetCanNaturallyRegenerate_Implementation(bool canNaturallyRegenerate)
@@ -144,16 +150,39 @@ void UPW_HealthComponent::ServerSetCanNaturallyRegenerate_Implementation(bool ca
 		LocalSetCanNaturallyRegenerate(canNaturallyRegenerate);
 }
 
-void UPW_HealthComponent::RegenerateHealth()
+void UPW_HealthComponent::ApplyLandedDamage(const FHitResult& hitResult)
 {
-	if (!_canNaturallyRegenerate)
+	if (!CanReceiveLandedDamage())
 		return;
 	
-	if (!CanRecoverHealth())
+	const FVector characterVelocity = _characterOwner->GetVelocity();
+	const float absCharacterVelocity = FMath::Abs(characterVelocity.Z);
+
+	if (absCharacterVelocity < _fallDamageData.MinimumVelocity)
 		return;
 	
-	_lastRecoveredHealth = 0.0f;
-	RecoverHealth(_healthRecoveryAmount);
+	const float clampedVelocity = FMath::Clamp(absCharacterVelocity,
+	_fallDamageData.MinimumVelocity, _fallDamageData.MaximumVelocity);
+
+	const float normalisedVelocity = clampedVelocity / _fallDamageData.MaximumVelocity;
+	const float damageAmount = clampedVelocity * _fallDamageData.DamageMultiplier;
+	float finalDamage = damageAmount;
+
+	if (_fallDamageData.FallDamageCurve != nullptr)
+	{
+		const float curveValue = _fallDamageData.FallDamageCurve->GetFloatValue(normalisedVelocity);
+		finalDamage = damageAmount * curveValue;
+	}
+	
+	TakeDamage(_characterOwner, finalDamage, nullptr,
+		_characterOwner->GetController() ,_characterOwner);
+
+	OnFallDamageReceived.Broadcast();
+}
+
+bool UPW_HealthComponent::CanReceiveLandedDamage()
+{
+	return _fallDamageData.AllowFallDamage;
 }
 
 bool UPW_HealthComponent::CanReceiveDamage(float damageAmount) const
@@ -165,8 +194,5 @@ bool UPW_HealthComponent::CanReceiveDamage(float damageAmount) const
 
 bool UPW_HealthComponent::CanRecoverHealth()
 {
-	return _lastTakenDamage >= _combatRecoveryDelay
-	       && _lastRecoveredHealth >= _healthRecoveryRate
-	       && _currentHealth < _recoveryMaximumHealth
-	       && _isAlive;
+	return _lastTakenDamage >= _combatRecoveryDelay && _isAlive;
 }

@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "RegenerationHandle.h"
 #include "Components/ActorComponent.h"
 #include "PW_HealthComponent.generated.h"
 
+class APW_Character;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHealthDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageReceivedDelegate, AActor*, OwnerActor, AActor*, DamageCauser, AController*, DamageCauserController, float, DamageAmount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDeathDelegate, AActor*, OwnerActor, AActor*, DamageCauser, AController*, DamageCauserController);
@@ -22,12 +24,112 @@ struct FHealthMilestone
 	FHealthDelegate OnReachHealthThreshold;
 };
 
+USTRUCT()
+struct FRegenerationHandle
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) bool AllowRegeneration;
+	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationMaximum;
+	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationMinimum;
+	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationRate;
+	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationAmount;
+	UPROPERTY(EditAnywhere, NotReplicated) UCurveFloat* RegenerationCurve;
+	UPROPERTY(VisibleAnywhere, NotReplicated) float RegenerationTimer;
+
+	DECLARE_DELEGATE_OneParam(FRegenerationMethod, float);
+	FRegenerationMethod RegenerationMethod;
+
+	DECLARE_DELEGATE_RetVal(bool, FRegenerationCondition);
+	FRegenerationCondition RegenerationCondition;
+
+	FRegenerationHandle()
+	{
+		RegenerationCurve = nullptr;
+		AllowRegeneration = false;
+		RegenerationMinimum = 0.0f;
+		RegenerationMaximum = 100.0f;
+		RegenerationRate = 1.0f;
+		RegenerationAmount = 2.0f;
+		RegenerationTimer = 0.0f;
+	}
+
+	void Regenerate(float& currentHealth, float deltaTime)
+	{
+		RegenerationTimer += deltaTime;
+
+		if (!CanRegenerate(currentHealth))
+			return;
+
+		const float normalisedHealth = currentHealth / RegenerationMaximum;
+		float regenerationAmount = RegenerationAmount;
+
+		if (RegenerationCurve != nullptr)
+		{
+			const float curveValue = RegenerationCurve->GetFloatValue(normalisedHealth);
+			regenerationAmount = RegenerationAmount * curveValue;
+		}
+
+		if (RegenerationMethod.IsBound())
+		{
+			const bool isExecuted = RegenerationMethod.ExecuteIfBound(regenerationAmount);
+			if (isExecuted)
+				RegenerationTimer = 0.0f;
+		}
+		else
+		{
+			currentHealth = FMath::Clamp
+			(currentHealth + RegenerationAmount, RegenerationMinimum, regenerationAmount);
+			RegenerationTimer = 0.0f;
+		}
+	}
+
+	bool CanRegenerate(float currentValue)
+	{
+		const bool canRegenerate =
+			currentValue < RegenerationMaximum
+			&& AllowRegeneration
+			&& RegenerationTimer > RegenerationRate
+			&& RegenerationAmount > 0.0f;
+
+		if (RegenerationCondition.IsBound())
+			return canRegenerate && RegenerationCondition.Execute();
+
+		return canRegenerate;
+	}
+};
+
+USTRUCT()
+struct FFallDamageData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere)
+	bool AllowFallDamage = true;
+	
+	UPROPERTY(EditAnywhere)
+	float MinimumVelocity = 700.0f;
+
+	UPROPERTY(EditAnywhere)
+	float MaximumVelocity = 1000.0f;
+
+	UPROPERTY(EditAnywhere)
+	float DamageMultiplier = 0.02f;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* FallDamageCurve;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_HealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 private:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
+	APW_Character* _characterOwner;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _maxHealth = 100.0f;
 
@@ -41,19 +143,7 @@ private:
 	float _defaultHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
-	float _recoveryMaximumHealth = 50.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Health Handler")
-	float _healthRecoveryRate = 0.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Health Handler")
-	float _healthRecoveryAmount = 0.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Health Handler")
 	float _combatRecoveryDelay = 0.0f;
-
-	UPROPERTY(Replicated, EditAnywhere, Category = "Health Handler")
-	bool _canNaturallyRegenerate = false;
 
 	UPROPERTY(Replicated, VisibleAnywhere, Category = "Health Handler")
 	bool _isAlive = true;
@@ -61,7 +151,12 @@ private:
 	UPROPERTY(Replicated, VisibleAnywhere, Category = "Health Handler")
 	bool _isInvulnerable = false;
 
-	float _lastRecoveredHealth = 0.0f;
+	UPROPERTY(Replicated, EditAnywhere, Category = "Health Handler")
+	FRegenerationHandle _regenerationHandle;
+
+	UPROPERTY(EditAnywhere, Category = "Health Handler")
+	FFallDamageData _fallDamageData;
+	
 	float _lastTakenDamage = 0.0f;
 	
 public:
@@ -92,6 +187,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FHealthDelegate OnInvulnerabilityGlobal;
 
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FHealthDelegate OnFallDamageReceived;
+
 public:
 	
 	UPW_HealthComponent();
@@ -103,18 +201,20 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	void RecoverHealth(float recoverValue);
-	void LocalRecoverHealth(float recoverValue);
-	void LocalTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
-	void SetIsInvulnerable(bool isInvulnerable);
-	void LocalSetIsInvulnerable(bool isInvulnerable);
-	void SetCanNaturallyRegenerate(bool canNaturallyRegenerate);
-	void LocalSetCanNaturallyRegenerate(bool canNaturallyRegenerate);
-	void RegenerateHealth();
+	UFUNCTION(BlueprintCallable) void RecoverHealth(float recoverValue);
+	UFUNCTION(BlueprintCallable) void LocalRecoverHealth(float recoverValue);
+	UFUNCTION(BlueprintCallable) void LocalTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	UFUNCTION(BlueprintCallable) void SetIsInvulnerable(bool isInvulnerable);
+	UFUNCTION(BlueprintCallable) void LocalSetIsInvulnerable(bool isInvulnerable);
+	UFUNCTION(BlueprintCallable) void SetCanNaturallyRegenerate(bool canNaturallyRegenerate);
+	UFUNCTION(BlueprintCallable) void LocalSetCanNaturallyRegenerate(bool canNaturallyRegenerate);
+	UFUNCTION(BlueprintCallable) void ApplyLandedDamage(const FHitResult& hitResult);
+	UFUNCTION(BlueprintCallable) void TakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
 	bool CanReceiveDamage(float damageAmount) const;
 	bool CanRecoverHealth();
-	
-	UFUNCTION() void TakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	bool CanReceiveLandedDamage();
+
 	UFUNCTION(Server, Reliable) void ServerRecoverHealth(float recoverValue);
 	UFUNCTION(Server, Reliable) void ServerTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 	UFUNCTION(Server, Reliable) void ServerSetIsInvulnerable(bool isInvulnerable);
@@ -123,5 +223,4 @@ public:
 
 	FORCEINLINE bool IsAlive() const { return _isAlive; }
 	FORCEINLINE bool IsInvulnerable() const { return _isInvulnerable; }
-	FORCEINLINE bool CanNaturallyRegenerate() const { return _canNaturallyRegenerate; }
 };
