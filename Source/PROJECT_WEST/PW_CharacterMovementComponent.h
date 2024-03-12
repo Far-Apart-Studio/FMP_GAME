@@ -8,7 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PW_CharacterMovementComponent.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FDashData
 {
 	GENERATED_BODY()
@@ -29,7 +29,7 @@ struct FDashData
 	FTimerHandle DashCooldownTimer;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FStaminaData
 {
 	GENERATED_BODY()
@@ -76,7 +76,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	FStaminaData _staminaData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	FRegenerationHandle _staminaRegenerationHandle;
 
 public:
