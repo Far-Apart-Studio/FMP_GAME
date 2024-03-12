@@ -63,8 +63,6 @@ protected:
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();
 
-	void AttachToOwner();
-
 	UFUNCTION()
 	virtual void OnRep_ItemStateChanged();	
 
@@ -92,6 +90,7 @@ public:
 	void EnableItem(APW_Character* characterOwner);
 	void DisableItem(APW_Character* characterOwner);
 	void UpdateItemState(EItemObjectState updatedState);
+	void AttemptAttachToOwner();
 
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;

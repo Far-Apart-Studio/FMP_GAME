@@ -35,7 +35,7 @@ void APW_ItemObject::BeginPlay()
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
-	AttachToOwner();
+	AttemptAttachToOwner();
 }
 
 void APW_ItemObject::Tick(float DeltaTime)
@@ -114,7 +114,7 @@ void APW_ItemObject::EnterDroppedState()
 	_itemCollisionMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
-void APW_ItemObject::AttachToOwner()
+void APW_ItemObject::AttemptAttachToOwner()
 {
 	AActor* ownerActor = GetOwner();
 

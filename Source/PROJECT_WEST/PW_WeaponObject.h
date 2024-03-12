@@ -95,6 +95,12 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
 	FWeaponHitDelegate OnWeaponHit;
 
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponDelegate OnWeaponFireModeAim;
+
+	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
+	FWeaponDelegate OnWeaponFireModeHip;
+
 public:
 	APW_WeaponObject();
 

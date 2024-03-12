@@ -37,6 +37,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "General Weapon Data")
 	float _weaponReloadTime = 0.5f;
 
+	UPROPERTY(EditAnywhere, Category = "General Weapon Data")
+	bool inheritHipData = false;
+
 	//------------------ Hip Fire Weapon Data ------------------//
 	
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
@@ -104,13 +107,24 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	int _aProjectileCount;
 
-	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	float _aProjectileDelay;
+
+	//------------------ Player Modifiers ------------------//
+
+	UPROPERTY(EditAnywhere, Category = "Player Modifiers")
+	float _aMovementSpeedModifier;
+
+	UPROPERTY(EditAnywhere, Category = "Player Modifiers")
+	float _aFieldOfViewModifier;
 
 public:
 	FORCEINLINE float GetWeaponMagazineCapacity() const { return _weaponMagazineCapacity; }
 	FORCEINLINE float GetWeaponReserveAmmunition() const { return _weaponReserveAmmunition; }
 	FORCEINLINE float GetWeaponReloadTime() const { return _weaponReloadTime; }
+	FORCEINLINE float GetMovementSpeedModifier() const { return _aMovementSpeedModifier; }
+	FORCEINLINE float GetFieldOfViewModifier() const { return _aFieldOfViewModifier; }
+	FORCEINLINE bool GetInheritHipData() const { return inheritHipData; }
 
 	FORCEINLINE EFireType GetWeaponFireType(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponFireType : _aWeaponFireType; }
 	FORCEINLINE float GetWeaponDamage(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponDamage : _aWeaponDamage; }
