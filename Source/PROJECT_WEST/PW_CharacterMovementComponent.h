@@ -8,45 +8,45 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PW_CharacterMovementComponent.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FDashData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float DashSpeed = 1000.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float DashDuration = 0.5f;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float DashCooldown = 1.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	UCurveFloat* DashCurve;
 
 	bool CanDash = true;
 	FTimerHandle DashCooldownTimer;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FStaminaData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float MaxStamina = 100.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float CurrentStamina = 100.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float MinimumStamina = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float StaminaRecoveryRate = 1.0f;
 	
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float StaminaRecoveryAmount = 10.0f;
 };
 
@@ -68,15 +68,15 @@ private:
 	float _sprintMultiplier = 1.50f;
 
 	UPROPERTY(EditAnywhere, Category = "Character")
-	FDashData _dashData;
-
-	UPROPERTY(EditAnywhere, Category = "Character")
 	float _dashStaminaCost = 10.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	FDashData _dashData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	FStaminaData _staminaData;
 
-	UPROPERTY(EditAnywhere, Category = "Character")
+	UPROPERTY(EditAnywhere, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	FRegenerationHandle _staminaRegenerationHandle;
 
 public:
