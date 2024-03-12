@@ -78,7 +78,7 @@ struct FRegenerationHandle
 		else
 		{
 			currentHealth = FMath::Clamp
-			(currentHealth + RegenerationAmount, RegenerationMinimum, regenerationAmount);
+			(currentHealth + RegenerationAmount, RegenerationMinimum, RegenerationMaximum);
 			RegenerationTimer = 0.0f;
 		}
 	}
