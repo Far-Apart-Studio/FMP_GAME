@@ -44,6 +44,9 @@ public:
 	TSubclassOf<AActor > _bountyEnemyClass;
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
+	TSubclassOf<AActor > _bountyPortalClass;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<AActor > _bountyHeadClass;
 	
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
@@ -64,8 +67,9 @@ public:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	int32 _numOfCurrencies;
 	
-	
 	APW_Lantern* _lantern;
+
+	AActor* _bountyPortalEntrance;
 
 	AActor* _bountyEnemy;
 
@@ -78,10 +82,12 @@ public:
 	void LoadGameSessionData() override;
 	
 	void SpawnLantern();
-	
+
+	void SpawnBountyPortal();
+
+	void SpawnBountyEnemy();
 	UFUNCTION()
 	void OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController);
-	void SpawnBountyEnemy();
 	void SpawnBountyHead();
 	
 	UFUNCTION()

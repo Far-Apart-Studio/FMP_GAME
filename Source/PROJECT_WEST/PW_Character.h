@@ -166,7 +166,7 @@ public:
 	void DropButtonPressed();
 	void SprintButtonPressed();
 	void SprintButtonReleased();
-	void ToggleMovement(bool canMove) {}
+	void ToggleMovement(bool canMove);
 	void StartInteractButtonPressed();
 	void EndInteractButtonPressed();
 	void MouseWheelUpAxisPressed();

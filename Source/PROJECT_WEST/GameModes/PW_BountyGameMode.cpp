@@ -235,6 +235,18 @@ void APW_BountyGameMode::SpawnLantern()
 	}
 }
 
+void APW_BountyGameMode::SpawnBountyPortal()
+{
+	AActor* bountyPortalExit = UGameplayStatics::GetActorOfClass(GetWorld(), _bountyPortalClass);
+	if (bountyPortalExit)
+	{
+		_bountyPortalEntrance = GetWorld()->SpawnActor<AActor>(_bountyPortalClass);
+		_bountyPortalEntrance->SetActorLocation(bountyPortalExit->GetActorLocation());
+		_bountyPortalEntrance->SetActorRotation(bountyPortalExit->GetActorRotation());
+		_bountyPortalEntrance->SetOwner(nullptr);
+	}
+}
+
 void APW_BountyGameMode::OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController)
 {
 	if (_bountySuccessful) return;

@@ -28,10 +28,10 @@ public:
 	void TryClearLastInteractable();
 	void TraceForInteractable();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void TryStartInteractWithInteractable();
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void TryEndInteractWithInteractable();
 
 	void StartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
