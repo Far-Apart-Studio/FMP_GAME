@@ -49,13 +49,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	EFireMode _weaponFireMode = EFireMode::Hip;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UPW_WeaponData* _weaponData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UPW_WeaponVisualData* _weaponVisualData;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* _muzzleLocation;
 
 	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
