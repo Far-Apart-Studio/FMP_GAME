@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DebugMacros.h"
+#include "PW_Utilities.h"
 #include "Components/ActorComponent.h"
 #include "PW_HealthComponent.generated.h"
 
@@ -38,8 +40,10 @@ struct FRegenerationHandle
 	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationMinimum;
 	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationRate;
 	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationAmount;
+	UPROPERTY(EditAnywhere, NotReplicated) float InitialDelay;
 	UPROPERTY(EditAnywhere, NotReplicated) UCurveFloat* RegenerationCurve;
 	UPROPERTY(VisibleAnywhere, NotReplicated) float RegenerationTimer;
+	UPROPERTY(VisibleAnywhere, NotReplicated) float InitialDelayTimer;
 
 	FRegenerationMethod RegenerationMethod;
 	FRegenerationCondition RegenerationCondition;
@@ -48,6 +52,7 @@ struct FRegenerationHandle
 
 	FRegenerationHandle()
 	{
+		InitialDelay = 3.0f;
 		RegenerationCurve = nullptr;
 		AllowRegeneration = false;
 		RegenerationMinimum = 0.0f;
@@ -55,13 +60,17 @@ struct FRegenerationHandle
 		RegenerationRate = 1.0f;
 		RegenerationAmount = 2.0f;
 		RegenerationTimer = 0.0f;
+		InitialDelayTimer = 0.0f;
 	}
 
 	void Increase(float& currentHealth, float deltaTime)
 	{
 		RegenerationTimer += deltaTime;
+		if (!CanIncrease())
+			return;
 
-		if (!CanIncrease(currentHealth))
+		InitialDelayTimer += deltaTime;
+		if (InitialDelayTimer < InitialDelay)
 			return;
 
 		const float normalisedHealth = currentHealth / RegenerationMaximum;
@@ -92,14 +101,19 @@ struct FRegenerationHandle
 			OnReachMaximum.Execute();
 	}
 
-	bool CanIncrease(float currentValue)
+	bool CanIncrease()
 	{
-		const bool canRegenerate = AllowRegeneration
-			&& RegenerationTimer > RegenerationRate;
+		bool canRegenerate = AllowRegeneration && RegenerationTimer >= RegenerationRate;
 
 		if (RegenerationCondition.IsBound())
-			return canRegenerate && RegenerationCondition.Execute();
+		{
+			const bool regenerationCondition = RegenerationCondition.Execute();
+			canRegenerate = canRegenerate && regenerationCondition;
 
+			if (!regenerationCondition)
+				InitialDelayTimer = 0.0f;
+		}
+		
 		return canRegenerate;
 	}
 };
