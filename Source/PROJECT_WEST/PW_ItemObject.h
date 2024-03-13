@@ -22,8 +22,8 @@ enum class EItemType : uint8
 UENUM(BlueprintType)
 enum class EItemObjectState : uint8
 {
+	EDropped,
 	EHeld,
-	EDropped
 };
 
 UCLASS()

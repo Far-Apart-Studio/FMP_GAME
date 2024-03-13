@@ -31,9 +31,6 @@ public:
 
 private:
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Lantern", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* _skeletalMesh;
-
 	UPROPERTY (VisibleAnywhere, Category = "Lantern" , meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* _lightBeamMesh;
 
