@@ -104,7 +104,9 @@ public:
 	UFUNCTION() void CompleteDash();
 	UFUNCTION() void Sprint();
 	UFUNCTION() void LocalSprint();
-	
+	void BeginSprint();
+	void CancelSprint();
+
 	void AssignInputActions();
 	void GetOwnerCharacter();
 	void CompleteDashCooldown();
