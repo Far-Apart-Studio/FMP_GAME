@@ -51,7 +51,7 @@ void APW_BountyGameMode::BeginPlay()
 	
 	StartMatch();
 	
-	SpawnBountyEnemy();
+	//SpawnBountyEnemy();
 	SpawnLantern();
 	SpawnExtractionPoint();
 	//SpawnEnemies();
@@ -259,7 +259,7 @@ void APW_BountyGameMode::SpawnBountyEnemy()
 	_bountyEnemy = GetWorld()->SpawnActor<AActor>(_bountyEnemyClass);
 	if (_bountyEnemy)
 	{
-		_bountyEnemy->SetActorLocation(_spawnPointsHandlerComponent->GetBountySpawnPoint());
+		_bountyEnemy->SetActorLocation(_spawnPointsHandlerComponent->GetBountyPortalSpawnPoint());
 		_bountyEnemy->SetActorRotation(FRotator(0, 0, 0));
 		_bountyEnemy->SetOwner(nullptr);
 

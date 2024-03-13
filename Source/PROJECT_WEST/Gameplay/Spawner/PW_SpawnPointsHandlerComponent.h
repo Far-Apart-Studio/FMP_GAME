@@ -51,7 +51,7 @@ public:
 	FSpawnPointSet _lanternSpawnPoint;
 
 	UPROPERTY(EditAnywhere, Category = "SpawnPoints")
-	FSpawnPointSet _bountySpawnPoint;
+	FSpawnPointSet _bountyPortalSpawnPoint;
 
 	UPROPERTY(EditAnywhere, Category = "SpawnPoints")
 	FSpawnPointSet _extractionPoint;
@@ -64,10 +64,11 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "SpawnPoints")
 	FSpawnPointSet _currencySpawnPoint;
-
+	
 	FVector GetLanternSpawnPoint();
 
-	FVector GetBountySpawnPoint();
+	UFUNCTION(BlueprintCallable)
+	FVector GetBountyPortalSpawnPoint();
 
 	FVector GetExtractionSpawnPoint();
 
