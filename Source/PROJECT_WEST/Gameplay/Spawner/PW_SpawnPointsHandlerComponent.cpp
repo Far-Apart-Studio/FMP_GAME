@@ -37,9 +37,9 @@ FVector UPW_SpawnPointsHandlerComponent::GetLanternSpawnPoint()
 	return ConvertToWorldLocation(_lanternSpawnPoint.GetRandomSpawnPoint());
 }
 
-FVector UPW_SpawnPointsHandlerComponent::GetBountySpawnPoint()
+FVector UPW_SpawnPointsHandlerComponent::GetBountyPortalSpawnPoint()
 {
-	return ConvertToWorldLocation(_bountySpawnPoint.GetRandomSpawnPoint());
+	return ConvertToWorldLocation(_bountyPortalSpawnPoint.GetRandomSpawnPoint());
 }
 
 FVector UPW_SpawnPointsHandlerComponent::GetExtractionSpawnPoint()
