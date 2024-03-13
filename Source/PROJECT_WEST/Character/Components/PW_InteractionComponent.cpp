@@ -49,7 +49,10 @@ void UPW_InteractionComponent::TraceForInteractable()
 	FVector destination = start + (direction * _traceDistance);
 	
 	TArray< TEnumAsByte<EObjectTypeQuery> > objectTypes;
-	objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Visibility));
+	//objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Visibility));
+
+	objectTypes.Add(UEngineTypes::ConvertToObjectType( ECollisionChannel::ECC_GameTraceChannel1));
+	
 	//objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
 	//objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
 	

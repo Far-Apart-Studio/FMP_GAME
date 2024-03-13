@@ -169,7 +169,9 @@ void APW_WeaponObject::CastBulletRay(UCameraComponent* cameraComponent)
 	QueueWeaponRecoil();
 	
 	if (isActorHit)
+	{
 		OnWeaponHit.Broadcast(hitResult);
+	}
 	
 	ApplyDamage(hitResult);
 	if (IsAmmoEmpty())
@@ -328,6 +330,9 @@ void APW_WeaponObject::LocalApplyDamage(const FHitResult& hitResult)
 		{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
 
 	const float calculatedDamage = CalculateDamage(hitResult);
+
+	DEBUG_STRING("Calculated Damage: " + FString::SanitizeFloat(calculatedDamage));
+	
 	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
 		ownerCharacter->GetController(), ownerCharacter);
 }

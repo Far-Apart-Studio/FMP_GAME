@@ -339,6 +339,13 @@ void UPW_InventoryHandler::DropCurrentItem()
 	DropItem(_currentSlotIndex);
 }
 
+APW_ItemObject* UPW_InventoryHandler::GetCurrentItem()
+{
+	const int currentSlot = GetCurrentSlotIndex();
+	APW_ItemObject* itemObject = _inventorySlots[currentSlot].GetItem();
+	return itemObject;
+}
+
 void UPW_InventoryHandler::AssignInputActions()
 {
 	if (_ownerCharacter == nullptr)

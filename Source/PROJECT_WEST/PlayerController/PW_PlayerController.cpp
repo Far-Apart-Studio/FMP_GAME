@@ -897,9 +897,17 @@ void APW_PlayerController::LoadGameSessionData()
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 		if (gameMode)
 		{
-			ClientLoadGameSessionData( gameMode->GetGameSessionData());
 			APW_LobbyGameMode* lobbyGameMode = Cast<APW_LobbyGameMode>(gameMode);
-			SetVulnerability (lobbyGameMode != nullptr);
+			if (lobbyGameMode)
+			{
+				SetVulnerability (true);
+			}
+			else
+			{
+				gameMode->GetGameSessionData()._escapedPlayers.Add(_playerName);
+				SetVulnerability (false);
+			}
+			ClientLoadGameSessionData( gameMode->GetGameSessionData());
 		}
 	}
 	else
@@ -930,10 +938,18 @@ void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
 		if (gameMode)
 		{
-			ClientLoadGameSessionData( gameMode->GetGameSessionData());
-
 			APW_LobbyGameMode* lobbyGameMode = Cast<APW_LobbyGameMode>(gameMode);
-			SetVulnerability (lobbyGameMode != nullptr);
+			if (lobbyGameMode)
+			{
+				SetVulnerability (true);
+			}
+			else
+			{
+				gameMode->GetGameSessionData()._escapedPlayers.Add(_playerName);
+				SetVulnerability (false);
+			}
+			
+			ClientLoadGameSessionData( gameMode->GetGameSessionData());
 		}
 	}
 }
@@ -943,6 +959,8 @@ void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSession
 	//DEBUG_STRING ("Loaded Game Session Data : Money - " + FString::FromInt(GameSessionData._money) + " Day - " + FString::FromInt(GameSessionData._dayIndex));
 	_money = GameSessionData._money;
 	_dayIndex = GameSessionData._dayIndex;
+
+	DEBUG_STRING ( "Escaped Count : " + FString::FromInt(GameSessionData._escapedPlayers.Num()));
 
 	if (GameSessionData._escapedPlayers.Contains(_playerName))
 	{

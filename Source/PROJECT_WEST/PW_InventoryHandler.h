@@ -105,7 +105,9 @@ public:
 	UFUNCTION(BlueprintCallable) void CycleDown();
 	UFUNCTION(BlueprintCallable) void ToSlot(int targetedSlotIndex);
 	UFUNCTION(BlueprintCallable) void DropCurrentItem();
-	FORCENOINLINE int GetCurrentSlotIndex() const { return _currentSlotIndex; }
+	UFUNCTION(BlueprintCallable) APW_ItemObject* GetCurrentItem();
+	
+	FORCEINLINE int GetCurrentSlotIndex() const { return _currentSlotIndex; }
 };
 
 template <class T>

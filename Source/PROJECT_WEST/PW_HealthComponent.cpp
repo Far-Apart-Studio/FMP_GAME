@@ -22,13 +22,15 @@ void UPW_HealthComponent::BeginPlay()
 	AActor* ownerActor = GetOwner();
 	_characterOwner = Cast<APW_Character>(ownerActor);
 
-	if (_characterOwner && _characterOwner->IsLocallyControlled())
+	if (ownerActor)
 	{
-		_characterOwner->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
+		ownerActor->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
 		_regenerationHandle.RegenerationMethod.BindUObject(this, &UPW_HealthComponent::RecoverHealth);
 		_regenerationHandle.RegenerationCondition.BindUObject(this, &UPW_HealthComponent::CanRecoverHealth);
-		_characterOwner->LandedDelegate.AddDynamic(this, &UPW_HealthComponent::ApplyLandedDamage);
 	}
+
+	if (_characterOwner)
+		_characterOwner->LandedDelegate.AddDynamic(this, &UPW_HealthComponent::ApplyLandedDamage);
 }
 
 void UPW_HealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

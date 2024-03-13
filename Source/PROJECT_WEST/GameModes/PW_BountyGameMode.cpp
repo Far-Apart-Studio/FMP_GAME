@@ -290,9 +290,10 @@ void APW_BountyGameMode::SpawnBountyHead()
 
 void APW_BountyGameMode::OnActivateExtrationPoint(bool bWinCondition, TArray<FString> escapedPlayers)
 {
+	_gameInstance->GetGameSessionData()._escapedPlayers = escapedPlayers;
+	
 	if (bWinCondition)
 	{
-		_gameInstance->GetGameSessionData()._escapedPlayers = escapedPlayers;
 		BountySuccessful();
 	}
 	else

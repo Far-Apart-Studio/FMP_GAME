@@ -7,6 +7,7 @@
 #include "PW_HealthComponent.generated.h"
 
 class APW_Character;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHealthDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageReceivedDelegate, AActor*, OwnerActor, AActor*, DamageCauser, AController*, DamageCauserController, float, DamageAmount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDeathDelegate, AActor*, OwnerActor, AActor*, DamageCauser, AController*, DamageCauserController);
