@@ -48,4 +48,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	AActor* _lastIntractableActor;
+
+	UPROPERTY(EditAnywhere, Category = "Interaction", meta = (AllowPrivateAccess = "true"))
+	float _traceDistance;
 };

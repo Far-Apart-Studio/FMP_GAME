@@ -85,6 +85,9 @@ private:
 	UFUNCTION()
 	void OnRep_BountyVoteChanged();
 
+	UFUNCTION(Client, Reliable)
+	void ToggleAllCharacterVisibility(bool status);
+
 public:	
 
 	UFUNCTION( BlueprintCallable, Category = "Info" )

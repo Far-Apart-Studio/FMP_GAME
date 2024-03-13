@@ -12,6 +12,7 @@
 UPW_InteractionComponent::UPW_InteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	_traceDistance = 500;
 }
 
 void UPW_InteractionComponent::BeginPlay()
@@ -45,7 +46,7 @@ void UPW_InteractionComponent::TraceForInteractable()
 	IPW_InteractableInterface* Interactable = nullptr;
 	FVector direction = _cameraComponent->GetForwardVector();
 	FVector start = _cameraComponent->GetComponentLocation();
-	FVector destination = start + (direction * 1000.0f);
+	FVector destination = start + (direction * _traceDistance);
 	
 	TArray< TEnumAsByte<EObjectTypeQuery> > objectTypes;
 	objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Visibility));
