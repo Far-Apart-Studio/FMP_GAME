@@ -126,5 +126,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetNormalisedFuel();
 
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetTarget(AActor* target) { _target = target; }
 };

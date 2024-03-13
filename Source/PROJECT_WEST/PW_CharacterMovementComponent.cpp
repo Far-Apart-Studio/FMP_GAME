@@ -44,7 +44,6 @@ void UPW_CharacterMovementComponent::MoveForward(float value)
 		_ownerCharacter->AddMovementInput(moveDirection, value);
 }
 
-
 void UPW_CharacterMovementComponent::MoveRight(float value)
 {
 	const FVector moveDirection = _ownerCharacter->GetActorRightVector();
@@ -129,10 +128,25 @@ void UPW_CharacterMovementComponent::Sprint()
 void UPW_CharacterMovementComponent::LocalSprint()
 {	
 	_isSprinting = !_isSprinting;
-	_isSprinting ?
-		_ownerCharacter->GetCharacterMovement()->MaxWalkSpeed *= _sprintMultiplier :
-		_ownerCharacter->GetCharacterMovement()->MaxWalkSpeed /= _sprintMultiplier;
+	_isSprinting ? BeginSprint() : CancelSprint();
 }
+
+void UPW_CharacterMovementComponent::BeginSprint()
+{
+	if (_sprintMultiplier < 0.0f)
+		return;
+	
+	_ownerCharacter->GetCharacterMovement()->MaxWalkSpeed *= _sprintMultiplier;
+}
+
+void UPW_CharacterMovementComponent::CancelSprint()
+{
+	if (_sprintMultiplier < 0.0f)
+		return;
+	
+	_ownerCharacter->GetCharacterMovement()->MaxWalkSpeed /= _sprintMultiplier;
+}
+
 
 void UPW_CharacterMovementComponent::ServerSprint_Implementation()
 {

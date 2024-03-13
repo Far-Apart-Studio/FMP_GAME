@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_HealthComponent.h"
+
+#include "DebugMacros.h"
 #include "PW_Character.h"
 #include "Net/UnrealNetwork.h"
 
@@ -20,7 +22,7 @@ void UPW_HealthComponent::BeginPlay()
 	AActor* ownerActor = GetOwner();
 	_characterOwner = Cast<APW_Character>(ownerActor);
 
-	if (_characterOwner && _characterOwner->HasAuthority())
+	if (_characterOwner && _characterOwner->IsLocallyControlled())
 	{
 		_characterOwner->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
 		_regenerationHandle.RegenerationMethod.BindUObject(this, &UPW_HealthComponent::RecoverHealth);

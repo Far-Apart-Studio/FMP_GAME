@@ -66,7 +66,8 @@ public:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	int32 _numOfCurrencies;
-	
+
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	APW_Lantern* _lantern;
 
 	AActor* _bountyPortalEntrance;
@@ -119,6 +120,8 @@ protected:
 	virtual void OnMatchStateSet() override;
 
 	class APW_SpawnPointsManager* _spawnPointsManager;
+
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true") )
 	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
 
 	float _countdownTime = 0.f;
