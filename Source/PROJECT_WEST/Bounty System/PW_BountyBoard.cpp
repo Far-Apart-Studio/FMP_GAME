@@ -15,6 +15,7 @@
 #include "PROJECT_WEST/GameModes/PW_LobbyGameMode.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "PROJECT_WEST/Gameplay/Components/PW_HighlightCompont.h"
 
 APW_BountyBoard::APW_BountyBoard()
@@ -96,6 +97,7 @@ void APW_BountyBoard::EndInteract_Implementation()
 			playerController->bShowMouseCursor = false;
 			playerController->SetInputMode(FInputModeGameOnly());
 			playerController->ToggleHUDVisibility(true);
+			ToggleAllCharacterVisibility (true);
 			_onBoardClosed.Broadcast();
 		}
 	}
@@ -124,6 +126,7 @@ void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 			characterController->ToggleMovement(false);
 			playerController->bShowMouseCursor = true;
 			playerController->SetInputMode(FInputModeGameAndUI());
+			ToggleAllCharacterVisibility (false);
 			_onBoardOpened.Broadcast();
 		}
 	}
@@ -137,6 +140,20 @@ void APW_BountyBoard::OnRep_BountyListChanged()
 void APW_BountyBoard::OnRep_BountyVoteChanged()
 {
 	_bountyVoteDataChanged.Broadcast(_bountyVoteData);
+}
+
+void APW_BountyBoard::ToggleAllCharacterVisibility_Implementation(bool status)
+{
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APW_Character::StaticClass(), foundActors);
+	for (AActor* actor : foundActors)
+	{
+		APW_Character* character = Cast<APW_Character>(actor);
+		if (character)
+		{
+			character->SetActorHiddenInGame(!status);
+		}
+	}
 }
 
 void APW_BountyBoard::PopulateBountyDataList()
