@@ -45,7 +45,7 @@ void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	_lastTakenDamage += DeltaTime;
-	_regenerationHandle.Regenerate(_currentHealth, DeltaTime);
+	_regenerationHandle.Increase(_currentHealth, DeltaTime);
 }
 
 void UPW_HealthComponent::RecoverHealth(float recoverValue)

@@ -28,6 +28,10 @@ struct FRegenerationHandle
 {
 	GENERATED_BODY()
 
+	DECLARE_DELEGATE_OneParam(FRegenerationMethod, float);
+	DECLARE_DELEGATE_RetVal(bool, FRegenerationCondition);
+	DECLARE_DELEGATE(FOnReach);
+
 	UPROPERTY(EditAnywhere) bool AllowRegeneration;
 	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationMaximum;
 	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationMinimum;
@@ -36,11 +40,10 @@ struct FRegenerationHandle
 	UPROPERTY(EditAnywhere, NotReplicated) UCurveFloat* RegenerationCurve;
 	UPROPERTY(VisibleAnywhere, NotReplicated) float RegenerationTimer;
 
-	DECLARE_DELEGATE_OneParam(FRegenerationMethod, float);
 	FRegenerationMethod RegenerationMethod;
-
-	DECLARE_DELEGATE_RetVal(bool, FRegenerationCondition);
 	FRegenerationCondition RegenerationCondition;
+	FOnReach OnReachMinimum;
+	FOnReach OnReachMaximum;
 
 	FRegenerationHandle()
 	{
@@ -53,11 +56,11 @@ struct FRegenerationHandle
 		RegenerationTimer = 0.0f;
 	}
 
-	void Regenerate(float& currentHealth, float deltaTime)
+	void Increase(float& currentHealth, float deltaTime)
 	{
 		RegenerationTimer += deltaTime;
 
-		if (!CanRegenerate(currentHealth))
+		if (!CanIncrease(currentHealth))
 			return;
 
 		const float normalisedHealth = currentHealth / RegenerationMaximum;
@@ -81,15 +84,17 @@ struct FRegenerationHandle
 			(currentHealth + RegenerationAmount, RegenerationMinimum, RegenerationMaximum);
 			RegenerationTimer = 0.0f;
 		}
+
+		if (currentHealth == RegenerationMinimum && OnReachMinimum.IsBound())
+			OnReachMinimum.Execute();
+		else if (currentHealth == RegenerationMaximum && OnReachMaximum.IsBound())
+			OnReachMaximum.Execute();
 	}
 
-	bool CanRegenerate(float currentValue)
+	bool CanIncrease(float currentValue)
 	{
-		const bool canRegenerate =
-			currentValue < RegenerationMaximum
-			&& AllowRegeneration
-			&& RegenerationTimer > RegenerationRate
-			&& RegenerationAmount > 0.0f;
+		const bool canRegenerate = AllowRegeneration
+			&& RegenerationTimer > RegenerationRate;
 
 		if (RegenerationCondition.IsBound())
 			return canRegenerate && RegenerationCondition.Execute();

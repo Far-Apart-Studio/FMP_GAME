@@ -79,6 +79,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	FRegenerationHandle _staminaRegenerationHandle;
 
+	UPROPERTY(EditAnywhere, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	FRegenerationHandle _staminaReductionHandle;
+
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FOnCompleteDelegate OnDash;

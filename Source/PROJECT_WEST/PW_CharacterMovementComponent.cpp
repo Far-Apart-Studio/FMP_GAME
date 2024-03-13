@@ -22,13 +22,27 @@ void UPW_CharacterMovementComponent::BeginPlay()
 	GetOwnerCharacter();
 
 	if (_ownerCharacter->IsLocallyControlled())
+	{
 		AssignInputActions();
+
+		TWeakObjectPtr<UPW_CharacterMovementComponent> weakThis = this;
+		
+		_staminaReductionHandle.RegenerationCondition.BindLambda([weakThis]()
+			{ return weakThis.IsValid() && weakThis->_isSprinting; });
+
+		_staminaReductionHandle.OnReachMinimum.BindLambda([weakThis]()
+			{ if (weakThis.IsValid()) weakThis->Sprint(); });
+		
+		_staminaRegenerationHandle.RegenerationCondition.BindLambda([weakThis]()
+			{ return weakThis.IsValid() && !weakThis->_isSprinting; });
+	}
 }
 
 void UPW_CharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	_staminaRegenerationHandle.Regenerate(_staminaData.CurrentStamina, DeltaTime);
+	_staminaRegenerationHandle.Increase(_staminaData.CurrentStamina, DeltaTime);
+	_staminaReductionHandle.Increase(_staminaData.CurrentStamina, DeltaTime);
 }
 
 void UPW_CharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
