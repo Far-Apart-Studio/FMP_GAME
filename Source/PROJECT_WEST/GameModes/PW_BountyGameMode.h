@@ -55,9 +55,6 @@ public:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<AActor > _enemyClass;
 
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
-	TSubclassOf<AActor > _weaponClass;
-
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<class APW_Currency> _currencyClass;
 	
@@ -77,6 +74,9 @@ public:
 	AActor* _bountyHead;
 
 	APW_ExtractionPoint* _extractionPoint;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay")
+	void OnInitializeComplete();
 	
 	void BountySuccessful();
 	
@@ -95,8 +95,6 @@ public:
 	void OnActivateExtrationPoint(bool bWinCondition,TArray<FString> escapedPlayers);
 	
 	void SpawnExtractionPoint();
-
-	void SpawnWeapons();
 	
 	void SpawnAutoEnemySpawner(ACharacter *character);
 
