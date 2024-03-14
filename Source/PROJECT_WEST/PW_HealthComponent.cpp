@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_HealthComponent.h"
-
-#include "DebugMacros.h"
 #include "PW_Character.h"
 #include "Net/UnrealNetwork.h"
 
@@ -46,8 +44,8 @@ void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	_lastTakenDamage += DeltaTime;
-	_regenerationHandle.Increase(_currentHealth, DeltaTime);
+	if (GetOwnerRole() == ROLE_Authority)
+		_regenerationHandle.Increase(_currentHealth, DeltaTime);
 }
 
 void UPW_HealthComponent::RecoverHealth(float recoverValue)
@@ -98,18 +96,13 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 }
 
 void UPW_HealthComponent::LocalTakeDamage(AActor* ownerActor, float damageAmount,
-                                          const UDamageType* damageType,AController* instigatedBy, AActor* damageCauser)
+	const UDamageType* damageType,AController* instigatedBy, AActor* damageCauser)
 {
 	AActor* actorOwner = GetOwner();
 	_currentHealth = FMath::Clamp(_currentHealth - damageAmount, _minimumHealth, _maxHealth);
 
 	MulticastHealthModified(actorOwner, damageCauser, instigatedBy, -damageAmount);
-
-	if (_currentHealth == _minimumHealth)
-	{
-		_isAlive = false;
-		OnDeathGlobal.Broadcast(actorOwner, damageCauser, instigatedBy);
-	}
+	_regenerationHandle.Reset();
 }
 
 void UPW_HealthComponent::SetIsInvulnerable(bool isInvulnerable)
@@ -198,5 +191,5 @@ bool UPW_HealthComponent::CanReceiveDamage(float damageAmount) const
 
 bool UPW_HealthComponent::CanRecoverHealth()
 {
-	return _lastTakenDamage >= _combatRecoveryDelay && _isAlive;
+	return _isAlive;
 }

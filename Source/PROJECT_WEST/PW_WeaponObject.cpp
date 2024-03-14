@@ -72,6 +72,19 @@ void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(APW_WeaponObject, _weaponRuntimeData);
 }
 
+void APW_WeaponObject::EnterDroppedState()
+{
+	Super::EnterDroppedState();
+	
+	_weaponRuntimeData.IsReloading = false;
+	_weaponRuntimeData.IsFiring = false;
+
+	FTimerManager& timerManager = GetWorld()->GetTimerManager();
+	
+	timerManager.ClearTimer(_reloadTimerHandle);
+	timerManager.ClearTimer(_fireTimerHandle);
+}
+
 void APW_WeaponObject::BeginFireSequence()
 {
 	_weaponRuntimeData.IsFiring = true;
@@ -215,11 +228,6 @@ void APW_WeaponObject::QueueAutomaticFire()
 	GetWorld()->GetTimerManager().SetTimer(_fireTimerHandle, automaticFireDelegate, fireRate, false);
 }
 
-void APW_WeaponObject::ReloadWeapon()
-{
-	GetOwner()->HasAuthority() ? LocalReloadWeapon() : ServerReloadWeapon();
-}
-
 void APW_WeaponObject::TransferReserveAmmo()
 {
 	if (_weaponRuntimeData.CurrentReserveAmmo <= 0)
@@ -265,6 +273,17 @@ void APW_WeaponObject::QueueWeaponRecoil()
 void APW_WeaponObject::CompleteWeaponRecoil()
 {
 	
+}
+
+void APW_WeaponObject::ReloadWeapon()
+{
+	const bool cannotReload = IsMagazineFull()
+		|| IsReserveAmmoEmpty()
+		|| _weaponRuntimeData.IsReloading;
+	
+
+	if (!cannotReload)
+		GetOwner()->HasAuthority() ? LocalReloadWeapon() : ServerReloadWeapon();
 }
 
 void APW_WeaponObject::ServerReloadWeapon_Implementation()
@@ -330,8 +349,6 @@ void APW_WeaponObject::LocalApplyDamage(const FHitResult& hitResult)
 		{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
 
 	const float calculatedDamage = CalculateDamage(hitResult);
-
-	DEBUG_STRING("Calculated Damage: " + FString::SanitizeFloat(calculatedDamage));
 	
 	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
 		ownerCharacter->GetController(), ownerCharacter);
