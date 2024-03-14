@@ -64,6 +64,13 @@ private:
 	FTimerHandle _reloadTimerHandle = FTimerHandle();
 	FTimerHandle _fireTimerHandle = FTimerHandle();
 
+	float _defaultCharacterSpeed;
+	float _defaultCharacterFieldOfView;
+	float _characterSpeedMultiplied;
+	float _characterFieldOfViewMultiplied;
+
+	bool isAiming = false;
+
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
 	FWeaponDelegate OnWeaponFireDelegate;

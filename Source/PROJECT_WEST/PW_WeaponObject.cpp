@@ -11,7 +11,6 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 APW_WeaponObject::APW_WeaponObject()
@@ -74,8 +73,6 @@ void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void APW_WeaponObject::EnterDroppedState()
 {
-	Super::EnterDroppedState();
-	
 	_weaponRuntimeData.IsReloading = false;
 	_weaponRuntimeData.IsFiring = false;
 
@@ -83,6 +80,10 @@ void APW_WeaponObject::EnterDroppedState()
 	
 	timerManager.ClearTimer(_reloadTimerHandle);
 	timerManager.ClearTimer(_fireTimerHandle);
+
+	FireModeHip();
+
+	Super::EnterDroppedState();
 }
 
 void APW_WeaponObject::BeginFireSequence()
@@ -388,6 +389,11 @@ bool APW_WeaponObject::CanFire()
 
 void APW_WeaponObject::FireModeAim()
 {
+	if (_weaponFireMode == EFireMode::Aim)
+		return;
+	
+	_weaponFireMode = EFireMode::Aim;
+	
 	AActor* ownerActor = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
 
@@ -418,13 +424,15 @@ void APW_WeaponObject::FireModeAim()
 
 	cameraComponent->SetFieldOfView(currentFov * fovModifier);
 	characterMovement->MaxWalkSpeed *= speedModifier;
-	
-	_weaponFireMode = _weaponData->GetInheritHipData()
-		? EFireMode::Hip : EFireMode::Aim;
 }
 
 void APW_WeaponObject::FireModeHip()
 {
+	if (_weaponFireMode == EFireMode::Hip)
+		return;
+	
+	_weaponFireMode = EFireMode::Hip;
+	
 	AActor* ownerActor = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
 

@@ -204,7 +204,7 @@ void APW_ItemObject::ClientApplyActionBindings_Implementation(APW_Character* cha
 
 void APW_ItemObject::LocalApplyActionBindings(APW_Character* characterOwner)
 {
-	DEBUG_STRING("APPLY BINDING ACTIONS");
+	
 }
 #pragma endregion ApplyActionBindings
 
