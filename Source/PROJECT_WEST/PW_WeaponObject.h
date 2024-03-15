@@ -61,8 +61,15 @@ private:
 	UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	FWeaponObjectRuntimeData _weaponRuntimeData;
 	
-	FTimerHandle _reloadTimerHandle;
-	FTimerHandle _fireTimerHandle;
+	FTimerHandle _reloadTimerHandle = FTimerHandle();
+	FTimerHandle _fireTimerHandle = FTimerHandle();
+
+	float _defaultCharacterSpeed;
+	float _defaultCharacterFieldOfView;
+	float _characterSpeedMultiplied;
+	float _characterFieldOfViewMultiplied;
+
+	bool isAiming = false;
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
@@ -109,6 +116,7 @@ public:
 	virtual void LocalApplyActionBindings(APW_Character* characterOwner) override;
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void EnterDroppedState() override;
 	
 	void CastBulletRays();
 	void CastBulletRay(UCameraComponent* cameraComponent);
@@ -136,7 +144,7 @@ public:
 	UFUNCTION(Server, Reliable) void ServerApplyDamage(const FHitResult& hitResult);
 
 	FORCEINLINE bool IsAmmoEmpty() const { return _weaponRuntimeData.CurrentAmmo <= 0; }
-	FORCEINLINE bool IsAmmoFull() const { return _weaponRuntimeData.CurrentAmmo == _weaponData->GetWeaponMagazineCapacity(); }
+	FORCEINLINE bool IsMagazineFull() const { return _weaponRuntimeData.CurrentAmmo == _weaponData->GetWeaponMagazineCapacity(); }
 	FORCEINLINE bool IsReserveAmmoEmpty() const { return _weaponRuntimeData.CurrentReserveAmmo <= 0; }
 	FORCEINLINE bool IsReserveAmmoFull() const { return _weaponRuntimeData.CurrentReserveAmmo == _weaponData->GetWeaponReserveAmmunition(); }
 	FORCEINLINE void SetFireMode(EFireMode fireMode) { _weaponFireMode = fireMode; }

@@ -11,7 +11,6 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 APW_WeaponObject::APW_WeaponObject()
@@ -70,6 +69,21 @@ void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APW_WeaponObject, _weaponRuntimeData);
+}
+
+void APW_WeaponObject::EnterDroppedState()
+{
+	_weaponRuntimeData.IsReloading = false;
+	_weaponRuntimeData.IsFiring = false;
+
+	FTimerManager& timerManager = GetWorld()->GetTimerManager();
+	
+	timerManager.ClearTimer(_reloadTimerHandle);
+	timerManager.ClearTimer(_fireTimerHandle);
+
+	FireModeHip();
+
+	Super::EnterDroppedState();
 }
 
 void APW_WeaponObject::BeginFireSequence()
@@ -215,11 +229,6 @@ void APW_WeaponObject::QueueAutomaticFire()
 	GetWorld()->GetTimerManager().SetTimer(_fireTimerHandle, automaticFireDelegate, fireRate, false);
 }
 
-void APW_WeaponObject::ReloadWeapon()
-{
-	GetOwner()->HasAuthority() ? LocalReloadWeapon() : ServerReloadWeapon();
-}
-
 void APW_WeaponObject::TransferReserveAmmo()
 {
 	if (_weaponRuntimeData.CurrentReserveAmmo <= 0)
@@ -265,6 +274,17 @@ void APW_WeaponObject::QueueWeaponRecoil()
 void APW_WeaponObject::CompleteWeaponRecoil()
 {
 	
+}
+
+void APW_WeaponObject::ReloadWeapon()
+{
+	const bool cannotReload = IsMagazineFull()
+		|| IsReserveAmmoEmpty()
+		|| _weaponRuntimeData.IsReloading;
+	
+
+	if (!cannotReload)
+		GetOwner()->HasAuthority() ? LocalReloadWeapon() : ServerReloadWeapon();
 }
 
 void APW_WeaponObject::ServerReloadWeapon_Implementation()
@@ -330,8 +350,6 @@ void APW_WeaponObject::LocalApplyDamage(const FHitResult& hitResult)
 		{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
 
 	const float calculatedDamage = CalculateDamage(hitResult);
-
-	DEBUG_STRING("Calculated Damage: " + FString::SanitizeFloat(calculatedDamage));
 	
 	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
 		ownerCharacter->GetController(), ownerCharacter);
@@ -371,6 +389,11 @@ bool APW_WeaponObject::CanFire()
 
 void APW_WeaponObject::FireModeAim()
 {
+	if (_weaponFireMode == EFireMode::Aim)
+		return;
+	
+	_weaponFireMode = EFireMode::Aim;
+	
 	AActor* ownerActor = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
 
@@ -401,13 +424,15 @@ void APW_WeaponObject::FireModeAim()
 
 	cameraComponent->SetFieldOfView(currentFov * fovModifier);
 	characterMovement->MaxWalkSpeed *= speedModifier;
-	
-	_weaponFireMode = _weaponData->GetInheritHipData()
-		? EFireMode::Hip : EFireMode::Aim;
 }
 
 void APW_WeaponObject::FireModeHip()
 {
+	if (_weaponFireMode == EFireMode::Hip)
+		return;
+	
+	_weaponFireMode = EFireMode::Hip;
+	
 	AActor* ownerActor = GetOwner();
 	const APW_Character* ownerCharacter = Cast<APW_Character>(ownerActor);
 

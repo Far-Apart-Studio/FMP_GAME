@@ -105,15 +105,17 @@ public:
 	UFUNCTION() void Jump();
 	UFUNCTION() void Dash();
 	UFUNCTION() void CompleteDash();
-	UFUNCTION() void Sprint();
-	UFUNCTION() void LocalSprint();
-	void BeginSprint();
-	void CancelSprint();
+	
+	UFUNCTION() void BeginSprint();
+	void LocalBeginSprint();
+	UFUNCTION(Server, Reliable) void ServerBeginSprint();
+	
+	UFUNCTION() void CancelSprint();
+	void LocalCancelSprint();
+	UFUNCTION(Server, Reliable) void ServerCancelSprint();
 
 	void AssignInputActions();
 	void GetOwnerCharacter();
 	void CompleteDashCooldown();
 	bool CanDash(const UCharacterMovementComponent* characterMovement);
-
-	UFUNCTION(Server, Reliable) void ServerSprint();
 };

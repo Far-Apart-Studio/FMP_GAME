@@ -31,7 +31,7 @@ void UPW_CharacterMovementComponent::BeginPlay()
 			{ return weakThis.IsValid() && weakThis->_isSprinting; });
 
 		_staminaReductionHandle.OnReachMinimum.BindLambda([weakThis]()
-			{ if (weakThis.IsValid()) weakThis->Sprint(); });
+			{ if (weakThis.IsValid()) weakThis->CancelSprint(); });
 		
 		_staminaRegenerationHandle.RegenerationCondition.BindLambda([weakThis]()
 			{ return weakThis.IsValid() && !weakThis->_isSprinting; });
@@ -134,18 +134,16 @@ bool UPW_CharacterMovementComponent::CanDash(const UCharacterMovementComponent* 
 	&& _staminaData.CurrentStamina >= _dashStaminaCost;
 }
 
-void UPW_CharacterMovementComponent::Sprint()
-{
-	_ownerCharacter->HasAuthority() ? LocalSprint() : ServerSprint();
-}
-
-void UPW_CharacterMovementComponent::LocalSprint()
-{	
-	_isSprinting = !_isSprinting;
-	_isSprinting ? BeginSprint() : CancelSprint();
-}
-
 void UPW_CharacterMovementComponent::BeginSprint()
+{
+	if (_isSprinting)
+		return;
+	
+	_isSprinting = true;
+	GetOwnerRole() == ROLE_Authority ? LocalBeginSprint() : ServerBeginSprint();
+}
+
+void UPW_CharacterMovementComponent::LocalBeginSprint()
 {
 	if (_sprintMultiplier < 0.0f)
 		return;
@@ -153,7 +151,24 @@ void UPW_CharacterMovementComponent::BeginSprint()
 	_ownerCharacter->GetCharacterMovement()->MaxWalkSpeed *= _sprintMultiplier;
 }
 
+void UPW_CharacterMovementComponent::ServerBeginSprint_Implementation()
+{
+	if (GetOwnerRole() == ROLE_Authority)
+		LocalBeginSprint();
+}
+
+
 void UPW_CharacterMovementComponent::CancelSprint()
+{
+	if (!_isSprinting)
+		return;
+	
+	_isSprinting = false;
+	
+	GetOwnerRole() == ROLE_Authority ? LocalCancelSprint() : ServerCancelSprint();
+}
+
+void UPW_CharacterMovementComponent::LocalCancelSprint()
 {
 	if (_sprintMultiplier < 0.0f)
 		return;
@@ -161,12 +176,12 @@ void UPW_CharacterMovementComponent::CancelSprint()
 	_ownerCharacter->GetCharacterMovement()->MaxWalkSpeed /= _sprintMultiplier;
 }
 
-
-void UPW_CharacterMovementComponent::ServerSprint_Implementation()
+void UPW_CharacterMovementComponent::ServerCancelSprint_Implementation()
 {
-	if (_ownerCharacter->HasAuthority())
-		LocalSprint();
+	if (GetOwnerRole() == ROLE_Authority)
+		LocalCancelSprint();
 }
+
 
 void UPW_CharacterMovementComponent::AssignInputActions()
 {
@@ -180,10 +195,10 @@ void UPW_CharacterMovementComponent::AssignInputActions()
 		(this, &UPW_CharacterMovementComponent::Jump);
 	
 	_ownerCharacter->OnSprintButtonPressed.AddDynamic
-		(this, &UPW_CharacterMovementComponent::Sprint);
+		(this, &UPW_CharacterMovementComponent::BeginSprint);
 
 	_ownerCharacter->OnSprintButtonReleased.AddDynamic
-		(this, &UPW_CharacterMovementComponent::Sprint);
+		(this, &UPW_CharacterMovementComponent::CancelSprint);
 
 	_ownerCharacter->OnDashButtonPressed.AddDynamic
 		(this, &UPW_CharacterMovementComponent::Dash);

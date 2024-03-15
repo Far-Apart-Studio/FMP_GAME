@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DebugMacros.h"
-#include "PW_Utilities.h"
 #include "Components/ActorComponent.h"
 #include "PW_HealthComponent.generated.h"
 
@@ -42,6 +40,7 @@ struct FRegenerationHandle
 	UPROPERTY(EditAnywhere, NotReplicated) float RegenerationAmount;
 	UPROPERTY(EditAnywhere, NotReplicated) float InitialDelay;
 	UPROPERTY(EditAnywhere, NotReplicated) UCurveFloat* RegenerationCurve;
+	UPROPERTY(EditAnywhere, NotReplicated) bool ShouldResetOnFail;
 	UPROPERTY(VisibleAnywhere, NotReplicated) float RegenerationTimer;
 	UPROPERTY(VisibleAnywhere, NotReplicated) float InitialDelayTimer;
 
@@ -52,6 +51,7 @@ struct FRegenerationHandle
 
 	FRegenerationHandle()
 	{
+		ShouldResetOnFail = true;
 		InitialDelay = 3.0f;
 		RegenerationCurve = nullptr;
 		AllowRegeneration = false;
@@ -84,9 +84,8 @@ struct FRegenerationHandle
 
 		if (RegenerationMethod.IsBound())
 		{
-			const bool isExecuted = RegenerationMethod.ExecuteIfBound(regenerationAmount);
-			if (isExecuted)
-				RegenerationTimer = 0.0f;
+			RegenerationMethod.Execute(regenerationAmount);
+			RegenerationTimer = 0.0f;
 		}
 		else
 		{
@@ -110,11 +109,17 @@ struct FRegenerationHandle
 			const bool regenerationCondition = RegenerationCondition.Execute();
 			canRegenerate = canRegenerate && regenerationCondition;
 
-			if (!regenerationCondition)
+			if (!regenerationCondition && ShouldResetOnFail)
 				InitialDelayTimer = 0.0f;
 		}
 		
 		return canRegenerate;
+	}
+
+	void Reset()
+	{
+		RegenerationTimer = 0.0f;
+		InitialDelayTimer = 0.0f;
 	}
 };
 
@@ -161,13 +166,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
 	float _defaultHealth = 100.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Health Handler")
-	float _combatRecoveryDelay = 0.0f;
-
-	UPROPERTY(Replicated, VisibleAnywhere, Category = "Health Handler")
+	UPROPERTY(Replicated, EditAnywhere, Category = "Health Handler")
 	bool _isAlive = true;
 
-	UPROPERTY(Replicated, VisibleAnywhere, Category = "Health Handler")
+	UPROPERTY(Replicated, EditAnywhere, Category = "Health Handler")
 	bool _isInvulnerable = false;
 
 	UPROPERTY(Replicated, EditAnywhere, Category = "Health Handler")
@@ -175,8 +177,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
 	FFallDamageData _fallDamageData;
-	
-	float _lastTakenDamage = 0.0f;
 	
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
