@@ -45,7 +45,7 @@ public:
 
 private:
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoints", meta = (AllowPrivateAccess = "true") )
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "SpawnPoints", meta = (AllowPrivateAccess = "true") )
 	class APW_SpawnPoint* _lanternSpawnPoint;
 
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "SpawnPoints", meta = (AllowPrivateAccess = "true") )

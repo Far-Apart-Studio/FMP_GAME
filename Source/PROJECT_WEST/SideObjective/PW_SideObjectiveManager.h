@@ -32,10 +32,13 @@ private:
 	UDataTable* _ItemDataTable;
 	
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
-	int32 _numOfObjectives;
+	int32 _numOfObjectivesPerMap;
 
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	TArray<FObjectiveClassData> _objectiveClasses;
+
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	TArray<FSideObjectiveData>  _selectedObjectivesData;
 	
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	int32 _numOfObjectivesCompleted;
@@ -57,5 +60,9 @@ private:
 	UFUNCTION()
 	void OnObjectiveFailed(APW_SideObjective* FailedObjective);
 
+	TArray<FSideObjectiveData> GetAllObjectivesData() const;
+
 	TSubclassOf<class APW_SideObjective> GetClassType (ETaskType taskType);
+
+	bool DoesObjectiveTypeExist(const FSideObjectiveData& sideObjectiveData);
 };

@@ -79,11 +79,13 @@ TArray<FVector> APW_SpawnPointsManager::GetRandomCurrencySpawnPoints(int32 amoun
 
 FVector APW_SpawnPointsManager::GetLanternSpawnPoint() const
 {
+	if (!_lanternSpawnPoint) return FVector::ZeroVector;
 	return  _lanternSpawnPoint->GetPosition();
 }
 
 FVector APW_SpawnPointsManager::GetDebtCollectorSpawnPoint() const
 {
+	if (!_debtCollectorSpawnPoint) return FVector::ZeroVector;
 	return _debtCollectorSpawnPoint->GetPosition();
 }
 

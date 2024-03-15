@@ -3,6 +3,7 @@
 
 #include "PW_DemolitionObjective.h"
 
+#include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/POI/PW_PoiArea.h"
 
@@ -10,6 +11,7 @@ void APW_DemolitionObjective::SetUp(FSideObjectiveData sideObjectiveData, APW_Po
 {
 	Super::SetUp(sideObjectiveData, poiArea);
 	_targetActor = poiArea->SpawnActor(sideObjectiveData._objectiveObjectType);
+	TryAssignDeathEvent(_targetActor);
 }
 
 void APW_DemolitionObjective::Deactivate()
@@ -19,10 +21,9 @@ void APW_DemolitionObjective::Deactivate()
 
 void APW_DemolitionObjective::TryAssignDeathEvent(AActor* actor)
 {
-	UPW_HealthComponent* healthComponent = actor->FindComponentByClass<UPW_HealthComponent>();
-	if (healthComponent)
+	if (UPW_HealthComponent* healthComponent = actor->FindComponentByClass<UPW_HealthComponent>())
 	{
-		healthComponent->OnDeathGlobal.AddDynamic(this, &APW_DemolitionObjective::OnTargetDeath);
+		healthComponent->OnDeathServer.AddDynamic(this, &APW_DemolitionObjective::OnTargetDeath);
 	}
 }
 

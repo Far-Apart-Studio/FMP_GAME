@@ -67,12 +67,10 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 {
 	if (!CanReceiveDamage(damageAmount))
 		return;
-
+	
 	OnDamageReceivedServer.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
 	OnHealthChangedServer.Broadcast();
 	
-	AActor* actorOwner = GetOwner();
-
 	const float lastHealth = _currentHealth;
 
 	_currentHealth = FMath::Clamp(_currentHealth - damageAmount, _minimumHealth, _maxHealth);
@@ -84,6 +82,7 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 	if (_currentHealth == _minimumHealth)
 	{
 		_isAlive = false;
+		AActor* actorOwner = GetOwner();
 		OnDeathServer.Broadcast(actorOwner, damageCauser, instigatedBy);
 		OnDeathGlobal.Broadcast(actorOwner, damageCauser, instigatedBy);
 	}
