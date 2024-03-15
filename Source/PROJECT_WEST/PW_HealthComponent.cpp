@@ -99,9 +99,11 @@ void UPW_HealthComponent::LocalTakeDamage(AActor* ownerActor, float damageAmount
 	const UDamageType* damageType,AController* instigatedBy, AActor* damageCauser)
 {
 	AActor* actorOwner = GetOwner();
+	
 	_currentHealth = FMath::Clamp(_currentHealth - damageAmount, _minimumHealth, _maxHealth);
 
 	MulticastHealthModified(actorOwner, damageCauser, instigatedBy, -damageAmount);
+	
 	_regenerationHandle.Reset();
 }
 

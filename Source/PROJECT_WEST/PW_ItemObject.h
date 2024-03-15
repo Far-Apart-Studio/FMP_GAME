@@ -10,6 +10,8 @@
 
 class APW_Character;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, APW_Character*, characterOwner);
+
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
@@ -32,7 +34,7 @@ class PROJECT_WEST_API APW_ItemObject : public AActor, public IPW_InteractableIn
 	GENERATED_BODY()
 
 protected:
-
+	
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	FString _itemID;
 	
@@ -56,6 +58,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Item Object") 
 	class UPW_HighlightCompont* _highlightComponent;
+
+public:
+	FInputBindingDelegate OnApplyInputBindingDelegate;
+	FInputBindingDelegate OnRemoveInputBindingDelegate;
 
 protected:
 	

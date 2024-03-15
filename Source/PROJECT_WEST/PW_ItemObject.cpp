@@ -204,7 +204,7 @@ void APW_ItemObject::ClientApplyActionBindings_Implementation(APW_Character* cha
 
 void APW_ItemObject::LocalApplyActionBindings(APW_Character* characterOwner)
 {
-	
+	OnApplyInputBindingDelegate.Broadcast(characterOwner);
 }
 #pragma endregion ApplyActionBindings
 
@@ -226,7 +226,7 @@ void APW_ItemObject::ClientRemoveActionBindings_Implementation(APW_Character* ch
 
 void APW_ItemObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 {
-	DEBUG_STRING("REMOVE BINDING ACTIONS");
+	OnRemoveInputBindingDelegate.Broadcast(characterOwner);
 }
 
 #pragma endregion RemoveActionBindings
