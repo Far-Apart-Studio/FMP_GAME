@@ -27,9 +27,9 @@ APW_PoiArea::APW_PoiArea()
 	_spawnArea->SetupAttachment(_root);
 	_spawnArea->SetCollisionProfileName(FName("OverlapAllDynamic"));
 
-	_detectionArea = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionArea"));
-	_detectionArea->SetupAttachment(_root);
-	_detectionArea->SetCollisionProfileName(FName("OverlapAllDynamic"));
+	_detectionTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionTrigger"));
+	_detectionTrigger->SetupAttachment(_root);
+	_detectionTrigger->SetCollisionProfileName(FName("OverlapAllDynamic"));
 
 	_boxSpawningComponent = CreateDefaultSubobject<UPW_BoxSpawningComponent>(TEXT("BoxSpawningComponent"));
 	_boxSpawningComponent->SetBoxComponent(_spawnArea);
@@ -39,10 +39,10 @@ void APW_PoiArea::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (_detectionArea && HasAuthority())
+	if (_detectionTrigger && HasAuthority())
 	{
-		_detectionArea->OnComponentBeginOverlap.AddDynamic(this, &APW_PoiArea::OnDetectionBoxBeginOverlap);
-		_detectionArea->OnComponentEndOverlap.AddDynamic(this, &APW_PoiArea::OnDetectionBoxEndOverlap);
+		_detectionTrigger->OnComponentBeginOverlap.AddDynamic(this, &APW_PoiArea::OnDetectionBoxBeginOverlap);
+		_detectionTrigger->OnComponentEndOverlap.AddDynamic(this, &APW_PoiArea::OnDetectionBoxEndOverlap);
 	}
 }
 

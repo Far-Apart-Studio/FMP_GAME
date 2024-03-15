@@ -31,7 +31,7 @@ private:
 	class UBoxComponent* _spawnArea;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* _detectionArea;
+	class USphereComponent* _detectionTrigger;
 
 	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	TArray<AActor*> _spawnedEnemies;

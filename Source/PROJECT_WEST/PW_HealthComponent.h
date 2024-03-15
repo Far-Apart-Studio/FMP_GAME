@@ -160,7 +160,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _minimumHealth = 0.0f;
 
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_HealthChanged, EditAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	float _currentHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Handler")
@@ -183,25 +183,25 @@ public:
 	FHealthDelegate OnHealthChangedGlobal;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
-	FHealthDelegate OnHealthChangedLocal;
+	FHealthDelegate OnHealthChangedServer;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDamageReceivedDelegate OnDamageReceivedGlobal;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
-	FOnDamageReceivedDelegate OnDamageReceivedLocal;
+	FOnDamageReceivedDelegate OnDamageReceivedServer;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDamageReceivedDelegate OnHealingReceivedGlobal;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
-	FOnDamageReceivedDelegate OnHealingReceivedLocal;
+	FOnDamageReceivedDelegate OnHealingReceivedServer;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDeathDelegate OnDeathGlobal;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
-	FOnDeathDelegate OnDeathLocal;
+	FOnDeathDelegate OnDeathServer;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FHealthDelegate OnInvulnerabilityGlobal;
@@ -222,7 +222,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable) void RecoverHealth(float recoverValue);
 	UFUNCTION(BlueprintCallable) void LocalRecoverHealth(float recoverValue);
-	UFUNCTION(BlueprintCallable) void LocalTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 	UFUNCTION(BlueprintCallable) void SetIsInvulnerable(bool isInvulnerable);
 	UFUNCTION(BlueprintCallable) void LocalSetIsInvulnerable(bool isInvulnerable);
 	UFUNCTION(BlueprintCallable) void SetCanNaturallyRegenerate(bool canNaturallyRegenerate);
@@ -234,12 +233,8 @@ public:
 	bool CanRecoverHealth();
 	bool CanReceiveLandedDamage();
 
-	UFUNCTION(Server, Reliable) void ServerRecoverHealth(float recoverValue);
-	UFUNCTION(Server, Reliable) void ServerTakeDamage(AActor* OwnerActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
-	UFUNCTION(Server, Reliable) void ServerSetIsInvulnerable(bool isInvulnerable);
-	UFUNCTION(Server, Reliable) void ServerSetCanNaturallyRegenerate(bool canNaturallyRegenerate);
-	UFUNCTION(NetMulticast, Reliable) void MulticastHealthModified(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController, float ModificationAmount);
-
+	UFUNCTION() void OnRep_HealthChanged(float lastHealth);
+	
 	FORCEINLINE bool IsAlive() const { return _isAlive; }
 	FORCEINLINE bool IsInvulnerable() const { return _isInvulnerable; }
 };

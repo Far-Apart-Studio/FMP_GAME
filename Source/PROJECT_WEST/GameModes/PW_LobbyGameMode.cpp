@@ -43,7 +43,6 @@ void APW_LobbyGameMode::BeginPlay()
 	ToggleSessionLock(false);
 
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
-	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
 	
 	if (_gameInstance->GetGameSessionData()._dayIndex % _bountyCollectorDayInterval == 0)
 	{
@@ -76,7 +75,7 @@ void APW_LobbyGameMode::TriggerDebtCollector()
 {
 	if (!_debtCollectorClass || !_spawnPointsHandlerComponent) return;
 	
-	_debtCollector = GetWorld()->SpawnActor<APW_DebtCollector>(_debtCollectorClass, _spawnPointsHandlerComponent->_debtCollectorSpawnPoint.GetRandomSpawnPoint(), FRotator::ZeroRotator);
+	_debtCollector = GetWorld()->SpawnActor<APW_DebtCollector>(_debtCollectorClass, _spawnPointsManager->GetDebtCollectorSpawnPoint(), FRotator::ZeroRotator);
 	if (_debtCollector)
 	{
 		_debtCollector->SetDebtAmount(_gameInstance->GetGameSessionData()._dayIndex);

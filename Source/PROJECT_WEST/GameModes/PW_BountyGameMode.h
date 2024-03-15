@@ -119,10 +119,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;
 
-	class APW_SpawnPointsManager* _spawnPointsManager;
-
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true") )
-	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
+	class APW_SpawnPointsManager* _spawnPointsManager;
 
 	float _countdownTime = 0.f;
 

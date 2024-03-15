@@ -10,7 +10,6 @@
 #include "PROJECT_WEST/Items/PW_Lantern.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/Gameplay/Spawner/PW_SpawnPointsManager.h"
-#include "PROJECT_WEST/Gameplay/Spawner/PW_SpawnPointsHandlerComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PW_HealthComponent.h"
@@ -47,7 +46,6 @@ void APW_BountyGameMode::BeginPlay()
 	_levelStartTime = GetWorld()->GetTimeSeconds();
 		
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
-	_spawnPointsHandlerComponent = _spawnPointsManager ? _spawnPointsManager->GetSpawnPointsHandlerComponent() : nullptr;
 	
 	StartMatch();
 	
@@ -225,11 +223,11 @@ void APW_BountyGameMode::LoadGameSessionData()
 
 void APW_BountyGameMode::SpawnLantern()
 {
-	if(!_spawnPointsHandlerComponent || !_lanternClass) return;
+	if(!_spawnPointsManager || !_lanternClass) return;
 	_lantern = GetWorld()->SpawnActor<APW_Lantern>(_lanternClass);
 	if (_lantern)
 	{
-		_lantern->SetActorLocation(_spawnPointsHandlerComponent->GetLanternSpawnPoint());
+		_lantern->SetActorLocation(_spawnPointsManager->GetLanternSpawnPoint());
 		_lantern->SetActorRotation(FRotator(0, 0, 0));
 		_lantern->SetOwner(nullptr);
 
@@ -261,11 +259,11 @@ void APW_BountyGameMode::OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, 
 
 void APW_BountyGameMode::SpawnBountyEnemy()
 {
-	if (!_spawnPointsHandlerComponent || !_bountyEnemyClass) return;
+	if (!_spawnPointsManager || !_bountyEnemyClass) return;
 	_bountyEnemy = GetWorld()->SpawnActor<AActor>(_bountyEnemyClass);
 	if (_bountyEnemy)
 	{
-		_bountyEnemy->SetActorLocation(_spawnPointsHandlerComponent->GetBountyPortalSpawnPoint());
+		_bountyEnemy->SetActorLocation(_spawnPointsManager->GetBountyPortalSpawnPoint());
 		_bountyEnemy->SetActorRotation(FRotator(0, 0, 0));
 		_bountyEnemy->SetOwner(nullptr);
 
@@ -310,11 +308,11 @@ void APW_BountyGameMode::OnActivateExtrationPoint(bool bWinCondition, TArray<FSt
 
 void APW_BountyGameMode::SpawnExtractionPoint()
 {
-	if (!_spawnPointsHandlerComponent || !_extractionPointClass) return;
+	if (!_spawnPointsManager || !_extractionPointClass) return;
 	_extractionPoint = GetWorld()->SpawnActor<APW_ExtractionPoint>(_extractionPointClass);
 	if (_extractionPoint)
 	{
-		_extractionPoint->SetActorLocation(_spawnPointsHandlerComponent->GetExtractionSpawnPoint());
+		_extractionPoint->SetActorLocation(_spawnPointsManager->GetExtractionSpawnPoint());
 		_extractionPoint->SetActorRotation(FRotator(0, 0, 0));
 		_extractionPoint->SetOwner(nullptr);
 		_extractionPoint->OnWinConditionMet.AddDynamic(this, &APW_BountyGameMode::OnActivateExtrationPoint);
@@ -338,8 +336,8 @@ void APW_BountyGameMode::EnemyEliminated(AActor* OwnerActor,AActor* DamageCauser
 
 void APW_BountyGameMode::SpawnEnemies()
 {
-	if (!_spawnPointsHandlerComponent || !_enemyClass) return;
-	TArray<FVector> enemySpawnPoints = _spawnPointsHandlerComponent->GetEnemySpawnPoint();
+	if (!_spawnPointsManager || !_enemyClass) return;
+	TArray<FVector> enemySpawnPoints = _spawnPointsManager->GetEnemySpawnPoint();
 	for (FVector spawnPoint : enemySpawnPoints)
 	{
 		for (int i = 0; i < _numOfenemiesPerPoint; i++)
@@ -364,8 +362,8 @@ void APW_BountyGameMode::SpawnEnemies()
 
 void APW_BountyGameMode::SpawnCurrencies()
 {
-	if (!_currencyClass || !_spawnPointsHandlerComponent) return;
-	TArray<FVector> currencySpawnPoints = _spawnPointsHandlerComponent->GetRandomCurrencySpawnPoints(_numOfCurrencies);
+	if (!_currencyClass || !_spawnPointsManager) return;
+	TArray<FVector> currencySpawnPoints = _spawnPointsManager->GetRandomCurrencySpawnPoints(_numOfCurrencies);
 	for (FVector spawnPoint : currencySpawnPoints)
 	{
 		APW_Currency* currency = GetWorld()->SpawnActor<APW_Currency>(_currencyClass);
