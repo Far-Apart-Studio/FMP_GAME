@@ -3,7 +3,7 @@
 
 #include "PW_CollectionObjective.h"
 
-void APW_CollectionObjective::SetUp(FSideObjectiveData sideObjectiveData, APW_PoiArea* poiArea)
+void APW_CollectionObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea* poiArea)
 {
 	Super::SetUp(sideObjectiveData, poiArea);
 }

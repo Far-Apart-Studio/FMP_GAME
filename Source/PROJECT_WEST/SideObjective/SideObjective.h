@@ -13,12 +13,9 @@ enum class ETaskType : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FSideObjectiveData
+struct FSideObjectiveInfo
 {
 	GENERATED_BODY()
-
-	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
-	ETaskType _taskType;
 	
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
 	FString _objectiveDescription;
@@ -40,6 +37,30 @@ struct FSideObjectiveData
 };
 
 USTRUCT(BlueprintType)
+struct FSideObjectiveData
+{
+	GENERATED_BODY()
+
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	ETaskType _taskType;
+
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	TArray<FSideObjectiveInfo> _sideObjectivesInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FSideObjectiveEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	ETaskType _taskType;
+	
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	FSideObjectiveInfo _sideObjectiveInfo;
+};
+
+USTRUCT(BlueprintType)
 struct FObjectiveClassData
 {
 	GENERATED_BODY()
@@ -52,7 +73,7 @@ struct FObjectiveClassData
 };
 
 USTRUCT(BlueprintType)
-struct FMapObjective: public FTableRowBase
+struct FMapObjectives: public FTableRowBase
 {
 	GENERATED_BODY()
 

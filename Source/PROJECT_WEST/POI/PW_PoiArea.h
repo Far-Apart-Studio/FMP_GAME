@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "PROJECT_WEST/Gameplay/Spawner/PW_WeightedSpawner.h"
 #include "GameFramework/Actor.h"
+#include "PROJECT_WEST/Gameplay/Spawner/PW_SpawnPointsManager.h"
 #include "PW_PoiArea.generated.h"
-
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPoiTriggered, APW_PoiArea*, poi);
 
@@ -44,6 +44,9 @@ private:
 
 	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	class UPW_BoxSpawningComponent* _boxSpawningComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
+	FSpawnPoints _spawnPoints;
 
 	bool _isTriggered = false;
 	
@@ -88,4 +91,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "POI")
 	FOnPoiTriggered OnPoiTriggered;
+
+	FORCEINLINE FSpawnPoints GetSpawnPoints() const { return _spawnPoints; }
 };

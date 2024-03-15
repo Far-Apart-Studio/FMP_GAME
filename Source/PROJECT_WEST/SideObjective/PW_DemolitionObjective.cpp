@@ -7,11 +7,16 @@
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/POI/PW_PoiArea.h"
 
-void APW_DemolitionObjective::SetUp(FSideObjectiveData sideObjectiveData, APW_PoiArea* poiArea)
+void APW_DemolitionObjective::SetUp(FSideObjectiveEntry sideObjectiveEntry, APW_PoiArea* poiArea)
 {
-	Super::SetUp(sideObjectiveData, poiArea);
-	_targetActor = poiArea->SpawnActor(sideObjectiveData._objectiveObjectType);
-	TryAssignDeathEvent(_targetActor);
+	Super::SetUp(sideObjectiveEntry, poiArea);
+
+	for (int i = 0; i < sideObjectiveEntry._sideObjectiveInfo._objectiveAmount; i++)
+	{
+		AActor* targetActor = poiArea->SpawnActor(sideObjectiveEntry._sideObjectiveInfo._objectiveObjectType);
+		TryAssignDeathEvent(targetActor);
+		_targetActors.Add(targetActor);
+	}
 }
 
 void APW_DemolitionObjective::Deactivate()
@@ -29,5 +34,9 @@ void APW_DemolitionObjective::TryAssignDeathEvent(AActor* actor)
 
 void APW_DemolitionObjective::OnTargetDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController)
 {
-	_onObjectiveCompleted.Broadcast(this);
+	_targetActors.Remove(OwnerActor);
+	if (_targetActors.Num() == 0)
+	{
+		_onObjectiveCompleted.Broadcast(this);
+	}
 }

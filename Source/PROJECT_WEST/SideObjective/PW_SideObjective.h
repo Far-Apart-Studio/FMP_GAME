@@ -20,7 +20,7 @@ public:
 	APW_SideObjective();
 
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetUp(FSideObjectiveData sideObjectiveData, class APW_PoiArea* poiArea);
+	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea);
 	virtual void Deactivate();
 
 	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
@@ -29,7 +29,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
 	FOnObjectiveFailed _onObjectiveFailed;
 
-	FORCEINLINE FSideObjectiveData GetObjectiveData() const { return _objectiveData; }
+	FORCEINLINE FSideObjectiveEntry GetObjectiveData() const { return _objectiveData; }
 	FORCEINLINE APW_PoiArea* GetPoiArea() const { return _poiArea; }
 
 protected:
@@ -37,7 +37,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
-	FSideObjectiveData _objectiveData;
+	FSideObjectiveEntry _objectiveData;
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	class APW_PoiArea* _poiArea;

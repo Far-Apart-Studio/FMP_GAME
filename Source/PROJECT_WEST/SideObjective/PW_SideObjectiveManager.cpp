@@ -35,51 +35,51 @@ void APW_SideObjectiveManager::InitialiseAllObjectives()
 		return;
 	}
 	
-	TArray<FSideObjectiveData> _sideObjectiveData = GetAllObjectivesData();
+	TArray<FSideObjectiveData> _allSideObjectiveData = GetAllObjectivesData();
 
-	if (_sideObjectiveData.Num() == 0)
+	if (_allSideObjectiveData.Num() == 0)
 	{
 		DEBUG_STRING ("No Side Objectives Found");
 		return;
 	}
-
-	TArray<FSideObjectiveData> _availableObjectivesData = _sideObjectiveData;
+	
+	TArray<FSideObjectiveData> _selectedObjectivesData = TArray<FSideObjectiveData>();
 
 	for (int i = 0; i < _numOfObjectivesPerMap; i++)
 	{
-		if (_availableObjectivesData.Num() == 0)
+		if (_allSideObjectiveData.Num() == 0)
 		{
-			DEBUG_STRING ("No More Objectives Available");
 			break;
 		}
 
-		const int32 _randomIndex = FMath::RandRange(0, _availableObjectivesData.Num() - 1);
-		if (DoesObjectiveTypeExist(_availableObjectivesData[_randomIndex]))
-		{
-			DEBUG_STRING ("Objective Type Already Exists");
-			continue;
-		}
-		
-		_selectedObjectivesData.Add(_availableObjectivesData[_randomIndex]);
-		_availableObjectivesData.RemoveAt(_randomIndex);
+		const int32 _randomIndex = FMath::RandRange(0, _allSideObjectiveData.Num() - 1);
+		_selectedObjectivesData.Add(_allSideObjectiveData[_randomIndex]);
+		_allSideObjectiveData.RemoveAt(_randomIndex);
 	}
 
 	for (const FSideObjectiveData& sideObjectiveData : _selectedObjectivesData)
 	{
-		if (APW_SideObjective* objective = InitialiseObjective(sideObjectiveData))
+		if (sideObjectiveData._sideObjectivesInfo.Num() == 0)
 		{
-			DEBUG_STRING ("Objective Initialised");
-			_activeObjectives.Add(objective);
+			continue;
 		}
+		
+		const int32 _randomIndex = FMath::RandRange(0, sideObjectiveData._sideObjectivesInfo.Num() - 1);
+		_selectedObjectiveEntries.Add({sideObjectiveData._taskType, sideObjectiveData._sideObjectivesInfo[_randomIndex]});
+	}
+
+	for (const FSideObjectiveEntry& sideObjectiveEntry : _selectedObjectiveEntries)
+	{
+		_activeObjectives.Add(InitialiseObjective(sideObjectiveEntry));
 	}
 }
 
-APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObjectiveData& sideObjectiveData)
+APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObjectiveEntry& sideObjectiveData)
 {
 	APW_SideObjective* objective  = nullptr;
 	const TSubclassOf<class APW_SideObjective> _objectiveClassType = GetClassType(sideObjectiveData._taskType);
 
-	if(APW_PoiArea* _poiArea = _poiManager->GetPOIWithID(sideObjectiveData._poiID))
+	if(APW_PoiArea* _poiArea = _poiManager->GetPOIWithID(sideObjectiveData._sideObjectiveInfo._poiID))
 	{
 		objective = Cast<APW_SideObjective>(GetWorld()->SpawnActor(_objectiveClassType));
 		objective->_onObjectiveCompleted.AddDynamic(this, &APW_SideObjectiveManager::OnObjectiveCompleted);
@@ -107,7 +107,7 @@ TArray<FSideObjectiveData> APW_SideObjectiveManager::GetAllObjectivesData() cons
 	TArray<FSideObjectiveData> _sideObjectiveData;
 	if (_ItemDataTable)
 	{
-		if (const FMapObjective* itemData = _ItemDataTable->FindRow<FMapObjective>(*_mapID, ""))
+		if (const FMapObjectives* itemData = _ItemDataTable->FindRow<FMapObjectives>(*_mapID, ""))
 		{
 			_sideObjectiveData = itemData->_sideObjectiveData;
 		}
@@ -126,16 +126,3 @@ TSubclassOf<APW_SideObjective> APW_SideObjectiveManager::GetClassType(ETaskType 
 	}
 	return nullptr;
 }
-
-bool APW_SideObjectiveManager::DoesObjectiveTypeExist(const FSideObjectiveData& sideObjectiveData)
-{
-	for (const FSideObjectiveData objectiveClass : _selectedObjectivesData)
-	{
-		if (objectiveClass._taskType == sideObjectiveData._taskType)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-

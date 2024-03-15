@@ -38,7 +38,7 @@ private:
 	TArray<FObjectiveClassData> _objectiveClasses;
 
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
-	TArray<FSideObjectiveData>  _selectedObjectivesData;
+	TArray<FSideObjectiveEntry> _selectedObjectiveEntries;
 	
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	int32 _numOfObjectivesCompleted;
@@ -52,7 +52,7 @@ private:
 private:
 
 	void InitialiseAllObjectives();
-	APW_SideObjective*  InitialiseObjective(const FSideObjectiveData& sideObjectiveData);
+	APW_SideObjective*  InitialiseObjective(const FSideObjectiveEntry& sideObjectiveData);
 
 	UFUNCTION()
 	void OnObjectiveCompleted(APW_SideObjective* ComplectedObjective);
@@ -63,6 +63,4 @@ private:
 	TArray<FSideObjectiveData> GetAllObjectivesData() const;
 
 	TSubclassOf<class APW_SideObjective> GetClassType (ETaskType taskType);
-
-	bool DoesObjectiveTypeExist(const FSideObjectiveData& sideObjectiveData);
 };

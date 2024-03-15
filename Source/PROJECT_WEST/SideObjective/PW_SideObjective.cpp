@@ -19,7 +19,7 @@ void APW_SideObjective::Tick(float DeltaTime)
 
 }
 
-void APW_SideObjective::SetUp(FSideObjectiveData sideObjectiveData, APW_PoiArea* poiArea)
+void APW_SideObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea* poiArea)
 {
 	_poiArea = poiArea;
 }

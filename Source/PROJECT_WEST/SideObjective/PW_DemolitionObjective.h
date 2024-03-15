@@ -17,11 +17,11 @@ class PROJECT_WEST_API APW_DemolitionObjective : public APW_SideObjective
 private:
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
-	AActor* _targetActor;
+	TArray< AActor*> _targetActors;
 	
 public:
 	
-	virtual void SetUp(FSideObjectiveData sideObjectiveData, class APW_PoiArea* poiArea)override;
+	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea)override;
 	virtual void Deactivate() override;
 	
 	void TryAssignDeathEvent(AActor* actor);

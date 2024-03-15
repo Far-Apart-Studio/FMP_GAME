@@ -14,6 +14,6 @@ class PROJECT_WEST_API APW_EliminationObjective : public APW_SideObjective
 {
 	GENERATED_BODY()
 
-	virtual void SetUp(FSideObjectiveData sideObjectiveData, class APW_PoiArea* poiArea)override;
+	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea)override;
 	virtual void Deactivate() override;
 };
