@@ -30,6 +30,9 @@ public:
 	FOnUnLoaded _onUnloaded;
 	
 private:
+
+	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
+	bool _canUnload;
 	
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	float _distanceToUnload;

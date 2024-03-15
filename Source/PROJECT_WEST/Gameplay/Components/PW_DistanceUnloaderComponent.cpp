@@ -12,6 +12,7 @@ UPW_DistanceUnloaderComponent::UPW_DistanceUnloaderComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	_isUnLoaded = false;
+	_canUnload = true;
 	_distanceToUnload = 10000.0f;
 }
 
@@ -22,7 +23,7 @@ void UPW_DistanceUnloaderComponent::BeginPlay()
 
 void UPW_DistanceUnloaderComponent::TickComponent(float DeltaTime, ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction)
 {
-	if (!GetOwner()->HasAuthority())
+	if (!GetOwner()->HasAuthority() || !_canUnload)
 		return;
 	
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

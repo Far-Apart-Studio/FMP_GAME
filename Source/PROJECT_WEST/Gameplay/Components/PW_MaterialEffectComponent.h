@@ -61,13 +61,10 @@ private:
 	bool _isEffectActive;
 	
 	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
-	TArray<USkeletalMeshComponent*> _skeletalMeshComponents;
-
-	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
-	TArray<UStaticMeshComponent*> _staticMeshComponents;
+	TArray<UMeshComponent*> _meshComponents;
 
 private:
-	void GenerateMeshComponents();
+	
 	void HandleEffect(float DeltaTime);
 	void SetMeshComponentsEffectValue(float value);
 
@@ -75,6 +72,9 @@ private:
 	void OnRep_EffectValueChanged();
 
 public:
+
+	UFUNCTION(BlueprintCallable)
+	void GenerateMeshComponents();
 
 	UFUNCTION(BlueprintCallable)
 	void ActivateEffect(EEffectDirection direction);

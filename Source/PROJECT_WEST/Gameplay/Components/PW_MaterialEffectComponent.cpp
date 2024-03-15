@@ -43,11 +43,7 @@ void UPW_MaterialEffectComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 void UPW_MaterialEffectComponent::GenerateMeshComponents()
 {
-	_skeletalMeshComponents = TArray<USkeletalMeshComponent*>();
-	GetOwner()->GetComponents<USkeletalMeshComponent>(_skeletalMeshComponents);
-
-	_staticMeshComponents = TArray<UStaticMeshComponent*>();
-	GetOwner()->GetComponents<UStaticMeshComponent>(_staticMeshComponents);
+	GetOwner()->GetComponents(_meshComponents);
 }
 
 void UPW_MaterialEffectComponent::HandleEffect(float DeltaTime)
@@ -68,14 +64,9 @@ void UPW_MaterialEffectComponent::HandleEffect(float DeltaTime)
 
 void UPW_MaterialEffectComponent::SetMeshComponentsEffectValue(float value)
 {
-	for (USkeletalMeshComponent* meshComponent : _skeletalMeshComponents)
+	for (UMeshComponent* component : _meshComponents)
 	{
-		meshComponent->SetScalarParameterValueOnMaterials(_effectName, value);
-	}
-
-	for (UStaticMeshComponent* meshComponent : _staticMeshComponents)
-	{
-		meshComponent->SetScalarParameterValueOnMaterials(_effectName, value);
+		component->SetScalarParameterValueOnMaterials(_effectName, value);
 	}
 }
 

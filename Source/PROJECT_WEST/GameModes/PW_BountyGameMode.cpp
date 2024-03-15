@@ -55,7 +55,6 @@ void APW_BountyGameMode::BeginPlay()
 	SpawnLantern();
 	SpawnExtractionPoint();
 	//SpawnEnemies();
-	SpawnWeapons();
 	SpawnCurrencies();
 	
 	_matchStartTime = GetWorld()->GetTimeSeconds();
@@ -70,6 +69,8 @@ void APW_BountyGameMode::BeginPlay()
 			playerController->ClientJoinMidGame(MatchState, _matchTime, _levelStartTime, _mathEndCooldownTime);
 		}
 	}
+
+	OnInitializeComplete();
 }
 
 void APW_BountyGameMode::Tick(float DeltaSeconds)
@@ -109,8 +110,7 @@ void APW_BountyGameMode::HandleStateTimer()
 		
 		if (_countdownTime <= 0.f)
 		{
-			DEBUG_STRING( "Time is up" );
-			BountyFailed();
+			OnTimeUp();
 		}
 	}
 	else if (MatchState == MatchState::Cooldown)
@@ -133,6 +133,12 @@ void APW_BountyGameMode::BountyFailed()
 	ToggleAllPlayersInput(false);
 	SaveAllPlayersInventoryData();
 	SetMatchState(MatchState::Cooldown);
+}
+
+void APW_BountyGameMode::OnTimeUp()
+{
+	DEBUG_STRING( "Time is up" );
+	BountyFailed();
 }
 
 void APW_BountyGameMode::BountySuccessful()
@@ -312,23 +318,6 @@ void APW_BountyGameMode::SpawnExtractionPoint()
 		_extractionPoint->SetActorRotation(FRotator(0, 0, 0));
 		_extractionPoint->SetOwner(nullptr);
 		_extractionPoint->OnWinConditionMet.AddDynamic(this, &APW_BountyGameMode::OnActivateExtrationPoint);
-	}
-}
-
-void APW_BountyGameMode::SpawnWeapons()
-{
-	int32 numberOfPlayers = GetNumPlayers();
-	for (int i = 0; i < numberOfPlayers; i++)
-	{
-		if (!_spawnPointsHandlerComponent || !_weaponClass) return;
-		FVector weaponSpawnPoint = _spawnPointsHandlerComponent->GetLanternSpawnPoint();
-		AActor* weapon = GetWorld()->SpawnActor<AActor>(_weaponClass);
-		if (weapon)
-		{
-			weapon->SetActorLocation(weaponSpawnPoint);
-			weapon->SetActorRotation(FRotator(0, 0, 0));
-			weapon->SetOwner(nullptr);
-		}
 	}
 }
 
