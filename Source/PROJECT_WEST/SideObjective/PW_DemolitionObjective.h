@@ -13,11 +13,6 @@ UCLASS()
 class PROJECT_WEST_API APW_DemolitionObjective : public APW_SideObjective
 {
 	GENERATED_BODY()
-
-private:
-
-	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
-	TArray< AActor*> _targetActors;
 	
 public:
 	

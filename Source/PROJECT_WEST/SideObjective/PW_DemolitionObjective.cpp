@@ -21,6 +21,15 @@ void APW_DemolitionObjective::SetUp(FSideObjectiveEntry sideObjectiveEntry, APW_
 
 void APW_DemolitionObjective::Deactivate()
 {
+	for (AActor* targetActor : _targetActors)
+	{
+		if (UPW_HealthComponent* healthComponent = targetActor->FindComponentByClass<UPW_HealthComponent>())
+		{
+			healthComponent->OnDeathServer.RemoveDynamic(this, &APW_DemolitionObjective::OnTargetDeath);
+		}
+		targetActor->Destroy();
+	}
+
 	Super::Deactivate();
 }
 

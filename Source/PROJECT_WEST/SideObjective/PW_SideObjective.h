@@ -14,14 +14,26 @@ UCLASS()
 class PROJECT_WEST_API APW_SideObjective : public AActor
 {
 	GENERATED_BODY()
+
+protected:
+	
+	virtual void BeginPlay() override;
+	void HandleTimer(float deltaTime);
 	
 public:	
 
 	APW_SideObjective();
 
 	virtual void Tick(float DeltaTime) override;
+
 	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea);
 	virtual void Deactivate();
+
+	UFUNCTION()
+	void OnPOITriggered(class APW_PoiArea* Poi);
+
+	FString GetElapsedTime();
+	FString ConvertToTime(float time);
 
 	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
 	FOnObjectiveCompleted _onObjectiveCompleted;
@@ -34,11 +46,18 @@ public:
 
 protected:
 
-	virtual void BeginPlay() override;
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	TArray< AActor*> _targetActors;
 	
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	FSideObjectiveEntry _objectiveData;
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	class APW_PoiArea* _poiArea;
+
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	float _currentObjectiveTime;
+
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	bool _startTimer;
 };

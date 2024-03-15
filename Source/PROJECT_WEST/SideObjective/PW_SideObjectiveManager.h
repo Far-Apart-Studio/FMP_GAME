@@ -63,4 +63,6 @@ private:
 	TArray<FSideObjectiveData> GetAllObjectivesData() const;
 
 	TSubclassOf<class APW_SideObjective> GetClassType (ETaskType taskType);
+
+	void SortAvailableObjectives();
 };

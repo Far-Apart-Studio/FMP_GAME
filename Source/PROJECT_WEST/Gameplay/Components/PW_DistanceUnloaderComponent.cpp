@@ -6,13 +6,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/PW_Character.h"
+#include "PROJECT_WEST/PW_HealthComponent.h"
 
 UPW_DistanceUnloaderComponent::UPW_DistanceUnloaderComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	_isUnLoaded = false;
-	_canUnload = true;
+	_canUnload = false;
 	_distanceToUnload = 10000.0f;
 }
 
@@ -40,10 +41,13 @@ void UPW_DistanceUnloaderComponent::HandleDistanceUnloading()
 	
 	for (AActor* actor : actors)
 	{
-		APW_Character* character = Cast<APW_Character>(actor);
-		if (character)
+		if (const APW_Character* character = Cast<APW_Character>(actor))
 		{
-			float distance = FVector::Dist(character->GetActorLocation(), GetOwner()->GetActorLocation());
+			const UPW_HealthComponent* healthComponent = character->FindComponentByClass<UPW_HealthComponent>();
+			if (healthComponent && !healthComponent->IsAlive())
+				continue;
+			
+			const float distance = FVector::Dist(character->GetActorLocation(), GetOwner()->GetActorLocation());
 			if (distance < _distanceToUnload)
 				return;
 		}
@@ -57,4 +61,9 @@ void UPW_DistanceUnloaderComponent::UnLoad()
 	_isUnLoaded = true;
 	_onUnloaded.Broadcast(GetOwner());
 	GetOwner()->Destroy();
+}
+
+void UPW_DistanceUnloaderComponent::SetCanUnload(bool status)
+{
+	_canUnload = status;
 }

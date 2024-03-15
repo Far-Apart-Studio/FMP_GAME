@@ -188,6 +188,7 @@ void APW_AutoEnemySpawner::TryAssignUnloaderEvent(AActor* actor)
 	UPW_DistanceUnloaderComponent* unloaderComponent = actor->FindComponentByClass<UPW_DistanceUnloaderComponent>();
 	if (unloaderComponent)
 	{
+		unloaderComponent->SetCanUnload(true);
 		unloaderComponent->_onUnloaded.AddDynamic(this, &APW_AutoEnemySpawner::OnActorUnloaded);
 	}
 }

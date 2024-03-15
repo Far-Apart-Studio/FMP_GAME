@@ -26,6 +26,8 @@ enum class EItemObjectState : uint8
 	EHeld,
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickedUp, APW_ItemObject*, itemPicked);
+
 UCLASS()
 class PROJECT_WEST_API APW_ItemObject : public AActor, public IPW_InteractableInterface
 {
@@ -95,6 +97,8 @@ public:
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
+
+	FOnPickedUp _onPickedUpServer;
 
 	FORCEINLINE FString GetItemID() const { return _itemID; }
 	FORCEINLINE EItemType GetItemType() const { return _itemType; }

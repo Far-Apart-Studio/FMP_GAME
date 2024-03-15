@@ -27,6 +27,9 @@ public:
 	void HandleDistanceUnloading();
 	void UnLoad();
 
+	UFUNCTION(BlueprintCallable)
+	void SetCanUnload(bool status);
+
 	FOnUnLoaded _onUnloaded;
 	
 private:

@@ -146,7 +146,7 @@ void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* colle
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	
 	ChangeSlot(slotIndex, true);
-	DEBUG_STRING("Collected Item");
+	//DEBUG_STRING("Collected Item");
 }
 
 void UPW_InventoryHandler::ServerCollectItem_Implementation(int slotIndex, APW_ItemObject* collectedItem)
@@ -227,7 +227,7 @@ void UPW_InventoryHandler::LocalLoadFromData(const FPlayerInventoryDataEntry& in
 		{ PW_Utilities::Log("ITEM CLASS IS NULL!"); continue; }
 		APW_ItemObject* item = GetWorld()->SpawnActor<APW_ItemObject>(itemClass, GetOwner()->GetActorLocation(), FRotator::ZeroRotator);
 		items.Add(item);
-		DEBUG_STRING("Spawned Item");
+		//DEBUG_STRING("Spawned Item");
 	}
 
 	int32 selectedIndex = inventoryData._selectedSlotIndex;

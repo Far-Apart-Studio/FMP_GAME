@@ -169,6 +169,11 @@ void APW_ItemObject::UpdateItemState(EItemObjectState updatedState)
 {
 	_itemState = updatedState;
 	OnUpdateItemState();
+
+	if (_itemState == EItemObjectState::EHeld)
+	{
+		_onPickedUpServer.Broadcast(this);
+	}
 }
 
 void APW_ItemObject::OnUpdateItemState()

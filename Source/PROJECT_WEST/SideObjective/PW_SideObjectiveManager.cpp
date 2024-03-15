@@ -68,6 +68,8 @@ void APW_SideObjectiveManager::InitialiseAllObjectives()
 		_selectedObjectiveEntries.Add({sideObjectiveData._taskType, sideObjectiveData._sideObjectivesInfo[_randomIndex]});
 	}
 
+	SortAvailableObjectives();
+
 	for (const FSideObjectiveEntry& sideObjectiveEntry : _selectedObjectiveEntries)
 	{
 		_activeObjectives.Add(InitialiseObjective(sideObjectiveEntry));
@@ -125,4 +127,12 @@ TSubclassOf<APW_SideObjective> APW_SideObjectiveManager::GetClassType(ETaskType 
 		}
 	}
 	return nullptr;
+}
+
+void APW_SideObjectiveManager::SortAvailableObjectives()
+{
+	_selectedObjectiveEntries.Sort([](const FSideObjectiveEntry& A, const FSideObjectiveEntry& B)
+	{
+		return !A._sideObjectiveInfo._poiID.IsEmpty() && B._sideObjectiveInfo._poiID.IsEmpty();
+	});
 }

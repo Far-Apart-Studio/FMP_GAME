@@ -16,4 +16,9 @@ class PROJECT_WEST_API APW_EliminationObjective : public APW_SideObjective
 
 	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea)override;
 	virtual void Deactivate() override;
+	
+	void TryAssignDeathEvent(AActor* Actor);
+
+	UFUNCTION()
+	void OnTargetDeath(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController);
 };
