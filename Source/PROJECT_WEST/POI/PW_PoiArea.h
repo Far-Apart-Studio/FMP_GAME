@@ -8,7 +8,7 @@
 #include "PW_PoiArea.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPoiTriggred, APW_PoiArea*, poi);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPoiTriggered, APW_PoiArea*, poi);
 
 UCLASS()
 class PROJECT_WEST_API APW_PoiArea : public AActor
@@ -31,10 +31,10 @@ private:
 	class UBoxComponent* _spawnArea;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* _detectionBox;
+	class USphereComponent* _detectionArea;
 
 	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	TArray<AActor*> _spawnedActors;
+	TArray<AActor*> _spawnedEnemies;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay",meta = (AllowPrivateAccess = "true"))
 	FWeightedSpawn _enemyWeightedSpawn;
@@ -44,6 +44,8 @@ private:
 
 	UPROPERTY (VisibleAnywhere , Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	class UPW_BoxSpawningComponent* _boxSpawningComponent;
+
+	bool _isTriggered = false;
 	
 private:
 
@@ -56,7 +58,7 @@ private:
 	void TryAssignUnloaderEvent(AActor* actor);
 
 	UFUNCTION()
-	void OnActorDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController);
+	void OnEnemyDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController);
 
 	UFUNCTION()
 	void OnActorUnloaded(AActor* UnloadedActor);
@@ -79,5 +81,11 @@ public:
 	FString GetPoiID() const { return _poiID; }
 
 	UFUNCTION(BlueprintCallable)
+	AActor* SpawnPOIEnemy(TSubclassOf<AActor> actorClass);
+
+	UFUNCTION(BlueprintCallable)
 	AActor* SpawnActor(TSubclassOf<AActor> actorClass);
+
+	UPROPERTY(BlueprintAssignable, Category = "POI")
+	FOnPoiTriggered OnPoiTriggered;
 };

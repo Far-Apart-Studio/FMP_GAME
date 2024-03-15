@@ -110,8 +110,7 @@ void APW_BountyGameMode::HandleStateTimer()
 		
 		if (_countdownTime <= 0.f)
 		{
-			DEBUG_STRING( "Time is up" );
-			BountyFailed();
+			OnTimeUp();
 		}
 	}
 	else if (MatchState == MatchState::Cooldown)
@@ -134,6 +133,12 @@ void APW_BountyGameMode::BountyFailed()
 	ToggleAllPlayersInput(false);
 	SaveAllPlayersInventoryData();
 	SetMatchState(MatchState::Cooldown);
+}
+
+void APW_BountyGameMode::OnTimeUp()
+{
+	DEBUG_STRING( "Time is up" );
+	BountyFailed();
 }
 
 void APW_BountyGameMode::BountySuccessful()

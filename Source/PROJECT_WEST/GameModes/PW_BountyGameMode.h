@@ -77,6 +77,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay")
 	void OnInitializeComplete();
+
+	void OnTimeUp();
 	
 	void BountySuccessful();
 	

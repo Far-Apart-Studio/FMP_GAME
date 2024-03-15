@@ -19,9 +19,9 @@ void APW_SideObjective::Tick(float DeltaTime)
 
 }
 
-void APW_SideObjective::Activate(FSideObjectiveData sideObjectiveData)
+void APW_SideObjective::SetUp(FSideObjectiveData sideObjectiveData, APW_PoiArea* poiArea)
 {
-	
+	_poiArea = poiArea;
 }
 
 void APW_SideObjective::Deactivate()

@@ -4,6 +4,7 @@
 #include "PW_PoiArea.h"
 #include "PROJECT_WEST/Gameplay/Spawner/PW_BoxSpawningComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/DebugMacros.h"
@@ -26,9 +27,9 @@ APW_PoiArea::APW_PoiArea()
 	_spawnArea->SetupAttachment(_root);
 	_spawnArea->SetCollisionProfileName(FName("OverlapAllDynamic"));
 
-	_detectionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("DetectionBox"));
-	_detectionBox->SetupAttachment(_root);
-	_detectionBox->SetCollisionProfileName(FName("OverlapAllDynamic"));
+	_detectionArea = CreateDefaultSubobject<USphereComponent>(TEXT("DetectionArea"));
+	_detectionArea->SetupAttachment(_root);
+	_detectionArea->SetCollisionProfileName(FName("OverlapAllDynamic"));
 
 	_boxSpawningComponent = CreateDefaultSubobject<UPW_BoxSpawningComponent>(TEXT("BoxSpawningComponent"));
 	_boxSpawningComponent->SetBoxComponent(_spawnArea);
@@ -38,10 +39,10 @@ void APW_PoiArea::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (_detectionBox && HasAuthority())
+	if (_detectionArea && HasAuthority())
 	{
-		_detectionBox->OnComponentBeginOverlap.AddDynamic(this, &APW_PoiArea::OnDetectionBoxBeginOverlap);
-		_detectionBox->OnComponentEndOverlap.AddDynamic(this, &APW_PoiArea::OnDetectionBoxEndOverlap);
+		_detectionArea->OnComponentBeginOverlap.AddDynamic(this, &APW_PoiArea::OnDetectionBoxBeginOverlap);
+		_detectionArea->OnComponentEndOverlap.AddDynamic(this, &APW_PoiArea::OnDetectionBoxEndOverlap);
 	}
 }
 
@@ -50,6 +51,12 @@ void APW_PoiArea::OnDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComp
 	APW_Character* character = Cast<APW_Character>(OtherActor);
 	if (character)
 	{
+		if (!_isTriggered)
+		{
+			_isTriggered = true;
+			OnPoiTriggered.Broadcast(this);
+		}
+		
 		if(CanSpawnEnemy())
 			SpawnEnemies();
 		
@@ -72,7 +79,7 @@ void APW_PoiArea::Tick(float DeltaTime)
 
 }
 
-AActor* APW_PoiArea::SpawnActor(TSubclassOf<AActor> actorClass)
+AActor* APW_PoiArea::SpawnPOIEnemy(TSubclassOf<AActor> actorClass)
 {
 	FVector spawnPosition = FVector::ZeroVector;
 	_boxSpawningComponent->GetGroundPositionAndNormal(_boxSpawningComponent->GetRandomPositionInBox(), spawnPosition);
@@ -81,9 +88,16 @@ AActor* APW_PoiArea::SpawnActor(TSubclassOf<AActor> actorClass)
 	{
 		TryAssignDeathEvent(actorToSpawn);
 		TryAssignUnloaderEvent(actorToSpawn);
-		_spawnedActors.Add(actorToSpawn);
+		_spawnedEnemies.Add(actorToSpawn);
 	}
 	return actorToSpawn;
+}
+
+AActor* APW_PoiArea::SpawnActor(TSubclassOf<AActor> actorClass)
+{
+	FVector spawnPosition = FVector::ZeroVector;
+	_boxSpawningComponent->GetGroundPositionAndNormal(_boxSpawningComponent->GetRandomPositionInBox(), spawnPosition);
+	return GetWorld()->SpawnActor<AActor> (actorClass, spawnPosition, FRotator::ZeroRotator);
 }
 
 void APW_PoiArea::SpawnEnemies()
@@ -97,7 +111,7 @@ void APW_PoiArea::SpawnEnemies()
 			{
 				for (int j = 0; j < info._amount; j++)
 				{
-					SpawnActor(info._actorClass);
+					SpawnPOIEnemy(info._actorClass);
 				}
 			}
 		}
@@ -106,7 +120,7 @@ void APW_PoiArea::SpawnEnemies()
 
 bool APW_PoiArea::CanSpawnEnemy()
 {
-	return _triggeredActors.Num() == 0 && _spawnedActors.Num() == 0;
+	return _triggeredActors.Num() == 0 && _spawnedEnemies.Num() == 0;
 }
 
 int APW_PoiArea::GetNumberOfCharactersInLevel()
@@ -129,7 +143,7 @@ void APW_PoiArea::TryAssignDeathEvent(AActor* actor)
 	UPW_HealthComponent* healthComponent = actor->FindComponentByClass<UPW_HealthComponent>();
 	if (healthComponent)
 	{
-		healthComponent->OnDeathGlobal.AddDynamic(this, &APW_PoiArea::OnActorDeath);
+		healthComponent->OnDeathGlobal.AddDynamic(this, &APW_PoiArea::OnEnemyDeath);
 	}
 }
 
@@ -151,13 +165,13 @@ void APW_PoiArea::TryAssignUnloaderEvent(AActor* actor)
 	}
 }
 
-void APW_PoiArea::OnActorDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController)
+void APW_PoiArea::OnEnemyDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController)
 {
-	_spawnedActors.Remove(OwnerActor);
+	_spawnedEnemies.Remove(OwnerActor);
 }
 
 void APW_PoiArea::OnActorUnloaded(AActor* UnloadedActor)
 {
-	if (_spawnedActors.Contains(UnloadedActor))
-	_spawnedActors.Remove(UnloadedActor);
+	if (_spawnedEnemies.Contains(UnloadedActor))
+	_spawnedEnemies.Remove(UnloadedActor);
 }

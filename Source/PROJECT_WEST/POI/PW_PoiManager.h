@@ -31,9 +31,13 @@ private:
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	TArray<class APW_PoiArea*> _poiAreas;
 
+	TArray<class APW_PoiArea*> _poiAvailable;
+	
+
 public:	
 
 	UFUNCTION(BlueprintCallable, Category = Data)
 	TArray<class APW_PoiArea*> GetPoiAreas() const { return _poiAreas; }
 
+	APW_PoiArea* GetPOIWithID(FString poiID);
 };

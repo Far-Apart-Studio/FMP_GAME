@@ -3,9 +3,9 @@
 
 #include "PW_CollectionObjective.h"
 
-void APW_CollectionObjective::Activate(FSideObjectiveData sideObjectiveData)
+void APW_CollectionObjective::SetUp(FSideObjectiveData sideObjectiveData, APW_PoiArea* poiArea)
 {
-	Super::Activate(sideObjectiveData);
+	Super::SetUp(sideObjectiveData, poiArea);
 }
 
 void APW_CollectionObjective::Deactivate()
