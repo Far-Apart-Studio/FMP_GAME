@@ -17,7 +17,7 @@ class PROJECT_WEST_API APW_CollectionObjective : public APW_SideObjective
 
 
 	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea)override;
-	virtual void Deactivate() override;
+	virtual void Failed() override;
 
 	void TryAssignOnCollectEvent(AActor* Actor);
 	

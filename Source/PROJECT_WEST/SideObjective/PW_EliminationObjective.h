@@ -15,7 +15,7 @@ class PROJECT_WEST_API APW_EliminationObjective : public APW_SideObjective
 	GENERATED_BODY()
 
 	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea)override;
-	virtual void Deactivate() override;
+	virtual void Failed() override;
 	
 	void TryAssignDeathEvent(AActor* Actor);
 

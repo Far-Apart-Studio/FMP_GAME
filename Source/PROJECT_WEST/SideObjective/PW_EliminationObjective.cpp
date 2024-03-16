@@ -17,7 +17,7 @@ void APW_EliminationObjective::SetUp(FSideObjectiveEntry sideObjectiveEntry, APW
 	}
 }
 
-void APW_EliminationObjective::Deactivate()
+void APW_EliminationObjective::Failed()
 {
 	for (AActor* targetActor : _targetActors)
 	{
@@ -28,7 +28,7 @@ void APW_EliminationObjective::Deactivate()
 		targetActor->Destroy();
 	}
 	
-	Super::Deactivate();
+	Super::Failed();
 }
 
 void APW_EliminationObjective::TryAssignDeathEvent(AActor* Actor)
@@ -49,8 +49,7 @@ void APW_EliminationObjective::OnTargetDeath(AActor* OwnerActor, AActor* DamageC
 		_currentObjectiveAmount++;
 		if (_targetActors.Num() == 0)
 		{
-			_onObjectiveCompleted.Broadcast(this);
-			_completed = true;
+			Completed();
 		}
 	}
 }

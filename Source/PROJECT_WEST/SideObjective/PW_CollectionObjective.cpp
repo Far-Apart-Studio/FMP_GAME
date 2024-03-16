@@ -18,7 +18,7 @@ void APW_CollectionObjective::SetUp(FSideObjectiveEntry sideObjectiveEntry, APW_
 	}
 }
 
-void APW_CollectionObjective::Deactivate()
+void APW_CollectionObjective::Failed()
 {
 	for (AActor* targetActor : _targetActors)
 	{
@@ -29,7 +29,7 @@ void APW_CollectionObjective::Deactivate()
 		targetActor->Destroy();
 	}
 
-	Super::Deactivate();
+	Super::Failed();
 }
 
 void APW_CollectionObjective::TryAssignOnCollectEvent(AActor* Actor)
@@ -49,8 +49,7 @@ void APW_CollectionObjective::OnTargetCollected(APW_ItemObject* ItemPicked)
 		_currentObjectiveAmount++;
 		if (_targetActors.Num() == 0)
 		{
-			_onObjectiveCompleted.Broadcast(this);
-			_completed = true;
+			Completed();
 		}
 	}
 }

@@ -12,6 +12,14 @@ enum class ETaskType : uint8
 	ECollection
 };
 
+UENUM(BlueprintType)
+enum class EObjectiveState : uint8
+{
+	ENone,
+	ECompleted,
+	EFailed
+};
+
 USTRUCT(BlueprintType)
 struct FSideObjectiveInfo
 {

@@ -28,7 +28,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
 
 	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea);
-	virtual void Deactivate();
+	virtual void Completed();
+	virtual void Failed();
 
 	UFUNCTION()
 	void OnPOITriggered(class APW_PoiArea* Poi);
@@ -53,7 +54,7 @@ protected:
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	TArray< AActor*> _targetActors;
 	
-	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	FSideObjectiveEntry _objectiveData;
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
@@ -66,7 +67,7 @@ protected:
 	float _currentObjectiveTime;
 
 	UPROPERTY( ReplicatedUsing=OnRep_Complected, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
-	float _completed;
+	EObjectiveState _objectiveState;
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	bool _startTimer;

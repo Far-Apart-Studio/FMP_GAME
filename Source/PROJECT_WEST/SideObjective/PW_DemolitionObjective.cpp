@@ -19,7 +19,7 @@ void APW_DemolitionObjective::SetUp(FSideObjectiveEntry sideObjectiveEntry, APW_
 	}
 }
 
-void APW_DemolitionObjective::Deactivate()
+void APW_DemolitionObjective::Failed()
 {
 	for (AActor* targetActor : _targetActors)
 	{
@@ -29,8 +29,8 @@ void APW_DemolitionObjective::Deactivate()
 		}
 		targetActor->Destroy();
 	}
-
-	Super::Deactivate();
+	
+	Super::Failed();
 }
 
 void APW_DemolitionObjective::TryAssignDeathEvent(AActor* actor)
@@ -47,7 +47,6 @@ void APW_DemolitionObjective::OnTargetDeath(AActor* OwnerActor,AActor* DamageCau
 	_currentObjectiveAmount++;
 	if (_targetActors.Num() == 0)
 	{
-		_onObjectiveCompleted.Broadcast(this);
-		_completed = true;
+		Completed();
 	}
 }

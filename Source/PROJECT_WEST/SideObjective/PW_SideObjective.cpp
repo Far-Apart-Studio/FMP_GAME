@@ -9,26 +9,26 @@ APW_SideObjective::APW_SideObjective()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
+	_objectiveState = EObjectiveState::ENone;
 }
 
 void APW_SideObjective::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void APW_SideObjective::HandleTimer(float deltaTime)
 {
-	if (_startTimer)
+	if (_startTimer && _objectiveState == EObjectiveState::ENone)
 	{
 		_currentObjectiveTime -= deltaTime;
 		if (_currentObjectiveTime <= 0)
 		{
 			_startTimer = false;
-			Deactivate();
+			Failed();
 		}
 
-		DEBUG_STRING("Time: " + GetElapsedTime());
+		//DEBUG_STRING("Time: " + GetElapsedTime());
 	}
 }
 
@@ -43,13 +43,16 @@ void APW_SideObjective::Tick(float DeltaTime)
 void APW_SideObjective::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APW_SideObjective, _objectiveData);
 	DOREPLIFETIME(APW_SideObjective, _currentObjectiveAmount);
 	DOREPLIFETIME(APW_SideObjective, _currentObjectiveTime);
-	DOREPLIFETIME(APW_SideObjective, _completed);
+	DOREPLIFETIME(APW_SideObjective, _objectiveState);
 }
 
 void APW_SideObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea* poiArea)
 {
+	if (!HasAuthority()) return;
+	
 	_poiArea = poiArea;
 	_objectiveData = sideObjectiveData;
 	_currentObjectiveTime = sideObjectiveData._sideObjectiveInfo._objectiveDuration;
@@ -60,26 +63,41 @@ void APW_SideObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea
 	}
 }
 
-void APW_SideObjective::Deactivate()
+void APW_SideObjective::Completed()
 {
+	_objectiveState = EObjectiveState::ECompleted;
+	_onObjectiveCompleted.Broadcast(this);
+}
+
+void APW_SideObjective::Failed()
+{
+	_objectiveState = EObjectiveState::EFailed;
 	_onObjectiveFailed.Broadcast(this);
-	_completed = false;
 }
 
 void APW_SideObjective::OnPOITriggered(APW_PoiArea* Poi)
 {
-	DEBUG_STRING ("POI Triggered");
 	_startTimer = true;
 }
 
 void APW_SideObjective::OnRep_Complected()
 {
-	_completed ? _onObjectiveCompleted.Broadcast(this) : _onObjectiveFailed.Broadcast(this);
+	DEBUG_STRING ("Objective Completed nClient");
+
+	if (_objectiveState == EObjectiveState::ECompleted)
+	{
+		_onObjectiveCompleted.Broadcast(this);
+	}
+	else if (_objectiveState == EObjectiveState::EFailed)
+	{
+		_onObjectiveFailed.Broadcast(this);
+	}
+	//_objectiveState == EObjectiveState::ECompleted ? _onObjectiveCompleted.Broadcast(this) : _onObjectiveFailed.Broadcast(this);
 }
 
 FString APW_SideObjective::GetElapsedTime()
 {
-	return  ConvertToTime(_currentObjectiveTime);
+	return ConvertToTime(_currentObjectiveTime);
 }
 
 FString APW_SideObjective::ConvertToTime(float time)
