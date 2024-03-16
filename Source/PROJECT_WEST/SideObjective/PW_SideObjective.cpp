@@ -66,13 +66,13 @@ void APW_SideObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea
 void APW_SideObjective::Completed()
 {
 	_objectiveState = EObjectiveState::ECompleted;
-	_onObjectiveCompleted.Broadcast(this);
+	_onObjectiveStatChanged.Broadcast(this);
 }
 
 void APW_SideObjective::Failed()
 {
 	_objectiveState = EObjectiveState::EFailed;
-	_onObjectiveFailed.Broadcast(this);
+	_onObjectiveStatChanged.Broadcast(this);
 }
 
 void APW_SideObjective::OnPOITriggered(APW_PoiArea* Poi)
@@ -82,17 +82,7 @@ void APW_SideObjective::OnPOITriggered(APW_PoiArea* Poi)
 
 void APW_SideObjective::OnRep_Complected()
 {
-	DEBUG_STRING ("Objective Completed nClient");
-
-	if (_objectiveState == EObjectiveState::ECompleted)
-	{
-		_onObjectiveCompleted.Broadcast(this);
-	}
-	else if (_objectiveState == EObjectiveState::EFailed)
-	{
-		_onObjectiveFailed.Broadcast(this);
-	}
-	//_objectiveState == EObjectiveState::ECompleted ? _onObjectiveCompleted.Broadcast(this) : _onObjectiveFailed.Broadcast(this);
+	_onObjectiveStatChanged.Broadcast(this);
 }
 
 FString APW_SideObjective::GetElapsedTime()

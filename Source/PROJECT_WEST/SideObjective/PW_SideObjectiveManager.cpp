@@ -96,13 +96,17 @@ APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObje
 	if(APW_PoiArea* _poiArea = _poiManager->GetPOIWithID(sideObjectiveData._sideObjectiveInfo._poiID))
 	{
 		objective = Cast<APW_SideObjective>(GetWorld()->SpawnActor(_objectiveClassType));
-		objective->_onObjectiveCompleted.AddDynamic(this, &APW_SideObjectiveManager::OnObjectiveCompleted);
-		objective->_onObjectiveFailed.AddDynamic(this, &APW_SideObjectiveManager::OnObjectiveFailed);
+		objective->_onObjectiveStatChanged.AddDynamic(this, &APW_SideObjectiveManager::OnObjectiveStateChanged);
 		objective->SetUp(sideObjectiveData, _poiArea);
 		_activeObjectiveEntries.Add(sideObjectiveData);
 	}
 
 	return objective;
+}
+
+void APW_SideObjectiveManager::OnObjectiveStateChanged(APW_SideObjective* objective)
+{
+	objective->GetObjectiveState() == EObjectiveState::ECompleted ? OnObjectiveCompleted(objective) : OnObjectiveFailed(objective);
 }
 
 void APW_SideObjectiveManager::OnObjectiveCompleted(APW_SideObjective* ComplectedObjective)

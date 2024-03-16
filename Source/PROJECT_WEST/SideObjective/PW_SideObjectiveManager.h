@@ -68,9 +68,10 @@ private:
 	APW_SideObjective*  InitialiseObjective(const FSideObjectiveEntry& sideObjectiveData);
 
 	UFUNCTION()
+	void OnObjectiveStateChanged(APW_SideObjective* ComplectedObjective);
+	
 	void OnObjectiveCompleted(APW_SideObjective* ComplectedObjective);
-
-	UFUNCTION()
+	
 	void OnObjectiveFailed(APW_SideObjective* FailedObjective);
 
 	TArray<FSideObjectiveData> GetAllObjectivesData() const;

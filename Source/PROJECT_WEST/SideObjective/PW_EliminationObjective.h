@@ -16,7 +16,8 @@ class PROJECT_WEST_API APW_EliminationObjective : public APW_SideObjective
 
 	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea)override;
 	virtual void Failed() override;
-	
+
+	void TryFadeActorMaterial(AActor* actor);
 	void TryAssignDeathEvent(AActor* Actor);
 
 	UFUNCTION()

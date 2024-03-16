@@ -7,8 +7,7 @@
 #include "PROJECT_WEST/SideObjective/SideObjective.h"
 #include "PW_SideObjective.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveCompleted, APW_SideObjective*, complectedObjective);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveFailed, APW_SideObjective*, failedObjective);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStatChanged, APW_SideObjective*, objective);
 
 UCLASS()
 class PROJECT_WEST_API APW_SideObjective : public AActor
@@ -41,13 +40,11 @@ public:
 	FString ConvertToTime(float time);
 
 	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
-	FOnObjectiveCompleted _onObjectiveCompleted;
-
-	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
-	FOnObjectiveFailed _onObjectiveFailed;
+	FOnObjectiveStatChanged _onObjectiveStatChanged;
 
 	FORCEINLINE FSideObjectiveEntry GetObjectiveData() const { return _objectiveData; }
 	FORCEINLINE APW_PoiArea* GetPoiArea() const { return _poiArea; }
+	FORCEINLINE EObjectiveState GetObjectiveState() const { return _objectiveState; }
 
 protected:
 

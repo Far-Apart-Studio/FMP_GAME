@@ -4,6 +4,7 @@
 #include "PW_EliminationObjective.h"
 
 #include "PROJECT_WEST/PW_HealthComponent.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_MaterialEffectComponent.h"
 #include "PROJECT_WEST/POI/PW_PoiArea.h"
 
 void APW_EliminationObjective::SetUp(FSideObjectiveEntry sideObjectiveEntry, APW_PoiArea* poiArea)
@@ -12,6 +13,7 @@ void APW_EliminationObjective::SetUp(FSideObjectiveEntry sideObjectiveEntry, APW
 	for (int i = 0; i < sideObjectiveEntry._sideObjectiveInfo._objectiveAmount; i++)
 	{
 		AActor* targetActor = poiArea->SpawnActor(sideObjectiveEntry._sideObjectiveInfo._objectiveObjectType);
+		TryFadeActorMaterial(targetActor);
 		TryAssignDeathEvent(targetActor);
 		_targetActors.Add(targetActor);
 	}
@@ -29,6 +31,15 @@ void APW_EliminationObjective::Failed()
 	}
 	
 	Super::Failed();
+}
+
+void APW_EliminationObjective::TryFadeActorMaterial(AActor* actor)
+{
+	UPW_MaterialEffectComponent* materialEffectComponent = actor->FindComponentByClass<UPW_MaterialEffectComponent>();
+	if (materialEffectComponent)
+	{
+		materialEffectComponent->ActivateEffect(EEffectDirection::ED_Backward);
+	}
 }
 
 void APW_EliminationObjective::TryAssignDeathEvent(AActor* Actor)
