@@ -60,8 +60,11 @@ protected:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	float _currentObjectiveAmount;
 
-	UPROPERTY( Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	float _currentObjectiveTime;
+	
+	UPROPERTY(Replicated, Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+    FString _timeText;
 
 	UPROPERTY( ReplicatedUsing=OnRep_Complected, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	EObjectiveState _objectiveState;

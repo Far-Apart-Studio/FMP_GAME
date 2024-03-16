@@ -27,8 +27,7 @@ void APW_SideObjective::HandleTimer(float deltaTime)
 			_startTimer = false;
 			Failed();
 		}
-
-		//DEBUG_STRING("Time: " + GetElapsedTime());
+		_timeText = GetElapsedTime();
 	}
 }
 
@@ -45,7 +44,7 @@ void APW_SideObjective::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APW_SideObjective, _objectiveData);
 	DOREPLIFETIME(APW_SideObjective, _currentObjectiveAmount);
-	DOREPLIFETIME(APW_SideObjective, _currentObjectiveTime);
+	DOREPLIFETIME(APW_SideObjective, _timeText);
 	DOREPLIFETIME(APW_SideObjective, _objectiveState);
 }
 
@@ -55,11 +54,13 @@ void APW_SideObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea
 	
 	_poiArea = poiArea;
 	_objectiveData = sideObjectiveData;
+	_objectiveData._sideObjectiveInfo._poiID = _poiArea->GetPoiID();
 	_currentObjectiveTime = sideObjectiveData._sideObjectiveInfo._objectiveDuration;
 
 	if (_currentObjectiveTime > 0)
 	{
 		_poiArea->OnPoiTriggered.AddDynamic(this, &APW_SideObjective::OnPOITriggered);
+		_timeText = GetElapsedTime();
 	}
 }
 
