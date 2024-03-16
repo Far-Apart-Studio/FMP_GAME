@@ -44,8 +44,10 @@ void APW_DemolitionObjective::TryAssignDeathEvent(AActor* actor)
 void APW_DemolitionObjective::OnTargetDeath(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController)
 {
 	_targetActors.Remove(OwnerActor);
+	_currentObjectiveAmount++;
 	if (_targetActors.Num() == 0)
 	{
 		_onObjectiveCompleted.Broadcast(this);
+		_completed = true;
 	}
 }

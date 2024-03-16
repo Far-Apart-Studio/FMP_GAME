@@ -6,6 +6,9 @@
 #include "PROJECT_WEST/SideObjective/SideObjective.h"
 #include "PW_SideObjectiveManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSideObjectiveCompleted, APW_SideObjective*, complectedObjective);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSideObjectiveFailed, APW_SideObjective*, failedObjective);
+
 UCLASS()
 class PROJECT_WEST_API APW_SideObjectiveManager : public AActor
 {
@@ -22,7 +25,14 @@ protected:
 public:	
 
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
 
+	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
+	FOnSideObjectiveCompleted _onObjectiveCompleted;
+
+	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
+	FOnSideObjectiveFailed _onObjectiveFailed;
+	
 private:
 
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
@@ -37,13 +47,16 @@ private:
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	TArray<FObjectiveClassData> _objectiveClasses;
 
-	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	TArray<FSideObjectiveEntry> _selectedObjectiveEntries;
 	
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	int32 _numOfObjectivesCompleted;
+
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	TArray<FSideObjectiveEntry> _activeObjectiveEntries;
 	
-	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY( Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	TArray<APW_SideObjective*> _activeObjectives;
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))

@@ -1,6 +1,7 @@
 
 #include "PW_SideObjective.h"
 
+#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/POI/PW_PoiArea.h"
 
@@ -39,9 +40,18 @@ void APW_SideObjective::Tick(float DeltaTime)
 		HandleTimer (DeltaTime); 
 }
 
+void APW_SideObjective::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APW_SideObjective, _currentObjectiveAmount);
+	DOREPLIFETIME(APW_SideObjective, _currentObjectiveTime);
+	DOREPLIFETIME(APW_SideObjective, _completed);
+}
+
 void APW_SideObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea* poiArea)
 {
 	_poiArea = poiArea;
+	_objectiveData = sideObjectiveData;
 	_currentObjectiveTime = sideObjectiveData._sideObjectiveInfo._objectiveDuration;
 
 	if (_currentObjectiveTime > 0)
@@ -53,12 +63,18 @@ void APW_SideObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea
 void APW_SideObjective::Deactivate()
 {
 	_onObjectiveFailed.Broadcast(this);
+	_completed = false;
 }
 
 void APW_SideObjective::OnPOITriggered(APW_PoiArea* Poi)
 {
 	DEBUG_STRING ("POI Triggered");
 	_startTimer = true;
+}
+
+void APW_SideObjective::OnRep_Complected()
+{
+	_completed ? _onObjectiveCompleted.Broadcast(this) : _onObjectiveFailed.Broadcast(this);
 }
 
 FString APW_SideObjective::GetElapsedTime()

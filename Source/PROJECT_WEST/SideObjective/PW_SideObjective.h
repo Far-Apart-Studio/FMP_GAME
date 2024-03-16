@@ -25,12 +25,16 @@ public:
 	APW_SideObjective();
 
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
 
 	virtual void SetUp(FSideObjectiveEntry sideObjectiveData, class APW_PoiArea* poiArea);
 	virtual void Deactivate();
 
 	UFUNCTION()
 	void OnPOITriggered(class APW_PoiArea* Poi);
+
+	UFUNCTION()
+	void OnRep_Complected();
 
 	FString GetElapsedTime();
 	FString ConvertToTime(float time);
@@ -55,8 +59,14 @@ protected:
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	class APW_PoiArea* _poiArea;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	float _currentObjectiveAmount;
+
+	UPROPERTY( Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	float _currentObjectiveTime;
+
+	UPROPERTY( ReplicatedUsing=OnRep_Complected, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	float _completed;
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	bool _startTimer;

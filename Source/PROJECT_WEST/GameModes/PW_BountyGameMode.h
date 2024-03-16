@@ -67,6 +67,9 @@ public:
 	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	APW_Lantern* _lantern;
 
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
+	class APW_SideObjectiveManager* _sideObjectiveManager;
+
 	AActor* _bountyPortalEntrance;
 
 	AActor* _bountyEnemy;

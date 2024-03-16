@@ -2,12 +2,14 @@
 #include "PW_SideObjectiveManager.h"
 #include "PW_SideObjective.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/POI/PW_PoiManager.h"
 #include "PROJECT_WEST/DebugMacros.h"
 
 APW_SideObjectiveManager::APW_SideObjectiveManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 	_numOfObjectivesPerMap = 3;
 }
 
@@ -23,6 +25,13 @@ void APW_SideObjectiveManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void APW_SideObjectiveManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APW_SideObjectiveManager, _activeObjectiveEntries);
+	DOREPLIFETIME(APW_SideObjectiveManager, _activeObjectives);
 }
 
 void APW_SideObjectiveManager::InitialiseAllObjectives()
@@ -72,7 +81,10 @@ void APW_SideObjectiveManager::InitialiseAllObjectives()
 
 	for (const FSideObjectiveEntry& sideObjectiveEntry : _selectedObjectiveEntries)
 	{
-		_activeObjectives.Add(InitialiseObjective(sideObjectiveEntry));
+		if (APW_SideObjective* _objective = InitialiseObjective(sideObjectiveEntry))
+		{
+			_activeObjectives.Add(_objective);
+		}
 	}
 }
 
@@ -87,6 +99,7 @@ APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObje
 		objective->_onObjectiveCompleted.AddDynamic(this, &APW_SideObjectiveManager::OnObjectiveCompleted);
 		objective->_onObjectiveFailed.AddDynamic(this, &APW_SideObjectiveManager::OnObjectiveFailed);
 		objective->SetUp(sideObjectiveData, _poiArea);
+		_activeObjectiveEntries.Add(sideObjectiveData);
 	}
 
 	return objective;
@@ -95,13 +108,15 @@ APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObje
 void APW_SideObjectiveManager::OnObjectiveCompleted(APW_SideObjective* ComplectedObjective)
 {
 	DEBUG_STRING ("Objective Completed");
-	ComplectedObjective->Destroy();
+	//ComplectedObjective->Destroy();
+	_onObjectiveCompleted.Broadcast(ComplectedObjective);
 }
 
 void APW_SideObjectiveManager::OnObjectiveFailed(APW_SideObjective* FailedObjective)
 {
 	DEBUG_STRING ("Objective Failed");
-	FailedObjective->Destroy();
+	//FailedObjective->Destroy();
+	_onObjectiveFailed.Broadcast(FailedObjective);
 }
 
 TArray<FSideObjectiveData> APW_SideObjectiveManager::GetAllObjectivesData() const

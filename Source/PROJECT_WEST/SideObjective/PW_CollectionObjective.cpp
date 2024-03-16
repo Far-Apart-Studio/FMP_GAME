@@ -46,9 +46,11 @@ void APW_CollectionObjective::OnTargetCollected(APW_ItemObject* ItemPicked)
 	{
 		ItemPicked->_onPickedUpServer.RemoveDynamic(this, &APW_CollectionObjective::OnTargetCollected);
 		_targetActors.Remove(ItemPicked);
+		_currentObjectiveAmount++;
 		if (_targetActors.Num() == 0)
 		{
 			_onObjectiveCompleted.Broadcast(this);
+			_completed = true;
 		}
 	}
 }

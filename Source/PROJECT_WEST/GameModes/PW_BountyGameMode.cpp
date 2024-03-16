@@ -18,6 +18,7 @@
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "PROJECT_WEST/Gameplay/Spawner/PW_AutoEnemySpawner.h"
 #include "PROJECT_WEST/Items/PW_Currency.h"
+#include "PROJECT_WEST/SideObjective/PW_SideObjectiveManager.h"
 
 namespace MatchState
 {
@@ -46,6 +47,8 @@ void APW_BountyGameMode::BeginPlay()
 	_levelStartTime = GetWorld()->GetTimeSeconds();
 		
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
+
+	_sideObjectiveManager = Cast<APW_SideObjectiveManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SideObjectiveManager::StaticClass()));
 	
 	StartMatch();
 	

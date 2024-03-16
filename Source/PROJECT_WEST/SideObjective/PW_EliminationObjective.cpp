@@ -46,9 +46,11 @@ void APW_EliminationObjective::OnTargetDeath(AActor* OwnerActor, AActor* DamageC
 	if (_targetActors.Contains(OwnerActor))
 	{
 		_targetActors.Remove(OwnerActor);
+		_currentObjectiveAmount++;
 		if (_targetActors.Num() == 0)
 		{
 			_onObjectiveCompleted.Broadcast(this);
+			_completed = true;
 		}
 	}
 }
