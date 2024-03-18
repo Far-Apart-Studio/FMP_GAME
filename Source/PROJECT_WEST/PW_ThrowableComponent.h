@@ -18,7 +18,7 @@ class PROJECT_WEST_API UPW_ThrowableComponent : public UActorComponent
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Throwable")
-	float _throwForce = 1000.0f;
+	float _throwVelocity = 1000.0f;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Throwable")
 	APW_ItemObject* _throwableItemObject;
@@ -40,6 +40,7 @@ public:
 	void QueueThrow();
 	void CancelThrow();
 	void Throw();
+	void DrawTrajectory();
 	void SetThrowableInputBinding(APW_Character* characterOwner);
 	void RemoveThrowableInputBinding(APW_Character* characterOwner);
 

@@ -49,36 +49,3 @@ public:
 		response.FinishAndTriggerIf(_timeRemaining <= 0.0f, _executionFunction, 0 , _callbackTarget);
 	}
 };
-
-DECLARE_DELEGATE(FThrowDelegate);
-
-class FQueueThrowAction : public FPendingLatentAction
-{
-	
-public:
-	FName ExecutionFunction;
-	FWeakObjectPtr CallbackTarget;
-	float UpdateRate;
-	bool& IsThrowQueued;
-	FThrowDelegate OnQueueThrow;
-
-	float UpdateTimer = 0.0f;
-
-	FQueueThrowAction(const FLatentActionInfo& latentInfo, float updateRate, bool& isThrowQueued)
-		: ExecutionFunction(latentInfo.ExecutionFunction)
-		, CallbackTarget(latentInfo.CallbackTarget)
-		, UpdateRate(updateRate)
-		, IsThrowQueued(isThrowQueued)
-	{ }
-
-	virtual void UpdateOperation(FLatentResponse& response) override
-	{
-		UpdateTimer += response.ElapsedTime();
-		if (UpdateTimer >= UpdateRate)
-		{
-			const bool isExecuted = OnQueueThrow.ExecuteIfBound();
-			if (isExecuted)
-				UpdateTimer = 0.0f;
-		}
-	}
-};

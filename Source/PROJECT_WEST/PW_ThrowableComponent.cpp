@@ -5,6 +5,7 @@
 
 #include "FDashAction.h"
 #include "PW_ItemObject.h"
+#include "Kismet/GameplayStatics.h"
 
 UPW_ThrowableComponent::UPW_ThrowableComponent()
 {
@@ -32,6 +33,7 @@ void UPW_ThrowableComponent::InitialiseComponent()
 void UPW_ThrowableComponent::QueueThrow()
 {
 	OnQueueThrow.Broadcast();
+	DrawTrajectory();
 }
 
 void UPW_ThrowableComponent::CancelThrow()
@@ -50,19 +52,44 @@ void UPW_ThrowableComponent::Throw()
 	if (objectThrower)
 	{
 		const FVector throwDirection = objectThrower->GetActorForwardVector();
-		const FVector throwImpulse = throwDirection * _throwForce;
+		const FVector throwImpulse = throwDirection * _throwVelocity;
 		itemMesh->AddImpulse(throwImpulse);
 	}
 }
 
+void UPW_ThrowableComponent::DrawTrajectory()
+{
+	AActor* ownerActor = GetOwner();
+	FVector startLocation = ownerActor->GetActorLocation();
+	FVector launchVelocity = ownerActor->GetActorForwardVector() * _throwVelocity;
+	
+	FPredictProjectilePathParams predictParams;
+	FPredictProjectilePathResult predictResult;
+
+	predictParams.StartLocation = startLocation;
+	predictParams.LaunchVelocity = launchVelocity;
+	predictParams.MaxSimTime = 3.0f;
+	predictParams.SimFrequency = 100.0f;
+	
+	UGameplayStatics::PredictProjectilePath(this, predictParams, predictResult);
+}
+
 void UPW_ThrowableComponent::SetThrowableInputBinding(APW_Character* characterOwner)
 {
-	
+	characterOwner->OnAimButtonPressed.AddDynamic(this, &UPW_ThrowableComponent::QueueThrow);
+	characterOwner->OnAimButtonReleased.AddDynamic(this, &UPW_ThrowableComponent::CancelThrow);
+	characterOwner->OnShootButtonPressed.AddDynamic(this, &UPW_ThrowableComponent::Throw);
+
+	DEBUG_STRING("SetThrowableInputBinding");
 }
 
 void UPW_ThrowableComponent::RemoveThrowableInputBinding(APW_Character* characterOwner)
 {
-	
+	characterOwner->OnAimButtonPressed.RemoveDynamic(this, &UPW_ThrowableComponent::QueueThrow);
+	characterOwner->OnAimButtonReleased.RemoveDynamic(this, &UPW_ThrowableComponent::CancelThrow);
+	characterOwner->OnShootButtonPressed.RemoveDynamic(this, &UPW_ThrowableComponent::Throw);
+
+	DEBUG_STRING("RemoveThrowableInputBinding");
 }
 
 void UPW_ThrowableComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
