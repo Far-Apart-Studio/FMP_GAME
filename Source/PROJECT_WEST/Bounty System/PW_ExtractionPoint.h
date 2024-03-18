@@ -7,7 +7,8 @@
 #include "PROJECT_WEST/Interfaces/PW_InteractableInterface.h"
 #include "PW_ExtractionPoint.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams( FWinDelegate, bool , winCondition, TArray<FString>, escapedPlayers);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWinDelegate, bool , winCondition, TArray<FString>, escapedPlayers);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTriggerDelegate, class APW_Character*, player);
 
 UCLASS()
 class PROJECT_WEST_API APW_ExtractionPoint : public AActor,public IPW_InteractableInterface
@@ -22,6 +23,10 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+private:
+	
+	bool _triggered;
+
 public:
 	
 	virtual void Tick(float DeltaTime) override;
@@ -32,6 +37,9 @@ public:
 	virtual bool HasServerInteraction_Implementation() override;
 	virtual void ServerStartInteract_Implementation(AActor* owner) override;
 
+	UFUNCTION()
+	virtual void OnEnterExtractionBox (UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 	UPROPERTY( BlueprintReadWrite, VisibleAnywhere )
 	bool _canInteract;
 
@@ -52,4 +60,6 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FWinDelegate OnWinConditionMet;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerTriggerDelegate OnPlayerTrigger;
 };

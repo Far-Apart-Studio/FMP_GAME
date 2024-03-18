@@ -98,7 +98,9 @@ public:
 	
 	UFUNCTION()
 	void OnActivateExtrationPoint(bool bWinCondition,TArray<FString> escapedPlayers);
-	
+
+	UFUNCTION()
+	void OnPlayerTriggerExtractionPoint(APW_Character* Player);
 	void SpawnExtractionPoint();
 	
 	void SpawnAutoEnemySpawner(ACharacter *character);

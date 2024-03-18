@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "PROJECT_WEST/Notification.h"
 #include "PROJECT_WEST/Gameplay/GameSessionData.h"
 #include "PW_PlayerController.generated.h"
 
@@ -11,6 +12,7 @@ class UPW_ConsoleCommandManager;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsuccess, int32, bountyIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNameChangedDelegate , FString , newName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoficationTriggerDelegate, FNotificationEntry, notification);
 
 /**
  * 
@@ -96,6 +98,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FOnNameChangedDelegate _onNameChanged;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnNoficationTriggerDelegate _onNotificationTriggered;
 
 protected:
 	
@@ -247,6 +252,9 @@ public:
 	UFUNCTION( Server, Reliable )
 	void ServerCollectCurrency(class APW_Currency* currency);
 	void LocalCollectCurrency(class APW_Currency* currency);
+
+	UFUNCTION( Client, Reliable )
+	void TriggerNotification(FNotificationEntry notification);
 
 	bool IsAlive();
 

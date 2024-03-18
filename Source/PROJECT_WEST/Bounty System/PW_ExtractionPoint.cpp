@@ -40,6 +40,11 @@ void APW_ExtractionPoint::BeginPlay()
 {
 	Super::BeginPlay();
 	_canInteract = true;
+
+	if (HasAuthority())
+	{
+		_extractionBox->OnComponentBeginOverlap.AddDynamic(this, &APW_ExtractionPoint::OnEnterExtractionBox);
+	}
 }
 
 // Called every frame
@@ -72,6 +77,19 @@ bool APW_ExtractionPoint::HasServerInteraction_Implementation()
 void APW_ExtractionPoint::ServerStartInteract_Implementation(AActor* owner)
 {
 	CheckForWin();
+}
+
+void APW_ExtractionPoint::OnEnterExtractionBox(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (APW_Character* character = Cast<APW_Character>(OtherActor))
+	{
+		if(!_triggered)
+		{
+			_triggered = true;
+			OnPlayerTrigger.Broadcast(character);
+		}
+	}
 }
 
 void APW_ExtractionPoint::CheckForWin()

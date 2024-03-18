@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "PROJECT_WEST/Notification.h"
 #include "GameFramework/GameMode.h"
 #include "PW_GameMode.generated.h"
 
@@ -70,11 +71,13 @@ public:
 	void NofigyPlayersOfDay();
 
 	void SaveAllPlayersInventoryData();
-	void SavePlayerInventoryData( class APW_PlayerController* playerController);
+	void SavePlayerInventoryData( class APW_PlayerController* playerController) const;
 
 	void CollectCurrency(class APW_Currency* Currency);;
 
-	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration);
+	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration) const;
+
+	void TriggerNotification(const FNotificationEntry& notification) const;
 
 	FString GetPlayerName(APlayerController* playerController) const;
 

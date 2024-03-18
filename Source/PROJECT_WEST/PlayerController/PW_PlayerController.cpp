@@ -856,6 +856,11 @@ void APW_PlayerController::LocalCollectCurrency(APW_Currency* currency)
 	}
 }
 
+void APW_PlayerController::TriggerNotification_Implementation(FNotificationEntry notification)
+{
+	_onNotificationTriggered.Broadcast(notification);
+}
+
 void APW_PlayerController::SeverAddMoney_Implementation(int32 amount)
 {
 	if (HasAuthority())

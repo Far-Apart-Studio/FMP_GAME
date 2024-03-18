@@ -177,17 +177,11 @@ void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
 		//DEBUG_STRING( "APW_BountyGameMode::PostLogin: playerController is valid" );
 		playerController->ClientJoinMidGame(MatchState, _matchTime, _levelStartTime, _mathEndCooldownTime);
 	}
-	else
-	{
-		//DEBUG_STRING( "APW_BountyGameMode::PostLogin: playerController is nullptr" );
-	}
-
-	DEBUG_STRING( "APW_BountyGameMode::PostLogin: " + NewPlayer->GetName() );
 }
 
 void APW_BountyGameMode::Logout(AController* Exiting)
 {
-	//Super::Logout(Exiting);
+	Super::Logout(Exiting);
 }
 
 void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController, AController* AttackerController)
@@ -196,6 +190,12 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
 	if (ElimmedCharacter)
 	{
+		FNotificationEntry notification;
+		notification._notificationType = ENotificationType::EDeath;
+		notification._playerNameText = victimState ? victimState->GetPlayerName() : "";
+		notification._notificationText = "has been eliminated";
+		TriggerNotification(notification);
+		
 		APW_PlayerController* host = GetAnyPlayerAlive();
 		if(host)
 		{
@@ -244,8 +244,7 @@ void APW_BountyGameMode::SpawnLantern()
 
 void APW_BountyGameMode::SpawnBountyPortal()
 {
-	AActor* bountyPortalExit = UGameplayStatics::GetActorOfClass(GetWorld(), _bountyPortalClass);
-	if (bountyPortalExit)
+	if (const AActor* bountyPortalExit = UGameplayStatics::GetActorOfClass(GetWorld(), _bountyPortalClass))
 	{
 		_bountyPortalEntrance = GetWorld()->SpawnActor<AActor>(_bountyPortalClass);
 		_bountyPortalEntrance->SetActorLocation(bountyPortalExit->GetActorLocation());
@@ -258,6 +257,21 @@ void APW_BountyGameMode::OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, 
 {
 	if (_bountySuccessful) return;
 	SpawnBountyHead();
+
+	FNotificationEntry notification;
+	notification._notificationType = ENotificationType::EElimination;
+	if (const APW_Character* bountyKiller = Cast<APW_Character>(DamageCauser))
+	{
+		notification._playerNameText = bountyKiller->GetPlayerName();
+		notification._notificationText = "has been eliminated the bounty";
+	}
+	else
+	{
+		notification._playerNameText = "";
+		notification._notificationText = "The bounty has been eliminated";
+	}
+	
+	TriggerNotification(notification);
 }
 
 void APW_BountyGameMode::SpawnBountyEnemy()
@@ -309,6 +323,23 @@ void APW_BountyGameMode::OnActivateExtrationPoint(bool bWinCondition, TArray<FSt
 	}
 }
 
+void APW_BountyGameMode::OnPlayerTriggerExtractionPoint(APW_Character* Player)
+{
+	FNotificationEntry notification;
+	notification._notificationType = ENotificationType::ELocation;
+	if (Player)
+	{
+		notification._playerNameText = Player->GetPlayerName();
+		notification._notificationText = "has triggered the extraction point";
+	}
+	else
+	{
+		notification._playerNameText = "";
+		notification._notificationText = "The extraction point has been triggered";
+	}
+	TriggerNotification(notification);
+}
+
 void APW_BountyGameMode::SpawnExtractionPoint()
 {
 	if (!_spawnPointsManager || !_extractionPointClass) return;
@@ -319,6 +350,7 @@ void APW_BountyGameMode::SpawnExtractionPoint()
 		_extractionPoint->SetActorRotation(FRotator(0, 0, 0));
 		_extractionPoint->SetOwner(nullptr);
 		_extractionPoint->OnWinConditionMet.AddDynamic(this, &APW_BountyGameMode::OnActivateExtrationPoint);
+		_extractionPoint->OnPlayerTrigger.AddDynamic(this, &APW_BountyGameMode::OnPlayerTriggerExtractionPoint);
 	}
 }
 
