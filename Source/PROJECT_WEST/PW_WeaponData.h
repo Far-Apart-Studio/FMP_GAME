@@ -21,7 +21,6 @@ enum class EFireMode : uint8
 	Aim
 };
 
-
 UCLASS()
 class PROJECT_WEST_API UPW_WeaponData : public UDataAsset
 {
@@ -72,6 +71,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
 	float _hProjectileDelay = 0;
 
+	UPROPERTY(EditAnywhere, Category = "Hip Weapon Data")
+	float _hAmmoConsumption = 1;
+
 	//------------------ Aimed Weapon Data ------------------//
 
 	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
@@ -107,6 +109,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
 	float _aProjectileDelay;
 
+	UPROPERTY(EditAnywhere, Category = "Aim Weapon Data")
+	float _aAmmoConsumption;
+
 	//------------------ Player Modifiers ------------------//
 
 	UPROPERTY(EditAnywhere, Category = "Player Modifiers")
@@ -133,4 +138,8 @@ public:
 	FORCEINLINE int GetProjectileCount(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hProjectileCount : _aProjectileCount; }
 	FORCEINLINE float GetProjectileDelay(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hProjectileDelay : _aProjectileDelay; }
 	FORCEINLINE float GetWeaponRecoilSpeed(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hWeaponRecoilSpeed : _aWeaponRecoilSpeed; }
+	FORCEINLINE float GetAmmoConsumption(EFireMode fireMode) const { return fireMode == EFireMode::Hip ? _hAmmoConsumption : _aAmmoConsumption; }
+
+	const FString MAXIMUM_RECOIL_APPLICATION_COUNT_TOOLTIP
+		= "The maximum number of times recoil can be applied per shot. Usually recoil is applied every bullet.";
 };

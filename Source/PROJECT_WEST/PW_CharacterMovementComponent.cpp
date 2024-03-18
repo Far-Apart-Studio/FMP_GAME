@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_CharacterMovementComponent.h"
+
+#include "DebugMacros.h"
 #include "FDashAction.h"
 #include "FRecoilAction.h"
 #include "PW_Character.h"
@@ -27,14 +29,14 @@ void UPW_CharacterMovementComponent::BeginPlay()
 
 		TWeakObjectPtr<UPW_CharacterMovementComponent> weakThis = this;
 		
-		_staminaReductionHandle.RegenerationCondition.BindLambda([weakThis]()
-			{ return weakThis.IsValid() && weakThis->_isSprinting; });
+		_staminaReductionHandle.RegenerationCondition.BindLambda([weakThis, this]()
+			{ return weakThis.IsValid() && weakThis->ShouldReduceStamina();  });
 
 		_staminaReductionHandle.OnReachMinimum.BindLambda([weakThis]()
 			{ if (weakThis.IsValid()) weakThis->CancelSprint(); });
 		
 		_staminaRegenerationHandle.RegenerationCondition.BindLambda([weakThis]()
-			{ return weakThis.IsValid() && !weakThis->_isSprinting; });
+			{ return weakThis.IsValid() && weakThis->ShouldIncreaseStamina();  });
 	}
 }
 
@@ -83,22 +85,33 @@ void UPW_CharacterMovementComponent::Dash()
 	if (!CanDash(characterMovement))
 		return;
 
+	OnDashLocal.Broadcast();
 	_dashData.CanDash = false;
-	OnDash.Broadcast();
-	
-	FLatentActionInfo latentActionInfo = FLatentActionInfo();
-	latentActionInfo.CallbackTarget = this;
-	latentActionInfo.ExecutionFunction = "CompleteDash";
 
 	const float moveRight = _ownerCharacter->GetInputAxisValue("MoveRight");
 	const float moveForward = _ownerCharacter->GetInputAxisValue("MoveForward");
 
 	const FVector forwardDirection = _ownerCharacter->GetActorForwardVector() * moveForward;
 	const FVector rightDirection = _ownerCharacter->GetActorRightVector() * moveRight;
-	FVector dashDirection = forwardDirection + rightDirection;
+	const FVector dashDirection = forwardDirection + rightDirection;
+
+	GetWorld()->GetTimerManager().SetTimer(_dashData.DashCooldownTimer, this,
+		&UPW_CharacterMovementComponent::CompleteDashCooldown, _dashData.DashCooldown, false);
+	
+	GetOwnerRole() == ROLE_Authority ? LocalDash(dashDirection, forwardDirection)
+		: ServerDash(dashDirection, forwardDirection);
+}
+
+void UPW_CharacterMovementComponent::LocalDash(FVector dashDirection, const FVector& defaultDashDirection)
+{
+	OnDashServer.Broadcast();
+	
+	FLatentActionInfo latentActionInfo = FLatentActionInfo();
+	latentActionInfo.CallbackTarget = this;
+	latentActionInfo.ExecutionFunction = "CompleteDash";
 
 	if (dashDirection.Size() == 0.0f)
-		dashDirection = _ownerCharacter->GetActorForwardVector();
+		dashDirection = defaultDashDirection;
 
 	const FGuid UUID = FGuid::NewGuid();
 	TUniquePtr<FDashAction> dashAction = MakeUnique<FDashAction>
@@ -108,10 +121,13 @@ void UPW_CharacterMovementComponent::Dash()
 	FLatentActionManager& latentActionManager = GetWorld()->GetLatentActionManager();
 	latentActionManager.AddNewAction(this, UUID.A, dashAction.Get());
 	
-	GetWorld()->GetTimerManager().SetTimer(_dashData.DashCooldownTimer, this,
-		&UPW_CharacterMovementComponent::CompleteDashCooldown, _dashData.DashCooldown, false);
-	
 	dashAction.Release();
+}
+
+void UPW_CharacterMovementComponent::ServerDash_Implementation(FVector dashDirection, FVector defaultDashDirection)
+{
+	if (GetOwnerRole() == ROLE_Authority)
+		LocalDash(dashDirection, defaultDashDirection);
 }
 
 void UPW_CharacterMovementComponent::CompleteDash()
@@ -215,4 +231,20 @@ void UPW_CharacterMovementComponent::GetOwnerCharacter()
 	
 	if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
+}
+
+bool UPW_CharacterMovementComponent::ShouldReduceStamina()
+{
+	const UCharacterMovementComponent* characterMovement = _ownerCharacter->GetCharacterMovement();
+	const float horizontalVelocityLength = characterMovement->Velocity.Size2D();
+	
+	return _isSprinting && horizontalVelocityLength > UE_SMALL_NUMBER;
+}
+
+bool UPW_CharacterMovementComponent::ShouldIncreaseStamina()
+{
+	const UCharacterMovementComponent* characterMovement = _ownerCharacter->GetCharacterMovement();
+	const float horizontalVelocityLength = characterMovement->Velocity.Size2D();
+	
+	return !_isSprinting || horizontalVelocityLength < UE_SMALL_NUMBER;
 }

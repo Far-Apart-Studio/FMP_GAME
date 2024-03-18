@@ -2,6 +2,7 @@
 
 #include "PW_InventoryHandler.h"
 
+#include "DebugMacros.h"
 #include "PW_Character.h"
 #include "PW_InventorySlot.h"
 #include "PW_ItemObject.h"
@@ -180,7 +181,7 @@ void UPW_InventoryHandler::CycleNextSlot()
 
 	if (isIndexValid)
 	{
-		ChangeSlot(targetedSlotIndex);;
+		ChangeSlot(targetedSlotIndex);
 	}
 	else
 	{
@@ -414,7 +415,7 @@ void UPW_InventoryHandler::LocalDropItem(int slotIndex)
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	slotItem->SetOwner(nullptr);
 
-	if (_ownerCharacter == nullptr)
+	/*if (_ownerCharacter == nullptr)
 		{ PW_Utilities::Log("[LOCAL] OWNER CHARACTER IS NULL!"); return; }
 	
 	const FVector characterVelocity = _ownerCharacter->GetVelocity();
@@ -424,7 +425,7 @@ void UPW_InventoryHandler::LocalDropItem(int slotIndex)
 	if (itemMesh == nullptr)
 		{PW_Utilities::Log("[LOCAL] ITEM MESH IS NULL!"); return; }
 
-	itemMesh->AddImpulse(itemVelocity);
+	itemMesh->AddImpulse(itemVelocity);*/
 }
 
 void UPW_InventoryHandler::ServerDropItem_Implementation(int slotIndex)

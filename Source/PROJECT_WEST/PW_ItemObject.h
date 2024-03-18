@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DebugMacros.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/PW_InteractableInterface.h"
 #include "PW_ItemObject.generated.h"
 
+class UPW_InventoryHandler;
 class APW_Character;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, APW_Character*, characterOwner);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FItemStateDelegate);
 
 UENUM(BlueprintType)
 enum class EItemType : uint8
@@ -60,8 +61,10 @@ protected:
 	class UPW_HighlightCompont* _highlightComponent;
 
 public:
-	FInputBindingDelegate OnApplyInputBindingDelegate;
-	FInputBindingDelegate OnRemoveInputBindingDelegate;
+	FInputBindingDelegate OnApplyInputBinding;
+	FInputBindingDelegate OnRemoveInputBinding;
+	FItemStateDelegate OnEnterDroppedState;
+	FItemStateDelegate OnEnterHeldState;
 
 protected:
 	
@@ -69,11 +72,8 @@ protected:
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();
 
-	UFUNCTION()
-	virtual void OnRep_ItemStateChanged();	
-
-	UFUNCTION()
-	virtual void OnRep_VisibilityChange();
+	UFUNCTION() virtual void OnRep_ItemStateChanged();	
+	UFUNCTION() virtual void OnRep_VisibilityChange();
 
 public:
 	
@@ -97,6 +97,7 @@ public:
 	void DisableItem(APW_Character* characterOwner);
 	void UpdateItemState(EItemObjectState updatedState);
 	void AttemptAttachToOwner();
+	UPW_InventoryHandler* GetHolderInventory();
 
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;

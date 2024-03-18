@@ -23,8 +23,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Throwable")
 	APW_ItemObject* _throwableItemObject;
 
-public:
+	FTimerHandle _throwTimerHandle;
+	float _drawTrajectoryTime = 0.02f;
 	
+	bool _canThrow = false;
+
+public:
 	UPROPERTY(BlueprintAssignable, Category = "Throwable")
 	FThrowDelegate OnQueueThrow;
 	
@@ -37,12 +41,14 @@ public:
 public:	
 	UPW_ThrowableComponent();
 	void InitialiseComponent();
-	void QueueThrow();
-	void CancelThrow();
-	void Throw();
 	void DrawTrajectory();
-	void SetThrowableInputBinding(APW_Character* characterOwner);
-	void RemoveThrowableInputBinding(APW_Character* characterOwner);
+	
+	UFUNCTION() void QueueThrow();
+	UFUNCTION() void CancelThrow();
+	UFUNCTION() void Throw();
+	UFUNCTION() void ReleaseThrowable();
+	UFUNCTION() void SetThrowableInputBinding(APW_Character* characterOwner);
+	UFUNCTION() void RemoveThrowableInputBinding(APW_Character* characterOwner);
 
 protected:
 	virtual void BeginPlay() override;

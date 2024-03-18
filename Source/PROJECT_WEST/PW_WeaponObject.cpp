@@ -112,8 +112,11 @@ void APW_WeaponObject::CoreFireSequence()
 		{ ReloadWeapon(); return; }
 	
 	if (CanFire())
+	{
 		CastBulletRays();
-	
+		const int currentAmmo = _weaponRuntimeData.CurrentAmmo - _weaponData->GetAmmoConsumption(_weaponFireMode);
+		_weaponRuntimeData.CurrentAmmo = PWMath::ClampZero(currentAmmo); 
+	}
 }
 
 void APW_WeaponObject::CompleteFireSequence()
@@ -338,8 +341,6 @@ void APW_WeaponObject::LocalApplyDamage(const FHitResult& hitResult)
 	
 	if (ownerCharacter == nullptr)
 		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; } 
-	
-	_weaponRuntimeData.CurrentAmmo--;
 	
 	if (_weaponData == nullptr)
 		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }

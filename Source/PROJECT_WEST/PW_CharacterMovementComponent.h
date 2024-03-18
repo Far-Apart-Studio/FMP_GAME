@@ -84,7 +84,10 @@ private:
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Character")
-	FOnCompleteDelegate OnDash;
+	FOnCompleteDelegate OnDashLocal;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Character")
+	FOnCompleteDelegate OnDashServer;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FOnCompleteDelegate OnDashComplete;
@@ -103,8 +106,11 @@ public:
 	UFUNCTION() void MoveForward(float value);
 	UFUNCTION() void MoveRight(float value);
 	UFUNCTION() void Jump();
-	UFUNCTION() void Dash();
 	UFUNCTION() void CompleteDash();
+	
+	UFUNCTION() void Dash();
+	void LocalDash(FVector dashDirection, const FVector& defaultDashDirection);
+	UFUNCTION(Server, Reliable) void ServerDash(FVector dashDirection, FVector defaultDashDirection);
 	
 	UFUNCTION() void BeginSprint();
 	void LocalBeginSprint();
@@ -116,6 +122,8 @@ public:
 
 	void AssignInputActions();
 	void GetOwnerCharacter();
+	bool ShouldReduceStamina();
+	bool ShouldIncreaseStamina();
 	void CompleteDashCooldown();
 	bool CanDash(const UCharacterMovementComponent* characterMovement);
 };
