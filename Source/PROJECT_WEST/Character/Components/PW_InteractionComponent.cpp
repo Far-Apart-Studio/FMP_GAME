@@ -42,28 +42,22 @@ void UPW_InteractionComponent::TraceForInteractable()
 	
 	UCameraComponent* _cameraComponent = _ownerCharacter->GetCameraComponent();
 	if (!_cameraComponent) return;
-
-	IPW_InteractableInterface* Interactable = nullptr;
+	
 	FVector direction = _cameraComponent->GetForwardVector();
 	FVector start = _cameraComponent->GetComponentLocation();
 	FVector destination = start + (direction * _traceDistance);
 	
-	TArray< TEnumAsByte<EObjectTypeQuery> > objectTypes;
-	//objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Visibility));
-
-	objectTypes.Add(UEngineTypes::ConvertToObjectType( ECollisionChannel::ECC_GameTraceChannel1));
-	
-	//objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
-	//objectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
+	// Interactable
+	ETraceTypeQuery traceType = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
 	
 	float halfHeight = 10;
 	FHitResult hitResult;
 	
-	if (UKismetSystemLibrary::BoxTraceSingleForObjects(GetWorld(), start, destination, FVector(halfHeight, halfHeight, halfHeight), FRotator(),
-	objectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, hitResult,
+	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), start, destination, FVector(halfHeight, halfHeight, halfHeight), FRotator(),
+	traceType, false, TArray<AActor*>(), EDrawDebugTrace::None, hitResult,
 		true, FLinearColor::Red, FLinearColor::Green, 5.0f))
 	{
-		if (hitResult.GetActor()->GetClass()->ImplementsInterface(UPW_InteractableInterface::StaticClass()))
+		if (hitResult.GetActor() && hitResult.GetActor()->GetClass()->ImplementsInterface(UPW_InteractableInterface::StaticClass()))
 		{
 			if (_lastIntractableActor != hitResult.GetActor())
 			{
