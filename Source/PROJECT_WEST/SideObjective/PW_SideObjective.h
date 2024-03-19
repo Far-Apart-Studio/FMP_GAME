@@ -58,7 +58,7 @@ protected:
 	class APW_PoiArea* _poiArea;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
-	float _currentObjectiveAmount;
+	int32 _currentObjectiveAmount;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	float _currentObjectiveTime;
