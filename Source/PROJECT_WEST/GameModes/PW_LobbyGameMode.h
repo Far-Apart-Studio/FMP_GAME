@@ -41,7 +41,6 @@ protected:
 	TSubclassOf<class APW_Currency> _currencyClass;
 
 	class APW_SpawnPointsManager* _spawnPointsManager;
-	class UPW_SpawnPointsHandlerComponent* _spawnPointsHandlerComponent;
 
 public:
 
