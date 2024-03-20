@@ -31,7 +31,7 @@ public:
 	virtual void Failed();
 
 	UFUNCTION()
-	void OnPOITriggered(class APW_PoiArea* Poi);
+	virtual void OnPOITriggered(class APW_PoiArea* Poi);
 
 	UFUNCTION()
 	void OnRep_Complected();
