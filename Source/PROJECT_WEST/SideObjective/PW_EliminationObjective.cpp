@@ -49,9 +49,7 @@ void APW_EliminationObjective::OnPOITriggered(APW_PoiArea* poiArea)
 
 		if (!spawnPoint)
 			continue;
-
-		DEBUG_STRING ("Spawned actor: " + _objectiveData._sideObjectiveInfo._objectiveObjectType->GetName());
-
+		
 		AActor* targetActor = GetWorld()->SpawnActor<AActor>(_objectiveData._sideObjectiveInfo._objectiveObjectType, spawnPoint->GetPosition(), spawnPoint->GetActorRotation());
 		TryFadeActorMaterial(targetActor);
 		TryDisableDistanceUnloader(targetActor);
