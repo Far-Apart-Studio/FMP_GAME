@@ -89,3 +89,9 @@ FVector APW_SpawnPointsManager::GetDebtCollectorSpawnPoint() const
 	return _debtCollectorSpawnPoint->GetPosition();
 }
 
+FVector APW_SpawnPointsManager::GetBountySpawnPoint() const
+{
+	if (!_bountySpawnPoint) return FVector::ZeroVector;
+	return _bountySpawnPoint->GetPosition();
+}
+

@@ -52,7 +52,7 @@ void APW_BountyGameMode::BeginPlay()
 	
 	StartMatch();
 	
-	//SpawnBountyEnemy();
+	SpawnBountyEnemy();
 	SpawnLantern();
 	SpawnExtractionPoint();
 	//SpawnEnemies();
@@ -263,7 +263,7 @@ void APW_BountyGameMode::OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, 
 	if (const APW_Character* bountyKiller = Cast<APW_Character>(DamageCauser))
 	{
 		notification._playerNameText = bountyKiller->GetPlayerName();
-		notification._notificationText = "has been eliminated the bounty";
+		notification._notificationText = "has eliminated the bounty";
 	}
 	else
 	{
@@ -280,7 +280,7 @@ void APW_BountyGameMode::SpawnBountyEnemy()
 	_bountyEnemy = GetWorld()->SpawnActor<AActor>(_bountyEnemyClass);
 	if (_bountyEnemy)
 	{
-		_bountyEnemy->SetActorLocation(_spawnPointsManager->GetBountyPortalSpawnPoint());
+		_bountyEnemy->SetActorLocation(_spawnPointsManager->GetBountySpawnPoint());
 		_bountyEnemy->SetActorRotation(FRotator(0, 0, 0));
 		_bountyEnemy->SetOwner(nullptr);
 

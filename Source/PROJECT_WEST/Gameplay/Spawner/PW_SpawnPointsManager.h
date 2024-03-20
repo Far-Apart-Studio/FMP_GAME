@@ -63,6 +63,9 @@ private:
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "SpawnPoints", meta = (AllowPrivateAccess = "true") )
 	class APW_SpawnPoint* _debtCollectorSpawnPoint;
 
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "SpawnPoints", meta = (AllowPrivateAccess = "true") )
+	class APW_SpawnPoint* _bountySpawnPoint;
+
 public:
 
 	UFUNCTION(BlueprintCallable)
@@ -76,4 +79,5 @@ public:
 	
 	FVector GetLanternSpawnPoint() const;
 	FVector GetDebtCollectorSpawnPoint() const;
+	FVector	GetBountySpawnPoint() const;
 };
