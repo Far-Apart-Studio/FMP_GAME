@@ -64,8 +64,7 @@ void APW_BountyGameMode::BeginPlay()
 
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
-		if (playerController)
+		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get()))
 		{
 			playerController->ClientJoinMidGame(MatchState, _matchTime, _levelStartTime, _mathEndCooldownTime);
 		}
