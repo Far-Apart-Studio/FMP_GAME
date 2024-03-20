@@ -12,6 +12,7 @@
 #include "PROJECT_WEST/PW_HealthComponent.h"
 #include "PROJECT_WEST/Gameplay/Components/PW_DistanceUnloaderComponent.h"
 #include "PROJECT_WEST/Gameplay/Components/PW_MaterialEffectComponent.h"
+#include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 APW_PoiArea::APW_PoiArea()
 {
@@ -55,6 +56,16 @@ void APW_PoiArea::OnDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComp
 		{
 			_isTriggered = true;
 			OnPoiTriggered.Broadcast(this);
+		}
+
+		APW_PlayerController* playerController = Cast<APW_PlayerController>(character->GetController());
+		if (playerController)
+		{
+			FNotificationEntry notification;
+			notification._notificationType = ENotificationType::EInfo;
+			notification._playerNameText ="";
+			notification._notificationText = "You have entered " +  _poiID;
+			playerController->TriggerNotification(notification);
 		}
 		
 		if(CanSpawnEnemy())
