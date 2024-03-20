@@ -65,6 +65,9 @@ TArray<FVector> APW_SpawnPointsManager::GetEnemySpawnPoint()
 TArray<FVector> APW_SpawnPointsManager::GetRandomCurrencySpawnPoints(int32 amount) const
 {
 	TArray<	APW_SpawnPoint*> avaliableSlots = _currencySpawnPoints._spawnPoints;
+
+	if (avaliableSlots.Num() == 0) return TArray<FVector>();
+	
 	TArray<FVector> result;
 	if (amount > avaliableSlots.Num()) amount = avaliableSlots.Num();
 

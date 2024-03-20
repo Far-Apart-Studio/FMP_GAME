@@ -111,14 +111,14 @@ void APW_SideObjectiveManager::OnObjectiveStateChanged(APW_SideObjective* object
 
 void APW_SideObjectiveManager::OnObjectiveCompleted(APW_SideObjective* ComplectedObjective)
 {
-	DEBUG_STRING ("Objective Completed");
+	//DEBUG_STRING ("Objective Completed");
 	//ComplectedObjective->Destroy();
 	_onObjectiveCompleted.Broadcast(ComplectedObjective);
 }
 
 void APW_SideObjectiveManager::OnObjectiveFailed(APW_SideObjective* FailedObjective)
 {
-	DEBUG_STRING ("Objective Failed");
+	//DEBUG_STRING ("Objective Failed");
 	//FailedObjective->Destroy();
 	_onObjectiveFailed.Broadcast(FailedObjective);
 }
