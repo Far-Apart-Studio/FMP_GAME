@@ -37,6 +37,7 @@ void APW_DemolitionObjective::Failed()
 {
 	for (AActor* targetActor : _targetActors)
 	{
+		if(!IsValid(targetActor)) continue;
 		if (UPW_HealthComponent* healthComponent = targetActor->FindComponentByClass<UPW_HealthComponent>())
 		{
 			healthComponent->OnDeathServer.RemoveDynamic(this, &APW_DemolitionObjective::OnTargetDeath);

@@ -38,6 +38,7 @@ void APW_CollectionObjective::Failed()
 {
 	for (AActor* targetActor : _targetActors)
 	{
+		if(!IsValid(targetActor)) continue;
 		if (APW_ItemObject* itemObject = Cast<APW_ItemObject>(targetActor))
 		{
 			itemObject->_onPickedUpServer.RemoveDynamic(this, &APW_CollectionObjective::OnTargetCollected);
