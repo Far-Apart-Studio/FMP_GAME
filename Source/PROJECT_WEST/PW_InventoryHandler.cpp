@@ -5,24 +5,25 @@
 #include "PW_Character.h"
 #include "PW_InventorySlot.h"
 #include "PW_ItemObject.h"
-#include "PW_Utilities.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
-UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr)
+UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr), _ItemDataTable(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	SetIsReplicated(true);
 }
 
 void UPW_InventoryHandler::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SetIsReplicated(true);
 	GetOwnerCharacter();
 
 	if (_ownerCharacter == nullptr)
-		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
+	{
+		DEBUG_STRING("OWNER CHARACTER NOT FOUND!");
+		return;
+	}
 
 	LoadDefaultSlots();
 
@@ -76,10 +77,10 @@ void UPW_InventoryHandler::ChangeSlot(int targetedSlotIndex, bool forceChangeSlo
 	//DEBUG_STRING (" Before Changed Slot to currentSlotIndex: " + FString::FromInt(_currentSlotIndex ) + " targetedSlotIndex: " + FString::FromInt(targetedSlotIndex));
 	
 	if (_currentSlotIndex == targetedSlotIndex && !forceChangeSlot)
-	{ PW_Utilities::Log("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
+	{ DEBUG_STRING("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
 
 	if (!IsSlotValid(targetedSlotIndex))
-	{ PW_Utilities::Log("SLOT INDEX IS INVALID!"); return; }
+	{ DEBUG_STRING("SLOT INDEX IS INVALID!"); return; }
 	
 	GetOwner()->HasAuthority() ? LocalChangeSlot(targetedSlotIndex) : SeverChangeSlot(targetedSlotIndex);
 }
@@ -224,7 +225,7 @@ void UPW_InventoryHandler::LocalLoadFromData(const FPlayerInventoryDataEntry& in
 	{
 		TSubclassOf<APW_ItemObject> itemClass = GetItemObjectFromDataTable(inventoryData._itemIDs[i]);
 		if (itemClass == nullptr)
-		{ PW_Utilities::Log("ITEM CLASS IS NULL!"); continue; }
+		{ DEBUG_STRING("ITEM CLASS IS NULL!"); continue; }
 		APW_ItemObject* item = GetWorld()->SpawnActor<APW_ItemObject>(itemClass, GetOwner()->GetActorLocation(), FRotator::ZeroRotator);
 		items.Add(item);
 		//DEBUG_STRING("Spawned Item");
@@ -313,7 +314,7 @@ TArray<FString> UPW_InventoryHandler::GetInventoryItemIDs()
 void UPW_InventoryHandler::CycleUp()
 {
 	if (_inventorySlots.IsEmpty())
-		{ PW_Utilities::Log("INVENTORY SLOTS ARE EMPTY, CANNOT CYCLE UP!"); return; }
+		{ DEBUG_STRING("INVENTORY SLOTS ARE EMPTY, CANNOT CYCLE UP!"); return; }
 	
 	CycleNextSlot();
 }
@@ -321,7 +322,7 @@ void UPW_InventoryHandler::CycleUp()
 void UPW_InventoryHandler::CycleDown()
 {
 	if (_inventorySlots.IsEmpty())
-		{ PW_Utilities::Log("INVENTORY SLOTS ARE EMPTY, CANNOT CYCLE DOWN!"); return; }
+		{ DEBUG_STRING("INVENTORY SLOTS ARE EMPTY, CANNOT CYCLE DOWN!"); return; }
 	
 	CyclePreviousSlot();
 }
@@ -329,7 +330,7 @@ void UPW_InventoryHandler::CycleDown()
 void UPW_InventoryHandler::ToSlot(int targetedSlotIndex)
 {
 	if (!IsSlotValid(targetedSlotIndex))
-		{ PW_Utilities::Log("SLOT INDEX IS INVALID!"); return; }
+		{ DEBUG_STRING("SLOT INDEX IS INVALID!"); return; }
 
 	ChangeSlot(targetedSlotIndex);
 }
@@ -349,7 +350,7 @@ APW_ItemObject* UPW_InventoryHandler::GetCurrentItem()
 void UPW_InventoryHandler::AssignInputActions()
 {
 	if (_ownerCharacter == nullptr)
-		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
+		{ DEBUG_STRING("OWNER CHARACTER NOT FOUND!"); return; }
 	
 	_ownerCharacter->OnCycleItemButtonPressed.AddDynamic(this, &UPW_InventoryHandler::CycleNextSlot);
 	_ownerCharacter->OnMouseDownPressed.AddDynamic(this, &UPW_InventoryHandler::CycleDown);
@@ -363,12 +364,12 @@ void UPW_InventoryHandler::GetOwnerCharacter()
 	AActor* ownerActor = GetOwner();
 	
 	if (ownerActor == nullptr)
-		{ PW_Utilities::Log("OWNER ACTOR NOT FOUND!"); return; }
+		{ DEBUG_STRING("OWNER ACTOR NOT FOUND!"); return; }
 
 	_ownerCharacter = Cast<APW_Character>(ownerActor);
 	
 	if (_ownerCharacter == nullptr)
-		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
+		{ DEBUG_STRING("OWNER CHARACTER NOT FOUND!"); }
 }
 
 TSubclassOf<APW_ItemObject> UPW_InventoryHandler::GetItemObjectFromDataTable(FString id)
@@ -389,12 +390,12 @@ TSubclassOf<APW_ItemObject> UPW_InventoryHandler::GetItemObjectFromDataTable(FSt
 void UPW_InventoryHandler::DropItem(int slotIndex)
 {
 	if (!IsSlotValid(slotIndex))
-		{ PW_Utilities::Log("SLOT INDEX IS INVALID!"); return; }
+		{ DEBUG_STRING("SLOT INDEX IS INVALID!"); return; }
 
 	APW_ItemObject* slotItem = _inventorySlots[_currentSlotIndex].GetItem();
 
 	if (slotItem == nullptr)
-		{ PW_Utilities::Log("SLOT IS EMPTY!"); return; }
+		{ DEBUG_STRING("SLOT IS EMPTY!"); return; }
 	
 	slotItem->RemoveActionBindings(_ownerCharacter);
 
@@ -406,7 +407,7 @@ void UPW_InventoryHandler::LocalDropItem(int slotIndex)
 	APW_ItemObject* slotItem = _inventorySlots[slotIndex].GetItem();
 	
 	if (slotItem == nullptr)
-		{ PW_Utilities::Log("[LOCAL] SLOT ITEM IS NULL!"); return; }
+		{ DEBUG_STRING("[LOCAL] SLOT ITEM IS NULL!"); return; }
 
 	_inventorySlots[slotIndex].RemoveItem();
 	
@@ -415,14 +416,14 @@ void UPW_InventoryHandler::LocalDropItem(int slotIndex)
 	slotItem->SetOwner(nullptr);
 
 	if (_ownerCharacter == nullptr)
-		{ PW_Utilities::Log("[LOCAL] OWNER CHARACTER IS NULL!"); return; }
+		{ DEBUG_STRING("[LOCAL] OWNER CHARACTER IS NULL!"); return; }
 	
 	const FVector characterVelocity = _ownerCharacter->GetVelocity();
 	const FVector itemVelocity = characterVelocity * _throwVelocityMultiplier;
 
 	UMeshComponent* itemMesh = slotItem->GetItemMesh();
 	if (itemMesh == nullptr)
-		{PW_Utilities::Log("[LOCAL] ITEM MESH IS NULL!"); return; }
+		{DEBUG_STRING("[LOCAL] ITEM MESH IS NULL!"); return; }
 
 	itemMesh->AddImpulse(itemVelocity);
 }
