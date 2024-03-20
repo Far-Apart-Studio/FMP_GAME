@@ -107,7 +107,6 @@ public:
 
 	UFUNCTION()
 	void EnemyEliminated(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController);
-	void SpawnEnemies();
 
 	void SpawnCurrencies();
 
