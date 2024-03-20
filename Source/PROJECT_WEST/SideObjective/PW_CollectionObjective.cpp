@@ -4,15 +4,31 @@
 #include "PW_CollectionObjective.h"
 
 #include "PROJECT_WEST/PW_ItemObject.h"
+#include "PROJECT_WEST/Gameplay/Spawner/PW_SpawnPoint.h"
 #include "PROJECT_WEST/POI/PW_PoiArea.h"
 
 void APW_CollectionObjective::SetUp(FSideObjectiveEntry sideObjectiveEntry, APW_PoiArea* poiArea)
 {
 	Super::SetUp(sideObjectiveEntry, poiArea);
 
+	FSpawnPoints spawnPoints = poiArea->GetSpawnPoints();
+
 	for (int i = 0; i < sideObjectiveEntry._sideObjectiveInfo._objectiveAmount; i++)
 	{
-		AActor* targetActor = poiArea->SpawnActor(sideObjectiveEntry._sideObjectiveInfo._objectiveObjectType);
+		const APW_SpawnPoint* spawnPoint  = poiArea->GetSpawnPoints().GetRandomSpawnPoint();
+		
+		if(spawnPoints._spawnPoints.Num() != 0)
+		{
+			const int spawnPointIndex = FMath::RandRange(0, spawnPoints._spawnPoints.Num() - 1);
+			spawnPoint = spawnPoints._spawnPoints[spawnPointIndex];
+			spawnPoints._spawnPoints.RemoveAt(spawnPointIndex);
+		}
+
+		if (!spawnPoint)
+			continue;
+		
+		AActor* targetActor = GetWorld()->SpawnActor<AActor>(sideObjectiveEntry._sideObjectiveInfo._objectiveObjectType, spawnPoint->GetPosition(), spawnPoint->GetActorRotation());
+		
 		TryAssignOnCollectEvent(targetActor);
 		_targetActors.Add(targetActor);
 	}
