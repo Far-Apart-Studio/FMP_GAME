@@ -276,15 +276,10 @@ void APW_BountyGameMode::OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, 
 void APW_BountyGameMode::SpawnBountyEnemy()
 {
 	if (!_spawnPointsManager || !_bountyEnemyClass) return;
-	_bountyEnemy = GetWorld()->SpawnActor<AActor>(_bountyEnemyClass);
+	_bountyEnemy = GetWorld()->SpawnActor<AActor>(_bountyEnemyClass,_spawnPointsManager->GetBountySpawnPoint(), FRotator(0, 0, 0));
 	if (_bountyEnemy)
 	{
-		_bountyEnemy->SetActorLocation(_spawnPointsManager->GetBountySpawnPoint());
-		_bountyEnemy->SetActorRotation(FRotator(0, 0, 0));
-		_bountyEnemy->SetOwner(nullptr);
-
-		UPW_HealthComponent* healthComponent = _bountyEnemy->FindComponentByClass<UPW_HealthComponent>();
-		if (healthComponent)
+		if (UPW_HealthComponent* healthComponent = _bountyEnemy->FindComponentByClass<UPW_HealthComponent>())
 		{
 			//DEBUG_STRING( "Bounty enemy spawned and health component found" );
 			healthComponent->OnDeathGlobal.AddDynamic(this, &APW_BountyGameMode::OnBountyDead);
