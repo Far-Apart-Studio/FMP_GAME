@@ -2,7 +2,6 @@
 
 #include "PW_ItemObject.h"
 
-#include "DebugMacros.h"
 #include "PW_Character.h"
 #include "PW_InventoryHandler.h"
 #include "PW_Utilities.h"
@@ -88,33 +87,10 @@ void APW_ItemObject::StartInteract_Implementation(AActor* owner)
 		inventoryHandler->CollectItem(this);
 }
 
-UPW_InventoryHandler* APW_ItemObject::GetHolderInventory()
-{
-	AActor* ownerActor = GetOwner();
-	
-	if (ownerActor == nullptr)
-		{ PW_Utilities::Log("OWNER IS NULL!"); return nullptr; }
-	
-	const APW_Character* characterOwner = Cast<APW_Character>(ownerActor);
-	
-	if (characterOwner == nullptr)
-		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return nullptr; }
-	
-	UActorComponent* actorComponent = characterOwner->GetComponentByClass(UPW_InventoryHandler::StaticClass());
-	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(actorComponent);
-
-	if (inventoryHandler == nullptr)
-		{ PW_Utilities::Log("INVENTORY HANDLER IS NULL!"); return nullptr; }
-
-	return inventoryHandler;
-}
-
 void APW_ItemObject::EnterHeldState()
 {
 	if (_itemCollisionMesh == nullptr)
 		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
-
-	OnEnterHeldState.Broadcast();
 	
 	_itemCollisionMesh->SetSimulatePhysics(false);
 	_itemCollisionMesh->SetEnableGravity(false);
@@ -126,8 +102,6 @@ void APW_ItemObject::EnterDroppedState()
 {
 	if (_itemCollisionMesh == nullptr)
 		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
-
-	OnEnterDroppedState.Broadcast();
 	
 	const FDetachmentTransformRules detachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld,
 	EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, true);
@@ -235,10 +209,8 @@ void APW_ItemObject::ClientApplyActionBindings_Implementation(APW_Character* cha
 
 void APW_ItemObject::LocalApplyActionBindings(APW_Character* characterOwner)
 {
-	OnApplyInputBinding.Broadcast(characterOwner);
-	DEBUG_STRING("LOCAL APPLY ACTION BINDINGS");
+	
 }
-
 #pragma endregion ApplyActionBindings
 
 #pragma region RemoveActionBindings
@@ -259,7 +231,7 @@ void APW_ItemObject::ClientRemoveActionBindings_Implementation(APW_Character* ch
 
 void APW_ItemObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 {
-	OnRemoveInputBinding.Broadcast(characterOwner);
+	DEBUG_STRING("REMOVE BINDING ACTIONS");
 }
 
 #pragma endregion RemoveActionBindings

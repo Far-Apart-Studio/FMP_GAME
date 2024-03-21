@@ -153,8 +153,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void ReloadButtonPressed();
-	void SecondaryUseButtonPressed();
-	void SecondaryUseButtonReleased();
+	void AimButtonPressed();
+	void AimButtonReleased();
 	void JumpButtonPressed();
 	void UseButtonPressed();
 	void UseButtonReleased();

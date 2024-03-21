@@ -14,8 +14,4 @@ public:
 	~PWMath();
 
 	FORCEINLINE static float Clamp01(float value) { return FMath::Clamp(value, 0.0f, 1.0f); }
-	FORCEINLINE static float ClampZero(float value) { return FMath::Max(0.0f, value); }
-	FORCEINLINE static int ClampZero(int value) { return FMath::Max(0, value); }
-	
-	
 };

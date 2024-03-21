@@ -3,11 +3,9 @@
 
 #include "PW_WeaponObject.h"
 
-#include "DebugMacros.h"
 #include "FRecoilAction.h"
 #include "PWMath.h"
 #include "PW_Character.h"
-#include "PW_DamageCauserComponent.h"
 #include "PW_Utilities.h"
 #include "PW_WeaponData.h"
 #include "Camera/CameraComponent.h"
@@ -24,9 +22,6 @@ APW_WeaponObject::APW_WeaponObject()
 	
 	_muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	_muzzleLocation->SetupAttachment(itemMesh);
-
-	_damageCauserComponent = CreateDefaultSubobject<UPW_DamageCauserComponent>(TEXT("DamageCauserComponent"));
-	_damageCauserComponent->RegisterComponent();
 }
 
 void APW_WeaponObject::BeginPlay()
@@ -56,22 +51,18 @@ void APW_WeaponObject::LocalApplyActionBindings(APW_Character* characterOwner)
 {
 	characterOwner->OnShootButtonPressed.AddDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.AddDynamic(this, &APW_WeaponObject::CompleteFireSequence);
-	characterOwner->OnReloadButtonPressed.AddDynamic(this, &APW_WeaponObject::QueueReloadWeapon);
+	characterOwner->OnReloadButtonPressed.AddDynamic(this, &APW_WeaponObject::ReloadWeapon);
 	characterOwner->OnAimButtonPressed.AddDynamic(this, &APW_WeaponObject::FireModeAim);
 	characterOwner->OnAimButtonReleased.AddDynamic(this, &APW_WeaponObject::FireModeHip);
-
-	OnWeaponEquip.Broadcast(this);
 }
 
 void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 {
 	characterOwner->OnShootButtonPressed.RemoveDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.RemoveDynamic(this, &APW_WeaponObject::CompleteFireSequence);
-	characterOwner->OnReloadButtonPressed.RemoveDynamic(this, &APW_WeaponObject::QueueReloadWeapon);
+	characterOwner->OnReloadButtonPressed.RemoveDynamic(this, &APW_WeaponObject::ReloadWeapon);
 	characterOwner->OnAimButtonPressed.RemoveDynamic(this, &APW_WeaponObject::FireModeAim);
 	characterOwner->OnAimButtonReleased.RemoveDynamic(this, &APW_WeaponObject::FireModeHip);
-
-	OnWeaponUnEquip.Broadcast(this);
 }
 
 void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -118,15 +109,11 @@ void APW_WeaponObject::CoreFireSequence()
 	
 	
 	if (IsAmmoEmpty())
-		{ QueueReloadWeapon(); return; }
+		{ ReloadWeapon(); return; }
 	
 	if (CanFire())
-	{
 		CastBulletRays();
-		const int currentAmmo = _weaponRuntimeData.CurrentAmmo - _weaponData->GetAmmoConsumption(_weaponFireMode);
-		_weaponRuntimeData.CurrentAmmo = PWMath::ClampZero(currentAmmo);
-		UpdateAmmo(_weaponRuntimeData.CurrentAmmo, _weaponRuntimeData.CurrentReserveAmmo);
-	}
+	
 }
 
 void APW_WeaponObject::CompleteFireSequence()
@@ -202,7 +189,7 @@ void APW_WeaponObject::CastBulletRay(UCameraComponent* cameraComponent)
 	
 	ApplyDamage(hitResult);
 	if (IsAmmoEmpty())
-		QueueReloadWeapon(); 
+		ReloadWeapon(); 
 }
 
 void APW_WeaponObject::SimulateBulletSpread(FVector& rayDirection)
@@ -252,8 +239,6 @@ void APW_WeaponObject::TransferReserveAmmo()
 	
 	_weaponRuntimeData.CurrentAmmo += ammoToTransfer;
 	_weaponRuntimeData.CurrentReserveAmmo -= ammoToTransfer;
-
-	UpdateAmmo(_weaponRuntimeData.CurrentAmmo, _weaponRuntimeData.CurrentReserveAmmo);
 }
 
 void APW_WeaponObject::QueueWeaponRecoil()
@@ -291,17 +276,26 @@ void APW_WeaponObject::CompleteWeaponRecoil()
 	
 }
 
-void APW_WeaponObject::QueueReloadWeapon()
+void APW_WeaponObject::ReloadWeapon()
 {
 	const bool cannotReload = IsMagazineFull()
 		|| IsReserveAmmoEmpty()
 		|| _weaponRuntimeData.IsReloading;
+	
 
 	if (!cannotReload)
-		ReloadWeapon();
+		GetOwner()->HasAuthority() ? LocalReloadWeapon() : ServerReloadWeapon();
 }
 
-void APW_WeaponObject::ReloadWeapon()
+void APW_WeaponObject::ServerReloadWeapon_Implementation()
+{
+	if (!GetOwner()->HasAuthority())
+		return;
+	
+	LocalReloadWeapon();
+}
+
+void APW_WeaponObject::LocalReloadWeapon()
 {
 	if (_weaponRuntimeData.IsReloading)
 		return;
@@ -310,7 +304,7 @@ void APW_WeaponObject::ReloadWeapon()
 	_weaponRuntimeData.IsReloading = true;
 
 	if (_weaponData == nullptr)
-	{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
 	const float reloadTime = _weaponData->GetWeaponReloadTime();
 	
@@ -326,23 +320,39 @@ void APW_WeaponObject::OnReloadWeaponComplete()
 
 void APW_WeaponObject::ApplyDamage(const FHitResult& hitResult)
 {
+	GetOwner()->HasAuthority() ? LocalApplyDamage(hitResult) : ServerApplyDamage(hitResult);
+}
+
+void APW_WeaponObject::ServerApplyDamage_Implementation(const FHitResult& hitResult)
+{
+	if (!GetOwner()->HasAuthority())
+		return;
+	
+	LocalApplyDamage(hitResult);
+}
+
+void APW_WeaponObject::LocalApplyDamage(const FHitResult& hitResult)
+{
 	AActor* owner = GetOwner();
-	const APW_Character* ownerCharacter = Cast<APW_Character>(owner);
+	APW_Character* ownerCharacter = Cast<APW_Character>(owner);
 	
 	if (ownerCharacter == nullptr)
-	{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; } 
+		{ PW_Utilities::Log("COULD NOT FIND CHARACTER OWNER"); return; } 
+	
+	_weaponRuntimeData.CurrentAmmo--;
 	
 	if (_weaponData == nullptr)
-	{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
+		{ PW_Utilities::Log("NO WEAPON DATA FOUND!"); return; }
 	
 	AActor* hitActor = hitResult.GetActor();
 
 	if (hitActor == nullptr)
-	{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
+		{ PW_Utilities::Log("HIT ACTOR NOT FOUND!"); return; }
 
 	const float calculatedDamage = CalculateDamage(hitResult);
 	
-	_damageCauserComponent->Damage(hitActor, calculatedDamage);
+	hitActor->TakeDamage(calculatedDamage, FDamageEvent(),
+		ownerCharacter->GetController(), ownerCharacter);
 }
 
 float APW_WeaponObject::CalculateDamage(const FHitResult& hitResult)
@@ -453,24 +463,5 @@ void APW_WeaponObject::FireModeHip()
 
 	cameraComponent->SetFieldOfView(currentFov / fovModifier);
 	characterMovement->MaxWalkSpeed /= speedModifier;
-}
-
-void APW_WeaponObject::UpdateAmmo(int currentAmmo, int currentReserveAmmo)
-{
-	GetOwner()->HasAuthority()
-	? LocalUpdateAmmo(currentAmmo, currentReserveAmmo)
-	: ServerUpdateAmmo(currentAmmo, currentReserveAmmo);
-}
-
-void APW_WeaponObject::LocalUpdateAmmo(int currentAmmo, int currentReserveAmmo)
-{
-	_weaponRuntimeData.CurrentAmmo = PWMath::ClampZero(currentAmmo);
-	_weaponRuntimeData.CurrentReserveAmmo = PWMath::ClampZero(currentReserveAmmo);
-}
-
-void APW_WeaponObject::ServerUpdateAmmo_Implementation(int currentAmmo, int currentReserveAmmo)
-{
-	if (GetOwner()->HasAuthority())
-		LocalUpdateAmmo(currentAmmo, currentReserveAmmo);
 }
 

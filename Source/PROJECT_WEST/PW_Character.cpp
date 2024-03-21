@@ -85,8 +85,8 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::EndInteractButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Cycle", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
-	PlayerInputComponent->BindAction("SecondaryUse", IE_Pressed, this, &APW_Character::SecondaryUseButtonPressed);
-	PlayerInputComponent->BindAction("SecondaryUse", IE_Released, this, &APW_Character::SecondaryUseButtonReleased);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APW_Character::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APW_Character::AimButtonReleased);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APW_Character::ReloadButtonPressed);
 	PlayerInputComponent->BindAction("MouseWheelUp", IE_Pressed, this, &APW_Character::MouseWheelUpAxisPressed);
 	PlayerInputComponent->BindAction("MouseWheelDown", IE_Pressed, this, &APW_Character::MouseWheelDownAxisPressed);
@@ -105,12 +105,12 @@ void APW_Character::ReloadButtonPressed()
 	OnReloadButtonPressed.Broadcast();
 }
 
-void APW_Character::SecondaryUseButtonPressed()
+void APW_Character::AimButtonPressed()
 {
 	OnAimButtonPressed.Broadcast();
 }
 
-void APW_Character::SecondaryUseButtonReleased()
+void APW_Character::AimButtonReleased()
 {
 	OnAimButtonReleased.Broadcast();
 }

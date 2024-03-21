@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_HealthComponent.h"
+
+#include "DebugMacros.h"
 #include "PW_Character.h"
 #include "Net/UnrealNetwork.h"
 
@@ -50,36 +52,14 @@ void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UPW_HealthComponent::RecoverHealth(float recoverValue)
 {
-	OnHealingReceivedLocal.Broadcast(GetOwner(), nullptr, nullptr, recoverValue);
-	OnHealthChangedLocal.Broadcast();
-	GetOwnerRole() == ROLE_Authority ? LocalRecoverHealth(recoverValue) : ServerRecoverHealth(recoverValue);
+	OnHealingReceivedServer.Broadcast(GetOwner(), nullptr, nullptr, recoverValue);
+	OnHealthChangedServer.Broadcast();
+	LocalRecoverHealth(recoverValue);
 }
 
 void UPW_HealthComponent::LocalRecoverHealth(float recoverValue)
 {
 	_currentHealth = FMath::Clamp(_currentHealth + recoverValue, _minimumHealth, _maxHealth);
-	MulticastHealthModified(GetOwner(), nullptr, nullptr, recoverValue);
-}
-
-void UPW_HealthComponent::ServerRecoverHealth_Implementation(float recoverValue)
-{
-	if (GetOwnerRole() == ROLE_Authority)
-		LocalRecoverHealth(recoverValue);
-}
-
-void UPW_HealthComponent::MulticastHealthModified_Implementation(AActor* ownerActor, AActor* damageCauser,
-	AController* damageCauserController, float modificationAmount)
-{	
-	OnHealthChangedGlobal.Broadcast();
-
-	(modificationAmount < 0.0f ? OnDamageReceivedGlobal : OnHealingReceivedGlobal).Broadcast
-	(ownerActor, damageCauser, damageCauserController, modificationAmount);
-
-	if (_currentHealth == _minimumHealth)
-	{
-		_isAlive = false;
-		OnDeathGlobal.Broadcast(ownerActor, damageCauser, damageCauserController);
-	}
 }
 
 void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
@@ -87,30 +67,32 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 {
 	if (!CanReceiveDamage(damageAmount))
 		return;
-
-	OnDamageReceivedLocal.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
-	OnHealthChangedLocal.Broadcast();
 	
-	GetOwnerRole() == ROLE_Authority ? LocalTakeDamage(ownerActor, damageAmount, damageType, instigatedBy, damageCauser)
-	: ServerTakeDamage(ownerActor, damageAmount, damageType, instigatedBy, damageCauser);
-}
-
-void UPW_HealthComponent::LocalTakeDamage(AActor* ownerActor, float damageAmount,
-	const UDamageType* damageType,AController* instigatedBy, AActor* damageCauser)
-{
-	AActor* actorOwner = GetOwner();
+	OnDamageReceivedServer.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
+	OnHealthChangedServer.Broadcast();
 	
+	const float lastHealth = _currentHealth;
+
 	_currentHealth = FMath::Clamp(_currentHealth - damageAmount, _minimumHealth, _maxHealth);
 
-	MulticastHealthModified(actorOwner, damageCauser, instigatedBy, -damageAmount);
+	const float modificationAmount = _currentHealth - lastHealth;
+	(modificationAmount < 0.0f ? OnDamageReceivedGlobal : OnHealingReceivedGlobal).Broadcast
+	(GetOwner(), damageCauser, instigatedBy, modificationAmount);
+
+	if (_currentHealth == _minimumHealth)
+	{
+		_isAlive = false;
+		AActor* actorOwner = GetOwner();
+		OnDeathServer.Broadcast(actorOwner, damageCauser, instigatedBy);
+		OnDeathGlobal.Broadcast(actorOwner, damageCauser, instigatedBy);
+	}
 	
 	_regenerationHandle.Reset();
 }
 
 void UPW_HealthComponent::SetIsInvulnerable(bool isInvulnerable)
 {
-	GetOwnerRole() == ROLE_Authority ? LocalSetIsInvulnerable(isInvulnerable)
-	: ServerSetIsInvulnerable(isInvulnerable);
+	LocalSetIsInvulnerable(isInvulnerable);
 }
 
 void UPW_HealthComponent::LocalSetIsInvulnerable(bool isInvulnerable)
@@ -119,34 +101,14 @@ void UPW_HealthComponent::LocalSetIsInvulnerable(bool isInvulnerable)
 	OnInvulnerabilityGlobal.Broadcast();
 }
 
-void UPW_HealthComponent::ServerSetIsInvulnerable_Implementation(bool isInvulnerable)
-{
-	if (GetOwnerRole() == ROLE_Authority)
-		LocalSetIsInvulnerable(isInvulnerable);
-}
-
-void UPW_HealthComponent::ServerTakeDamage_Implementation(AActor* ownerActor, float damageAmount,
-     const UDamageType* damageType, AController* instigatedBy, AActor* damageCauser)
-{
-	if (GetOwnerRole() == ROLE_Authority)
-		LocalTakeDamage(ownerActor, damageAmount, damageType, instigatedBy, damageCauser);
-}
-
 void UPW_HealthComponent::SetCanNaturallyRegenerate(bool canNaturallyRegenerate)
 {
-	GetOwnerRole() == ROLE_Authority ? LocalSetCanNaturallyRegenerate(canNaturallyRegenerate)
-	: ServerSetCanNaturallyRegenerate(canNaturallyRegenerate);
+	LocalSetCanNaturallyRegenerate(canNaturallyRegenerate);
 }
 
 void UPW_HealthComponent::LocalSetCanNaturallyRegenerate(bool canNaturallyRegenerate)
 {
 	_regenerationHandle.AllowRegeneration = canNaturallyRegenerate;
-}
-
-void UPW_HealthComponent::ServerSetCanNaturallyRegenerate_Implementation(bool canNaturallyRegenerate)
-{
-	if (GetOwnerRole() == ROLE_Authority)
-		LocalSetCanNaturallyRegenerate(canNaturallyRegenerate);
 }
 
 void UPW_HealthComponent::ApplyLandedDamage(const FHitResult& hitResult)
@@ -182,6 +144,22 @@ void UPW_HealthComponent::ApplyLandedDamage(const FHitResult& hitResult)
 bool UPW_HealthComponent::CanReceiveLandedDamage()
 {
 	return _fallDamageData.AllowFallDamage;
+}
+
+void UPW_HealthComponent::OnRep_HealthChanged(float lastHealth)
+{
+	float modificationAmount = _currentHealth - lastHealth;
+
+	OnHealthChangedGlobal.Broadcast();
+
+	(modificationAmount < 0.0f ? OnDamageReceivedGlobal : OnHealingReceivedGlobal).Broadcast
+	(GetOwner(), nullptr, nullptr, modificationAmount);
+
+	if (_currentHealth == _minimumHealth)
+	{
+		_isAlive = false;
+		OnDeathGlobal.Broadcast(GetOwner(), nullptr, nullptr);
+	}
 }
 
 bool UPW_HealthComponent::CanReceiveDamage(float damageAmount) const

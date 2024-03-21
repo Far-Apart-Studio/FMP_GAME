@@ -7,13 +7,11 @@
 #include "PW_WeaponData.h"
 #include "PW_WeaponObject.generated.h"
 
-class UPW_DamageCauserComponent;
 class UPW_WeaponVisualData;
 class UPW_WeaponData;
 class APW_Weapon;
 class UCameraComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponEquipDelegate, APW_WeaponObject*, WeaponObject);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FWeaponDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FWeaponSuccessfulFireDelegate, FHitResult, HitResult, FVector, StartPoint, FVector, EndPoint);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponHitDelegate, FHitResult, HitResult);
@@ -50,9 +48,6 @@ class PROJECT_WEST_API APW_WeaponObject : public APW_ItemObject
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	EFireMode _weaponFireMode = EFireMode::Hip;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	UPW_DamageCauserComponent* _damageCauserComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UPW_WeaponData* _weaponData;
@@ -68,6 +63,11 @@ private:
 	
 	FTimerHandle _reloadTimerHandle = FTimerHandle();
 	FTimerHandle _fireTimerHandle = FTimerHandle();
+
+	float _defaultCharacterSpeed;
+	float _defaultCharacterFieldOfView;
+	float _characterSpeedMultiplied;
+	float _characterFieldOfViewMultiplied;
 
 	bool isAiming = false;
 
@@ -88,10 +88,10 @@ public:
 	FWeaponDelegate OnWeaponCancelReload;
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
-	FWeaponEquipDelegate OnWeaponEquip;
+	FWeaponDelegate OnWeaponEquip;
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
-	FWeaponEquipDelegate OnWeaponUnEquip;
+	FWeaponDelegate OnWeaponUnEquip;
 
 	UPROPERTY(BlueprintAssignable, Category = "Weapon Delegates")
 	FWeaponDelegate OnHitDamageable;
@@ -113,11 +113,9 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
 	virtual void LocalApplyActionBindings(APW_Character* characterOwner) override;
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner) override;
-	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void EnterDroppedState() override;
 	
 	void CastBulletRays();
@@ -125,25 +123,25 @@ public:
 	void SimulateBulletSpread(FVector& rayDirection);
 	bool CastRay(const FVector& rayStart, const FVector& rayDestination, const FCollisionQueryParams& collisionQueryParams, FHitResult& hitResult) const;
 	void ApplyDamage(const FHitResult& hitResult);
+	void LocalApplyDamage(const FHitResult& hitResult);
 	float CalculateDamage(const FHitResult& hitResult);
 	bool CanFire();
+	void LocalReloadWeapon();
 	void OnReloadWeaponComplete();
 	void CoreFireSequence();
 	void QueueAutomaticFire();
 	void TransferReserveAmmo();
 	void QueueWeaponRecoil();
-	void ReloadWeapon();
 
 	UFUNCTION() void CompleteWeaponRecoil();
 	UFUNCTION() void BeginFireSequence();
 	UFUNCTION() void CompleteFireSequence();
-	UFUNCTION() void QueueReloadWeapon();
+	UFUNCTION() void ReloadWeapon();
 	UFUNCTION() void FireModeAim();
 	UFUNCTION() void FireModeHip();
-	
-	void UpdateAmmo(int currentAmmo, int currentReserveAmmo);
-	void LocalUpdateAmmo(int currentAmmo, int currentReserveAmmo);
-	UFUNCTION(Server, Reliable) void ServerUpdateAmmo(int currentAmmo, int currentReserveAmmo);
+
+	UFUNCTION(Server, Reliable) void ServerReloadWeapon();
+	UFUNCTION(Server, Reliable) void ServerApplyDamage(const FHitResult& hitResult);
 
 	FORCEINLINE bool IsAmmoEmpty() const { return _weaponRuntimeData.CurrentAmmo <= 0; }
 	FORCEINLINE bool IsMagazineFull() const { return _weaponRuntimeData.CurrentAmmo == _weaponData->GetWeaponMagazineCapacity(); }

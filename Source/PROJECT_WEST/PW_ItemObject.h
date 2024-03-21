@@ -3,15 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DebugMacros.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/PW_InteractableInterface.h"
 #include "PW_ItemObject.generated.h"
 
-class UPW_InventoryHandler;
 class APW_Character;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, APW_Character*, characterOwner);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FItemStateDelegate);
 
 UENUM(BlueprintType)
 enum class EItemType : uint8
@@ -37,7 +34,7 @@ class PROJECT_WEST_API APW_ItemObject : public AActor, public IPW_InteractableIn
 	GENERATED_BODY()
 
 protected:
-	
+
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	FString _itemID;
 	
@@ -62,23 +59,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Item Object") 
 	class UPW_HighlightCompont* _highlightComponent;
 
-public:
-	FInputBindingDelegate OnApplyInputBinding;
-	FInputBindingDelegate OnRemoveInputBinding;
-	FItemStateDelegate OnEnterDroppedState;
-	FItemStateDelegate OnEnterHeldState;
-
 protected:
 	
 	virtual void BeginPlay() override;
-
-	
-	
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();
 
-	UFUNCTION() virtual void OnRep_ItemStateChanged();	
-	UFUNCTION() virtual void OnRep_VisibilityChange();
+	UFUNCTION()
+	virtual void OnRep_ItemStateChanged();	
+
+	UFUNCTION()
+	virtual void OnRep_VisibilityChange();
 
 public:
 	
@@ -87,28 +78,14 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnUpdateItemState();
 	virtual void OnSetVisibility();
-	
-	/**
-	* Executes actions upon equipping an item. Consider renaming to accurately reflect its purpose.
-	* This function is primarily utilized for action binding upon item equipping, but it can be adapted
-	* for various other functionalities when an item is equipped.
-	* @param characterOwner The owning character associated with the equipped item.
-	*/
-	
+
 	void ApplyActionBindings(APW_Character* characterOwner);
 	virtual void LocalApplyActionBindings(APW_Character* characterOwner);
 	UFUNCTION(Client, Reliable) void ClientApplyActionBindings(APW_Character* characterOwner);
 
-	/**
-	 * This function is the counterpart to ApplyActionBindings. It is primarily utilized for action unbinding
-	 * @param characterOwner 
-	 */
-	
 	void RemoveActionBindings(APW_Character* characterOwner);
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner);
 	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
-
-	
 
 	void SetVisibility(bool isVisible);
 	void UpdateItemType(EItemType updatedType);
@@ -116,7 +93,6 @@ public:
 	void DisableItem(APW_Character* characterOwner);
 	void UpdateItemState(EItemObjectState updatedState);
 	void AttemptAttachToOwner();
-	UPW_InventoryHandler* GetHolderInventory();
 
 	virtual void StartFocus_Implementation() override;
 	virtual void EndFocus_Implementation() override;
