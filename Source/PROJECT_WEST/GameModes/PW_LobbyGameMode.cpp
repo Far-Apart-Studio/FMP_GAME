@@ -95,6 +95,11 @@ void APW_LobbyGameMode::TriggerDebtCollector()
 	{
 		DEBUG_STRING ("APW_LobbyGameMode::TriggerDebtCollector _debtCollector spawned");
 		_debtCollector->SetDebtAmount(_gameInstance->GetGameSessionData()._dayIndex);
+		
+		FNotificationEntry notification;
+		notification._notificationType = ENotificationType::EInfo;
+		notification._notificationText = "Debt collector has arrived";
+		TriggerNotification(notification);
 	}
 }
 
@@ -106,6 +111,12 @@ void APW_LobbyGameMode::TryPayDebtCollector()
 		_bountyBoard->ToggleActivation(true);
 		_debtCollector->OnInteracted(true);
 		_debtCollector->Destroy();
+
+		
+		FNotificationEntry notification;
+		notification._notificationType = ENotificationType::EInfo;
+		notification._notificationText = "Debt paid";
+		TriggerNotification(notification);
 	}
 	else
 	{

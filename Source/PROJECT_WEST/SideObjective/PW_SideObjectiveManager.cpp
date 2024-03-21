@@ -6,7 +6,8 @@
 #include "PROJECT_WEST/POI/PW_PoiManager.h"
 #include "PROJECT_WEST/DebugMacros.h"
 
-APW_SideObjectiveManager::APW_SideObjectiveManager()
+APW_SideObjectiveManager::APW_SideObjectiveManager(): _ItemDataTable(nullptr), _numOfObjectivesCompleted(0),
+                                                      _poiManager(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
@@ -16,9 +17,19 @@ APW_SideObjectiveManager::APW_SideObjectiveManager()
 void APW_SideObjectiveManager::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	SetReplicates(true);
+	
 	if (HasAuthority())
-	InitialiseAllObjectives();
+	{
+		InitialiseAllObjectives();
+		//DEBUG_STRING ("Side Objective Manager Initialised Server" );
+	}
+	else
+	{
+		_onSideObjectivesLoaded.Broadcast();
+		//DEBUG_STRING ("Side Objective Manager Initialised Client : Count " + FString::FromInt(_activeObjectives.Num()));
+	}
 }
 
 void APW_SideObjectiveManager::Tick(float DeltaTime)
@@ -86,6 +97,8 @@ void APW_SideObjectiveManager::InitialiseAllObjectives()
 			_activeObjectives.Add(_objective);
 		}
 	}
+
+	_onSideObjectivesLoaded.Broadcast();
 }
 
 APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObjectiveEntry& sideObjectiveData)
@@ -109,17 +122,15 @@ void APW_SideObjectiveManager::OnObjectiveStateChanged(APW_SideObjective* object
 	objective->GetObjectiveState() == EObjectiveState::ECompleted ? OnObjectiveCompleted(objective) : OnObjectiveFailed(objective);
 }
 
-void APW_SideObjectiveManager::OnObjectiveCompleted(APW_SideObjective* ComplectedObjective)
+void APW_SideObjectiveManager::OnObjectiveCompleted(APW_SideObjective* ComplectedObjective) const
 {
 	//DEBUG_STRING ("Objective Completed");
-	//ComplectedObjective->Destroy();
 	_onObjectiveCompleted.Broadcast(ComplectedObjective);
 }
 
-void APW_SideObjectiveManager::OnObjectiveFailed(APW_SideObjective* FailedObjective)
+void APW_SideObjectiveManager::OnObjectiveFailed(APW_SideObjective* FailedObjective) const
 {
 	//DEBUG_STRING ("Objective Failed");
-	//FailedObjective->Destroy();
 	_onObjectiveFailed.Broadcast(FailedObjective);
 }
 

@@ -31,7 +31,7 @@ public:
 	virtual void Failed();
 
 	UFUNCTION()
-	void OnPOITriggered(class APW_PoiArea* Poi);
+	virtual void OnPOITriggered(class APW_PoiArea* Poi);
 
 	UFUNCTION()
 	void OnRep_Complected();
@@ -54,7 +54,7 @@ protected:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	FSideObjectiveEntry _objectiveData;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY( Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	class APW_PoiArea* _poiArea;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
