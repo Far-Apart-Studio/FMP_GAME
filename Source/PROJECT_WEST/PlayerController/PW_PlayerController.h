@@ -270,4 +270,7 @@ public:
 	int GetSelectedSlotIndex();
 
 	FORCEINLINE FString GetPlayerName() const { return _playerName; }
+
+	UFUNCTION( Client, Reliable )
+	void SpectateModeActivated();
 };

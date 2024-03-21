@@ -3,7 +3,6 @@
 
 #include "PW_AutoEnemySpawner.h"
 #include "PW_BoxSpawningComponent.h"
-#include "PW_EnemySpawner.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "PROJECT_WEST/DebugMacros.h"

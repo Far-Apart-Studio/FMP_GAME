@@ -202,11 +202,12 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 			{
 				VictimController->ClientTogglePlayerInput(false);
 				VictimController->SpectatePlayer(host);
+				VictimController->SpectateModeActivated();
 			}
 		}
 		else
 		{
-			//DEBUG_STRING( "No player alive" );
+			_gameInstance->GetGameSessionData()._escapedPlayers.Empty();
 			BountyFailed();
 		}
 	}

@@ -231,6 +231,14 @@ int APW_PlayerController::GetSelectedSlotIndex()
 	return selectedSlotIndex;
 }
 
+void APW_PlayerController::SpectateModeActivated_Implementation()
+{
+	if (_characterOverlayWidget != nullptr)
+	{
+		//_characterOverlayWidget->RemoveFromViewport();
+	}
+}
+
 void APW_PlayerController::ClientJoinMidGame_Implementation(FName stateOfMatch, float matchTime, float levelStartTime,float endMatchCountdown)
 {
 	_matchState = stateOfMatch;
