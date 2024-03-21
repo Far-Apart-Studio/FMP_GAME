@@ -69,6 +69,9 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
+
+	
+	
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();
 
@@ -82,14 +85,28 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnUpdateItemState();
 	virtual void OnSetVisibility();
-
+	
+	/**
+	* Executes actions upon equipping an item. Consider renaming to accurately reflect its purpose.
+	* This function is primarily utilized for action binding upon item equipping, but it can be adapted
+	* for various other functionalities when an item is equipped.
+	* @param characterOwner The owning character associated with the equipped item.
+	*/
+	
 	void ApplyActionBindings(APW_Character* characterOwner);
 	virtual void LocalApplyActionBindings(APW_Character* characterOwner);
 	UFUNCTION(Client, Reliable) void ClientApplyActionBindings(APW_Character* characterOwner);
 
+	/**
+	 * This function is the counterpart to ApplyActionBindings. It is primarily utilized for action unbinding
+	 * @param characterOwner 
+	 */
+	
 	void RemoveActionBindings(APW_Character* characterOwner);
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner);
 	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
+
+	
 
 	void SetVisibility(bool isVisible);
 	void UpdateItemType(EItemType updatedType);
