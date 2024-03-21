@@ -46,6 +46,7 @@ void APW_SideObjective::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(APW_SideObjective, _currentObjectiveAmount);
 	DOREPLIFETIME(APW_SideObjective, _timeText);
 	DOREPLIFETIME(APW_SideObjective, _objectiveState);
+	DOREPLIFETIME(APW_SideObjective, _poiArea);
 }
 
 void APW_SideObjective::SetUp(FSideObjectiveEntry sideObjectiveData, APW_PoiArea* poiArea)

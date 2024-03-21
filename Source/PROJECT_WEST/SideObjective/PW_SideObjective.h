@@ -54,7 +54,7 @@ protected:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	FSideObjectiveEntry _objectiveData;
 
-	UPROPERTY( VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY( Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))
 	class APW_PoiArea* _poiArea;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Data, meta = (AllowPrivateAccess = "true"))

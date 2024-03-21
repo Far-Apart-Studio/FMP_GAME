@@ -70,9 +70,9 @@ private:
 	UFUNCTION()
 	void OnObjectiveStateChanged(APW_SideObjective* ComplectedObjective);
 	
-	void OnObjectiveCompleted(APW_SideObjective* ComplectedObjective);
+	void OnObjectiveCompleted(APW_SideObjective* ComplectedObjective) const;
 	
-	void OnObjectiveFailed(APW_SideObjective* FailedObjective);
+	void OnObjectiveFailed(APW_SideObjective* FailedObjective) const;
 
 	TArray<FSideObjectiveData> GetAllObjectivesData() const;
 
