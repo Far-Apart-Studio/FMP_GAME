@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSideObjectiveCompleted, APW_SideObjective*, complectedObjective);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSideObjectiveFailed, APW_SideObjective*, failedObjective);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSideObjectivesLoaded);
 
 UCLASS()
 class PROJECT_WEST_API APW_SideObjectiveManager : public AActor
@@ -32,6 +33,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
 	FOnSideObjectiveFailed _onObjectiveFailed;
+
+	UPROPERTY(BlueprintAssignable, Category = "SideObjective")
+	FOnSideObjectivesLoaded _onSideObjectivesLoaded;
 	
 private:
 

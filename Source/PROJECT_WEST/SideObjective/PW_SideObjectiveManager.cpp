@@ -23,11 +23,12 @@ void APW_SideObjectiveManager::BeginPlay()
 	if (HasAuthority())
 	{
 		InitialiseAllObjectives();
-		DEBUG_STRING ("Side Objective Manager Initialised Server" );
+		//DEBUG_STRING ("Side Objective Manager Initialised Server" );
 	}
 	else
 	{
-		DEBUG_STRING ("Side Objective Manager Initialised Client : Count " + FString::FromInt(_activeObjectives.Num()));
+		_onSideObjectivesLoaded.Broadcast();
+		//DEBUG_STRING ("Side Objective Manager Initialised Client : Count " + FString::FromInt(_activeObjectives.Num()));
 	}
 }
 
@@ -96,6 +97,8 @@ void APW_SideObjectiveManager::InitialiseAllObjectives()
 			_activeObjectives.Add(_objective);
 		}
 	}
+
+	_onSideObjectivesLoaded.Broadcast();
 }
 
 APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObjectiveEntry& sideObjectiveData)
