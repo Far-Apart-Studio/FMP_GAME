@@ -107,11 +107,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
-	UFUNCTION( Client, Reliable )
-	void ClientAddCharacterOverlayWidget();
+	UFUNCTION( Client, Reliable ) void ClientAddCharacterOverlayWidget(bool islobby = false);
 
-	UFUNCTION( Client, Reliable )
-	void ClientOnLevelChanged();
+	UFUNCTION( Client, Reliable ) void ClientOnLevelChanged();
 	
 	void StartHighPingWarning();
 	void StopHighPingWarning();
@@ -119,8 +117,7 @@ protected:
 	void SetHUDTime();
 	void SyncTimeWithServer(float deltaTime);
 
-	UFUNCTION(BlueprintCallable, Category = "Info" )
-	void DoVoteToBounty(int32 bountyIndex);
+	UFUNCTION(BlueprintCallable, Category = "Info" ) void DoVoteToBounty(int32 bountyIndex);
 	
 	void AddVoteToBounty(int32 bountyIndex);
 	void RemoveVoteFromBounty(int32 bountyIndex);
@@ -128,36 +125,27 @@ protected:
 	bool LocalAddVoteToBounty (int32 bountyIndex);
 	bool LocalRemoveVoteFromBounty (int32 bountyIndex);
 
-	UFUNCTION( Server, Reliable )
-	void ServerRemoveVoteFromBounty(int32 bountyIndex);
-	UFUNCTION( Server, Reliable )
-	void ServerAddVoteToBounty(int32 bountyIndex);
-	UFUNCTION( Client, Reliable )
-	void ClientVoteToBounty(bool  bSuccess, int32 bountyIndex);
-	UFUNCTION( Server, Reliable )
-	void ServerClearVote();
+	UFUNCTION( Server, Reliable ) void ServerRemoveVoteFromBounty(int32 bountyIndex);
+	UFUNCTION( Server, Reliable ) void ServerAddVoteToBounty(int32 bountyIndex);
+	UFUNCTION( Client, Reliable ) void ClientVoteToBounty(bool  bSuccess, int32 bountyIndex);
+	UFUNCTION( Server, Reliable ) void ServerClearVote();
 
-	UFUNCTION( Server, Reliable )
-	void SeverAddMoney(int32 amount);
-	UFUNCTION( Server, Reliable )
-	void SeverRemoveMoney(int32 amount);
+	UFUNCTION( Server, Reliable ) void SeverAddMoney(int32 amount);
+	UFUNCTION( Server, Reliable ) void SeverRemoveMoney(int32 amount);
 	
 	void LocalAddMoney(int32 amount);
 	void LocalRemoveMoney(int32 amount);
 
 	void LoadGameSessionData();
-	UFUNCTION( Server, Reliable )
-	void SeverLoadGameSessionData();
-	UFUNCTION( Client, Reliable )
-	void ClientLoadGameSessionData(FGameSessionData GameSessionData);
+	
+	UFUNCTION( Server, Reliable ) void SeverLoadGameSessionData();
+	UFUNCTION( Client, Reliable ) void ClientLoadGameSessionData(FGameSessionData GameSessionData);
 	
 	void SetVulnerability(bool state);
 	
-	UFUNCTION( Server, Reliable )
-	void ServerRequestTime(float timeOfClientRequest); // Request server time
+	UFUNCTION( Server, Reliable ) void ServerRequestTime(float timeOfClientRequest); // Request server time
 
-	UFUNCTION( Client, Reliable )
-	void ClientReportServerTime(float timeOfClientRequest, float serverTime); // Report the current server time to the client in response to a request
+	UFUNCTION( Client, Reliable ) void ClientReportServerTime(float timeOfClientRequest, float serverTime); // Report the current server time to the client in response to a request
 	
 	UFUNCTION()
 	void OnRep_MatchState();
@@ -199,46 +187,35 @@ public:
 
 	void OnMatchStateSet(FName matchState);
 
-	UFUNCTION( Client, Reliable )
-	void ClientOnLoadedInGameMode();
+	UFUNCTION( Client, Reliable ) void ClientOnLoadedInGameMode();
 
 	void SetNewPlayerName();
-	UFUNCTION( Server, Reliable )
-	void ServerSetPlayerName();
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSetPlayerName(const FString& playerName);
-	UFUNCTION( Client, Reliable )
-	void ClientSetPlayerName(const FString& playerName);
+	
+	UFUNCTION( Server, Reliable ) void ServerSetPlayerName();
+	UFUNCTION(NetMulticast, Reliable) void MulticastSetPlayerName(const FString& playerName);
+	UFUNCTION( Client, Reliable ) void ClientSetPlayerName(const FString& playerName);
 	
 	void TogglePlayerInput(bool bEnable);
 	
-	UFUNCTION( Client, Reliable )
-	void ClientTogglePlayerInput(bool bEnable);
+	UFUNCTION( Client, Reliable ) void ClientTogglePlayerInput(bool bEnable);
 
-	UFUNCTION( Client, Reliable )
-	void ClientToggleGravity(bool bEnable);
+	UFUNCTION( Client, Reliable ) void ClientToggleGravity(bool bEnable);
 
-	UFUNCTION( Client, Reliable )
-	void ClientActivateTrapMode(AActor* trap);
+	UFUNCTION( Client, Reliable ) void ClientActivateTrapMode(AActor* trap);
 
-	UFUNCTION( Client, Reliable )
-	void ClientDeactivateTrapMode();
+	UFUNCTION( Client, Reliable ) void ClientDeactivateTrapMode();
 
 	virtual float GetServerTime(); // Synced with server world clock
 
-	UFUNCTION( Server, Reliable )
-	void ServerCheckMatchState();
+	UFUNCTION( Server, Reliable ) void ServerCheckMatchState();
 
-	UFUNCTION( Client, Reliable )
-	void ClientJoinMidGame(FName stateOfMatch, float matchTime, float levelStartTime, float endMatchCountdown);
+	UFUNCTION( Client, Reliable ) void ClientJoinMidGame(FName stateOfMatch, float matchTime, float levelStartTime, float endMatchCountdown);
 
 	void SpectatePlayer (APW_PlayerController* playerController);
 
-	UFUNCTION( Client, Reliable )
-	void ClientMoneyValueChanged(int32 money);
+	UFUNCTION( Client, Reliable ) void ClientMoneyValueChanged(int32 money);
 
-	UFUNCTION( Client, Reliable )
-	void ClientShowAnnocement(const FString& message,FColor color, float duration);
+	UFUNCTION( Client, Reliable ) void ClientShowAnnocement(const FString& message,FColor color, float duration);
 
 	UFUNCTION( Client, Reliable )
 	void ClientDayChanged(int32 day);
@@ -273,4 +250,6 @@ public:
 
 	UFUNCTION( Client, Reliable )
 	void SpectateModeActivated();
+
+	bool IsInLobby();
 };
