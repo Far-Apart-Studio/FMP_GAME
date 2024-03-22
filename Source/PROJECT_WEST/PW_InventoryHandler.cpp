@@ -2,10 +2,10 @@
 
 #include "PW_InventoryHandler.h"
 
+#include "DebugMacros.h"
 #include "PW_Character.h"
 #include "PW_InventorySlot.h"
 #include "PW_ItemObject.h"
-#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr), _ItemDataTable(nullptr)
@@ -74,13 +74,16 @@ bool UPW_InventoryHandler::IsSlotValid(int slotIndex)
 
 void UPW_InventoryHandler::ChangeSlot(int targetedSlotIndex, bool forceChangeSlot)
 {
-	//DEBUG_STRING (" Before Changed Slot to currentSlotIndex: " + FString::FromInt(_currentSlotIndex ) + " targetedSlotIndex: " + FString::FromInt(targetedSlotIndex));
+	APW_ItemObject* currentItem = _inventorySlots[_currentSlotIndex].GetItem();
+	
+	if (currentItem != nullptr)
+		OnInventorySlotChanged.Broadcast(currentItem);
 	
 	if (_currentSlotIndex == targetedSlotIndex && !forceChangeSlot)
-	{ DEBUG_STRING("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
+		{ DEBUG_STRING("CURRENT SLOT IS THE SAME AS UPDATED SLOT!"); return; }
 
 	if (!IsSlotValid(targetedSlotIndex))
-	{ DEBUG_STRING("SLOT INDEX IS INVALID!"); return; }
+		{ DEBUG_STRING("SLOT INDEX IS INVALID!"); return; }
 	
 	GetOwner()->HasAuthority() ? LocalChangeSlot(targetedSlotIndex) : SeverChangeSlot(targetedSlotIndex);
 }
@@ -147,7 +150,6 @@ void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* colle
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	
 	ChangeSlot(slotIndex, true);
-	//DEBUG_STRING("Collected Item");
 }
 
 void UPW_InventoryHandler::ServerCollectItem_Implementation(int slotIndex, APW_ItemObject* collectedItem)
