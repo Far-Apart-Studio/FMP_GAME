@@ -16,6 +16,8 @@ class APW_WeaponObject;
 struct FInventorySlot;
 struct FPlayerInventoryDataEntry;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventorySlotChangedDelegate, APW_ItemObject*, itemObject);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_InventoryHandler : public UActorComponent
 {
@@ -41,13 +43,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UDataTable* _ItemDataTable;
 
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnInventorySlotChangedDelegate OnInventorySlotChanged;
+
 private:
 	void AssignInputActions();
 	void GetOwnerCharacter();
 	TSubclassOf<class APW_ItemObject> GetItemObjectFromDataTable(FString id);
 	
 protected:
-	
 	virtual void BeginPlay() override;
 
 public:
@@ -75,7 +80,6 @@ public:
 	
 	bool IsSlotValid(int slotIndex);
 	bool TryGetSlotIndex(EItemType itemType, int& outIndex);
-
 	void CyclePreviousSlot();
 
 	void LoadItemsFromData (const FPlayerInventoryDataEntry& inventoryData);
