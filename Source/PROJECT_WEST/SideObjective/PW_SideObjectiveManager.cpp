@@ -108,7 +108,10 @@ APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObje
 
 	if(APW_PoiArea* _poiArea = _poiManager->GetPOIWithID(sideObjectiveData._sideObjectiveInfo._poiID))
 	{
-		objective = Cast<APW_SideObjective>(GetWorld()->SpawnActor(_objectiveClassType));
+		FVector spawnLocation = GetActorLocation();
+		
+		objective = Cast<APW_SideObjective>(GetWorld()->SpawnActor(_objectiveClassType, &spawnLocation));
+		//objective->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		objective->_onObjectiveStatChanged.AddDynamic(this, &APW_SideObjectiveManager::OnObjectiveStateChanged);
 		objective->SetUp(sideObjectiveData, _poiArea);
 		_activeObjectiveEntries.Add(sideObjectiveData);

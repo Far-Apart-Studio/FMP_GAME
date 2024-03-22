@@ -28,4 +28,7 @@ public:
 	void StartHighPingWarning();
 	void StopHighPingWarning();
 	bool IsHighPingWarningPlaying();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDisplayed(bool isLobby);
 };

@@ -35,9 +35,9 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	// called when the player controller possesses a pawn
+	// called on server when the player controller possesses a pawn
 	
-	ClientAddCharacterOverlayWidget();
+	ClientAddCharacterOverlayWidget(IsInLobby());
 	SetNewPlayerName();
 	ClientOnLevelChanged();
 	SpawnAutoEnemySpawner();
@@ -231,6 +231,15 @@ int APW_PlayerController::GetSelectedSlotIndex()
 	return selectedSlotIndex;
 }
 
+bool APW_PlayerController::IsInLobby()
+{
+	if (APW_LobbyGameMode* gameMode = Cast<APW_LobbyGameMode>(UGameplayStatics::GetGameMode(this)))
+	{
+		return  true;
+	}
+	return false;
+}
+
 void APW_PlayerController::SpectateModeActivated_Implementation()
 {
 	if (_characterOverlayWidget != nullptr)
@@ -346,7 +355,7 @@ void APW_PlayerController::ClientOnLoadedInGameMode_Implementation()
 	}
 }
 
-void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation()
+void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation(bool islobby)
 {
 	_hud = GetHUD <APW_HUD>();
 	
@@ -356,6 +365,7 @@ void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation()
 		if (_characterOverlayWidget != nullptr)
 		{
 			_characterOverlayWidget->AddToViewport();
+			_characterOverlayWidget->OnDisplayed(islobby);
 		}
 	}
 }

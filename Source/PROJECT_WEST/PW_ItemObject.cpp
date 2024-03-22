@@ -15,6 +15,7 @@ APW_ItemObject::APW_ItemObject()
 	bReplicates = true;
 	
 	_itemCollisionMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CollisionMesh"));
+	_itemCollisionMesh->SetIsReplicated(true);
 	SetRootComponent(_itemCollisionMesh);
 
 	_itemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemMesh"));
@@ -33,7 +34,6 @@ APW_ItemObject::APW_ItemObject()
 void APW_ItemObject::BeginPlay()
 {
 	Super::BeginPlay();
-
 	SetReplicates(true);
 	SetReplicateMovement(true);
 	AttemptAttachToOwner();

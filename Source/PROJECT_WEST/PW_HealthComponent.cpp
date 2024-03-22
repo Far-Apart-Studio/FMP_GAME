@@ -40,6 +40,9 @@ void UPW_HealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(UPW_HealthComponent, _isAlive);
 	DOREPLIFETIME(UPW_HealthComponent, _isInvulnerable);
 	DOREPLIFETIME(UPW_HealthComponent, _regenerationHandle);
+	DOREPLIFETIME(UPW_HealthComponent, _lastInstigatedBy);
+	DOREPLIFETIME(UPW_HealthComponent, _lastDamageCauser);
+	DOREPLIFETIME(UPW_HealthComponent, _lastDamageAmount);
 }
 
 void UPW_HealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -67,9 +70,15 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 {
 	if (!CanReceiveDamage(damageAmount))
 		return;
+
+	_lastInstigatedBy = instigatedBy;
+	_lastDamageCauser = damageCauser;
+	_lastDamageAmount = damageAmount;
 	
 	OnDamageReceivedServer.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
+	
 	OnHealthChangedServer.Broadcast();
+	OnHealthChangedGlobal.Broadcast();
 	
 	const float lastHealth = _currentHealth;
 
@@ -77,7 +86,7 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 
 	const float modificationAmount = _currentHealth - lastHealth;
 	(modificationAmount < 0.0f ? OnDamageReceivedGlobal : OnHealingReceivedGlobal).Broadcast
-	(GetOwner(), damageCauser, instigatedBy, modificationAmount);
+	(GetOwner(), damageCauser, instigatedBy, damageAmount);
 
 	if (_currentHealth == _minimumHealth)
 	{
@@ -151,9 +160,9 @@ void UPW_HealthComponent::OnRep_HealthChanged(float lastHealth)
 	float modificationAmount = _currentHealth - lastHealth;
 
 	OnHealthChangedGlobal.Broadcast();
-
+	
 	(modificationAmount < 0.0f ? OnDamageReceivedGlobal : OnHealingReceivedGlobal).Broadcast
-	(GetOwner(), nullptr, nullptr, modificationAmount);
+	(GetOwner(), _lastDamageCauser, _lastInstigatedBy, _lastDamageAmount);
 
 	if (_currentHealth == _minimumHealth)
 	{

@@ -50,6 +50,8 @@ APW_SnareTrap::APW_SnareTrap()
 	_materialEffectComponent = CreateDefaultSubobject<UPW_MaterialEffectComponent>(TEXT("MaterialEffectComponent"));
 	
 	_damageRate = 10.0f;
+
+	_damageDuration = 5.0f;
 }
 
 void APW_SnareTrap::BeginPlay()
@@ -74,18 +76,26 @@ void APW_SnareTrap::BeginPlay()
 
 void APW_SnareTrap::OnHealthChanged()
 {
-	DEBUG_STRING("Snare trap health changed");
+	//DEBUG_STRING("Snare trap health changed");
 }
 
 void APW_SnareTrap::OnDeath(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController)
 {
+	if (_isDeactivated)
+	{
+		return;
+	}
+
+	_isDeactivated = true;
+
+	_isSnareTriggered = false;
+	
 	_actorMoverComponent->SetMoveDirection(EMoveDirection::EMD_Backward);
 	
 	if(_caughtCharacter)
 	{
-		UPW_HealthComponent* healthComponent = _caughtCharacter->FindComponentByClass<UPW_HealthComponent>();
 		APW_PlayerController* playerController = Cast<APW_PlayerController>(_caughtCharacter->GetController());
-		if (playerController && healthComponent->IsAlive())
+		if (playerController && _caughtCharacterHealthComponent && _caughtCharacterHealthComponent->IsAlive())
 		{
 			playerController->ClientTogglePlayerInput( true );
 		}
@@ -99,8 +109,10 @@ void APW_SnareTrap::OnDeath(AActor* OwnerActor, AActor* DamageCauser, AControlle
 	}
 
 	_materialEffectComponent->ActivateEffect(EEffectDirection::ED_Forward);
-	_isSnareActive = false;
+
 	_caughtCharacter = nullptr;
+
+	_OnSnareDeactivated.Broadcast();
 }
 
 void APW_SnareTrap::Tick(float DeltaTime)
@@ -115,12 +127,12 @@ void APW_SnareTrap::Tick(float DeltaTime)
 void APW_SnareTrap::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(APW_SnareTrap, _isSnareActive);
+	DOREPLIFETIME(APW_SnareTrap, _isSnareTriggered);
 }
 
 void APW_SnareTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (_isSnareActive || !_healthComponent->IsAlive())
+	if (_isDeactivated || !_healthComponent->IsAlive())
 	{ 
 		return;
 	}
@@ -130,12 +142,7 @@ void APW_SnareTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void APW_SnareTrap::OnRep_OnStatsChanged()
 {
-	if(_isSnareActive)
-	_skeletalMesh->PlayAnimation(_catchAnimation, false);
-	else
-	{
-		_skeletalMesh->PlayAnimation(_releaseAnimation, false);
-	}
+	_skeletalMesh->PlayAnimation( _isSnareTriggered ? _catchAnimation : _releaseAnimation, false);
 }
 
 void APW_SnareTrap::OnHighlightComplete(EEffectDirection Direction)
@@ -151,11 +158,13 @@ void APW_SnareTrap::CaughtCharacter(APW_Character* Character)
 	if (Character)
 	{
 		_caughtCharacter = Character;
+
+		_caughtCharacterHealthComponent = _caughtCharacter->FindComponentByClass<UPW_HealthComponent>();
 		
 		APW_PlayerController* playerController = Cast<APW_PlayerController>(_caughtCharacter->GetController());
 		if (playerController)
 		{
-			_isSnareActive = true;
+			_isSnareTriggered = true;
 			playerController->ClientTogglePlayerInput( false );
 			
 			_caughtCharacter->GetCharacterMovement()->Velocity = FVector::ZeroVector;
@@ -171,21 +180,28 @@ void APW_SnareTrap::CaughtCharacter(APW_Character* Character)
 
 			ToggleCollisionQuery(true);
 		}
+		_OnSnareActivated.Broadcast();
 	}
 }
 
 void APW_SnareTrap::DrainHealthOfCaughtCharacter(float DeltaTime)
 {
-	if(!_caughtCharacter) return;
+	if(!_caughtCharacter || !_isSnareTriggered)
+		return;
 	
-	UPW_HealthComponent* healthComponent = _caughtCharacter->FindComponentByClass<UPW_HealthComponent>();
-	if(healthComponent && healthComponent->IsAlive())
+	if (!_caughtCharacterHealthComponent)
+		return;
+	
+	if(_caughtCharacterHealthComponent->IsAlive())
 	{
 		_caughtCharacter->TakeDamage(_damageRate * DeltaTime, FDamageEvent(), nullptr, this);
-		if (!healthComponent->IsAlive())
-		{
-			OnDeath(nullptr, nullptr, nullptr);
-		}
+	}
+	
+	_damageDuration -= DeltaTime;
+	
+	if(!_caughtCharacterHealthComponent->IsAlive() || _damageDuration <= 0)
+	{
+		OnDeath(nullptr, nullptr, nullptr);
 	}
 }
 
