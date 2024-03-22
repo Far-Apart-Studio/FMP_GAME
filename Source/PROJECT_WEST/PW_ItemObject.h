@@ -44,10 +44,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	EItemType _itemType;
 
-	UPROPERTY(EditAnywhere, Category = "Item Object")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Object")
 	UStaticMeshComponent* _itemCollisionMesh;
 
-	UPROPERTY(EditAnywhere, Category = "Item Object")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Object")
 	USkeletalMeshComponent* _itemMesh;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_ItemStateChanged, EditAnywhere, Category = "Item Object")
