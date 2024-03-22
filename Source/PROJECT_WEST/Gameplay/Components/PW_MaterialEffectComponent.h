@@ -63,6 +63,9 @@ private:
 	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	TArray<UMeshComponent*> _meshComponents;
 
+	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
+	TArray<UMeshComponent*> _meshComponentsToIgnore;
+
 private:
 	
 	void HandleEffect(float DeltaTime);

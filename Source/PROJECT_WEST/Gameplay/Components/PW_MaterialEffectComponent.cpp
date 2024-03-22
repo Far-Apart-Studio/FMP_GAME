@@ -66,6 +66,10 @@ void UPW_MaterialEffectComponent::SetMeshComponentsEffectValue(float value)
 {
 	for (UMeshComponent* component : _meshComponents)
 	{
+		if (_meshComponentsToIgnore.Contains(component))
+		{
+			continue;
+		}
 		component->SetScalarParameterValueOnMaterials(_effectName, value);
 	}
 }

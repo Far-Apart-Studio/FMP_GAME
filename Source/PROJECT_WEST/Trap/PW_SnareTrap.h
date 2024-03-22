@@ -7,6 +7,8 @@
 #include "PROJECT_WEST/Gameplay/Components/PW_MaterialEffectComponent.h"
 #include "PW_SnareTrap.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStatusDelegate);
+
 UCLASS()
 class PROJECT_WEST_API APW_SnareTrap : public AActor
 {
@@ -33,6 +35,12 @@ public:
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY (BlueprintAssignable, Category = "Gameplay")
+	FStatusDelegate _OnSnareActivated;
+	
+	UPROPERTY (BlueprintAssignable, Category = "Gameplay")
+	FStatusDelegate _OnSnareDeactivated;
 
 private:
 
@@ -67,12 +75,19 @@ private:
 	class UArrowComponent* _point2;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OnStatsChanged, EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	bool _isSnareActive;
+	bool _isSnareTriggered;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	float _damageRate;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	float _damageDuration;
+
 	class APW_Character* _caughtCharacter;
+
+	class UPW_HealthComponent* _caughtCharacterHealthComponent;
+
+	bool _isDeactivated;
 
 
 	UFUNCTION()
