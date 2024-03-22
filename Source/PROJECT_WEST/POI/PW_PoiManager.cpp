@@ -40,23 +40,15 @@ void APW_PoiManager::Tick(float DeltaTime)
 
 }
 
-APW_PoiArea* APW_PoiManager::GetPOIWithID(FString poiID)
+APW_PoiArea* APW_PoiManager::GetRandomPOI()
 {
 	if (_poiAvailable.Num() == 0)
 	{
 		return nullptr;
 	}
-	
-	APW_PoiArea* poiArea = _poiAvailable[0];
-	for (APW_PoiArea* area : _poiAvailable)
-	{
-		if (area->GetPoiID() == poiID)
-		{
-			poiArea = area;
-			break;
-		}
-	}
-	_poiAvailable.Remove(poiArea);
+	const int32 randomIndex = FMath::RandRange(0, _poiAvailable.Num() - 1);
+	APW_PoiArea* poiArea = _poiAvailable[randomIndex];
+	_poiAvailable.RemoveAt(randomIndex);
 	return poiArea;
 }
 

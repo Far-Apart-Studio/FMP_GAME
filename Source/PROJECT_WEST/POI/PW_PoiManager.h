@@ -38,6 +38,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Data)
 	TArray<class APW_PoiArea*> GetPoiAreas() const { return _poiAreas; }
-
-	APW_PoiArea* GetPOIWithID(FString poiID);
+	
+	APW_PoiArea* GetRandomPOI();
 };
