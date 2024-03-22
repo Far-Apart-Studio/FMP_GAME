@@ -41,9 +41,6 @@ private:
 	
 	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	FName _effectName;
-
-	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
-	float _startingEffectValue;
 	
 	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	float _fadeSpeed;
@@ -60,10 +57,10 @@ private:
 	UPROPERTY (VisibleAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	bool _isEffectActive;
 	
-	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere,BlueprintReadWrite, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	TArray<UMeshComponent*> _meshComponents;
 
-	UPROPERTY (EditAnywhere, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
+	UPROPERTY (EditAnywhere,BlueprintReadWrite, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
 	TArray<UMeshComponent*> _meshComponentsToIgnore;
 
 private:

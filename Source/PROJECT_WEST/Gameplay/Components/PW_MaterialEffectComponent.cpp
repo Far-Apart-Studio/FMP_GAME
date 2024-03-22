@@ -14,7 +14,6 @@ UPW_MaterialEffectComponent::UPW_MaterialEffectComponent()
 	_effectName = "Make sure to set the effect name";
 	_fadeSpeed = 0.1f;
 	_autoGenerateMeshComponents = true;
-	_startingEffectValue = 0.0f;
 }
 
 void UPW_MaterialEffectComponent::BeginPlay()
@@ -25,8 +24,6 @@ void UPW_MaterialEffectComponent::BeginPlay()
 	{
 		GenerateMeshComponents();
 	}
-
-	SetMeshComponentsEffectValue(_startingEffectValue);
 }
 
 void UPW_MaterialEffectComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
