@@ -40,7 +40,7 @@ void APW_DebtCollector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(APW_DebtCollector, _debtAmount);
 }
 
-void APW_DebtCollector::StartFocus_Implementation()
+void APW_DebtCollector::StartFocus_Implementation(AActor* owner)
 {
 	if(_highlightComponent)
 	{
@@ -48,7 +48,7 @@ void APW_DebtCollector::StartFocus_Implementation()
 	}
 }
 
-void APW_DebtCollector::EndFocus_Implementation()
+void APW_DebtCollector::EndFocus_Implementation(AActor* owner)
 {
 	if(_highlightComponent)
 	{

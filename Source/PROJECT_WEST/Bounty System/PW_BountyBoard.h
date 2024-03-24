@@ -30,8 +30,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	virtual void StartFocus_Implementation() override;
-	virtual void EndFocus_Implementation() override;
+	virtual void StartFocus_Implementation(AActor* owner) override;
+	virtual void EndFocus_Implementation(AActor* owner) override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
 	virtual void EndInteract_Implementation() override;
 	virtual bool IsInteracting_Implementation() override;

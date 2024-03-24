@@ -54,12 +54,12 @@ void APW_ExtractionPoint::Tick(float DeltaTime)
 	//CheckForWin();
 }
 
-void APW_ExtractionPoint::StartFocus_Implementation()
+void APW_ExtractionPoint::StartFocus_Implementation(AActor* owner)
 {
 	DEBUG_STRING( "ExtractionPoint Focused" );
 }
 
-void APW_ExtractionPoint::EndFocus_Implementation()
+void APW_ExtractionPoint::EndFocus_Implementation(AActor* owner)
 {
 	DEBUG_STRING ( "ExtractionPoint Unfocused" );
 }

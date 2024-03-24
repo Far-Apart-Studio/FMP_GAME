@@ -24,8 +24,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	virtual void StartFocus_Implementation() override;
-	virtual void EndFocus_Implementation() override;
+	virtual void StartFocus_Implementation(AActor* owner) override;
+	virtual void EndFocus_Implementation(AActor* owner) override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
 	
 	FORCEINLINE int32 GetCurrentValue() const { return _currentValue; }

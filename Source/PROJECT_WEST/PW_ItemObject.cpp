@@ -58,13 +58,13 @@ void APW_ItemObject::UpdateItemType(EItemType updatedType)
 	_itemType = updatedType;
 }
 
-void APW_ItemObject::StartFocus_Implementation()
+void APW_ItemObject::StartFocus_Implementation(AActor* owner)
 {
 	if (_itemState != EItemObjectState::EDropped) return;
 	_highlightComponent->ShowHighlight();
 }
 
-void APW_ItemObject::EndFocus_Implementation()
+void APW_ItemObject::EndFocus_Implementation(AActor* owner)
 {
 	_highlightComponent->HideHighlight();
 }
