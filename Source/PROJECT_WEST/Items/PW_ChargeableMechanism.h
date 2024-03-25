@@ -28,11 +28,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	virtual void StartFocus_Implementation(AActor* owner) override;
-	virtual void EndFocus_Implementation(AActor* owner) override;
-	virtual void StartInteract_Implementation(AActor* owner) override;
-	virtual void EndInteract_Implementation() override;
+	virtual void StartFocus_Implementation(AActor* targetActor) override;
+	virtual void EndFocus_Implementation(AActor* targetActor) override;
+
+	virtual void ServerStartInteract_Implementation(AActor* targetActor) override;
+	virtual void ServerStopInteract_Implementation() override;
+	virtual bool HasServerInteraction_Implementation() override;
+	
 	virtual bool IsInteracting_Implementation() override;
+
+	UFUNCTION()
+	void OnChargeButtonHeld(bool bValue);
 
 	bool IsLanternEquipped(AActor* interactingActor);
 
@@ -47,6 +53,7 @@ public:
 
 private:
 
+	class APW_Character* _character;
 	class APW_Lantern* _lantern;
 
 	bool _chargeActivated = false;

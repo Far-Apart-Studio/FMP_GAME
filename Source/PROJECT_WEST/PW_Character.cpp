@@ -80,9 +80,9 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("PrimaryUse", IE_Released, this, &APW_Character::UseButtonReleased);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APW_Character::SprintButtonPressed);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APW_Character::SprintButtonReleased);
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
-	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::StartInteractButtonPressed);
-	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::EndInteractButtonPressed);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::InteractButtonPressed);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::InteractButtonReleased);
+	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::ReturnButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Cycle", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
 	PlayerInputComponent->BindAction("SecondaryUse", IE_Pressed, this, &APW_Character::SecondaryUseButtonPressed);
@@ -115,12 +115,13 @@ void APW_Character::SecondaryUseButtonReleased()
 	OnAimButtonReleased.Broadcast();
 }
 
-void APW_Character::StartInteractButtonPressed()
+void APW_Character::InteractButtonReleased()
 {
+	OnInteractButtonHeld.Broadcast(false);
 	OnStartInteractButtonPressed.Broadcast();
 }
 
-void APW_Character::EndInteractButtonPressed()
+void APW_Character::ReturnButtonPressed()
 {
 	OnEndInteractButtonPressed.Broadcast();
 }
@@ -252,8 +253,9 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 	}
 }
 
-void APW_Character::PickUpButtonPressed()
+void APW_Character::InteractButtonPressed()
 {
+	OnInteractButtonHeld.Broadcast(true);
 	OnPickUpButtonPressed.Broadcast();
 }
 

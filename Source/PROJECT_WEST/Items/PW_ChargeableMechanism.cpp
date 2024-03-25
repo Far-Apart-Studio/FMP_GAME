@@ -27,31 +27,47 @@ void APW_ChargeableMechanism::Tick(float DeltaTime)
 	}
 }
 
-void APW_ChargeableMechanism::StartFocus_Implementation(AActor* owner)
+void APW_ChargeableMechanism::StartFocus_Implementation(AActor* targetActor)
 {
-	_OnFocusBegin.Broadcast(IsLanternEquipped(owner));
+	_OnFocusBegin.Broadcast(IsLanternEquipped(targetActor));
 }
 
-void APW_ChargeableMechanism::EndFocus_Implementation(AActor* owner)
+void APW_ChargeableMechanism::EndFocus_Implementation(AActor* targetActor)
 {
 	_OnFocusEnd.Broadcast();
 	_lantern = nullptr;
 }
 
-void APW_ChargeableMechanism::StartInteract_Implementation(AActor* owner)
+void APW_ChargeableMechanism::ServerStartInteract_Implementation(AActor* targetActor)
 {
 	if(!_lantern) return;
-	_chargeActivated = true;
+
+	_character = Cast<APW_Character>(targetActor);
+	if (!_character)
+		return;
+	
+	_character->OnInteractButtonHeld.AddDynamic(this, &APW_ChargeableMechanism::OnChargeButtonHeld);
 }
 
-void APW_ChargeableMechanism::EndInteract_Implementation()
+void APW_ChargeableMechanism::ServerStopInteract_Implementation()
 {
-	_chargeActivated = false;
+	_character->OnInteractButtonHeld.RemoveDynamic(this, &APW_ChargeableMechanism::OnChargeButtonHeld);
+	_character = nullptr;
+}
+
+bool APW_ChargeableMechanism::HasServerInteraction_Implementation()
+{
+	return true;
 }
 
 bool APW_ChargeableMechanism::IsInteracting_Implementation()
 {
-	return _chargeActivated;
+	return _character != nullptr;
+}
+
+void APW_ChargeableMechanism::OnChargeButtonHeld(bool bValue)
+{
+	_chargeActivated = bValue;
 }
 
 bool APW_ChargeableMechanism::IsLanternEquipped(AActor* interactingActor)

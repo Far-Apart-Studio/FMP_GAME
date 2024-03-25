@@ -14,6 +14,7 @@ class UPW_HealthComponent;
 class USpringArmComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FButtonPressedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FButtonToggleDelegate, bool, value);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAxisModifiedDelegate, float, value);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSlotPressedDelegate, int, slotIndex);
 
@@ -124,6 +125,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnCameraRotationChange;
+
+	UPROPERTY(BlueprintAssignable)
+	FButtonToggleDelegate OnInteractButtonHeld;
 	
 	void Elim(bool leftGame);
 
@@ -144,7 +148,7 @@ protected:
 	void MultiCastElim (bool leftGame);
 	
 	virtual void PostInitializeComponents() override;
-	void PickUpButtonPressed();
+	void InteractButtonPressed();
 	void SwitchItemButtonPressed();
 	
 public:	
@@ -167,8 +171,8 @@ public:
 	void SprintButtonPressed();
 	void SprintButtonReleased();
 	void ToggleMovement(bool canMove);
-	void StartInteractButtonPressed();
-	void EndInteractButtonPressed();
+	void InteractButtonReleased();
+	void ReturnButtonPressed();
 	void MouseWheelUpAxisPressed();
 	void MouseWheelDownAxisPressed();
 	void SlotOnePressed();
