@@ -34,12 +34,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TryEndInteractWithInteractable();
 
-	void StartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
+	void StartServerInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
 
 	UFUNCTION(Server, Reliable)
 	void ServerStartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
 	
 	void LocalStartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
+	
+
+	void EndServerInteractWithInteractable(AActor* _interactedActor);
+
+	UFUNCTION(Server, Reliable)
+	void ServerEndInteractWithInteractable(AActor* _interactedActor);
+	
+	void LocalEndInteractWithInteractable(AActor* _interactedActor);
+	
 	
 private:
 

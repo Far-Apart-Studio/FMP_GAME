@@ -23,10 +23,10 @@ class PROJECT_WEST_API IPW_InteractableInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
-	void StartFocus();
+	void StartFocus(AActor* owner);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
-	void EndFocus();
+	void EndFocus(AActor* owner);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
 	void StartInteract(AActor* owner);
@@ -42,4 +42,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
 	void ServerStartInteract(AActor* owner);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
+	void ServerStopInteract();
 };

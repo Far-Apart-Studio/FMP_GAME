@@ -24,12 +24,12 @@ void APW_Currency::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void APW_Currency::StartFocus_Implementation()
+void APW_Currency::StartFocus_Implementation(AActor* owner)
 {
 	_mesh->SetRenderCustomDepth(true);
 }
 
-void APW_Currency::EndFocus_Implementation()
+void APW_Currency::EndFocus_Implementation(AActor* owner)
 {
 	_mesh->SetRenderCustomDepth(false);
 }

@@ -69,14 +69,14 @@ void APW_BountyBoard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(APW_BountyBoard, _isActivated);
 }
 
-void APW_BountyBoard::StartFocus_Implementation()
+void APW_BountyBoard::StartFocus_Implementation(AActor* owner)
 {
 	if (!_isActivated) return;
 	if(_highlightComponent)
 	_highlightComponent->ShowHighlight();
 }
 
-void APW_BountyBoard::EndFocus_Implementation()
+void APW_BountyBoard::EndFocus_Implementation(AActor* owner)
 {
 	if (!_isActivated) return;
 	if(_highlightComponent)
