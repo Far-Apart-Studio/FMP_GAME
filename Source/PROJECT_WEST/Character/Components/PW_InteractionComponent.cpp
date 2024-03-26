@@ -23,8 +23,7 @@ void UPW_InteractionComponent::BeginPlay()
 	_ownerCharacter = Cast<APW_Character>(GetOwner());
 	if(_ownerCharacter && _ownerCharacter->IsLocallyControlled())
 	{
-		_ownerCharacter->OnStartInteractButtonPressed.AddDynamic(this, &UPW_InteractionComponent::TryStartInteractWithInteractable);
-		_ownerCharacter->OnEndInteractButtonPressed.AddDynamic(this, &UPW_InteractionComponent::TryEndInteractWithInteractable);
+		_ownerCharacter->OnInteractButtonPressed.AddDynamic(this, &UPW_InteractionComponent::TryToggleInteract);
 	}
 }
 
@@ -105,25 +104,19 @@ void UPW_InteractionComponent::TryEndInteractWithInteractable()
 	if (_lastIntractableActor && IPW_InteractableInterface::Execute_IsInteracting(_lastIntractableActor))
 	{
 		IPW_InteractableInterface::Execute_EndInteract(_lastIntractableActor);
-		_lastIntractableActor = nullptr;
-
+		
 		if (IPW_InteractableInterface::Execute_HasServerInteraction(_lastIntractableActor))
 		{
-			EndServerInteractWithInteractable( GetOwner());
+			EndServerInteractWithInteractable( _lastIntractableActor);
 		}
+		
+		_lastIntractableActor = nullptr;
 	}
 }
 
 void UPW_InteractionComponent::StartServerInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner)
 {
-	if (GetOwner()->HasAuthority())
-	{
-		LocalStartInteractWithInteractable(_interactedActor, _interactableOwner);
-	}
-	else
-	{
-		ServerStartInteractWithInteractable(_interactedActor, _interactableOwner);
-	}
+	GetOwner()->HasAuthority() ? LocalStartInteractWithInteractable(_interactedActor, _interactableOwner) : ServerStartInteractWithInteractable(_interactedActor, _interactableOwner);
 }
 
 void UPW_InteractionComponent::LocalStartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner)
@@ -133,14 +126,7 @@ void UPW_InteractionComponent::LocalStartInteractWithInteractable(AActor* _inter
 
 void UPW_InteractionComponent::EndServerInteractWithInteractable(AActor* _interactedActor)
 {
-	if (GetOwner()->HasAuthority())
-	{
-		LocalEndInteractWithInteractable(_interactedActor);
-	}
-	else
-	{
-		ServerEndInteractWithInteractable(_interactedActor);
-	}
+	GetOwner()->HasAuthority() ? LocalEndInteractWithInteractable(_interactedActor) : ServerEndInteractWithInteractable(_interactedActor);
 }
 
 void UPW_InteractionComponent::ServerEndInteractWithInteractable_Implementation(AActor* _interactedActor)
@@ -158,4 +144,16 @@ void UPW_InteractionComponent::ServerStartInteractWithInteractable_Implementatio
 {
 	if (!GetOwner()->HasAuthority()) return;
 	LocalStartInteractWithInteractable(_interactedActor, _interactableOwner);
+}
+
+void UPW_InteractionComponent::TryToggleInteract()
+{
+	if(_lastIntractableActor && IPW_InteractableInterface::Execute_IsInteracting(_lastIntractableActor))
+	{
+		TryEndInteractWithInteractable();
+	}
+	else
+	{
+		TryStartInteractWithInteractable();
+	}
 }

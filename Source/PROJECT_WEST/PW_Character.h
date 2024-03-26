@@ -49,11 +49,14 @@ private:
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
+
+	class UPW_CharacterMovementComponent* _characterMovementComponent;
 	
 	bool _LeftGame = false;
 	bool _isPressedSprint = false;
 	FTimerHandle _sprintTimerHandle;
 	FTimerDelegate _sprintTimerDelegate;
+	bool _canLook;
 	
 public:
 	
@@ -75,9 +78,6 @@ public:
 	FButtonPressedDelegate OnReloadButtonPressed;
 
 	UPROPERTY(BlueprintAssignable)
-	FButtonPressedDelegate OnPickUpButtonPressed;
-
-	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnDropButtonPressed;
 
 	UPROPERTY(BlueprintAssignable)
@@ -90,7 +90,7 @@ public:
 	FButtonPressedDelegate OnDashButtonPressed;
 
 	UPROPERTY(BlueprintAssignable)
-	FButtonPressedDelegate OnStartInteractButtonPressed;
+	FButtonPressedDelegate OnInteractButtonPressed;
 
 	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnEndInteractButtonPressed;
@@ -124,6 +124,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FButtonPressedDelegate OnCameraRotationChange;
+<<<<<<< Updated upstream
+=======
+
+	UPROPERTY(BlueprintAssignable)
+	FButtonToggleDelegate OnInteractButtonToggled;
+>>>>>>> Stashed changes
 	
 	void Elim(bool leftGame);
 
