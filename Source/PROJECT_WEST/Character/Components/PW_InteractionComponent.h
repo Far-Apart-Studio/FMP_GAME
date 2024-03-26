@@ -48,7 +48,9 @@ public:
 	void ServerEndInteractWithInteractable(AActor* _interactedActor);
 	
 	void LocalEndInteractWithInteractable(AActor* _interactedActor);
-	
+
+	UFUNCTION()
+	void TryToggleInteract();
 	
 private:
 

@@ -125,4 +125,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetTarget(AActor* target) { _target = target; }
+
+	FORCEINLINE bool IsFuelEmpty() const { return _currentFuel <= 0.0f; }
 };

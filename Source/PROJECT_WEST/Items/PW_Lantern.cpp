@@ -113,7 +113,7 @@ void APW_Lantern::Tick(float DeltaTime)
 
 	if (HasAuthority())
 	{
-		HandleDrainFuel(DeltaTime);
+		//HandleDrainFuel(DeltaTime);
 	}
 
 	//GetTargetLocation();

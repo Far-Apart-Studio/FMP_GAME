@@ -14,6 +14,7 @@ UPW_CharacterMovementComponent::UPW_CharacterMovementComponent():
 	_ownerCharacter(nullptr), _dashData()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	_canMove = true;
 }
 
 void UPW_CharacterMovementComponent::BeginPlay()
@@ -55,6 +56,9 @@ void UPW_CharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetime
 
 void UPW_CharacterMovementComponent::MoveForward(float value)
 {
+	if (!_canMove)
+		return;
+	
 	const FVector moveDirection = _ownerCharacter->GetActorForwardVector();
 	if (_ownerCharacter->IsLocallyControlled() || _ownerCharacter->HasAuthority())
 		_ownerCharacter->AddMovementInput(moveDirection, value);
@@ -62,6 +66,9 @@ void UPW_CharacterMovementComponent::MoveForward(float value)
 
 void UPW_CharacterMovementComponent::MoveRight(float value)
 {
+	if (!_canMove)
+		return;
+	
 	const FVector moveDirection = _ownerCharacter->GetActorRightVector();
 	if (_ownerCharacter->IsLocallyControlled() || _ownerCharacter->HasAuthority())
 		_ownerCharacter->AddMovementInput(moveDirection, value);

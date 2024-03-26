@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
+
+#include "PW_CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -22,6 +24,7 @@ APW_Character::APW_Character(): _itemHolder(nullptr),
                                 _bountyGameMode(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	_canLook = true;
 }
 
 void APW_Character::BeginPlay()
@@ -57,6 +60,8 @@ void APW_Character::PostInitializeComponents()
 			_healthComponent->OnDeathGlobal.AddDynamic(this, &APW_Character::OnDeath);
 		}
 	}
+
+	_characterMovementComponent = FindComponentByClass<UPW_CharacterMovementComponent>();
 }
 
 void APW_Character::Tick(float DeltaTime)
@@ -80,9 +85,9 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("PrimaryUse", IE_Released, this, &APW_Character::UseButtonReleased);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APW_Character::SprintButtonPressed);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APW_Character::SprintButtonReleased);
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::InteractButtonPressed);
-	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::InteractButtonReleased);
-	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::ReturnButtonPressed);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::PickUpButtonPressed);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::StartInteractButtonPressed);
+	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::EndInteractButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Cycle", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
 	PlayerInputComponent->BindAction("SecondaryUse", IE_Pressed, this, &APW_Character::SecondaryUseButtonPressed);
@@ -115,13 +120,16 @@ void APW_Character::SecondaryUseButtonReleased()
 	OnAimButtonReleased.Broadcast();
 }
 
-void APW_Character::InteractButtonReleased()
+void APW_Character::StartInteractButtonPressed()
 {
-	OnInteractButtonHeld.Broadcast(false);
+<<<<<<< Updated upstream
 	OnStartInteractButtonPressed.Broadcast();
+=======
+	OnInteractButtonToggled.Broadcast(false);
+>>>>>>> Stashed changes
 }
 
-void APW_Character::ReturnButtonPressed()
+void APW_Character::EndInteractButtonPressed()
 {
 	OnEndInteractButtonPressed.Broadcast();
 }
@@ -184,7 +192,8 @@ void APW_Character::SprintButtonReleased()
 
 void APW_Character::ToggleMovement(bool canMove)
 {
-	
+	_characterMovementComponent->SetCanMove(canMove);
+	_canLook = canMove;
 }
 
 void APW_Character::MoveForwardAxisPressed(float value)
@@ -199,12 +208,18 @@ void APW_Character::MoveRightAxisPressed(float value)
 
 void APW_Character::LookRightAxisPressed(float value)
 {
+	if (!_canLook)
+		return;
+	
 	AddControllerYawInput(value);
 	OnCameraRotationChange.Broadcast();
 }
 
 void APW_Character::LookUpAxisPressed(float value)
 {
+	if (!_canLook)
+		return;
+	
 	AddControllerPitchInput(value);
 	OnCameraRotationChange.Broadcast();
 }
@@ -253,10 +268,14 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 	}
 }
 
-void APW_Character::InteractButtonPressed()
+void APW_Character::PickUpButtonPressed()
 {
-	OnInteractButtonHeld.Broadcast(true);
+<<<<<<< Updated upstream
 	OnPickUpButtonPressed.Broadcast();
+=======
+	OnInteractButtonToggled.Broadcast(true);
+	OnInteractButtonPressed.Broadcast();
+>>>>>>> Stashed changes
 }
 
 void APW_Character::SwitchItemButtonPressed()
