@@ -107,7 +107,11 @@ bool APW_ChargeableMechanism::HasServerInteraction_Implementation()
 
 void APW_ChargeableMechanism::ServerStartInteract_Implementation(AActor* targetActor)
 {
-	_chargeActivated  = IsLanternEquipped(targetActor);
+	if(!IsLanternEquipped(targetActor))
+		return;
+	
+	_character = Cast<APW_Character>(targetActor);
+	_chargeActivated  = true;
 }
 
 void APW_ChargeableMechanism::ServerStopInteract_Implementation()
