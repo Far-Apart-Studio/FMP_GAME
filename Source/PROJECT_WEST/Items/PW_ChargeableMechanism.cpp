@@ -33,11 +33,6 @@ void APW_ChargeableMechanism::Tick(float DeltaTime)
 	}
 }
 
-<<<<<<< Updated upstream
-void APW_ChargeableMechanism::StartFocus_Implementation(AActor* owner)
-{
-	_OnFocusBegin.Broadcast(IsLanternEquipped(owner));
-=======
 void APW_ChargeableMechanism::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -75,37 +70,12 @@ void APW_ChargeableMechanism::StartFocus_Implementation(AActor* targetActor)
 	_highlightComponent->ShowHighlight();
 	
 	//DEBUG_STRING (IsLanternEquipped(targetActor) ? "Lantern Equipped" : "No Lantern Equipped");
->>>>>>> Stashed changes
 }
 
 void APW_ChargeableMechanism::EndFocus_Implementation(AActor* owner)
 {
 	_OnFocusEnd.Broadcast();
 	_highlightComponent->HideHighlight();
-}
-
-void APW_ChargeableMechanism::StartInteract_Implementation(AActor* owner)
-{
-<<<<<<< Updated upstream
-	if(!_lantern) return;
-	_chargeActivated = true;
-=======
-	if(!IsLanternEquipped(targetActor)) return;
-	_character = Cast<APW_Character>(targetActor);
-	_chargeActivated = true;
-	
-	//DEBUG_STRING ("Start Server Interact");
->>>>>>> Stashed changes
-}
-
-void APW_ChargeableMechanism::EndInteract_Implementation()
-{
-	_chargeActivated = false;
-<<<<<<< Updated upstream
-=======
-	_character = nullptr;
-	
-	//DEBUG_STRING ("Stop Server Interacting");
 }
 
 void APW_ChargeableMechanism::StartInteract_Implementation(AActor* targetActor)
@@ -133,14 +103,21 @@ void APW_ChargeableMechanism::EndInteract_Implementation()
 bool APW_ChargeableMechanism::HasServerInteraction_Implementation()
 {
 	return true;
->>>>>>> Stashed changes
+}
+
+void APW_ChargeableMechanism::ServerStartInteract_Implementation(AActor* targetActor)
+{
+	_chargeActivated  = IsLanternEquipped(targetActor);
+}
+
+void APW_ChargeableMechanism::ServerStopInteract_Implementation()
+{
+	_chargeActivated = false;
+	_character = nullptr;
 }
 
 bool APW_ChargeableMechanism::IsInteracting_Implementation()
 {
-<<<<<<< Updated upstream
-	return _chargeActivated;
-=======
 	return _character != nullptr;
 }
 
@@ -154,7 +131,6 @@ void APW_ChargeableMechanism::OnChargeButtonHeld(bool bValue)
 	}
 
 	//DEBUG_STRING (bValue ? "Charging" : "Not Charging");
->>>>>>> Stashed changes
 }
 
 bool APW_ChargeableMechanism::IsLanternEquipped(AActor* interactingActor)

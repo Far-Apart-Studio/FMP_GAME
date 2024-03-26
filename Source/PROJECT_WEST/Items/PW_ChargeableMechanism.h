@@ -30,12 +30,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-<<<<<<< Updated upstream
-	virtual void StartFocus_Implementation(AActor* owner) override;
-	virtual void EndFocus_Implementation(AActor* owner) override;
-	virtual void StartInteract_Implementation(AActor* owner) override;
-	virtual void EndInteract_Implementation() override;
-=======
 	virtual void StartFocus_Implementation(AActor* targetActor) override;
 	virtual void EndFocus_Implementation(AActor* targetActor) override;
 
@@ -46,9 +40,10 @@ public:
 	virtual void StartInteract_Implementation(AActor* owner) override;
 	virtual void EndInteract_Implementation() override;
 	
-	
->>>>>>> Stashed changes
 	virtual bool IsInteracting_Implementation() override;
+
+	UFUNCTION()
+	void OnChargeButtonHeld(bool bValue);
 
 	bool IsLanternEquipped(AActor* interactingActor);
 
@@ -65,14 +60,11 @@ public:
 	FOnChargeAmountDelegate _OnChargeAmountChanged;
 
 private:
-
-<<<<<<< Updated upstream
-=======
+	
 	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	class APW_Character* _character;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
->>>>>>> Stashed changes
 	class APW_Lantern* _lantern;
 
 	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
