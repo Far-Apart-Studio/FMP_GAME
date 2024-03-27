@@ -64,7 +64,7 @@ void APW_PoiArea::OnDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComp
 			FNotificationEntry notification;
 			notification._notificationType = ENotificationType::ELocation;
 			notification._playerNameText ="";
-			notification._notificationText = "You have entered " +  _poiID;
+			notification._notificationText = _poiID;
 			playerController->TriggerNotification(notification);
 		}
 		
