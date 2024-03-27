@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_ThrowableComponent.h"
+
+#include "DebugMacros.h"
 #include "FDashAction.h"
 #include "PW_InventoryHandler.h"
 #include "PW_ItemObject.h"
@@ -69,6 +71,7 @@ void UPW_ThrowableComponent::Throw()
 		const UCameraComponent* actorCamera = Cast<UCameraComponent>(objectThrower->GetComponentByClass(UCameraComponent::StaticClass()));
 		if (actorCamera)
 		{
+			_throwableItemObject->SetActorLocation(objectThrower->GetActorLocation() + objectThrower->GetActorForwardVector() * 100.0f);
 			const FVector throwDirection = actorCamera->GetForwardVector();
 			const FVector throwImpulse = throwDirection * _throwVelocity;
 			itemMesh->AddImpulse(throwImpulse);
@@ -92,14 +95,34 @@ void UPW_ThrowableComponent::ReleaseThrowable()
 void UPW_ThrowableComponent::DrawTrajectory()
 {
 	AActor* ownerActor = GetOwner();
+	
 	FVector startLocation = ownerActor->GetActorLocation();
 	FVector launchVelocity = ownerActor->GetActorForwardVector() * _throwVelocity;
+
+	//*** TESTING
+	
+	const AActor* objectThrower = _throwableItemObject->GetOwner();
+	FVector characterStartLocation = objectThrower->GetActorLocation() + objectThrower->GetActorForwardVector() * 100.0f;
+	FVector launchVelocityCharacter = objectThrower->GetActorForwardVector() * _throwVelocity;
+
+	const UCameraComponent* actorCamera = Cast<UCameraComponent>(objectThrower->GetComponentByClass(UCameraComponent::StaticClass()));
+	if (actorCamera)
+	{
+		characterStartLocation = actorCamera->GetComponentLocation() + actorCamera->GetForwardVector() * 100.0f;
+		launchVelocityCharacter = actorCamera->GetForwardVector() * _throwVelocity;
+	}
+
+	//*** TESTING
 	
 	FPredictProjectilePathParams predictParams;
 	FPredictProjectilePathResult predictResult;
 
-	predictParams.StartLocation = startLocation;
-	predictParams.LaunchVelocity = launchVelocity;
+	predictParams.StartLocation = characterStartLocation;
+	
+	predictParams.ActorsToIgnore.Add(ownerActor);
+	predictParams.ActorsToIgnore.Add(ownerActor->GetOwner());
+	
+	predictParams.LaunchVelocity = launchVelocityCharacter;
 	predictParams.MaxSimTime = 3.0f;
 	predictParams.SimFrequency = 10.0f;
 	predictParams.DrawDebugType = EDrawDebugTrace::ForOneFrame;
