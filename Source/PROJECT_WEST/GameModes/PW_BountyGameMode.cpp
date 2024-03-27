@@ -316,7 +316,7 @@ void APW_BountyGameMode::OnActivateExtrationPoint(bool bWinCondition, TArray<FSt
 void APW_BountyGameMode::OnPlayerTriggerExtractionPoint(APW_Character* Player)
 {
 	FNotificationEntry notification;
-	notification._notificationType = ENotificationType::ELocation;
+	notification._notificationType = ENotificationType::EInfo;
 	if (Player)
 	{
 		notification._playerNameText = Player->GetPlayerName();

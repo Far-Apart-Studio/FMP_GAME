@@ -21,6 +21,8 @@ void APW_ChargeableMechanism::BeginPlay()
 {
 	Super::BeginPlay();
 	_highlightComponent = FindComponentByClass<UPW_HighlightCompont>();
+
+	_OnChargeAmountChanged.Broadcast(_currentChargeAmount / _maxChargeAmount);
 }
 
 void APW_ChargeableMechanism::Tick(float DeltaTime)
