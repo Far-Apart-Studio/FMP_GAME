@@ -144,7 +144,7 @@ struct FFallDamageData
 	UCurveFloat* FallDamageCurve;
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
 class PROJECT_WEST_API UPW_HealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
