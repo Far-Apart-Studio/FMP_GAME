@@ -26,7 +26,7 @@ APW_WeaponObject::APW_WeaponObject()
 	_muzzleLocation->SetupAttachment(itemMesh);
 
 	_damageCauserComponent = CreateDefaultSubobject<UPW_DamageCauserComponent>(TEXT("DamageCauserComponent"));
-	_damageCauserComponent->RegisterComponent();
+	//_damageCauserComponent->RegisterComponent();
 }
 
 void APW_WeaponObject::BeginPlay()
