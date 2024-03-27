@@ -178,7 +178,7 @@ void APW_ChargeableMechanism::HandleCharging(float DeltaTime)
 		_chargeActivated = false;
 	}
 
-	DEBUG_STRING ("Charging " + FString::SanitizeFloat(_currentChargeAmount));
+	//DEBUG_STRING ("Charging " + FString::SanitizeFloat(_currentChargeAmount));
 }
 
 void APW_ChargeableMechanism::ToggleCharacterMovement(bool bValue) const
