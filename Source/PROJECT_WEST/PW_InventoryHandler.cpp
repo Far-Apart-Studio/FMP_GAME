@@ -423,7 +423,7 @@ void UPW_InventoryHandler::LocalDropItem(int slotIndex)
 	const FVector characterVelocity = _ownerCharacter->GetVelocity();
 	const FVector itemVelocity = characterVelocity * _throwVelocityMultiplier;
 
-	UMeshComponent* itemMesh = slotItem->GetItemMesh();
+	UMeshComponent* itemMesh = slotItem->GetVisualMesh();
 	if (itemMesh == nullptr)
 		{DEBUG_STRING("[LOCAL] ITEM MESH IS NULL!"); return; }
 
