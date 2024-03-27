@@ -58,6 +58,7 @@ class PROJECT_WEST_API UPW_CharacterMovementComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
+	
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	class APW_Character* _ownerCharacter;
 
@@ -82,7 +83,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	FRegenerationHandle _staminaReductionHandle;
 
+	UPROPERTY(VisibleAnywhere, Category = "Character")
+	bool _canMove;
+
 public:
+	
 	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FOnCompleteDelegate OnDashLocal;
 	
@@ -126,4 +131,6 @@ public:
 	bool ShouldIncreaseStamina();
 	void CompleteDashCooldown();
 	bool CanDash(const UCharacterMovementComponent* characterMovement);
+
+	FORCEINLINE void SetCanMove(bool value) { _canMove = value; }
 };

@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PW_Character.h"
+
+#include "PW_CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -22,6 +24,7 @@ APW_Character::APW_Character(): _itemHolder(nullptr),
                                 _bountyGameMode(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	_canLook = true;
 }
 
 void APW_Character::BeginPlay()
@@ -57,6 +60,8 @@ void APW_Character::PostInitializeComponents()
 			_healthComponent->OnDeathGlobal.AddDynamic(this, &APW_Character::OnDeath);
 		}
 	}
+
+	_characterMovementComponent = FindComponentByClass<UPW_CharacterMovementComponent>();
 }
 
 void APW_Character::Tick(float DeltaTime)
@@ -82,7 +87,7 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APW_Character::SprintButtonReleased);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::InteractButtonPressed);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::InteractButtonReleased);
-	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::ReturnButtonPressed);
+	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::ReturnedButtonPressed);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APW_Character::DropButtonPressed);
 	PlayerInputComponent->BindAction("Cycle", IE_Pressed, this, &APW_Character::SwitchItemButtonPressed);
 	PlayerInputComponent->BindAction("SecondaryUse", IE_Pressed, this, &APW_Character::SecondaryUseButtonPressed);
@@ -117,11 +122,10 @@ void APW_Character::SecondaryUseButtonReleased()
 
 void APW_Character::InteractButtonReleased()
 {
-	OnInteractButtonHeld.Broadcast(false);
-	OnStartInteractButtonPressed.Broadcast();
+	OnInteractButtonToggled.Broadcast(false);
 }
 
-void APW_Character::ReturnButtonPressed()
+void APW_Character::ReturnedButtonPressed()
 {
 	OnEndInteractButtonPressed.Broadcast();
 }
@@ -184,7 +188,8 @@ void APW_Character::SprintButtonReleased()
 
 void APW_Character::ToggleMovement(bool canMove)
 {
-	
+	_characterMovementComponent->SetCanMove(canMove);
+	_canLook = canMove;
 }
 
 void APW_Character::MoveForwardAxisPressed(float value)
@@ -199,12 +204,18 @@ void APW_Character::MoveRightAxisPressed(float value)
 
 void APW_Character::LookRightAxisPressed(float value)
 {
+	if (!_canLook)
+		return;
+	
 	AddControllerYawInput(value);
 	OnCameraRotationChange.Broadcast();
 }
 
 void APW_Character::LookUpAxisPressed(float value)
 {
+	if (!_canLook)
+		return;
+	
 	AddControllerPitchInput(value);
 	OnCameraRotationChange.Broadcast();
 }
@@ -255,8 +266,8 @@ void APW_Character::MultiCastElim_Implementation(bool leftGame)
 
 void APW_Character::InteractButtonPressed()
 {
-	OnInteractButtonHeld.Broadcast(true);
-	OnPickUpButtonPressed.Broadcast();
+	OnInteractButtonToggled.Broadcast(true);
+	OnInteractButtonPressed.Broadcast();
 }
 
 void APW_Character::SwitchItemButtonPressed()
