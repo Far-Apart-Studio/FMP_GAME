@@ -20,7 +20,7 @@ APW_WeaponObject::APW_WeaponObject()
 	_weaponData = nullptr;
 	_weaponVisualData = nullptr;
 	
-	UStaticMeshComponent* itemMesh = GetCollisionMesh();
+	UStaticMeshComponent* itemMesh = GetItemMesh();
 	
 	_muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	_muzzleLocation->SetupAttachment(itemMesh);

@@ -18,7 +18,7 @@ APW_ItemObject::APW_ItemObject()
 	_itemCollisionMesh->SetIsReplicated(true);
 	SetRootComponent(_itemCollisionMesh);
 
-	_itemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("DisplayMesh"));
+	_itemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemMesh"));
 	_itemMesh->SetupAttachment(_itemCollisionMesh);
 	
 	_itemCollisionMesh->SetSimulatePhysics(true);

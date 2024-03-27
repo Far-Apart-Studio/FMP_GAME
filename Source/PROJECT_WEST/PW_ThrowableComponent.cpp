@@ -59,7 +59,7 @@ void UPW_ThrowableComponent::Throw()
 	if (!_canThrow)
 		return;
 	
-	UStaticMeshComponent* itemMesh = _throwableItemObject->GetCollisionMesh();
+	UStaticMeshComponent* itemMesh = _throwableItemObject->GetItemMesh();
 	const AActor* objectThrower = _throwableItemObject->GetOwner();
 
 	UPW_InventoryHandler* currentInventory = _throwableItemObject->GetHolderInventory();

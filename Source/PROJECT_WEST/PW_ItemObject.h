@@ -44,10 +44,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Item Object")
 	EItemType _itemType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Object", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Object")
 	UStaticMeshComponent* _itemCollisionMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Object", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Object")
 	USkeletalMeshComponent* _itemMesh;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_ItemStateChanged, EditAnywhere, Category = "Item Object")
@@ -71,6 +71,9 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
+
+	
+	
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();
 
@@ -124,9 +127,7 @@ public:
 	FORCEINLINE FString GetItemID() const { return _itemID; }
 	FORCEINLINE EItemType GetItemType() const { return _itemType; }
 	FORCEINLINE EItemObjectState GetItemState() const { return _itemState; }
+	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return _itemCollisionMesh; }
 	FORCEINLINE void SetIsActive(bool isActive) { _isActive = isActive; }
 	FORCEINLINE bool GetIsActive() const { return _isActive; }
-
-	UFUNCTION(BlueprintCallable) UStaticMeshComponent* GetCollisionMesh() const { return _itemCollisionMesh; }
-	UFUNCTION(BlueprintCallable) USkeletalMeshComponent* GetVisualMesh() const { return _itemMesh; }
 };
