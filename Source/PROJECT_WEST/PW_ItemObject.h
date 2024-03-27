@@ -127,7 +127,9 @@ public:
 	FORCEINLINE FString GetItemID() const { return _itemID; }
 	FORCEINLINE EItemType GetItemType() const { return _itemType; }
 	FORCEINLINE EItemObjectState GetItemState() const { return _itemState; }
-	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return _itemCollisionMesh; }
 	FORCEINLINE void SetIsActive(bool isActive) { _isActive = isActive; }
 	FORCEINLINE bool GetIsActive() const { return _isActive; }
+	
+	UFUNCTION(BlueprintCallable) UStaticMeshComponent* GetCollisionMesh() const { return _itemCollisionMesh; }
+	UFUNCTION(BlueprintCallable) USkeletalMeshComponent* GetVisualMesh() const { return _itemMesh; }
 };
