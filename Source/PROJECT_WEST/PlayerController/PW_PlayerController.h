@@ -30,13 +30,13 @@ private:
 	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<class UUserWidget> _characterOverlayWidgetClass;
 
-	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
+	UPROPERTY( VisibleAnywhere,BlueprintReadWrite, Category = "Widgets", meta = (AllowPrivateAccess= "true") )
 	class UPW_CharacterOverlayWidget* _characterOverlayWidget;
 
 	UPROPERTY( EditAnywhere, Category = "Widgets", meta = (AllowPrivate = "true") )
 	TSubclassOf<class UUserWidget> _announcementWidgetClass;
 
-	UPROPERTY( VisibleAnywhere, Category = "Widgets", meta = (AllowPrivate= "true") )
+	UPROPERTY( VisibleAnywhere,BlueprintReadWrite, Category = "Widgets", meta = (AllowPrivateAccess= "true") )
 	class UPW_AnnouncementWidget*  _announcementWidget;
 	
 	class APW_HUD* _hud;
