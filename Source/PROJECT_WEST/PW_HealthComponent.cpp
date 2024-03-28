@@ -22,6 +22,8 @@ void UPW_HealthComponent::BeginPlay()
 	AActor* ownerActor = GetOwner();
 	_characterOwner = Cast<APW_Character>(ownerActor);
 
+	_controller =  GetOwner()->GetInstigatorController();
+
 	if (ownerActor)
 	{
 		ownerActor->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
@@ -79,6 +81,13 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 	
 	OnHealthChangedServer.Broadcast();
 	OnHealthChangedGlobal.Broadcast();
+
+	_controller =  GetOwner()->GetInstigatorController();
+	if(_controller && _controller->IsLocalController())
+	{
+		OnDamageReceivedLocal.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
+		OnHealthChangedLocal.Broadcast();
+	}
 	
 	const float lastHealth = _currentHealth;
 
@@ -94,6 +103,7 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 		AActor* actorOwner = GetOwner();
 		OnDeathServer.Broadcast(actorOwner, damageCauser, instigatedBy);
 		OnDeathGlobal.Broadcast(actorOwner, damageCauser, instigatedBy);
+		OnDeathLocal.Broadcast(GetOwner(), damageCauser, instigatedBy);
 	}
 	
 	_regenerationHandle.Reset();
@@ -150,24 +160,37 @@ void UPW_HealthComponent::ApplyLandedDamage(const FHitResult& hitResult)
 	OnFallDamageReceived.Broadcast();
 }
 
-bool UPW_HealthComponent::CanReceiveLandedDamage()
+bool UPW_HealthComponent::CanReceiveLandedDamage() const
 {
 	return _fallDamageData.AllowFallDamage;
 }
 
 void UPW_HealthComponent::OnRep_HealthChanged(float lastHealth)
 {
-	float modificationAmount = _currentHealth - lastHealth;
+	const float modificationAmount = _currentHealth - lastHealth;
 
+	if(_controller && _controller->IsLocalController())
+	{
+		OnHealthChangedLocal.Broadcast();
+
+		(modificationAmount < 0.0f ? OnDamageReceivedLocal : OnHealingReceivedLocal).Broadcast
+		(GetOwner(), _lastDamageCauser, _lastInstigatedBy, _lastDamageAmount);
+	}
+	
 	OnHealthChangedGlobal.Broadcast();
 	
 	(modificationAmount < 0.0f ? OnDamageReceivedGlobal : OnHealingReceivedGlobal).Broadcast
 	(GetOwner(), _lastDamageCauser, _lastInstigatedBy, _lastDamageAmount);
-
+	
 	if (_currentHealth == _minimumHealth)
 	{
 		_isAlive = false;
-		OnDeathGlobal.Broadcast(GetOwner(), nullptr, nullptr);
+		OnDeathGlobal.Broadcast(GetOwner(), _lastDamageCauser, _lastInstigatedBy);
+
+		if(_controller && _controller->IsLocalController())
+		{
+			OnDeathLocal.Broadcast(GetOwner(), _lastDamageCauser, _lastInstigatedBy);
+		}
 	}
 }
 

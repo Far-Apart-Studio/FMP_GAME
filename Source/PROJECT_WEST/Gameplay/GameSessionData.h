@@ -30,4 +30,7 @@ struct FGameSessionData
 
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
 	TArray<FString> _escapedPlayers;
+
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	int32 _colorIndex;
 };

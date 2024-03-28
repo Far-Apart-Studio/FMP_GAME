@@ -24,6 +24,24 @@ APW_LobbyGameMode::APW_LobbyGameMode()
 	_bountyCollectorDayInterval = 4;
 }
 
+void APW_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	if (APlayerState* playerState = NewPlayer->GetPlayerState<APlayerState>())
+	{
+		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer))
+		{
+
+		}
+	}
+}
+
+void APW_LobbyGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+}
+
 void APW_LobbyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
