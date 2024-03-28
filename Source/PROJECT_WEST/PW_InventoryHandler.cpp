@@ -6,6 +6,7 @@
 #include "PW_Character.h"
 #include "PW_InventorySlot.h"
 #include "PW_ItemObject.h"
+#include "PW_Utilities.h"
 #include "Net/UnrealNetwork.h"
 
 UPW_InventoryHandler::UPW_InventoryHandler(): _ownerCharacter(nullptr), _ItemDataTable(nullptr)
@@ -96,10 +97,13 @@ void UPW_InventoryHandler::SeverChangeSlot_Implementation(int targetedSlotIndex)
 
 void UPW_InventoryHandler::LocalChangeSlot(int targetedSlotIndex)
 {
-	APW_ItemObject* currentItem = _inventorySlots[_currentSlotIndex].GetItem();
+	if (_currentSlotIndex != targetedSlotIndex)
+	{
+		APW_ItemObject* currentItem = _inventorySlots[_currentSlotIndex].GetItem();
 	
-	if (currentItem != nullptr)
-		currentItem->DisableItem(_ownerCharacter);
+		if (currentItem != nullptr)
+			currentItem->DisableItem(_ownerCharacter);
+	}
 
 	APW_ItemObject* updatedItem = _inventorySlots[targetedSlotIndex].GetItem();
 	
@@ -113,12 +117,12 @@ void UPW_InventoryHandler::LocalChangeSlot(int targetedSlotIndex)
 void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 {
 	if (collectedItem == nullptr)
-		{ DEBUG_STRING("COLLECTED ITEM IS NULL!"); return; }
+		{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
 	
 	const EItemObjectState itemState = collectedItem->GetItemState();
 
 	if (itemState != EItemObjectState::EDropped)
-		{ DEBUG_STRING("ITEM STATE IS NOT DROPPED! : " + collectedItem->GetName()); return; }
+		{ PW_Utilities::Log("ITEM STATE IS NOT DROPPED! : " + collectedItem->GetName()); return; }
 
 	const EItemType itemType = collectedItem->GetItemType();
 
@@ -126,7 +130,7 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 	const bool foundSlot = TryGetSlotIndex(itemType, slotIndex);
 	
 	if (!foundSlot)
-		{ DEBUG_STRING("NO AVAILABLE SLOT!"); return; }
+		{ PW_Utilities::Log("NO AVAILABLE SLOT!"); return; }
 	
 	GetOwner()->HasAuthority() ? LocalCollectItem(slotIndex, collectedItem) : ServerCollectItem(slotIndex, collectedItem);
 }
@@ -134,7 +138,7 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* collectedItem)
 {
 	if (collectedItem == nullptr)
-		{ DEBUG_STRING("COLLECTED ITEM IS NULL!"); return; }
+		{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
 
 	_inventorySlots[slotIndex].SetItem(collectedItem);
 
@@ -143,7 +147,7 @@ void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* colle
 	USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
 
 	if (itemPosition == nullptr)
-		{DEBUG_STRING("ITEM POSITION IS NULL!"); return; }
+		{PW_Utilities::Log("ITEM POSITION IS NULL!"); return; }
 	
 	collectedItem->SetOwner(_ownerCharacter);
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);

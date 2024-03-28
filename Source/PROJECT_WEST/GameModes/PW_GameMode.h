@@ -24,10 +24,6 @@ protected:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
 	class UPW_GameInstance* _gameInstance = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	UDataTable* _ItemDataTable;
-
-
 protected:
 
 	APW_GameMode();

@@ -221,7 +221,7 @@ void APW_ItemObject::OnUpdateItemState()
 
 void APW_ItemObject::ApplyActionBindings(APW_Character* characterOwner)
 {
-	HasAuthority() ? ClientApplyActionBindings(characterOwner) : LocalApplyActionBindings(characterOwner);
+	HasAuthority() ? ClientApplyActionBindings(characterOwner) : ApplyObjectActions(characterOwner);
 }
 
 void APW_ItemObject::ClientApplyActionBindings_Implementation(APW_Character* characterOwner)
@@ -230,13 +230,12 @@ void APW_ItemObject::ClientApplyActionBindings_Implementation(APW_Character* cha
 		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return; }
 
 	if (characterOwner->IsLocallyControlled())
-		LocalApplyActionBindings(characterOwner);
+		ApplyObjectActions(characterOwner);
 }
 
-void APW_ItemObject::LocalApplyActionBindings(APW_Character* characterOwner)
+void APW_ItemObject::ApplyObjectActions(APW_Character* characterOwner)
 {
-	OnApplyInputBinding.Broadcast(characterOwner);
-	DEBUG_STRING("LOCAL APPLY ACTION BINDINGS");
+	OnApplyObjectActions.Broadcast(characterOwner);
 }
 
 #pragma endregion ApplyActionBindings
@@ -245,7 +244,7 @@ void APW_ItemObject::LocalApplyActionBindings(APW_Character* characterOwner)
 
 void APW_ItemObject::RemoveActionBindings(APW_Character* characterOwner)
 {
-	HasAuthority() ? ClientRemoveActionBindings(characterOwner) : LocalRemoveActionBindings(characterOwner);
+	HasAuthority() ? ClientRemoveActionBindings(characterOwner) : ClearObjectActions(characterOwner);
 }
 
 void APW_ItemObject::ClientRemoveActionBindings_Implementation(APW_Character* characterOwner)
@@ -254,12 +253,12 @@ void APW_ItemObject::ClientRemoveActionBindings_Implementation(APW_Character* ch
 		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return; }
 
 	if (characterOwner->IsLocallyControlled())
-		LocalRemoveActionBindings(characterOwner);
+		ClearObjectActions(characterOwner);
 }
 
-void APW_ItemObject::LocalRemoveActionBindings(APW_Character* characterOwner)
+void APW_ItemObject::ClearObjectActions(APW_Character* characterOwner)
 {
-	OnRemoveInputBinding.Broadcast(characterOwner);
+	OnClearObjectActions.Broadcast(characterOwner);
 }
 
 #pragma endregion RemoveActionBindings

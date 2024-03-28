@@ -18,6 +18,10 @@ class PROJECT_WEST_API APW_LobbyGameMode : public APW_GameMode
 protected:
 	
 	APW_LobbyGameMode();
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
+	virtual void Logout(AController* Exiting) override;
 	
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Info" )
 	class UBountySystemComponent* _bountySystemComponent;
@@ -39,6 +43,9 @@ protected:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<class APW_Currency> _currencyClass;
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
+	TArray<int32> _colorIndexes;
 
 	class APW_SpawnPointsManager* _spawnPointsManager;
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "PW_GameMode.h"
+#include "PROJECT_WEST/SideObjective/PW_SideObjective.h"
 #include "PW_BountyGameMode.generated.h"
 
 namespace MatchState
@@ -108,6 +109,9 @@ public:
 	UFUNCTION()
 	void EnemyEliminated(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController);
 
+	UFUNCTION()
+	void OnSideObjectiveCompleted(APW_SideObjective* ComplectedObjective);
+
 	void SpawnCurrencies();
 
 	int _enemyCount = 0;
@@ -119,7 +123,7 @@ public:
 	FORCEINLINE float GetCountdownTime() const { return _countdownTime; }
 	
 protected:
-	
+
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;
 

@@ -49,6 +49,8 @@ void APW_BountyGameMode::BeginPlay()
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
 
 	_sideObjectiveManager = Cast<APW_SideObjectiveManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SideObjectiveManager::StaticClass()));
+	if(_sideObjectiveManager)
+	_sideObjectiveManager->_onObjectiveCompleted.AddDynamic(this, &APW_BountyGameMode::OnSideObjectiveCompleted);
 	
 	StartMatch();
 	
@@ -357,6 +359,11 @@ void APW_BountyGameMode::SpawnAutoEnemySpawner(ACharacter* character)
 void APW_BountyGameMode::EnemyEliminated(AActor* OwnerActor,AActor* DamageCauser, AController* DamageCauserController)
 {
 	_enemyCount--;
+}
+
+void APW_BountyGameMode::OnSideObjectiveCompleted(APW_SideObjective* ComplectedObjective)
+{
+	AddMoney(ComplectedObjective->GetObjectiveData()._sideObjectiveInfo._objectiveReward);
 }
 
 void APW_BountyGameMode::SpawnCurrencies()
