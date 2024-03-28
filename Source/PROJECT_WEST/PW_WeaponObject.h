@@ -117,9 +117,8 @@ public:
 	
 	virtual void LocalApplyActionBindings(APW_Character* characterOwner) override;
 	virtual void LocalRemoveActionBindings(APW_Character* characterOwner) override;
-	
-	virtual void EnterDroppedState() override;
-	
+
+	void CancelWeaponActions();
 	void CastBulletRays();
 	void CastBulletRay(UCameraComponent* cameraComponent);
 	void SimulateBulletSpread(FVector& rayDirection);

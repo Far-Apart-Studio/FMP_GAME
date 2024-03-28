@@ -72,6 +72,7 @@ void APW_WeaponObject::LocalRemoveActionBindings(APW_Character* characterOwner)
 	characterOwner->OnAimButtonReleased.RemoveDynamic(this, &APW_WeaponObject::FireModeHip);
 
 	OnWeaponUnEquip.Broadcast(this);
+	CancelWeaponActions();
 }
 
 void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -80,7 +81,7 @@ void APW_WeaponObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(APW_WeaponObject, _weaponRuntimeData);
 }
 
-void APW_WeaponObject::EnterDroppedState()
+void APW_WeaponObject::CancelWeaponActions()
 {
 	_weaponRuntimeData.IsReloading = false;
 	_weaponRuntimeData.IsFiring = false;
@@ -91,8 +92,6 @@ void APW_WeaponObject::EnterDroppedState()
 	timerManager.ClearTimer(_fireTimerHandle);
 
 	FireModeHip();
-
-	Super::EnterDroppedState();
 }
 
 void APW_WeaponObject::BeginFireSequence()
