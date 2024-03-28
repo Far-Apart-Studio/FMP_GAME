@@ -81,6 +81,7 @@ void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME( APW_PlayerController, _matchState );
 	DOREPLIFETIME( APW_PlayerController, _playerName );
+	DOREPLIFETIME( APW_PlayerController, _colorIndex);
 }
 
 void APW_PlayerController::ClientToggleGravity_Implementation(bool bEnable)
@@ -110,7 +111,7 @@ void APW_PlayerController::ClientActivateTrapMode_Implementation(AActor* trap)
 
 void APW_PlayerController::ClientDeactivateTrapMode_Implementation()
 {
-	
+
 }
 
 float APW_PlayerController::GetServerTime()
@@ -370,16 +371,6 @@ void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation(bool i
 	}
 }
 
-void APW_PlayerController::SetHUDHealth(float health, float maxHealth)
-{
-
-}
-
-void APW_PlayerController::SetHUDScore(float score)
-{
-
-}
-
 void APW_PlayerController::SetMatchCountdown(float time)
 {
 	if (_characterOverlayWidget)
@@ -514,6 +505,18 @@ void APW_PlayerController::ClientOnLevelChanged_Implementation()
 	_hasVoted = false;
 	LoadGameSessionData();
 	//DEBUG_STRING( "APW_PlayerController OnPossess Rest Data : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );
+}
+
+void APW_PlayerController::ClientSetColorIndex_Implementation(int index)
+{
+	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
+	if(gameInstance)
+	{
+		DEBUG_STRING( "ClientSetColorIndex_Implementation" );
+		gameInstance->GetGameSessionData()._colorIndex = index;
+	}
+
+	_colorIndex = index;
 }
 
 void APW_PlayerController::StartHighPingWarning()

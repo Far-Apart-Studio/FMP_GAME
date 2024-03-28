@@ -86,6 +86,9 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerName,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
 
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	int32 _colorIndex;
+
 	float _clientServerDelta; // Difference between client and server time
 
 	UPROPERTY(EditAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))
@@ -178,18 +181,17 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void ReceivedPlayer() override;
 	virtual bool ProcessConsoleExec(const TCHAR* Command, FOutputDevice& OutputDevice, UObject* Executor) override;
-	
 	void Destroyed() override;
 
 	void DisplayAccouncement(const FString& message,FColor color = FColor::White, float duration = 2.0f);
 	void HideAccouncement();
 	void ToggleHUDVisibility(bool bShow);
-	void SetHUDHealth(float health, float maxHealth);
-	void SetHUDScore(float score);
 	void SetMatchCountdown(float time);
 	void SetMatchEndCountdown(float time);
 
 	void OnMatchStateSet(FName matchState);
+
+	UFUNCTION( Client, Reliable ) void ClientSetColorIndex(int index);
 
 	UFUNCTION( Client, Reliable ) void ClientOnLoadedInGameMode();
 
