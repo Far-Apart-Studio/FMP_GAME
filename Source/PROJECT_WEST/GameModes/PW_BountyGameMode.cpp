@@ -49,6 +49,7 @@ void APW_BountyGameMode::BeginPlay()
 	_spawnPointsManager = Cast<APW_SpawnPointsManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SpawnPointsManager::StaticClass()));
 
 	_sideObjectiveManager = Cast<APW_SideObjectiveManager>(UGameplayStatics::GetActorOfClass(GetWorld(), APW_SideObjectiveManager::StaticClass()));
+	if(_sideObjectiveManager)
 	_sideObjectiveManager->_onObjectiveCompleted.AddDynamic(this, &APW_BountyGameMode::OnSideObjectiveCompleted);
 	
 	StartMatch();
