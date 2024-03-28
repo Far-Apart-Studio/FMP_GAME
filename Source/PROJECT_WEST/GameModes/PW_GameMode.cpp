@@ -268,20 +268,6 @@ void APW_GameMode::ToggleSessionLock(bool lock)
 	}
 }
 
-TSubclassOf<class APW_ItemObject> APW_GameMode::GetItemObjectFromDataTable(FString id)
-{
-	TSubclassOf<class APW_ItemObject>  itemClass = nullptr;
-	if (_ItemDataTable)
-	{
-		FItems* itemData = _ItemDataTable->FindRow<FItems>(*id, "");
-		if (itemData)
-		{
-			itemClass = itemData->_itemClass;
-		}
-	}
-	return itemClass;
-}
-
 void APW_GameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
