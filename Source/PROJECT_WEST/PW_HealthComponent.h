@@ -154,6 +154,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	APW_Character* _characterOwner;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
+	AController* _controller;
+
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Health Handler", meta = (AllowPrivateAccess = "true"))
 	AController* _lastInstigatedBy;
 

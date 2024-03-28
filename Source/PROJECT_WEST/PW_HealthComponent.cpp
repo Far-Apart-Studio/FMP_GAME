@@ -22,6 +22,8 @@ void UPW_HealthComponent::BeginPlay()
 	AActor* ownerActor = GetOwner();
 	_characterOwner = Cast<APW_Character>(ownerActor);
 
+	_controller =  GetOwner()->GetInstigatorController();
+
 	if (ownerActor)
 	{
 		ownerActor->OnTakeAnyDamage.AddDynamic(this, &UPW_HealthComponent::TakeDamage);
@@ -75,12 +77,17 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 	_lastDamageCauser = damageCauser;
 	_lastDamageAmount = damageAmount;
 	
-	OnDamageReceivedLocal.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
 	OnDamageReceivedServer.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
-
-	OnHealthChangedLocal.Broadcast();
+	
 	OnHealthChangedServer.Broadcast();
 	OnHealthChangedGlobal.Broadcast();
+
+	_controller =  GetOwner()->GetInstigatorController();
+	if(_controller && _controller->IsLocalController())
+	{
+		OnDamageReceivedLocal.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
+		OnHealthChangedLocal.Broadcast();
+	}
 	
 	const float lastHealth = _currentHealth;
 
@@ -162,7 +169,7 @@ void UPW_HealthComponent::OnRep_HealthChanged(float lastHealth)
 {
 	const float modificationAmount = _currentHealth - lastHealth;
 
-	if(_characterOwner->IsLocallyControlled())
+	if(_controller && _controller->IsLocalController())
 	{
 		OnHealthChangedLocal.Broadcast();
 
@@ -180,7 +187,7 @@ void UPW_HealthComponent::OnRep_HealthChanged(float lastHealth)
 		_isAlive = false;
 		OnDeathGlobal.Broadcast(GetOwner(), _lastDamageCauser, _lastInstigatedBy);
 
-		if(_characterOwner->IsLocallyControlled())
+		if(_controller && _controller->IsLocalController())
 		{
 			OnDeathLocal.Broadcast(GetOwner(), _lastDamageCauser, _lastInstigatedBy);
 		}
