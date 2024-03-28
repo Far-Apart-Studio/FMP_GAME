@@ -13,6 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHig
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsuccess, int32, bountyIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNameChangedDelegate , FString , newName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoficationTriggerDelegate, FNotificationEntry, notification);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTriggerEventDelegate, FString, levelName);
 
 /**
  * 
@@ -101,6 +102,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FOnNoficationTriggerDelegate _onNotificationTriggered;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnTriggerEventDelegate _onLoadingScreenTriggered;
 
 protected:
 	
@@ -217,17 +221,18 @@ public:
 
 	UFUNCTION( Client, Reliable ) void ClientShowAnnocement(const FString& message,FColor color, float duration);
 
+	UFUNCTION( Client, Reliable ) void ClientShowLoadingMenu(const FString& level);
+
 	UFUNCTION( Client, Reliable )
 	void ClientDayChanged(int32 day);
 	
-	UFUNCTION(BlueprintCallable)
-	void AddMoney(int32 amount);
-	UFUNCTION(BlueprintCallable)
-	void RemoveMoney(int32 amount);
+	UFUNCTION(BlueprintCallable) void AddMoney(int32 amount);
+	UFUNCTION(BlueprintCallable) void RemoveMoney(int32 amount);
 
 	void CollectCurrency(class APW_Currency* currency);
-	UFUNCTION( Server, Reliable )
-	void ServerCollectCurrency(class APW_Currency* currency);
+	
+	UFUNCTION( Server, Reliable ) void ServerCollectCurrency(class APW_Currency* currency);
+	
 	void LocalCollectCurrency(class APW_Currency* currency);
 
 	UFUNCTION( Client, Reliable )

@@ -85,4 +85,6 @@ private:
 
 	UFUNCTION()
 	void OnActorUnloaded(AActor* UnloadedActor);
+
+	bool IsLocationValid(FVector location, float radius = 10) const;
 };

@@ -91,7 +91,7 @@ void APW_LobbyGameMode::OnTransitionCompleted()
 	_gameInstance->GetGameSessionData()._bountyDataEntry = bounty;
 	SaveAllPlayersInventoryData();
 	RemoveMoney(bounty._bountyCost);
-	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
+	ServerTravelMapEnty(bounty._bountyMapDataEntry);
 }
 
 void APW_LobbyGameMode::TriggerDebtCollector()

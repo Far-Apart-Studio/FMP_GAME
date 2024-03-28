@@ -10,6 +10,10 @@
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnLoadingEvent);
+
+
 UCLASS()
 class PROJECT_WEST_API UPW_GameInstance : public UGameInstance
 {
@@ -25,7 +29,12 @@ protected:
 	UPW_GameInstance();
 
 	void Init() override;
+
+	UFUNCTION() virtual void BeginLoadingScreen(const FString& MapName);
+	UFUNCTION() virtual void EndLoadingScreen(UWorld* InLoadedWorld);
+	
 	void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
+
 	void Shutdown() override;
 
 public:
@@ -33,4 +42,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ResetGameData() { _gameSessionData = FGameSessionData(); }
 	FORCENOINLINE FGameSessionData& GetGameSessionData() { return _gameSessionData; }
+	
+	UPROPERTY (BlueprintAssignable)
+	FOnLoadingEvent _OnLoadingStart;
+
+	UPROPERTY (BlueprintAssignable)
+	FOnLoadingEvent _OnLoadingEnd;
 };

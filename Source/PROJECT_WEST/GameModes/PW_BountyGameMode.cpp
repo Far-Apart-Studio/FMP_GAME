@@ -30,7 +30,6 @@ namespace MatchState
 APW_BountyGameMode::APW_BountyGameMode()
 {
 	bUseSeamlessTravel = true;
-	_mapPath = "";
 	_matchStartTime = 0.f;
 	_matchTime = 120.f;
 	_mathEndCooldownTime = 10.f;
@@ -99,7 +98,7 @@ void APW_BountyGameMode::OnMatchStateSet()
 
 	if (MatchState == MatchState::LeavingMap)
 	{
-		ServerTravel(_mapPath);
+		ServerTravelMapEnty (_lobbyMapData);
 	}
 }
 

@@ -821,6 +821,11 @@ void APW_PlayerController::ServerClearVote_Implementation()
 	};
 }
 
+void APW_PlayerController::ClientShowLoadingMenu_Implementation(const FString& level)
+{
+	_onLoadingScreenTriggered.Broadcast(level);
+}
+
 void APW_PlayerController::AddMoney(int32 amount)
 {
 	if (HasAuthority())
