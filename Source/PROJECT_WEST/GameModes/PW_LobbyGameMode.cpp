@@ -28,14 +28,13 @@ APW_LobbyGameMode::APW_LobbyGameMode()
 void APW_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
-	DEBUG_STRING("PostLogin NewPlayer");
-
+	
 	if (APW_PlayerState* playerState = NewPlayer->GetPlayerState<APW_PlayerState>())
 	{
 		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer))
 		{
-			playerController->ClientSetColorIndex(GetRandomColorIndex());
+			int32 random = GetRandomColorIndex();
+			playerController->ClientSetColorIndex(random);
 		}
 	}
 }
@@ -164,7 +163,7 @@ void APW_LobbyGameMode::ResetSessionData()
 int32 APW_LobbyGameMode::GetRandomColorIndex()
 {
 	int value = 0;
-	int randomIndex = FMath::RandRange(0, _colorIndexes.Num()-1);
+	const int randomIndex = FMath::RandRange(0, _colorIndexes.Num() - 1);
 	value = _colorIndexes[randomIndex];
 	_colorIndexes.RemoveAt(randomIndex);
 	return value;

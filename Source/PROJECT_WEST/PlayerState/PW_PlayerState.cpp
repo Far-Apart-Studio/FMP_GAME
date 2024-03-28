@@ -18,7 +18,7 @@ void APW_PlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	DEBUG_STRING("PW_PlayerState BeginPlay");
+	//DEBUG_STRING("PW_PlayerState BeginPlay");
 	
 	//_character  = _character == nullptr ? Cast<APW_Character>(GetPawn()) : _character;
 	//_playerController = _playerController == nullptr ? Cast<APW_PlayerController>(_character->Controller) : _playerController;

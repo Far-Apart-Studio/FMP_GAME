@@ -507,12 +507,12 @@ void APW_PlayerController::ClientOnLevelChanged_Implementation()
 	//DEBUG_STRING( "APW_PlayerController OnPossess Rest Data : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );
 }
 
-void APW_PlayerController::ClientSetColorIndex_Implementation(int index)
+void APW_PlayerController::ClientSetColorIndex_Implementation(int32 index)
 {
 	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
 	if(gameInstance)
 	{
-		DEBUG_STRING( "ClientSetColorIndex_Implementation" );
+		DEBUG_STRING( "ClientSetColorIndex_Implementation : " + FString::FromInt(index) );
 		gameInstance->GetGameSessionData()._colorIndex = index;
 	}
 
@@ -923,6 +923,11 @@ void APW_PlayerController::LocalRemoveMoney(int32 amount)
 
 void APW_PlayerController::LoadGameSessionData()
 {
+	if(UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance()))
+	{
+		_colorIndex = gameInstance->GetGameSessionData()._colorIndex;
+	}
+	
 	if(HasAuthority())
 	{
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));

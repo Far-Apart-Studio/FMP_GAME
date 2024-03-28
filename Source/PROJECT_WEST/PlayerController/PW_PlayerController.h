@@ -191,7 +191,7 @@ public:
 
 	void OnMatchStateSet(FName matchState);
 
-	UFUNCTION( Client, Reliable ) void ClientSetColorIndex(int index);
+	UFUNCTION( Client, Reliable ) void ClientSetColorIndex(int32 index);
 
 	UFUNCTION( Client, Reliable ) void ClientOnLoadedInGameMode();
 
