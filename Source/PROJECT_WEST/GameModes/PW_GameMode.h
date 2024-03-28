@@ -48,6 +48,7 @@ protected:
 
 	TSubclassOf<class APW_ItemObject> GetItemObjectFromDataTable(FString id);
 	
+	
 public:
 
 	void PlayerLeftGame(class APW_PlayerState* PlayerLeaving);
@@ -57,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ServerTravel (FString mapPath);
+
+	UFUNCTION(BlueprintCallable)
+	void ServerTravelMapEnty (FBountyMapDataEntry mapdata);
 	
 	void AddMoney(int32 amount);
 	void RemoveMoney (int32 amount);
@@ -72,6 +76,8 @@ public:
 	void CollectCurrency(class APW_Currency* Currency);;
 
 	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration) const;
+
+	void TriggerPlayersLoadingScreen(const FString& level);
 
 	void TriggerNotification(const FNotificationEntry& notification) const;
 

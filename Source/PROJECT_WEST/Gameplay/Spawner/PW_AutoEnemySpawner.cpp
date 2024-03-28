@@ -2,6 +2,8 @@
 
 
 #include "PW_AutoEnemySpawner.h"
+
+#include "NavigationSystem.h"
 #include "PW_BoxSpawningComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -96,6 +98,9 @@ void APW_AutoEnemySpawner::SpawnEnemies()
 	TArray<FSpawnInfo> spawnInfo = _weightedSpawn.GetRandomActorClass();
 	FVector spawnPosition = FVector::ZeroVector;
 	if(!GetValidSpawnPosition(spawnPosition))
+		return;
+
+	if(!IsLocationValid(spawnPosition))
 		return;
 	
 	if (spawnInfo.Num() > 0)
@@ -201,5 +206,12 @@ void APW_AutoEnemySpawner::OnActorUnloaded(AActor* UnloadedActor)
 {
 	if (_spawnedActors.Contains(UnloadedActor))
 		_spawnedActors.Remove(UnloadedActor);
+}
+
+bool APW_AutoEnemySpawner::IsLocationValid(FVector location, float radius) const
+{
+	const UNavigationSystemV1* navSystem = UNavigationSystemV1::GetCurrent(GetWorld());
+	FNavLocation navLocation;
+	return navSystem->GetRandomPointInNavigableRadius(location, radius, navLocation);
 }
 

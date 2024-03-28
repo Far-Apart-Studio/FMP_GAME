@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "PW_GameMode.h"
+#include "PROJECT_WEST/Bounty System/PW_BountyData.h"
 #include "PROJECT_WEST/SideObjective/PW_SideObjective.h"
 #include "PW_BountyGameMode.generated.h"
 
@@ -34,9 +35,9 @@ public:
 	void PlayerEliminated(class APW_Character* ElimmedCharacter, class APW_PlayerController* VictimController, AController* AttackerController) override;
 
 	float _matchStartTime;
-
+	
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
-	FString _mapPath;
+	FBountyMapDataEntry _lobbyMapData;
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<class APW_Lantern > _lanternClass;

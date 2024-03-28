@@ -17,6 +17,19 @@ void UPW_GameInstance::Init()
 	_gameSessionData = FGameSessionData();
 	_gameSessionData._bountyDataEntry._bountyCost = 100;
 	_gameSessionData._bountyDataEntry._bountyReward = 1000;
+
+	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UPW_GameInstance::BeginLoadingScreen);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UPW_GameInstance::EndLoadingScreen);
+}
+
+void UPW_GameInstance::BeginLoadingScreen(const FString& MapName)
+{
+	_OnLoadingStart.Broadcast();
+}
+
+void UPW_GameInstance::EndLoadingScreen(UWorld* InLoadedWorld)
+{
+	_OnLoadingEnd.Broadcast();
 }
 
 void UPW_GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)

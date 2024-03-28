@@ -9,6 +9,7 @@
 #include "PROJECT_WEST/Bounty System/PW_BountyBoard.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
+#include "PROJECT_WEST/PlayerState/PW_PlayerState.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/GameState/PW_GameState.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
@@ -27,12 +28,13 @@ APW_LobbyGameMode::APW_LobbyGameMode()
 void APW_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
-	if (APlayerState* playerState = NewPlayer->GetPlayerState<APlayerState>())
+	
+	if (APW_PlayerState* playerState = NewPlayer->GetPlayerState<APW_PlayerState>())
 	{
 		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer))
 		{
-
+			int32 random = GetRandomColorIndex();
+			playerController->ClientSetColorIndex(random);
 		}
 	}
 }
@@ -91,7 +93,7 @@ void APW_LobbyGameMode::OnTransitionCompleted()
 	_gameInstance->GetGameSessionData()._bountyDataEntry = bounty;
 	SaveAllPlayersInventoryData();
 	RemoveMoney(bounty._bountyCost);
-	ServerTravel(bounty._bountyMapDataEntry._bountyMapPath);
+	ServerTravelMapEnty(bounty._bountyMapDataEntry);
 }
 
 void APW_LobbyGameMode::TriggerDebtCollector()
@@ -156,4 +158,13 @@ void APW_LobbyGameMode::ResetSessionData()
 		NofigyPlayersOfDay();
 		RestartGame();
 	}
+}
+
+int32 APW_LobbyGameMode::GetRandomColorIndex()
+{
+	int value = 0;
+	const int randomIndex = FMath::RandRange(0, _colorIndexes.Num() - 1);
+	value = _colorIndexes[randomIndex];
+	_colorIndexes.RemoveAt(randomIndex);
+	return value;
 }

@@ -134,6 +134,9 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionDone(bool success)
 	if (success)
 	{
 		DEBUG_STRING ("Session Created");
+
+		_OnMapTransition.Broadcast();
+		
 		FString path = "/Game/ThirdPerson/Maps/ThirdPersonMap";
 		if (_mapPath.IsEmpty())
 		{
@@ -164,6 +167,7 @@ void UPW_MultiplayerSessionsSubsystem::JoinSessionDone(FName sessionName, bool s
 	{
 		if (APlayerController* playerController = GetGameInstance()->GetFirstLocalPlayerController())
 		{
+			_OnMapTransition.Broadcast();
 			playerController->ClientTravel(address, ETravelType::TRAVEL_Absolute);
 		}
 	}

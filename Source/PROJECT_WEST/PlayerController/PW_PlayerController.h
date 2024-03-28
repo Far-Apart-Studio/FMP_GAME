@@ -13,6 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHig
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsuccess, int32, bountyIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNameChangedDelegate , FString , newName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoficationTriggerDelegate, FNotificationEntry, notification);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTriggerEventDelegate, FString, levelName);
 
 /**
  * 
@@ -85,6 +86,9 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerName,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
 
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	int32 _colorIndex;
+
 	float _clientServerDelta; // Difference between client and server time
 
 	UPROPERTY(EditAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))
@@ -101,6 +105,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FOnNoficationTriggerDelegate _onNotificationTriggered;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnTriggerEventDelegate _onLoadingScreenTriggered;
 
 protected:
 	
@@ -174,18 +181,17 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void ReceivedPlayer() override;
 	virtual bool ProcessConsoleExec(const TCHAR* Command, FOutputDevice& OutputDevice, UObject* Executor) override;
-	
 	void Destroyed() override;
 
 	void DisplayAccouncement(const FString& message,FColor color = FColor::White, float duration = 2.0f);
 	void HideAccouncement();
 	void ToggleHUDVisibility(bool bShow);
-	void SetHUDHealth(float health, float maxHealth);
-	void SetHUDScore(float score);
 	void SetMatchCountdown(float time);
 	void SetMatchEndCountdown(float time);
 
 	void OnMatchStateSet(FName matchState);
+
+	UFUNCTION( Client, Reliable ) void ClientSetColorIndex(int32 index);
 
 	UFUNCTION( Client, Reliable ) void ClientOnLoadedInGameMode();
 
@@ -217,17 +223,18 @@ public:
 
 	UFUNCTION( Client, Reliable ) void ClientShowAnnocement(const FString& message,FColor color, float duration);
 
+	UFUNCTION( Client, Reliable ) void ClientShowLoadingMenu(const FString& level);
+
 	UFUNCTION( Client, Reliable )
 	void ClientDayChanged(int32 day);
 	
-	UFUNCTION(BlueprintCallable)
-	void AddMoney(int32 amount);
-	UFUNCTION(BlueprintCallable)
-	void RemoveMoney(int32 amount);
+	UFUNCTION(BlueprintCallable) void AddMoney(int32 amount);
+	UFUNCTION(BlueprintCallable) void RemoveMoney(int32 amount);
 
 	void CollectCurrency(class APW_Currency* currency);
-	UFUNCTION( Server, Reliable )
-	void ServerCollectCurrency(class APW_Currency* currency);
+	
+	UFUNCTION( Server, Reliable ) void ServerCollectCurrency(class APW_Currency* currency);
+	
 	void LocalCollectCurrency(class APW_Currency* currency);
 
 	UFUNCTION( Client, Reliable )

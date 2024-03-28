@@ -66,4 +66,7 @@ public:
 	FORCEINLINE UBountySystemComponent* GetBountySystemComponent() const { return _bountySystemComponent; }
 	FORCEINLINE APW_BountyBoard* GetBountyBoard() const { return _bountyBoard; }
 
+private:
+
+	int32 GetRandomColorIndex();
 };

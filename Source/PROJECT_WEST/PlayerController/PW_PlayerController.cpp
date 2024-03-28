@@ -81,6 +81,7 @@ void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME( APW_PlayerController, _matchState );
 	DOREPLIFETIME( APW_PlayerController, _playerName );
+	DOREPLIFETIME( APW_PlayerController, _colorIndex);
 }
 
 void APW_PlayerController::ClientToggleGravity_Implementation(bool bEnable)
@@ -110,7 +111,7 @@ void APW_PlayerController::ClientActivateTrapMode_Implementation(AActor* trap)
 
 void APW_PlayerController::ClientDeactivateTrapMode_Implementation()
 {
-	
+
 }
 
 float APW_PlayerController::GetServerTime()
@@ -370,16 +371,6 @@ void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation(bool i
 	}
 }
 
-void APW_PlayerController::SetHUDHealth(float health, float maxHealth)
-{
-
-}
-
-void APW_PlayerController::SetHUDScore(float score)
-{
-
-}
-
 void APW_PlayerController::SetMatchCountdown(float time)
 {
 	if (_characterOverlayWidget)
@@ -514,6 +505,18 @@ void APW_PlayerController::ClientOnLevelChanged_Implementation()
 	_hasVoted = false;
 	LoadGameSessionData();
 	//DEBUG_STRING( "APW_PlayerController OnPossess Rest Data : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );
+}
+
+void APW_PlayerController::ClientSetColorIndex_Implementation(int32 index)
+{
+	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
+	if(gameInstance)
+	{
+		DEBUG_STRING( "ClientSetColorIndex_Implementation : " + FString::FromInt(index) );
+		gameInstance->GetGameSessionData()._colorIndex = index;
+	}
+
+	_colorIndex = index;
 }
 
 void APW_PlayerController::StartHighPingWarning()
@@ -821,6 +824,11 @@ void APW_PlayerController::ServerClearVote_Implementation()
 	};
 }
 
+void APW_PlayerController::ClientShowLoadingMenu_Implementation(const FString& level)
+{
+	_onLoadingScreenTriggered.Broadcast(level);
+}
+
 void APW_PlayerController::AddMoney(int32 amount)
 {
 	if (HasAuthority())
@@ -915,6 +923,11 @@ void APW_PlayerController::LocalRemoveMoney(int32 amount)
 
 void APW_PlayerController::LoadGameSessionData()
 {
+	if(UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance()))
+	{
+		_colorIndex = gameInstance->GetGameSessionData()._colorIndex;
+	}
+	
 	if(HasAuthority())
 	{
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));

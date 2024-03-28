@@ -75,11 +75,16 @@ void APW_GameMode::Logout(AController* Exiting)
 
 void APW_GameMode::ServerTravel(FString MapPath)
 {
-	UWorld* World = GetWorld();
-	if (World)
+	if (UWorld* World = GetWorld())
 	{
 		World->ServerTravel( MapPath + "?listen" );
 	}
+}
+
+void APW_GameMode::ServerTravelMapEnty(FBountyMapDataEntry mapdata)
+{
+	TriggerPlayersLoadingScreen(mapdata._bountyMapName);
+	ServerTravel (mapdata._bountyMapPath);
 }
 
 int32 APW_GameMode::GetNumPlayerInSession() const
@@ -184,6 +189,17 @@ void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColo
 		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get()))
 		{
 			playerController->ClientShowAnnocement( announcement, color, duration);
+		}
+	}
+}
+
+void APW_GameMode::TriggerPlayersLoadingScreen(const FString& level)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get()))
+		{
+			playerController->ClientShowLoadingMenu(level);
 		}
 	}
 }

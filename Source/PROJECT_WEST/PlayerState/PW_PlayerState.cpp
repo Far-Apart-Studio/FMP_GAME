@@ -2,36 +2,35 @@
 
 
 #include "PW_PlayerState.h"
+
+#include "Net/UnrealNetwork.h"
 #include "PROJECT_WEST/PW_Character.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
+#include "PROJECT_WEST/DebugMacros.h"
 
 
-void APW_PlayerState::AddToScore(int32 scoreAmount)
+APW_PlayerState::APW_PlayerState()
 {
-	SetScore( GetScore() + scoreAmount );
-	_character  = _character == nullptr ? Cast<APW_Character>(GetPawn()) : _character;
-
-	if (_character != nullptr)
-	{
-		_playerController = _playerController == nullptr ? Cast<APW_PlayerController>(_character->Controller) : _playerController;
-		if (_playerController != nullptr)
-		{
-			_playerController->SetHUDScore(GetScore());
-		}
-	}
+	
 }
 
-void APW_PlayerState::OnRep_Score()
+void APW_PlayerState::BeginPlay()
 {
-	Super::OnRep_Score();
-	_character  = _character == nullptr ? Cast<APW_Character>(GetPawn()) : _character;
+	Super::BeginPlay();
+	
+	//DEBUG_STRING("PW_PlayerState BeginPlay");
+	
+	//_character  = _character == nullptr ? Cast<APW_Character>(GetPawn()) : _character;
+	//_playerController = _playerController == nullptr ? Cast<APW_PlayerController>(_character->Controller) : _playerController;
+}
 
-	if (_character != nullptr)
-	{
-		_playerController = _playerController == nullptr ? Cast<APW_PlayerController>(_character->Controller) : _playerController;
-		if (_playerController != nullptr)
-		{
-			_playerController->SetHUDScore(GetScore());
-		}
-	}
+void APW_PlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME( APW_PlayerState, _colorIndex);
+}
+
+void APW_PlayerState::ClientSetColorIndex_Implementation(int index)
+{
+	
 }

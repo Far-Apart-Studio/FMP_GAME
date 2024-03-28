@@ -17,7 +17,7 @@ void APW_GameState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DEBUG_STRING("GameState BeginPlay");
+	//DEBUG_STRING("GameState BeginPlay");
 }
 
 void APW_GameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
