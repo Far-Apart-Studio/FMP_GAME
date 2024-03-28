@@ -16,21 +16,15 @@ class PROJECT_WEST_API APW_GameState : public AGameState
 
 public:
 	
-	//TArray<class UPW_BountyData*> _bountyDataList;
-
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
+	class UPW_GameInstance* _gameInstance = nullptr;
+	
 	APW_GameState();
 
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	void UpdateTopScore(class APW_PlayerState* scoringPlayer);
-
-	UPROPERTY(Replicated)
-	TArray<class APW_PlayerState*> _topScoringPlayers;
-	
 	UFUNCTION(BlueprintCallable)
 	class APW_PlayerController* GetLocalPlayerController();
-	
-	float _topScore;
 };
