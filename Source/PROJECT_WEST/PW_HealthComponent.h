@@ -188,11 +188,18 @@ private:
 	FFallDamageData _fallDamageData;
 	
 public:
+	
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FHealthDelegate OnHealthChangedLocal;
+	
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FHealthDelegate OnHealthChangedGlobal;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FHealthDelegate OnHealthChangedServer;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDamageReceivedDelegate OnDamageReceivedLocal;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDamageReceivedDelegate OnDamageReceivedGlobal;
@@ -201,10 +208,16 @@ public:
 	FOnDamageReceivedDelegate OnDamageReceivedServer;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDamageReceivedDelegate OnHealingReceivedLocal;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDamageReceivedDelegate OnHealingReceivedGlobal;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDamageReceivedDelegate OnHealingReceivedServer;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
+	FOnDeathDelegate OnDeathLocal;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Health Handler")
 	FOnDeathDelegate OnDeathGlobal;
@@ -240,7 +253,7 @@ public:
 
 	bool CanReceiveDamage(float damageAmount) const;
 	bool CanRecoverHealth();
-	bool CanReceiveLandedDamage();
+	bool CanReceiveLandedDamage() const;
 
 	UFUNCTION() void OnRep_HealthChanged(float lastHealth);
 	

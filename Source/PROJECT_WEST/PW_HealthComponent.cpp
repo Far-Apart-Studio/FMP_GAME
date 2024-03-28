@@ -75,8 +75,10 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 	_lastDamageCauser = damageCauser;
 	_lastDamageAmount = damageAmount;
 	
+	OnDamageReceivedLocal.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
 	OnDamageReceivedServer.Broadcast(ownerActor, damageCauser, instigatedBy, damageAmount);
-	
+
+	OnHealthChangedLocal.Broadcast();
 	OnHealthChangedServer.Broadcast();
 	OnHealthChangedGlobal.Broadcast();
 	
@@ -94,6 +96,7 @@ void UPW_HealthComponent::TakeDamage(AActor* ownerActor, float damageAmount,
 		AActor* actorOwner = GetOwner();
 		OnDeathServer.Broadcast(actorOwner, damageCauser, instigatedBy);
 		OnDeathGlobal.Broadcast(actorOwner, damageCauser, instigatedBy);
+		OnDeathLocal.Broadcast(GetOwner(), damageCauser, instigatedBy);
 	}
 	
 	_regenerationHandle.Reset();
@@ -150,24 +153,37 @@ void UPW_HealthComponent::ApplyLandedDamage(const FHitResult& hitResult)
 	OnFallDamageReceived.Broadcast();
 }
 
-bool UPW_HealthComponent::CanReceiveLandedDamage()
+bool UPW_HealthComponent::CanReceiveLandedDamage() const
 {
 	return _fallDamageData.AllowFallDamage;
 }
 
 void UPW_HealthComponent::OnRep_HealthChanged(float lastHealth)
 {
-	float modificationAmount = _currentHealth - lastHealth;
+	const float modificationAmount = _currentHealth - lastHealth;
 
+	if(_characterOwner->IsLocallyControlled())
+	{
+		OnHealthChangedLocal.Broadcast();
+
+		(modificationAmount < 0.0f ? OnDamageReceivedLocal : OnHealingReceivedLocal).Broadcast
+		(GetOwner(), _lastDamageCauser, _lastInstigatedBy, _lastDamageAmount);
+	}
+	
 	OnHealthChangedGlobal.Broadcast();
 	
 	(modificationAmount < 0.0f ? OnDamageReceivedGlobal : OnHealingReceivedGlobal).Broadcast
 	(GetOwner(), _lastDamageCauser, _lastInstigatedBy, _lastDamageAmount);
-
+	
 	if (_currentHealth == _minimumHealth)
 	{
 		_isAlive = false;
-		OnDeathGlobal.Broadcast(GetOwner(), nullptr, nullptr);
+		OnDeathGlobal.Broadcast(GetOwner(), _lastDamageCauser, _lastInstigatedBy);
+
+		if(_characterOwner->IsLocallyControlled())
+		{
+			OnDeathLocal.Broadcast(GetOwner(), _lastDamageCauser, _lastInstigatedBy);
+		}
 	}
 }
 
