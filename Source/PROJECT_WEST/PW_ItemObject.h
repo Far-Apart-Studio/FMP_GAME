@@ -10,7 +10,8 @@
 class UPW_InventoryHandler;
 class APW_Character;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, APW_Character*, characterOwner);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemActionDelegate, APW_Character*, characterOwner);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickedUp, APW_ItemObject*, itemPicked);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FItemStateDelegate);
 
 UENUM(BlueprintType)
@@ -29,7 +30,6 @@ enum class EItemObjectState : uint8
 	EHeld,
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickedUp, APW_ItemObject*, itemPicked);
 
 UCLASS()
 class PROJECT_WEST_API APW_ItemObject : public AActor, public IPW_InteractableInterface
@@ -63,17 +63,21 @@ protected:
 	class UPW_HighlightCompont* _highlightComponent;
 
 public:
-	FInputBindingDelegate OnApplyInputBinding;
-	FInputBindingDelegate OnRemoveInputBinding;
-	FItemStateDelegate OnEnterDroppedState;
-	FItemStateDelegate OnEnterHeldState;
+
+	/**
+	 * This delegates are used to apply object actions. These can be used interaction with the "ApplyObjectActions" function.
+	 * This also how you are intended to implement the functionality within blueprint.
+	 */
+	
+	UPROPERTY(BlueprintAssignable) FOnItemActionDelegate OnApplyObjectActions;
+	UPROPERTY(BlueprintAssignable) FOnItemActionDelegate OnClearObjectActions;
+	UPROPERTY(BlueprintAssignable) FItemStateDelegate OnEnterDroppedState;
+	UPROPERTY(BlueprintAssignable) FItemStateDelegate OnEnterHeldState;
+	FOnPickedUp _onPickedUpServer;
 
 protected:
 	
 	virtual void BeginPlay() override;
-
-	
-	
 	virtual void EnterHeldState();
 	virtual void EnterDroppedState();
 
@@ -96,7 +100,9 @@ public:
 	*/
 	
 	void ApplyActionBindings(APW_Character* characterOwner);
-	virtual void LocalApplyActionBindings(APW_Character* characterOwner);
+	
+	virtual void ApplyObjectActions(APW_Character* characterOwner);
+	
 	UFUNCTION(Client, Reliable) void ClientApplyActionBindings(APW_Character* characterOwner);
 
 	/**
@@ -105,11 +111,11 @@ public:
 	 */
 	
 	void RemoveActionBindings(APW_Character* characterOwner);
-	virtual void LocalRemoveActionBindings(APW_Character* characterOwner);
-	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
-
 	
-
+	virtual void ClearObjectActions(APW_Character* characterOwner);
+	
+	UFUNCTION(Client, Reliable) void ClientRemoveActionBindings(APW_Character* characterOwner);
+	
 	void SetVisibility(bool isVisible);
 	void UpdateItemType(EItemType updatedType);
 	void EnableItem(APW_Character* characterOwner);
@@ -122,7 +128,6 @@ public:
 	virtual void EndFocus_Implementation(AActor* owner) override;
 	virtual void StartInteract_Implementation(AActor* owner) override;
 
-	FOnPickedUp _onPickedUpServer;
 
 	FORCEINLINE FString GetItemID() const { return _itemID; }
 	FORCEINLINE EItemType GetItemType() const { return _itemType; }

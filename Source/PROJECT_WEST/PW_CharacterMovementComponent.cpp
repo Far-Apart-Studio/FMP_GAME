@@ -51,6 +51,7 @@ void UPW_CharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UPW_CharacterMovementComponent, _isSprinting);
+	DOREPLIFETIME(UPW_CharacterMovementComponent, _replicatedMovementData);
 }
 
 void UPW_CharacterMovementComponent::MoveForward(float value)
@@ -171,6 +172,11 @@ void UPW_CharacterMovementComponent::LocalBeginSprint()
 		return;
 	
 	_ownerCharacter->GetCharacterMovement()->MaxWalkSpeed *= _sprintMultiplier;
+	const float maximumVelocity = _ownerCharacter->GetCharacterMovement()->MaxWalkSpeed;
+
+	_replicatedMovementData.IsSprinting = true;
+	_replicatedMovementData.MaximumVelocity = maximumVelocity;
+	_replicatedMovementData.SprintMultiplier = _sprintMultiplier;
 }
 
 void UPW_CharacterMovementComponent::ServerBeginSprint_Implementation()
@@ -196,6 +202,11 @@ void UPW_CharacterMovementComponent::LocalCancelSprint()
 		return;
 	
 	_ownerCharacter->GetCharacterMovement()->MaxWalkSpeed /= _sprintMultiplier;
+	const float maximumVelocity = _ownerCharacter->GetCharacterMovement()->MaxWalkSpeed;
+
+	_replicatedMovementData.IsSprinting = false;
+	_replicatedMovementData.MaximumVelocity = maximumVelocity;
+	_replicatedMovementData.SprintMultiplier = 1.0f;
 }
 
 void UPW_CharacterMovementComponent::ServerCancelSprint_Implementation()
