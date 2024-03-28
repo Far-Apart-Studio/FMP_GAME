@@ -27,8 +27,8 @@ void UPW_ThrowableComponent::InitialiseComponent()
 	if (ownerActor)
 	{
 		_throwableItemObject = Cast<APW_ItemObject>(ownerActor);
-		_throwableItemObject->OnApplyInputBinding.AddDynamic(this, &UPW_ThrowableComponent::SetThrowableInputBinding);
-		_throwableItemObject->OnRemoveInputBinding.AddDynamic(this, &UPW_ThrowableComponent::RemoveThrowableInputBinding);
+		_throwableItemObject->OnApplyObjectActions.AddDynamic(this, &UPW_ThrowableComponent::SetThrowableInputBinding);
+		_throwableItemObject->OnClearObjectActions.AddDynamic(this, &UPW_ThrowableComponent::RemoveThrowableInputBinding);
 		_throwableItemObject->OnEnterDroppedState.AddDynamic(this, &UPW_ThrowableComponent::ReleaseThrowable);
 	}
 }

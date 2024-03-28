@@ -115,8 +115,8 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	virtual void LocalApplyActionBindings(APW_Character* characterOwner) override;
-	virtual void LocalRemoveActionBindings(APW_Character* characterOwner) override;
+	virtual void ApplyObjectActions(APW_Character* characterOwner) override;
+	virtual void ClearObjectActions(APW_Character* characterOwner) override;
 
 	void CancelWeaponActions();
 	void CastBulletRays();

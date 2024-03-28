@@ -50,6 +50,21 @@ struct FStaminaData
 	float StaminaRecoveryAmount = 10.0f;
 };
 
+USTRUCT(BlueprintType)
+struct FReplicatedMovementData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character", meta=(MakeStructureDefaultValue = "false"))
+	bool IsSprinting = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character", meta=(MakeStructureDefaultValue = "1.0"))
+	float SprintMultiplier = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character", meta=(MakeStructureDefaultValue = "600.0"))
+	float MaximumVelocity = 600.0f;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCompleteDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -60,7 +75,7 @@ class PROJECT_WEST_API UPW_CharacterMovementComponent : public UActorComponent
 private:
 	
 	UPROPERTY(VisibleAnywhere, Category = "Character")
-	class APW_Character* _ownerCharacter;
+	APW_Character* _ownerCharacter;
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	bool _isSprinting = false;
@@ -82,6 +97,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	FRegenerationHandle _staminaReductionHandle;
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	FReplicatedMovementData _replicatedMovementData;
 
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	bool _canMove;
