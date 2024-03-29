@@ -54,6 +54,7 @@ void APW_WeaponObject::Tick(float DeltaSeconds)
 
 void APW_WeaponObject::ApplyObjectActions(APW_Character* characterOwner)
 {
+	Super::ApplyObjectActions(characterOwner);
 	characterOwner->OnShootButtonPressed.AddDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.AddDynamic(this, &APW_WeaponObject::CompleteFireSequence);
 	characterOwner->OnReloadButtonPressed.AddDynamic(this, &APW_WeaponObject::QueueReloadWeapon);
@@ -65,6 +66,7 @@ void APW_WeaponObject::ApplyObjectActions(APW_Character* characterOwner)
 
 void APW_WeaponObject::ClearObjectActions(APW_Character* characterOwner)
 {
+	Super::ClearObjectActions(characterOwner);
 	characterOwner->OnShootButtonPressed.RemoveDynamic(this, &APW_WeaponObject::BeginFireSequence);
 	characterOwner->OnShootButtonReleased.RemoveDynamic(this, &APW_WeaponObject::CompleteFireSequence);
 	characterOwner->OnReloadButtonPressed.RemoveDynamic(this, &APW_WeaponObject::QueueReloadWeapon);
