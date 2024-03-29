@@ -30,6 +30,20 @@ enum class EItemObjectState : uint8
 	EHeld,
 };
 
+USTRUCT(BlueprintType)
+struct FItemInfo
+{
+	GENERATED_BODY()
+	
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	FString _name;
+	
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	FString _usage;
+	
+	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
+	FString _description;
+};
 
 UCLASS()
 class PROJECT_WEST_API APW_ItemObject : public AActor, public IPW_InteractableInterface
@@ -38,10 +52,13 @@ class PROJECT_WEST_API APW_ItemObject : public AActor, public IPW_InteractableIn
 
 protected:
 	
-	UPROPERTY(EditAnywhere, Category = "Item Object")
+	UPROPERTY(EditAnywhere, Category = "Item Object",meta = (AllowPrivateAccess = "true"))
 	FString _itemID;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Item Object",meta = (AllowPrivateAccess = "true"))
+	FItemInfo _infoDetails;
 	
-	UPROPERTY(EditAnywhere, Category = "Item Object")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Item Object", meta = (AllowPrivateAccess = "true"))
 	EItemType _itemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Object")
