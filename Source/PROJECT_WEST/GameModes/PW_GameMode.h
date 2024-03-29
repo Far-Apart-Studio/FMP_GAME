@@ -24,6 +24,9 @@ protected:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
 	class UPW_GameInstance* _gameInstance = nullptr;
 
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
+	TArray<int32> _colorIndexes;
+
 protected:
 
 	APW_GameMode();
@@ -48,6 +51,7 @@ protected:
 
 	TSubclassOf<class APW_ItemObject> GetItemObjectFromDataTable(FString id);
 	
+	int32 GetRandomColorIndex();
 	
 public:
 

@@ -80,8 +80,6 @@ void APW_PlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME( APW_PlayerController, _matchState );
-	DOREPLIFETIME( APW_PlayerController, _playerName );
-	DOREPLIFETIME( APW_PlayerController, _colorIndex);
 }
 
 void APW_PlayerController::ClientToggleGravity_Implementation(bool bEnable)
@@ -507,18 +505,6 @@ void APW_PlayerController::ClientOnLevelChanged_Implementation()
 	//DEBUG_STRING( "APW_PlayerController OnPossess Rest Data : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );
 }
 
-void APW_PlayerController::ClientSetColorIndex_Implementation(int32 index)
-{
-	UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
-	if(gameInstance)
-	{
-		DEBUG_STRING( "ClientSetColorIndex_Implementation : " + FString::FromInt(index) );
-		gameInstance->GetGameSessionData()._colorIndex = index;
-	}
-
-	_colorIndex = index;
-}
-
 void APW_PlayerController::StartHighPingWarning()
 {
 	if (_characterOverlayWidget)
@@ -615,50 +601,10 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 
 void APW_PlayerController::SetNewPlayerName()
 {
-	if (HasAuthority())
-	{
-		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
-		if (gameMode)
-		{
-			_playerName = gameMode->GetPlayerName(this);
-			MulticastSetPlayerName(gameMode->GetPlayerName(this));
-		}
-	}
-	else
-	{
-		ServerSetPlayerName();
-	}
-}
-
-void APW_PlayerController::ServerSetPlayerName_Implementation()
-{
-	APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
-	if (gameMode)
-	{
-		MulticastSetPlayerName(gameMode->GetPlayerName(this));
-	}
-}
-
-void APW_PlayerController::MulticastSetPlayerName_Implementation(const FString& playerName)
-{
 	APW_Character * character = Cast<APW_Character>(GetPawn());
 	if (character)
 	{
-		_playerName = playerName;
-		character->SetPlayerName(playerName);
-	}
-	else
-	{
-		DEBUG_STRING( "No Character Found");
-	}
-}
-
-void APW_PlayerController::ClientSetPlayerName_Implementation(const FString& playerName)
-{
-	APW_Character * character = Cast<APW_Character>(GetPawn());
-	if (character)
-	{
-		character->SetPlayerName(playerName);
+		_playerName = character->GetPlayerState()->GetPlayerName();
 	}
 }
 
@@ -923,11 +869,6 @@ void APW_PlayerController::LocalRemoveMoney(int32 amount)
 
 void APW_PlayerController::LoadGameSessionData()
 {
-	if(UPW_GameInstance* gameInstance = Cast<UPW_GameInstance>(GetGameInstance()))
-	{
-		_colorIndex = gameInstance->GetGameSessionData()._colorIndex;
-	}
-	
 	if(HasAuthority())
 	{
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
@@ -996,7 +937,7 @@ void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSession
 	_money = GameSessionData._money;
 	_dayIndex = GameSessionData._dayIndex;
 
-	DEBUG_STRING ( "Escaped Count : " + FString::FromInt(GameSessionData._escapedPlayers.Num()));
+	//DEBUG_STRING ( "Escaped Count : " + FString::FromInt(GameSessionData._escapedPlayers.Num()));
 
 	if (GameSessionData._escapedPlayers.Contains(_playerName))
 	{

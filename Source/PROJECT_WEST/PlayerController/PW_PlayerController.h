@@ -83,11 +83,8 @@ private:
 
 	FString _matchTimeString;
 
-	UPROPERTY(ReplicatedUsing = OnRep_PlayerName,VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FString _playerName;
-
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	int32 _colorIndex;
 
 	float _clientServerDelta; // Difference between client and server time
 
@@ -191,15 +188,9 @@ public:
 
 	void OnMatchStateSet(FName matchState);
 
-	UFUNCTION( Client, Reliable ) void ClientSetColorIndex(int32 index);
-
 	UFUNCTION( Client, Reliable ) void ClientOnLoadedInGameMode();
 
 	void SetNewPlayerName();
-	
-	UFUNCTION( Server, Reliable ) void ServerSetPlayerName();
-	UFUNCTION(NetMulticast, Reliable) void MulticastSetPlayerName(const FString& playerName);
-	UFUNCTION( Client, Reliable ) void ClientSetPlayerName(const FString& playerName);
 	
 	void TogglePlayerInput(bool bEnable);
 	
