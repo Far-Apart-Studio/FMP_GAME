@@ -33,25 +33,31 @@ void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	
-	APlayerState* playerState = NewPlayer->GetPlayerState<APlayerState>();
-	if (playerState)
+	if (APW_PlayerState* playerState = NewPlayer->GetPlayerState<APW_PlayerState>())
 	{
-		FString playerName = playerState->GetPlayerName();
-		APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer);
-		if (playerController)
+		const int32 random = GetRandomColorIndex();
+		//const int32 random = FMath::RandRange(0, _colorIndexes.Num() - 1);
+		
+		_gameInstance = Cast<UPW_GameInstance>(GetGameInstance());
+		if (_gameInstance)
 		{
-			//DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
+			_gameInstance->GetGameSessionData()._playersVisualData.AddData(playerState->GetPlayerName(),random);
+		}
+		
+		playerState->SetColorIndex(random);
+		
+		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer))
+		{
+			DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerState->GetPlayerName()));
 			playerController->ClientOnLoadedInGameMode();
 			//playerController->SetNewPlayerName(playerName);
 		}
 
 		FNotificationEntry notification;
 		notification._notificationType = ENotificationType::EInfo;
-		notification._playerNameText = playerName;
+		notification._playerNameText = playerState->GetPlayerName();
 		notification._notificationText = "Has joined the game";
 		TriggerNotification(notification);
-		
-		//DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerName));
 	}
 }
 
@@ -260,6 +266,15 @@ void APW_GameMode::LoadGameSessionData()
 void APW_GameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController,AController* AttackerController)
 {
 
+}
+
+int32 APW_GameMode::GetRandomColorIndex()
+{
+	int value = 0;
+	const int randomIndex = FMath::RandRange(0, _colorIndexes.Num() - 1);
+	value = _colorIndexes[randomIndex];
+	_colorIndexes.RemoveAt(randomIndex);
+	return value;
 }
 
 void APW_GameMode::PlayerLeftGame(APW_PlayerState* PlayerLeaving)

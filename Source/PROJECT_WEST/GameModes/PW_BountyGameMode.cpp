@@ -262,7 +262,7 @@ void APW_BountyGameMode::OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, 
 	notification._notificationType = ENotificationType::EElimination;
 	if (const APW_Character* bountyKiller = Cast<APW_Character>(DamageCauser))
 	{
-		notification._playerNameText = bountyKiller->GetPlayerName();
+		notification._playerNameText = bountyKiller->GetPlayerState()->GetPlayerName();
 		notification._notificationText = "has eliminated the bounty";
 	}
 	else
@@ -320,7 +320,7 @@ void APW_BountyGameMode::OnPlayerTriggerExtractionPoint(APW_Character* Player)
 	notification._notificationType = ENotificationType::EInfo;
 	if (Player)
 	{
-		notification._playerNameText = Player->GetPlayerName();
+		notification._playerNameText = Player->GetPlayerState()->GetPlayerName();
 		notification._notificationText = "has triggered the extraction point";
 	}
 	else

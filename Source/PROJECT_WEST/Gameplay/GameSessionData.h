@@ -6,6 +6,52 @@
 #include "GameSessionData.generated.h"
 
 USTRUCT(BlueprintType)
+struct FPlayerVisualDataEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY( EditAnywhere,BlueprintReadOnly, Category = Data)
+	FString _playerName;
+	
+	UPROPERTY( EditAnywhere,BlueprintReadOnly, Category = Data)
+	int32 _selectedColorIndex;
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerVisualData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = Data)
+	TArray<FPlayerVisualDataEntry> _playerVisuals;
+	
+	void AddData(const FString& playerName, int32 _selectedColorIndex)
+	{
+		FPlayerVisualDataEntry newEntry;
+		newEntry._playerName = playerName;
+		newEntry._selectedColorIndex = _selectedColorIndex;
+		_playerVisuals.Add(newEntry);
+	}
+	
+	FPlayerVisualDataEntry GetVisualData(const FString& playerName)
+	{
+		for (int i = 0; i < _playerVisuals.Num(); i++)
+		{
+			if (_playerVisuals[i]._playerName == playerName)
+			{
+				return _playerVisuals[i];
+			}
+		}
+		return FPlayerVisualDataEntry();
+	}
+	
+	void Reset()
+	{
+		_playerVisuals.Empty();
+	}
+};
+
+USTRUCT(BlueprintType)
 struct FGameSessionData
 {
 	GENERATED_BODY()
@@ -32,5 +78,5 @@ struct FGameSessionData
 	TArray<FString> _escapedPlayers;
 
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
-	int32 _colorIndex;
+	FPlayerVisualData _playersVisualData;
 };

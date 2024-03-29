@@ -43,9 +43,7 @@ protected:
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	TSubclassOf<class APW_Currency> _currencyClass;
-
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
-	TArray<int32> _colorIndexes;
+	
 
 	class APW_SpawnPointsManager* _spawnPointsManager;
 
@@ -65,8 +63,5 @@ public:
 	
 	FORCEINLINE UBountySystemComponent* GetBountySystemComponent() const { return _bountySystemComponent; }
 	FORCEINLINE APW_BountyBoard* GetBountyBoard() const { return _bountyBoard; }
-
-private:
-
-	int32 GetRandomColorIndex();
+	
 };

@@ -9,6 +9,7 @@ APW_SideObjective::APW_SideObjective()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
+	bAlwaysRelevant = true;
 	_objectiveState = EObjectiveState::ENone;
 }
 

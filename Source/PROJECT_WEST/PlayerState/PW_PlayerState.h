@@ -13,20 +13,30 @@ UCLASS()
 class PROJECT_WEST_API APW_PlayerState : public APlayerState
 {
 	GENERATED_BODY()
+	
 public:
 
 	APW_PlayerState();
+	
 
 	virtual void BeginPlay() override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	UFUNCTION()
+	void PawnSet(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Info" )
-	int32 _colorIndex;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	void SetColorIndex(int32 index);
 
 private:
+	
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Info" ,meta = (AllowPrivateAccess = "true") )
+	int32 _colorIndex;
+
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Info" ,meta = (AllowPrivateAccess = "true") )
 	class APW_Character* _character;
+
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Info" ,meta = (AllowPrivateAccess = "true") )
 	class APW_PlayerController* _playerController;
 
-	UFUNCTION( Client, Reliable ) void ClientSetColorIndex(int index);
 };

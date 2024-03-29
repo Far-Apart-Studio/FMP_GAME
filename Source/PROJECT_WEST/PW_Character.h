@@ -47,10 +47,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	APW_BountyGameMode* _bountyGameMode;
-
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	FString _playerName;
-
+	
 	class UPW_CharacterMovementComponent* _characterMovementComponent;
 	
 	bool _LeftGame = false;
@@ -189,8 +186,6 @@ public:
 public:
 	FORCEINLINE USceneComponent* GetItemHolder() const { return _itemHolder; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return _cameraComponent; }
-	FORCEINLINE void SetPlayerName(const FString& playerName) { _playerName = playerName; }
-	FORCEINLINE FString GetPlayerName() const { return _playerName; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetItemHolderComponent(USceneComponent* itemHolderComponent) { _itemHolder = itemHolderComponent; }
 
