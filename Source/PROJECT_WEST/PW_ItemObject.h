@@ -67,7 +67,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Object")
 	USkeletalMeshComponent* _itemMesh;
 	
-	UPROPERTY(ReplicatedUsing = OnRep_ItemStateChanged, EditAnywhere, Category = "Item Object")
+	UPROPERTY(ReplicatedUsing = OnRep_ItemStateChanged, BlueprintReadOnly, EditAnywhere, Category = "Item Object")
 	EItemObjectState _itemState;
 
 	UPROPERTY(ReplicatedUsing = OnRep_VisibilityChange, VisibleAnywhere, Category = "Item Properties")
