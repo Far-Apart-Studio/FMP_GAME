@@ -63,6 +63,7 @@ void UPW_InteractionComponent::TraceForInteractable()
 				TryClearLastInteractable();
 				_lastIntractableActor = hitResult.GetActor();
 				IPW_InteractableInterface::Execute_StartFocus(_lastIntractableActor,GetOwner());
+				_OnTraceInteractable.Broadcast(_lastIntractableActor);
 			}
 		}
 		else
@@ -82,6 +83,7 @@ void UPW_InteractionComponent::TryClearLastInteractable()
 	{
 		IPW_InteractableInterface::Execute_EndFocus(_lastIntractableActor,GetOwner());
 		_lastIntractableActor = nullptr;
+		_OnTraceInteractable.Broadcast(nullptr);
 	}
 }
 
@@ -91,6 +93,7 @@ void UPW_InteractionComponent::TryStartInteractWithInteractable()
 	{
 		IPW_InteractableInterface::Execute_EndFocus(_lastIntractableActor,GetOwner());
 		IPW_InteractableInterface::Execute_StartInteract(_lastIntractableActor, GetOwner());
+		_OnTraceInteractable.Broadcast(nullptr);
 
 		if (IPW_InteractableInterface::Execute_HasServerInteraction(_lastIntractableActor))
 		{
