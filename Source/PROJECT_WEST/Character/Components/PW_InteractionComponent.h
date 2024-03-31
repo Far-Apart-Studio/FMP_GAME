@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "PW_InteractionComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractDelegate, AActor*, interactedActor);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_WEST_API UPW_InteractionComponent : public UActorComponent
@@ -51,6 +52,9 @@ public:
 
 	UFUNCTION()
 	void TryToggleInteract();
+
+	UPROPERTY(BlueprintAssignable)
+	FInteractDelegate _OnTraceInteractable;
 	
 private:
 
