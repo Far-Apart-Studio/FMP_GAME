@@ -23,6 +23,9 @@ class PROJECT_WEST_API IPW_InteractableInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
+	bool CanInteract();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
 	void StartFocus(AActor* owner);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
