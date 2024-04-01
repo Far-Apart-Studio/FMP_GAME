@@ -66,11 +66,12 @@ TArray<FVector> APW_SpawnPointsManager::GetRandomCurrencySpawnPoints(int32 amoun
 {
 	TArray<	APW_SpawnPoint*> avaliableSlots = _currencySpawnPoints._spawnPoints;
 
+	if (amount > avaliableSlots.Num()) amount = avaliableSlots.Num();
+	
 	if (avaliableSlots.Num() == 0) return TArray<FVector>();
 	
 	TArray<FVector> result;
-	if (amount > avaliableSlots.Num()) amount = avaliableSlots.Num();
-
+	
 	for (int32 i = 0; i < amount; i++)
 	{
 		int32 index = FMath::RandRange(0, avaliableSlots.Num() - 1);
