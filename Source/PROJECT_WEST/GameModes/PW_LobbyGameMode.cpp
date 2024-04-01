@@ -29,7 +29,6 @@ void APW_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	
-
 }
 
 void APW_LobbyGameMode::Logout(AController* Exiting)
@@ -106,13 +105,16 @@ void APW_LobbyGameMode::TriggerDebtCollector()
 	_debtCollector = GetWorld()->SpawnActor<APW_DebtCollector>(_debtCollectorClass, _spawnPointsManager->GetDebtCollectorSpawnPoint(), FRotator::ZeroRotator);
 	if (_debtCollector)
 	{
-		DEBUG_STRING ("APW_LobbyGameMode::TriggerDebtCollector _debtCollector spawned");
 		_debtCollector->SetDebtAmount(_gameInstance->GetGameSessionData()._dayIndex);
 		
 		FNotificationEntry notification;
 		notification._notificationType = ENotificationType::EInfo;
 		notification._notificationText = "Debt collector has arrived";
 		TriggerNotification(notification);
+	}
+	else
+	{
+		DEBUG_STRING ("APW_LobbyGameMode::TriggerDebtCollector _debtCollector not spawned");
 	}
 }
 

@@ -90,7 +90,14 @@ void APW_GameMode::ServerTravel(FString MapPath)
 void APW_GameMode::ServerTravelMapEnty(FMapDataEntry mapdata)
 {
 	TriggerPlayersLoadingScreen(mapdata);
-	ServerTravel (mapdata._mapPath);
+
+	if (_mapDataTable)
+	{
+		if (const FMapDataTable* mapData = _mapDataTable->FindRow<FMapDataTable>(*mapdata._id, ""))
+		{
+			ServerTravel (mapData->_mapPath);
+		}
+	}
 }
 
 int32 APW_GameMode::GetNumPlayerInSession() const

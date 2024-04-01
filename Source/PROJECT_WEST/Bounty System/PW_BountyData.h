@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Engine/DataTable.h"
 #include "PW_BountyData.generated.h"
 
 UENUM()
@@ -74,18 +75,9 @@ USTRUCT(BlueprintType)
 struct FMapDataEntry
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	UTexture2D* _mapIcon;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	FString _mapName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	FString _mapDescription;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	FString _mapPath;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	FString _id;
 };
 
 USTRUCT(BlueprintType)
@@ -176,4 +168,19 @@ struct FBountyVoteData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	TArray<FBountyVoteDataEntry> _bountyVoteDataList;
+};
+
+USTRUCT(BlueprintType)
+struct FMapDataTable: public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	UTexture2D* _icon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	FString _mapName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Info")
+	FString _mapPath;
 };

@@ -118,7 +118,7 @@ void APW_BountyGameMode::HandleStateTimer()
 		_countdownTime = _mathEndCooldownTime  - GetWorld()->GetTimeSeconds() + _matchStartTime;
 		if (_countdownTime <= 0.f)
 		{
-			DEBUG_STRING( "Cooldown is up" );
+			//DEBUG_STRING( "Cooldown is up" );
 			SetMatchState(MatchState::LeavingMap);
 			//RestartGame();
 		}
@@ -137,7 +137,7 @@ void APW_BountyGameMode::BountyFailed()
 
 void APW_BountyGameMode::OnTimeUp()
 {
-	DEBUG_STRING( "Time is up" );
+	//DEBUG_STRING( "Time is up" );
 	BountyFailed();
 }
 

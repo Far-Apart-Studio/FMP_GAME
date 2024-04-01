@@ -24,6 +24,9 @@ protected:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
 	class UPW_GameInstance* _gameInstance = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GameMode", meta = (AllowPrivateAccess = "true"))
+	UDataTable* _mapDataTable;
+
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "GameMode" , meta = (AllowPrivateAccess = "true") )
 	TArray<int32> _colorIndexes;
 
