@@ -770,9 +770,9 @@ void APW_PlayerController::ServerClearVote_Implementation()
 	};
 }
 
-void APW_PlayerController::ClientShowLoadingMenu_Implementation(const FString& level)
+void APW_PlayerController::ClientShowLoadingMenu_Implementation(const FMapDataEntry& mapdata)
 {
-	_onLoadingScreenTriggered.Broadcast(level);
+	_onLoadingScreenTriggered.Broadcast(mapdata);
 }
 
 void APW_PlayerController::AddMoney(int32 amount)

@@ -64,7 +64,7 @@ public:
 	void ServerTravel (FString mapPath);
 
 	UFUNCTION(BlueprintCallable)
-	void ServerTravelMapEnty (FBountyMapDataEntry mapdata);
+	void ServerTravelMapEnty (FMapDataEntry mapdata);
 	
 	void AddMoney(int32 amount);
 	void RemoveMoney (int32 amount);
@@ -81,7 +81,7 @@ public:
 
 	void TriggerPlayersAnnouncement(const FString& announcement,FColor color, float duration) const;
 
-	void TriggerPlayersLoadingScreen(const FString& level);
+	void TriggerPlayersLoadingScreen(const FMapDataEntry& level);
 
 	void TriggerNotification(const FNotificationEntry& notification) const;
 

@@ -37,7 +37,7 @@ public:
 	float _matchStartTime;
 	
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
-	FBountyMapDataEntry _lobbyMapData;
+	FMapDataEntry _lobbyMapData;
 
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Gameplay" )
 	TSubclassOf<class APW_Lantern > _lanternClass;

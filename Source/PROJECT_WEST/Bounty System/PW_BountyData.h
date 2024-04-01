@@ -59,7 +59,7 @@ struct FBountyDifficultyData
 
 	int32 GetBountyReward(EBountyDifficulty bountyDifficulty)
 	{
-		for (FBountyDifficultyDataEntry& entry : _bountyDifficultyData)
+		for (const FBountyDifficultyDataEntry& entry : _bountyDifficultyData)
 		{
 			if (entry._bountyDifficulty == bountyDifficulty)
 			{
@@ -71,21 +71,21 @@ struct FBountyDifficultyData
 };
 
 USTRUCT(BlueprintType)
-struct FBountyMapDataEntry
+struct FMapDataEntry
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category = "Bounty Data")
-	UTexture2D* _bountyMapIcon;
+	UTexture2D* _mapIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	FString _bountyMapName;
+	FString _mapName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	FString _bountyMapDescription;
+	FString _mapDescription;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	FString _bountyMapPath;
+	FString _mapPath;
 };
 
 USTRUCT(BlueprintType)
@@ -94,20 +94,22 @@ struct FBountyMapData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	TArray<FBountyMapDataEntry> _bountyMapData;
+	TArray<FMapDataEntry> _bountyMapData;
 
-	FBountyMapDataEntry GetRandomBountyMapDataEntry()
+	FMapDataEntry GetRandomBountyMapDataEntry()
 	{
-		int32 randomIndex = FMath::RandRange(0, _bountyMapData.Num() - 1);
+		const int32 randomIndex = FMath::RandRange(0, _bountyMapData.Num() - 1);
 		return _bountyMapData[randomIndex];
 	}
 };
-
 
 USTRUCT(BlueprintType)
 struct FBountyTargetEntry
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "Bounty Data")
+	UTexture2D* __bountyTargetIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	FString _bountyTargetName;
@@ -152,7 +154,7 @@ struct FBountyDataEntry
 	int32 _bountyReward;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
-	FBountyMapDataEntry _bountyMapDataEntry;
+	FMapDataEntry _bountyMapDataEntry;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bounty System")
 	FBountyTargetEntry _bountyTarget;

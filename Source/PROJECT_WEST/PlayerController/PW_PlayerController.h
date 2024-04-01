@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHig
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsuccess, int32, bountyIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNameChangedDelegate , FString , newName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoficationTriggerDelegate, FNotificationEntry, notification);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTriggerEventDelegate, FString, levelName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelTriggerEventDelegate, FMapDataEntry, levelData);
 
 /**
  * 
@@ -104,7 +104,7 @@ private:
 	FOnNoficationTriggerDelegate _onNotificationTriggered;
 
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	FOnTriggerEventDelegate _onLoadingScreenTriggered;
+	FOnLevelTriggerEventDelegate _onLoadingScreenTriggered;
 
 protected:
 	
@@ -214,7 +214,7 @@ public:
 
 	UFUNCTION( Client, Reliable ) void ClientShowAnnocement(const FString& message,FColor color, float duration);
 
-	UFUNCTION( Client, Reliable ) void ClientShowLoadingMenu(const FString& level);
+	UFUNCTION( Client, Reliable ) void ClientShowLoadingMenu(const FMapDataEntry& mapdata);
 
 	UFUNCTION( Client, Reliable )
 	void ClientDayChanged(int32 day);
