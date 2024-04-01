@@ -31,7 +31,7 @@ enum class EItemObjectState : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FItemInfo
+struct FInfoEntry
 {
 	GENERATED_BODY()
 	
@@ -56,7 +56,7 @@ protected:
 	FString _itemID;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Item Object",meta = (AllowPrivateAccess = "true"))
-	FItemInfo _infoDetails;
+	FInfoEntry _infoDetails;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Item Object", meta = (AllowPrivateAccess = "true"))
 	EItemType _itemType;

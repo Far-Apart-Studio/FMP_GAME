@@ -66,7 +66,7 @@ void APW_ChargeableMechanism::OnRep_ChargeStatusChanged() const
 
 void APW_ChargeableMechanism::StartFocus_Implementation(AActor* targetActor)
 {
-	if (_chargeActivated) return;
+	if (_chargeCompleted) return;
 	
 	_OnFocusBegin.Broadcast(IsLanternEquipped(targetActor));
 	_highlightComponent->ShowHighlight();
