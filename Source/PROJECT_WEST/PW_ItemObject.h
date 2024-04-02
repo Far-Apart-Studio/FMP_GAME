@@ -43,6 +43,9 @@ protected:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Item Object",meta = (AllowPrivateAccess = "true"))
 	FInfoEntry _infoDetails;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Item Object",meta = (AllowPrivateAccess = "true"))
+	UTexture2D* _itemIcon;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Item Object", meta = (AllowPrivateAccess = "true"))
 	EItemType _itemType;

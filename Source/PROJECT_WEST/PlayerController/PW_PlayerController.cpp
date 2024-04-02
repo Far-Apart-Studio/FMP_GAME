@@ -127,6 +127,7 @@ void APW_PlayerController::SpectatePlayer(APW_PlayerController* playerController
 void APW_PlayerController::ClientMoneyValueChanged_Implementation(int32 money)
 {
 	_money = money;
+	_onMoneyValueChanged.Broadcast(money);
 }
 
 void APW_PlayerController::ClientShowAnnocement_Implementation(const FString& message, FColor color, float duration)
