@@ -42,7 +42,6 @@ public:
 	
 	void LocalStartInteractWithInteractable(AActor* _interactedActor,AActor* _interactableOwner);
 	
-
 	void EndServerInteractWithInteractable(AActor* _interactedActor);
 
 	UFUNCTION(Server, Reliable)

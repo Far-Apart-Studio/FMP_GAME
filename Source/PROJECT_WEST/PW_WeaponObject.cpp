@@ -3,15 +3,14 @@
 
 #include "PW_WeaponObject.h"
 
-#include "DebugMacros.h"
 #include "FRecoilAction.h"
 #include "PWMath.h"
 #include "PW_Character.h"
+#include "PW_CharacterMovementComponent.h"
 #include "PW_DamageCauserComponent.h"
 #include "PW_Utilities.h"
 #include "PW_WeaponData.h"
 #include "Camera/CameraComponent.h"
-#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
@@ -26,7 +25,6 @@ APW_WeaponObject::APW_WeaponObject()
 	_muzzleLocation->SetupAttachment(itemMesh);
 
 	_damageCauserComponent = CreateDefaultSubobject<UPW_DamageCauserComponent>(TEXT("DamageCauserComponent"));
-	//_damageCauserComponent->RegisterComponent();
 }
 
 void APW_WeaponObject::BeginPlay()
@@ -373,6 +371,37 @@ bool APW_WeaponObject::CanFire()
 	
 	if (_weaponRuntimeData.LastFiredTime < _weaponData->GetWeaponFireRate(_weaponFireMode))
 		return false;
+
+	// BELOW IS ALL TEMPORARY >>>>>>>>
+	const ACharacter* characterObject = Cast<ACharacter>(GetOwner());
+	
+	if (characterObject == nullptr)
+		{ PW_Utilities::Log("NO CHARACTER MOVEMENT COMPONENT FOUND!"); return false; }
+
+	const UCharacterMovementComponent* characterMovement = characterObject->GetCharacterMovement();
+
+	if (characterMovement == nullptr)
+		{ PW_Utilities::Log("NO CHARACTER MOVEMENT FOUND"); return false; }
+
+	const UActorComponent* pwCharacterMovement = characterObject->GetComponentByClass
+		(UPW_CharacterMovementComponent::StaticClass());
+
+	if (pwCharacterMovement == nullptr)
+		{ PW_Utilities::Log("NO PW CHARACTER MOVEMENT FOUND!"); return false; }
+
+	const UPW_CharacterMovementComponent* characterMovementComponent =
+		Cast<UPW_CharacterMovementComponent>(pwCharacterMovement);
+
+	if (characterMovementComponent == nullptr)
+		{ PW_Utilities::Log("NO CHARACTER MOVEMENT COMPONENT FOUND!"); return false; }
+
+	if (characterMovementComponent->GetReplicatedMovementData().IsSprinting)
+		return false;
+
+	if (characterMovement->IsFalling())
+		return false;
+	// ABOVE IS ALL TEMPORARY >>>>>>>>
+	
 
 	_weaponRuntimeData.LastFiredTime = 0.0f;
 	return true;
