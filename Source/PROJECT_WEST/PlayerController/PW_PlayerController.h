@@ -15,6 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNameChangedDelegate , FString , 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoficationTriggerDelegate, FNotificationEntry, notification);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelTriggerEventDelegate, FMapDataEntry, levelData);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInfoEventDelegate, FInfoEntry, info);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIntValueChangedDelegate, int, info);
 /**
  * 
  */
@@ -108,6 +109,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FOnInfoEventDelegate _onTutorialInfoTriggered;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnIntValueChangedDelegate _onMoneyValueChanged;
 
 protected:
 	
