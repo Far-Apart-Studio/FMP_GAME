@@ -151,4 +151,5 @@ public:
 	bool CanDash(const UCharacterMovementComponent* characterMovement);
 
 	FORCEINLINE void SetCanMove(bool value) { _canMove = value; }
+	FORCEINLINE FReplicatedMovementData GetReplicatedMovementData() const { return _replicatedMovementData; }
 };

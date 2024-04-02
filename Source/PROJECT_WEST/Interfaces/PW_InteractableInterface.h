@@ -13,15 +13,11 @@ class UPW_InteractableInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class PROJECT_WEST_API IPW_InteractableInterface
 {
 	GENERATED_BODY()
 
 public:
-
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interactable")
 	bool CanInteract();
 
