@@ -6,7 +6,7 @@
 #include "PW_Character.h"
 #include "PW_InventoryHandler.h"
 #include "PW_Utilities.h"
-#include "Gameplay/Components/PW_HighlightCompont.h"
+#include "Gameplay/Components/PW_HighlightComponent.h"
 #include "Net/UnrealNetwork.h"
 
 APW_ItemObject::APW_ItemObject()
@@ -28,7 +28,7 @@ APW_ItemObject::APW_ItemObject()
 	_itemCollisionMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	_itemCollisionMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
-	_highlightComponent = CreateDefaultSubobject<UPW_HighlightCompont>(TEXT("HighlightComponent"));
+	_highlightComponent = CreateDefaultSubobject<UPW_HighlightComponent>(TEXT("HighlightComponent"));
 }
 
 void APW_ItemObject::BeginPlay()

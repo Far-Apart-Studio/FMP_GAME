@@ -6,7 +6,7 @@
 #include "PROJECT_WEST/PW_InventoryHandler.h"
 #include "PROJECT_WEST/DebugMacros.h"
 #include "PROJECT_WEST/Character/Components/PW_InteractionComponent.h"
-#include "PROJECT_WEST/Gameplay/Components/PW_HighlightCompont.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_HighlightComponent.h"
 #include "PROJECT_WEST/PlayerController/PW_PlayerController.h"
 
 APW_ChargeableMechanism::APW_ChargeableMechanism(): _character(nullptr), _lantern(nullptr), _chargeCompleted(false),
@@ -20,7 +20,7 @@ APW_ChargeableMechanism::APW_ChargeableMechanism(): _character(nullptr), _lanter
 void APW_ChargeableMechanism::BeginPlay()
 {
 	Super::BeginPlay();
-	_highlightComponent = FindComponentByClass<UPW_HighlightCompont>();
+	_highlightComponent = FindComponentByClass<UPW_HighlightComponent>();
 
 	_OnChargeAmountChanged.Broadcast(_currentChargeAmount / _maxChargeAmount);
 }

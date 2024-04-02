@@ -63,7 +63,7 @@ protected:
 	bool _isActive;
 
 	UPROPERTY(VisibleAnywhere, Category = "Item Object") 
-	class UPW_HighlightCompont* _highlightComponent;
+	class UPW_HighlightComponent* _highlightComponent;
 
 public:
 

@@ -3,7 +3,7 @@
 
 #include "PW_DebtCollector.h"
 
-#include "Components/PW_HighlightCompont.h"
+#include "Components/PW_HighlightComponent.h"
 #include "Net/UnrealNetwork.h"
 #include  "PROJECT_WEST/GameModes/PW_GameMode.h"
 #include "PROJECT_WEST/DebugMacros.h"
@@ -30,7 +30,7 @@ void APW_DebtCollector::BeginPlay()
 	SetReplicates(true);
 	SetReplicateMovement(true);
 
-	_highlightComponent = FindComponentByClass<UPW_HighlightCompont>();
+	_highlightComponent = FindComponentByClass<UPW_HighlightComponent>();
 }
 
 void APW_DebtCollector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PW_HighlightCompont.generated.h"
+#include "PW_HighlightComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_WEST_API UPW_HighlightCompont : public UActorComponent
+class PROJECT_WEST_API UPW_HighlightComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 
-	UPW_HighlightCompont();
+	UPW_HighlightComponent();
 
 protected:
 
@@ -23,12 +23,18 @@ protected:
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UFUNCTION(BlueprintCallable)
 	void ShowHighlight();
+
+	UFUNCTION(BlueprintCallable)
 	void HideHighlight();
 
 private:
-	
-	TArray<UStaticMeshComponent*> _meshComps;
-	TArray<USkeletalMeshComponent*> _skeletalMeshComps;
-		
+
+
+	TArray<UMeshComponent*> _meshComps;
+
+	UPROPERTY (EditAnywhere,BlueprintReadWrite, Category = "Gameplay" , meta = (AllowPrivateAccess = "true"))
+	TArray<UMeshComponent*> _meshComponentsToIgnore;
 };
