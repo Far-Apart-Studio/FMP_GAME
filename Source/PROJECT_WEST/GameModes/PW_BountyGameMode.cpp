@@ -256,6 +256,13 @@ void APW_BountyGameMode::SpawnBountyPortal()
 void APW_BountyGameMode::OnBountyDead(AActor* OwnerActor, AActor* DamageCauser, AController* DamageCauserController)
 {
 	if (_bountySuccessful) return;
+
+	FInfoEntry bountyInfo;
+	bountyInfo._name = "Bounty";
+	bountyInfo._description = "The bounty has been eliminated";
+	bountyInfo._usage = "Pick Up Head";
+	TriggerTutorialNotification(bountyInfo);
+	
 	SpawnBountyHead();
 
 	FNotificationEntry notification;

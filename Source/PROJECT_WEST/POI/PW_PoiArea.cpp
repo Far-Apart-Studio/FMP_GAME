@@ -65,7 +65,7 @@ void APW_PoiArea::OnDetectionBoxBeginOverlap(UPrimitiveComponent* OverlappedComp
 			notification._notificationType = ENotificationType::ELocation;
 			notification._playerNameText ="";
 			notification._notificationText = _poiID;
-			playerController->TriggerNotification(notification);
+			playerController->ClientTriggerNotification(notification);
 		}
 		
 		if(CanSpawnEnemy())

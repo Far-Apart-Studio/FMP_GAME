@@ -223,7 +223,18 @@ void APW_GameMode::TriggerNotification(const FNotificationEntry& notification) c
 	{
 		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get()))
 		{
-			playerController->TriggerNotification(notification);
+			playerController->ClientTriggerNotification(notification);
+		}
+	}
+}
+
+void APW_GameMode::TriggerTutorialNotification(const FInfoEntry& info) const
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get()))
+		{
+			playerController->ClientTriggerTutorialNotification(info);
 		}
 	}
 }

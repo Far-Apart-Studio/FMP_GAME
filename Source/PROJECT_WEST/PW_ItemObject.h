@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/PW_InteractableInterface.h"
+#include "InfoData.h"
 #include "PW_ItemObject.generated.h"
 
 class UPW_InventoryHandler;
@@ -28,21 +29,6 @@ enum class EItemObjectState : uint8
 {
 	EDropped,
 	EHeld,
-};
-
-USTRUCT(BlueprintType)
-struct FInfoEntry
-{
-	GENERATED_BODY()
-	
-	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
-	FString _name;
-	
-	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
-	FString _usage;
-	
-	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = Data)
-	FString _description;
 };
 
 UCLASS()
