@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FVoteChangedDelegate, bool, bsucces
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNameChangedDelegate , FString , newName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoficationTriggerDelegate, FNotificationEntry, notification);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelTriggerEventDelegate, FMapDataEntry, levelData);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInfoEventDelegate, FInfoEntry, info);
 /**
  * 
  */
@@ -105,6 +105,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FOnLevelTriggerEventDelegate _onLoadingScreenTriggered;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
+	FOnInfoEventDelegate _onTutorialInfoTriggered;
 
 protected:
 	
@@ -229,7 +232,7 @@ public:
 	void LocalCollectCurrency(class APW_Currency* currency);
 
 	UFUNCTION( Client, Reliable )
-	void TriggerNotification(FNotificationEntry notification);
+	void ClientTriggerNotification(FNotificationEntry notification);
 
 	bool IsAlive();
 
@@ -250,4 +253,7 @@ public:
 	void SpectateModeActivated();
 
 	bool IsInLobby();
+
+	UFUNCTION( Client, Reliable )
+	void ClientTriggerTutorialNotification(const FInfoEntry& Info);
 };

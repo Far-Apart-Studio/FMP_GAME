@@ -83,7 +83,7 @@ private:
 	bool _chargeCompleted;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	class UPW_HighlightCompont* _highlightComponent;
+	class UPW_HighlightComponent* _highlightComponent;
 
 	void ForceEndInteraction() const;
 

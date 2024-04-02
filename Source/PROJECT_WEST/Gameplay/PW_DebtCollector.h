@@ -30,7 +30,7 @@ protected:
 	virtual void ServerStartInteract_Implementation(AActor* owner) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	class UPW_HighlightCompont* _highlightComponent;
+	class UPW_HighlightComponent* _highlightComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int32 _debtMinStartAmount;

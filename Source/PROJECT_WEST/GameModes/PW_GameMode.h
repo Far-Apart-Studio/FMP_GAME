@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "PROJECT_WEST/Notification.h"
+#include "PROJECT_WEST\InfoData.h"
 #include "GameFramework/GameMode.h"
 #include "PW_GameMode.generated.h"
 
 
 struct FGameSessionData;
+struct FInfoEntry;
+
 /**
  * 
  */
@@ -87,6 +90,7 @@ public:
 	void TriggerPlayersLoadingScreen(const FMapDataEntry& level);
 
 	void TriggerNotification(const FNotificationEntry& notification) const;
+	void TriggerTutorialNotification(const FInfoEntry& info) const;
 
 	FString GetPlayerName(APlayerController* playerController) const;
 
