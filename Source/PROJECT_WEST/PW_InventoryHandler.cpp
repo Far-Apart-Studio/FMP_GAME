@@ -152,6 +152,8 @@ void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* colle
 	collectedItem->SetOwner(_ownerCharacter);
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
 	collectedItem->AttachToComponent(itemPosition, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+	OnItemPickup.Broadcast(collectedItem);
 	
 	ChangeSlot(slotIndex, true);
 }
@@ -420,6 +422,8 @@ void UPW_InventoryHandler::LocalDropItem(int slotIndex)
 	slotItem->UpdateItemState(EItemObjectState::EDropped);
 	slotItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	slotItem->SetOwner(nullptr);
+
+	OnItemDrop.Broadcast(slotItem);
 
 	if (_ownerCharacter == nullptr)
 		{ DEBUG_STRING("[LOCAL] OWNER CHARACTER IS NULL!"); return; }

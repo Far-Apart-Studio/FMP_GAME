@@ -44,9 +44,16 @@ private:
 	UDataTable* _ItemDataTable;
 
 public:
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnInventorySlotChangedDelegate OnInventorySlotChanged;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnInventorySlotChangedDelegate OnItemPickup;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnInventorySlotChangedDelegate OnItemDrop;
+	
 private:
 	void AssignInputActions();
 	void GetOwnerCharacter();
