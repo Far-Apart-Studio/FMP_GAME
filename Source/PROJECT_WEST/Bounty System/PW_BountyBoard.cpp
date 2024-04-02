@@ -16,7 +16,7 @@
 #include "PROJECT_WEST/Gameplay/PW_GameInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "PROJECT_WEST/Gameplay/Components/PW_HighlightCompont.h"
+#include "PROJECT_WEST/Gameplay/Components/PW_HighlightComponent.h"
 
 APW_BountyBoard::APW_BountyBoard()
 {
@@ -52,7 +52,7 @@ void APW_BountyBoard::BeginPlay()
 
 	}
 	
-	_highlightComponent = FindComponentByClass<UPW_HighlightCompont>();
+	_highlightComponent = FindComponentByClass<UPW_HighlightComponent>();
 }
 
 void APW_BountyBoard::Tick(float DeltaTime)

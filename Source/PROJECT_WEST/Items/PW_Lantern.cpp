@@ -54,7 +54,6 @@ void APW_Lantern::BeginPlay()
 	_pointLight->SetIntensity(_currentLightIntensity);
 	_lightBeamMesh->SetRelativeScale3D(FVector(_currentBeamScale, _currentBeamScale, 1.0f));
 	ToggleLightVisibility(false);
-	_currentFuel = 100.0f;
 
 	float random = FMath::RandRange(0, 1);
 	_offsetToTarget = FMath::RandRange(_minOffsetToTarget, _maxOffsetToTarget);

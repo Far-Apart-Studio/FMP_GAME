@@ -239,6 +239,11 @@ bool APW_PlayerController::IsInLobby()
 	return false;
 }
 
+void APW_PlayerController::ClientTriggerTutorialNotification_Implementation(const FInfoEntry& Info)
+{
+	_onTutorialInfoTriggered.Broadcast(Info);
+}
+
 void APW_PlayerController::SpectateModeActivated_Implementation()
 {
 	if (_characterOverlayWidget != nullptr)
@@ -828,7 +833,7 @@ void APW_PlayerController::LocalCollectCurrency(APW_Currency* currency)
 	}
 }
 
-void APW_PlayerController::TriggerNotification_Implementation(FNotificationEntry notification)
+void APW_PlayerController::ClientTriggerNotification_Implementation(FNotificationEntry notification)
 {
 	_onNotificationTriggered.Broadcast(notification);
 }
