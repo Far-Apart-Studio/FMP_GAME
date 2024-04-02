@@ -250,4 +250,6 @@ public:
 	void SpectateModeActivated();
 
 	bool IsInLobby();
+
+	UFUNCTION(BlueprintCallable) 
 };

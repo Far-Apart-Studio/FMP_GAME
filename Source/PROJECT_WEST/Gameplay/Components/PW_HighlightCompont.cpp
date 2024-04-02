@@ -5,7 +5,6 @@
 
 UPW_HighlightCompont::UPW_HighlightCompont()
 {
-
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
