@@ -131,7 +131,7 @@ void APW_Character::ReturnedButtonPressed()
 
 void APW_Character::MouseWheelUpAxisPressed()
 {
-	OnMouseDownPressed.Broadcast();
+	OnMouseUpPressed.Broadcast();
 }
 
 void APW_Character::MouseWheelDownAxisPressed()

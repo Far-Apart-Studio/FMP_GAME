@@ -181,33 +181,49 @@ bool UPW_InventoryHandler::TryGetSlotIndex(EItemType itemType, int& outIndex)
 
 void UPW_InventoryHandler::CycleNextSlot()
 {
-	const int targetedSlotIndex = _currentSlotIndex + 1;
 	constexpr int overflowSlotIndex = 0;
-	const bool isIndexValid = _inventorySlots.IsValidIndex(targetedSlotIndex);
+	int currentTargetIndex = _currentSlotIndex;
+	
+	for (int i = 0; i < _inventorySlots.Num(); i++)
+	{
+		currentTargetIndex++;
+		
+		const bool isIndexValid = _inventorySlots.IsValidIndex(currentTargetIndex);
 
-	if (isIndexValid)
-	{
-		ChangeSlot(targetedSlotIndex);;
-	}
-	else
-	{
-		ChangeSlot(overflowSlotIndex);
+		if (!isIndexValid)
+			currentTargetIndex = overflowSlotIndex;
+
+		const bool doesContainItem = _inventorySlots[currentTargetIndex].GetItem() != nullptr;
+
+		if (!doesContainItem)
+			continue;
+
+		ChangeSlot(currentTargetIndex);
+		break;
 	}
 }
 
 void UPW_InventoryHandler::CyclePreviousSlot()
 {
-	const int targetedSlotIndex = _currentSlotIndex - 1;
 	const int overflowSlotIndex = _inventorySlots.Num() - 1;
-	const bool isIndexValid = _inventorySlots.IsValidIndex(targetedSlotIndex);
+	int currentTargetIndex = _currentSlotIndex;
+	
+	for (int i = 0; i < _inventorySlots.Num(); i++)
+	{
+		currentTargetIndex--;
+		
+		const bool isIndexValid = _inventorySlots.IsValidIndex(currentTargetIndex);
 
-	if (isIndexValid)
-	{
-		ChangeSlot(targetedSlotIndex);
-	}
-	else
-	{
-		ChangeSlot(overflowSlotIndex);
+		if (!isIndexValid)
+			currentTargetIndex = overflowSlotIndex;
+
+		const bool doesContainItem = _inventorySlots[currentTargetIndex].GetItem() != nullptr;
+
+		if (!doesContainItem)
+			continue;
+
+		ChangeSlot(currentTargetIndex);
+		break;
 	}
 }
 
@@ -234,12 +250,9 @@ void UPW_InventoryHandler::LocalLoadFromData(const FPlayerInventoryDataEntry& in
 		{ DEBUG_STRING("ITEM CLASS IS NULL!"); continue; }
 		APW_ItemObject* item = GetWorld()->SpawnActor<APW_ItemObject>(itemClass, GetOwner()->GetActorLocation(), FRotator::ZeroRotator);
 		items.Add(item);
-		//DEBUG_STRING("Spawned Item");
 	}
 
 	int32 selectedIndex = inventoryData._selectedSlotIndex;
-
-	//CollectItems(items);
 
 	FTimerHandle itemTimer;
 	FTimerDelegate itemDelegate;
