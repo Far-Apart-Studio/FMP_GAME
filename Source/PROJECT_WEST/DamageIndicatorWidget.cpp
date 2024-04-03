@@ -3,11 +3,6 @@
 
 #include "DamageIndicatorWidget.h"
 
-#include "DebugMacros.h"
-#include "PWMath.h"
-#include "PW_Utilities.h"
-#include "Kismet/GameplayStatics.h"
-
 void UDamageIndicatorWidget::SelfDestruct()
 {
 	FTimerHandle timerHandle;
@@ -36,10 +31,10 @@ float UDamageIndicatorWidget::GetDotProductBetweenEnemy()
 	const AActor* damageCauser = _indicateHandle.damageCauser;
 
 	if (ownerActor == nullptr)
-	{ PW_Utilities::Log("OWNER ACTOR NULL"); return 0.0f;}
+	{ /*PW_Utilities::Log("OWNER ACTOR NULL");*/ return 0.0f;}
 
 	if (damageCauser == nullptr)
-	{ PW_Utilities::Log("DAMAGE CAUSER NULL"); return 0.0f; }
+	{ /*PW_Utilities::Log("DAMAGE CAUSER NULL");*/ return 0.0f; }
 	
 	const FVector ownerForward = ownerActor->GetActorForwardVector();
 	const FVector ownerPosition = ownerActor->GetActorLocation();
@@ -57,10 +52,10 @@ float UDamageIndicatorWidget::GetCrossProductBetweenEnemy()
 	const AActor* damageCauser = _indicateHandle.damageCauser;
 
 	if (ownerActor == nullptr)
-		{ PW_Utilities::Log("OWNER ACTOR NULL"); return 0.0f;}
+		{ /*PW_Utilities::Log("OWNER ACTOR NULL");*/ return 0.0f;}
 
 	if (damageCauser == nullptr)
-		{ PW_Utilities::Log("DAMAGE CAUSER NULL"); return 0.0f; }
+		{ /*PW_Utilities::Log("DAMAGE CAUSER NULL");*/ return 0.0f; }
 
 	const FVector ownerForward = ownerActor->GetActorForwardVector();
 	const FVector ownerPosition = ownerActor->GetActorLocation();
@@ -78,10 +73,10 @@ void UDamageIndicatorWidget::GetDotAndCrossProductBetweenEnemy(float& dotProduct
 	const AActor* damageCauser = _indicateHandle.damageCauser;
 
 	if (ownerActor == nullptr)
-		{ PW_Utilities::Log("OWNER ACTOR NULL"); return; }
+		{ /*PW_Utilities::Log("OWNER ACTOR NULL");*/ return; }
 
 	if (damageCauser == nullptr)
-		{ PW_Utilities::Log("DAMAGE CAUSER NULL"); return; }
+		{ /*PW_Utilities::Log("DAMAGE CAUSER NULL");*/ return; }
 
 	const FVector ownerForward = ownerActor->GetActorForwardVector();
 	const FVector ownerPosition = ownerActor->GetActorLocation();
