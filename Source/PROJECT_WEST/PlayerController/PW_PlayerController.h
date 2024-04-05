@@ -110,6 +110,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable, Category = "Info", meta = (AllowPrivateAccess = "true"))
 	FOnIntValueChangedDelegate _onMoneyValueChanged;
 
+	bool _islobby;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -119,10 +121,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnPlayerStateSet();
 
-	//UFUNCTION( Client, Reliable )
-	void AddCharacterOverlayWidget(bool islobby = false);
-
-	//UFUNCTION( Client, Reliable )
+	UFUNCTION( Client, Reliable ) void ClientPossessed();
+	
+	void AddCharacterOverlayWidget();
+	
 	void OnLevelChanged();
 	
 	void StartHighPingWarning();

@@ -37,12 +37,14 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 
 	// called on server when the player controller possesses a pawn
 
+	ClientPossessed();
+	
 	SpawnAutoEnemySpawner();
 
 	if (IsLocalController())
 	{
 		//DEBUG_STRING ( "APW_PlayerController OnPossess On Server" );
-		AddCharacterOverlayWidget(IsInLobby());
+		AddCharacterOverlayWidget();
 		OnLevelChanged();
 		OnPlayerStateSet();
 	}
@@ -363,9 +365,9 @@ void APW_PlayerController::OnRep_PlayerState()
 	if (!IsLocalController()) return;
 	if (!PlayerState) return;
 
-	DEBUG_STRING( "OnRep_PlayerState" );
-	
-	AddCharacterOverlayWidget(IsInLobby());
+	//DEBUG_STRING( "OnRep_PlayerState" );
+
+	AddCharacterOverlayWidget();
 	OnLevelChanged();
 	OnPlayerStateSet();
 }
@@ -379,7 +381,12 @@ void APW_PlayerController::ClientOnLoadedInGameMode_Implementation()
 	}
 }
 
-void APW_PlayerController::AddCharacterOverlayWidget(bool islobby)
+void APW_PlayerController::ClientPossessed_Implementation()
+{
+	_islobby = IsInLobby();
+}
+
+void APW_PlayerController::AddCharacterOverlayWidget()
 {
 	_hud = GetHUD <APW_HUD>();
 	
@@ -389,7 +396,7 @@ void APW_PlayerController::AddCharacterOverlayWidget(bool islobby)
 		if (_characterOverlayWidget != nullptr)
 		{
 			_characterOverlayWidget->AddToViewport();
-			_characterOverlayWidget->OnDisplayed(islobby);
+			_characterOverlayWidget->OnDisplayed(_islobby);
 		}
 	}
 }
