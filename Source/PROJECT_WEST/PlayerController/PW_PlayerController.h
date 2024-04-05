@@ -84,9 +84,6 @@ private:
 
 	FString _matchTimeString;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Info", meta = (AllowPrivateAccess = "true"))
-	FString _playerName;
-
 	float _clientServerDelta; // Difference between client and server time
 
 	UPROPERTY(EditAnywhere, Category = "Time", meta = (AllowPrivateAccess = "true"))
@@ -117,10 +114,16 @@ protected:
 	
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	virtual void OnRep_PlayerState() override;
 
-	UFUNCTION( Client, Reliable ) void ClientAddCharacterOverlayWidget(bool islobby = false);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayerStateSet();
 
-	UFUNCTION( Client, Reliable ) void ClientOnLevelChanged();
+	//UFUNCTION( Client, Reliable )
+	void AddCharacterOverlayWidget(bool islobby = false);
+
+	//UFUNCTION( Client, Reliable )
+	void OnLevelChanged();
 	
 	void StartHighPingWarning();
 	void StopHighPingWarning();
@@ -161,9 +164,6 @@ protected:
 	UFUNCTION()
 	void OnRep_MatchState();
 
-	UFUNCTION()
-	void OnRep_PlayerName();
-
 	void OnMatchStateChanged();
 	void HandleMatchStarted();
 	void HandleMatchCooldown();
@@ -196,8 +196,6 @@ public:
 	void OnMatchStateSet(FName matchState);
 
 	UFUNCTION( Client, Reliable ) void ClientOnLoadedInGameMode();
-
-	void SetNewPlayerName();
 	
 	void TogglePlayerInput(bool bEnable);
 	
@@ -250,8 +248,6 @@ public:
 
 	TArray<FString> GetInventoryItemIDs();
 	int GetSelectedSlotIndex();
-
-	FORCEINLINE FString GetPlayerName() const { return _playerName; }
 
 	UFUNCTION( Client, Reliable )
 	void SpectateModeActivated();

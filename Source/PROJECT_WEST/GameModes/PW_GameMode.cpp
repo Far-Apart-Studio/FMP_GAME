@@ -48,7 +48,7 @@ void APW_GameMode::PostLogin(APlayerController* NewPlayer)
 		
 		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer))
 		{
-			DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerState->GetPlayerName()));
+			//DEBUG_STRING (FString::Printf (TEXT ("%s has joined session " ), *playerState->GetPlayerName()));
 			playerController->ClientOnLoadedInGameMode();
 			//playerController->SetNewPlayerName(playerName);
 		}
@@ -173,8 +173,7 @@ void APW_GameMode::SaveAllPlayersInventoryData()
 	
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get());
-		if (playerController)
+		if (APW_PlayerController* playerController = Cast<APW_PlayerController>(It->Get()))
 		{
 			SavePlayerInventoryData(playerController);
 		}
@@ -192,7 +191,7 @@ void APW_GameMode::SaveAllPlayersInventoryData()
 void APW_GameMode::SavePlayerInventoryData(APW_PlayerController* playerController) const
 {
 	//DEBUG_STRING("Starting Save Player Inventory Data for " +  playerController->GetPlayerName() + " - " + FString::FromInt( playerController->GetInventoryItemIDs().Num()));
-	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory(playerController->GetPlayerName(), playerController->GetInventoryItemIDs(), playerController->GetSelectedSlotIndex());
+	_gameInstance->GetGameSessionData()._playersInventoryData.AddInventory(playerController->PlayerState->GetPlayerName(), playerController->GetInventoryItemIDs(), playerController->GetSelectedSlotIndex());
 }
 
 void APW_GameMode::TriggerPlayersAnnouncement(const FString& announcement, FColor color, float duration) const

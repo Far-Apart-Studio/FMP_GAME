@@ -36,12 +36,18 @@ void APW_PlayerController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	// called on server when the player controller possesses a pawn
-	
-	ClientAddCharacterOverlayWidget(IsInLobby());
-	SetNewPlayerName();
-	ClientOnLevelChanged();
+
 	SpawnAutoEnemySpawner();
+
+	if (IsLocalController())
+	{
+		//DEBUG_STRING ( "APW_PlayerController OnPossess On Server" );
+		AddCharacterOverlayWidget(IsInLobby());
+		OnLevelChanged();
+		OnPlayerStateSet();
+	}
 	
+	//DEBUG_STRING ( "APW_PlayerController OnPossess" + _playerName );
 	//DEBUG_STRING( "APW_PlayerController OnPossess : VOTED INDEX" + FString::FromInt(_votedBountyIndex) + " HAS VOTED : " + FString::FromInt(_hasVoted) );	
 }
 
@@ -183,21 +189,20 @@ void APW_PlayerController::LocalSpawnAutoEnemySpawner(APW_Character* controlledC
 
 void APW_PlayerController::LoadInventoryItemsByID(const FPlayerInventoryDataEntry& inventoryData)
 {
-	if(GetPawn())
-	{
-		//DEBUG_STRING ("Pawn Found");
-	}
-	else
+	if(!GetPawn())
 	{
 		DEBUG_STRING( "No Pawn Found" );
 		return;
 	}
-	
-	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass()));
-	if (inventoryHandler)
+
+	if (UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(GetPawn()->GetComponentByClass(UPW_InventoryHandler::StaticClass())))
 	{
-		//DEBUG_STRING( "ClientLoadInventoryItemsByID_Implementation : " + FString::FromInt(itemIDs.Num()));
+		//DEBUG_STRING( "ClientLoadInventoryItemsByID_Implementation : " + FString::FromInt(inventoryData._itemIDs.Num()));
 		inventoryHandler->LoadItemsFromData(inventoryData);
+	}
+	else
+	{
+		DEBUG_STRING( "No Inventory Handler Found" );
 	}
 }
 
@@ -351,6 +356,20 @@ void APW_PlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 }
 
+void APW_PlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (!IsLocalController()) return;
+	if (!PlayerState) return;
+
+	DEBUG_STRING( "OnRep_PlayerState" );
+	
+	AddCharacterOverlayWidget(IsInLobby());
+	OnLevelChanged();
+	OnPlayerStateSet();
+}
+
 void APW_PlayerController::ClientOnLoadedInGameMode_Implementation()
 {
 	APW_Character* character = Cast<APW_Character>(GetPawn());
@@ -360,7 +379,7 @@ void APW_PlayerController::ClientOnLoadedInGameMode_Implementation()
 	}
 }
 
-void APW_PlayerController::ClientAddCharacterOverlayWidget_Implementation(bool islobby)
+void APW_PlayerController::AddCharacterOverlayWidget(bool islobby)
 {
 	_hud = GetHUD <APW_HUD>();
 	
@@ -420,11 +439,6 @@ void APW_PlayerController::OnMatchStateSet(FName matchState) // Ran Only on Serv
 void APW_PlayerController::OnRep_MatchState() // Ran Only on Clients
 {
 	OnMatchStateChanged();
-}
-
-void APW_PlayerController::OnRep_PlayerName()
-{
-	_onNameChanged.Broadcast(_playerName);
 }
 
 void APW_PlayerController::OnMatchStateChanged()
@@ -503,7 +517,7 @@ void APW_PlayerController::ClientTogglePlayerInput_Implementation(bool bEnable)
 	TogglePlayerInput(bEnable);
 }
 
-void APW_PlayerController::ClientOnLevelChanged_Implementation()
+void APW_PlayerController::OnLevelChanged()
 {
 	_votedBountyIndex = -1;
 	_hasVoted = false;
@@ -602,15 +616,6 @@ void APW_PlayerController::SyncTimeWithServer(float deltaTime)
 	{
 		ServerRequestTime(GetWorld()->GetTimeSeconds());
 		_timeSyncRuningTime = 0;
-	}
-}
-
-void APW_PlayerController::SetNewPlayerName()
-{
-	APW_Character * character = Cast<APW_Character>(GetPawn());
-	if (character)
-	{
-		_playerName = character->GetPlayerState()->GetPlayerName();
 	}
 }
 
@@ -875,6 +880,8 @@ void APW_PlayerController::LocalRemoveMoney(int32 amount)
 
 void APW_PlayerController::LoadGameSessionData()
 {
+	//DEBUG_STRING( "LoadGameSessionData" );
+	
 	if(HasAuthority())
 	{
 		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
@@ -887,10 +894,14 @@ void APW_PlayerController::LoadGameSessionData()
 			}
 			else
 			{
-				gameMode->GetGameSessionData()._escapedPlayers.Add(_playerName);
+				gameMode->GetGameSessionData()._escapedPlayers.Add(PlayerState->GetPlayerName());
 				SetVulnerability (false);
 			}
 			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+		}
+		else
+		{
+			DEBUG_STRING( "LoadGameSessionData: No GameMode" );
 		}
 	}
 	else
@@ -906,9 +917,8 @@ void APW_PlayerController::SetVulnerability(bool state)
 		DEBUG_STRING( "No Pawn Found" );
 		return;
 	}
-	
-	UPW_HealthComponent* healthComponent = Cast<UPW_HealthComponent>(GetPawn()->GetComponentByClass(UPW_HealthComponent::StaticClass()));
-	if (healthComponent)
+
+	if (UPW_HealthComponent* healthComponent = Cast<UPW_HealthComponent>(GetPawn()->GetComponentByClass(UPW_HealthComponent::StaticClass())))
 	{
 		healthComponent->SetIsInvulnerable(state);
 	}
@@ -916,39 +926,51 @@ void APW_PlayerController::SetVulnerability(bool state)
 
 void APW_PlayerController::SeverLoadGameSessionData_Implementation()
 {
-	if(HasAuthority())
+	if(!HasAuthority()) return;
+
+	if (APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this)))
 	{
-		APW_GameMode* gameMode = Cast<APW_GameMode>(UGameplayStatics::GetGameMode(this));
-		if (gameMode)
+		if (APW_LobbyGameMode* lobbyGameMode = Cast<APW_LobbyGameMode>(gameMode))
 		{
-			APW_LobbyGameMode* lobbyGameMode = Cast<APW_LobbyGameMode>(gameMode);
-			if (lobbyGameMode)
-			{
-				SetVulnerability (true);
-			}
-			else
-			{
-				gameMode->GetGameSessionData()._escapedPlayers.Add(_playerName);
-				SetVulnerability (false);
-			}
-			
-			ClientLoadGameSessionData( gameMode->GetGameSessionData());
+			SetVulnerability (true);
 		}
+		else
+		{
+			gameMode->GetGameSessionData()._escapedPlayers.Add(PlayerState->GetPlayerName());
+			SetVulnerability (false);
+		}
+			
+		ClientLoadGameSessionData( gameMode->GetGameSessionData());
+	}
+	else
+	{
+		DEBUG_STRING( "LoadGameSessionData: No GameMode" );
 	}
 }
 
 void APW_PlayerController::ClientLoadGameSessionData_Implementation(FGameSessionData GameSessionData)
 {
 	//DEBUG_STRING ("Loaded Game Session Data : Money - " + FString::FromInt(GameSessionData._money) + " Day - " + FString::FromInt(GameSessionData._dayIndex));
+	
 	_money = GameSessionData._money;
 	_dayIndex = GameSessionData._dayIndex;
 
 	//DEBUG_STRING ( "Escaped Count : " + FString::FromInt(GameSessionData._escapedPlayers.Num()));
 
-	if (GameSessionData._escapedPlayers.Contains(_playerName))
+	if(!PlayerState)
 	{
-		const FPlayerInventoryDataEntry inventoryData = GameSessionData._playersInventoryData.GetInventoryData(_playerName);
+		DEBUG_STRING( "No Player State Found" );
+		return;
+	}
+	
+	if (GameSessionData._escapedPlayers.Contains(PlayerState->GetPlayerName()))
+	{
+		const FPlayerInventoryDataEntry inventoryData = GameSessionData._playersInventoryData.GetInventoryData(PlayerState->GetPlayerName());
 		LoadInventoryItemsByID(inventoryData);
+	}
+	else
+	{
+		DEBUG_STRING( "Player Not Found in Escaped List" );
 	}
 }
 

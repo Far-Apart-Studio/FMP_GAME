@@ -146,10 +146,8 @@ void APW_ItemObject::AttemptAttachToOwner()
 
 	if (ownerActor == nullptr)
 		{ PW_Utilities::Log("OWNER IS NULL!"); return; }
-	
-	const APW_Character* characterOwner = Cast<APW_Character>(ownerActor);
 
-	if (characterOwner)
+	if (const APW_Character* characterOwner = Cast<APW_Character>(ownerActor))
 	{
 		AttachToComponent( characterOwner->GetItemHolder(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OnSetVisibility();

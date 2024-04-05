@@ -170,10 +170,9 @@ APW_PlayerController* APW_BountyGameMode::GetAnyPlayerAlive()
 void APW_BountyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer);
-	if (playerController)
+	if (APW_PlayerController* playerController = Cast<APW_PlayerController>(NewPlayer))
 	{
-		//DEBUG_STRING( "APW_BountyGameMode::PostLogin: playerController is valid" );
+		//DEBUG_STRING( "APW_BountyGameMode::PostLogin " + playerController->GetName() );
 		playerController->ClientJoinMidGame(MatchState, _matchTime, _levelStartTime, _mathEndCooldownTime);
 	}
 }
