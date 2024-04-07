@@ -125,11 +125,14 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 	_lastSessionSettings->Set(FName("Session_Status"), sessionStatus, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	
 	sessionInterface->CreateSession(*localPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *_lastSessionSettings);
+
+	_processingDelegate.Broadcast(true);
 }
 
 void UPW_MultiplayerSessionsSubsystem::CreateSessionDone(bool success)
 {
 	_sessionCreateDelegate.Broadcast(success);
+	_processingDelegate.Broadcast(false);
 	
 	if (success)
 	{
@@ -154,6 +157,8 @@ void UPW_MultiplayerSessionsSubsystem::JoinSessionTrigger(const FOnlineSessionSe
 
 void UPW_MultiplayerSessionsSubsystem::JoinSessionDone(FName sessionName, bool success) const
 {
+	_processingDelegate.Broadcast(false);
+	
 	if(!success)
 	{
 		_sessionJoinDelegate.Broadcast(success);
@@ -199,6 +204,8 @@ void UPW_MultiplayerSessionsSubsystem::FindSessionTrigger(const FString& serverN
 	
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	sessionInterface->FindSessions(*localPlayer->GetPreferredUniqueNetId(), _sessionSearch.ToSharedRef());
+
+	_processingDelegate.Broadcast(true);
 }
 
 void UPW_MultiplayerSessionsSubsystem::FindSessionDone(bool success) const
@@ -280,10 +287,14 @@ void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionTrigger()
 	_isSeachingForActivePublicSession = true;
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	sessionInterface->FindSessions(*localPlayer->GetPreferredUniqueNetId(), _sessionSearch.ToSharedRef());
+
+	_processingDelegate.Broadcast(true);
 }
 
 void UPW_MultiplayerSessionsSubsystem::FindActivePublicSessionDone(bool success) const
 {
+	_processingDelegate.Broadcast(false);
+	
 	if (!success)
 	{
 		DEBUG_STRING("Find Session Failed - FindActivePublicSessiontDone");

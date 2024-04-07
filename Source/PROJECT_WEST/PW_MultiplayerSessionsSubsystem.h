@@ -10,6 +10,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSessionCreateDelegate, bool, success);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FSessionJoinDelegate, bool, success);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMapTransition);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FProcessingDelegate, bool, success);
 
 USTRUCT(BlueprintType)
 struct FSessionInfo
@@ -108,6 +109,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnMapTransition _OnMapTransition;
+
+	UPROPERTY(BlueprintAssignable)
+	FProcessingDelegate _processingDelegate;
 	
 	UPROPERTY (BlueprintReadWrite)
 	FString _mapPath;
