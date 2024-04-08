@@ -82,12 +82,16 @@ void UPW_CharacterMovementComponent::Jump()
 void UPW_CharacterMovementComponent::Dash()
 {
 	if (_ownerCharacter == nullptr)
-		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return; }
+	{
+	//PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); return;
+	}
 
 	const UCharacterMovementComponent* characterMovement = _ownerCharacter->GetCharacterMovement();
 
 	if (characterMovement == nullptr)
-		{ PW_Utilities::Log("CHARACTER MOVEMENT NOT FOUND!"); return; }
+	{
+	//PW_Utilities::Log("CHARACTER MOVEMENT NOT FOUND!"); return;
+	}
 
 	if (!CanDash(characterMovement))
 		return;
@@ -242,12 +246,16 @@ void UPW_CharacterMovementComponent::GetOwnerCharacter()
 	AActor* ownerActor = GetOwner();
 	
 	if (ownerActor == nullptr)
-		{ PW_Utilities::Log("OWNER ACTOR NOT FOUND!"); return; }
+	{
+		//PW_Utilities::Log("OWNER ACTOR NOT FOUND!"); return;
+	}
 
 	_ownerCharacter = Cast<APW_Character>(ownerActor);
 	
 	if (_ownerCharacter == nullptr)
-		{ PW_Utilities::Log("OWNER CHARACTER NOT FOUND!"); }
+	{
+		//PW_Utilities::Log("OWNER CHARACTER NOT FOUND!");
+	}
 }
 
 bool UPW_CharacterMovementComponent::ShouldReduceStamina()
