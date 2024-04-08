@@ -28,7 +28,9 @@ void UPW_ConsoleCommandManager::BeginPlay()
 
 	const AActor* ownerActor = GetOwner();
 	if (ownerActor == nullptr)
-		PW_Utilities::Log("COULD NOT FIND OWNER ACTOR FOR CONSOLE COMMAND MANAGER");
+	{
+		//PW_Utilities::Log("COULD NOT FIND OWNER ACTOR FOR CONSOLE COMMAND MANAGER");
+	}
 
 	if (!ownerActor->HasAuthority())
 		return;
