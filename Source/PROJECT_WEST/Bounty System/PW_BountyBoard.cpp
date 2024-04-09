@@ -89,11 +89,11 @@ void APW_BountyBoard::EndInteract_Implementation()
 	APW_Character* characterController = Cast<APW_Character>(_character);
 	if (characterController && characterController->IsLocallyControlled())
 	{
-		APW_PlayerController* playerController = characterController->GetController<APW_PlayerController>();
-		if (playerController)
+		if (APW_PlayerController* playerController = characterController->GetController<APW_PlayerController>())
 		{
 			playerController->SetViewTargetWithBlend(characterController, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 			characterController->ToggleMovement(true);
+			characterController->ToggleActions(true);
 			playerController->bShowMouseCursor = false;
 			playerController->SetInputMode(FInputModeGameOnly());
 			playerController->ToggleHUDVisibility(true);
@@ -118,14 +118,15 @@ void APW_BountyBoard::StartInteract_Implementation(AActor* owner)
 	if (characterController && characterController->IsLocallyControlled())
 	{
 		_character = characterController;
-		APW_PlayerController* playerController = characterController->GetController<APW_PlayerController>();
-		if (playerController)
+		if (APW_PlayerController* playerController = characterController->GetController<APW_PlayerController>())
 		{
 			playerController->ToggleHUDVisibility(false);
 			playerController->SetViewTargetWithBlend(this, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 			characterController->ToggleMovement(false);
+			characterController->ToggleActions(false);
 			playerController->bShowMouseCursor = true;
 			playerController->SetInputMode(FInputModeGameAndUI());
+			//playerController->SetInputMode(FInputModeUIOnly());
 			ToggleAllCharacterVisibility (false);
 			_onBoardOpened.Broadcast();
 		}
@@ -148,17 +149,30 @@ void APW_BountyBoard::ToggleAllCharacterVisibility_Implementation(bool status)
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APW_Character::StaticClass(), foundActors);
 	for (AActor* actor : foundActors)
 	{
-		APW_Character* character = Cast<APW_Character>(actor);
-		if (character)
+		if (APW_Character* character = Cast<APW_Character>(actor))
 		{
 			character->SetActorHiddenInGame(!status);
 		}
 	}
 }
 
+void APW_BountyBoard::ToggleCharactersVisibility(bool status)
+{
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APW_Character::StaticClass(), foundActors);
+	for (AActor* actor : foundActors)
+	{
+		if (APW_Character* character = Cast<APW_Character>(actor))
+		{
+			character->SetActorHiddenInGame(!status);
+			character->SetActorEnableCollision(!status);
+		}
+	}
+}
+
 void APW_BountyBoard::PopulateBountyDataList()
 {
-	APW_LobbyGameMode* gameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
+	const APW_LobbyGameMode* gameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
 	if (!gameMode) return;
 
 	_bountyDataList.Empty();

@@ -354,8 +354,7 @@ void APW_BountyGameMode::SpawnExtractionPoint()
 void APW_BountyGameMode::SpawnAutoEnemySpawner(ACharacter* character)
 {
 	if (!_autoSpawnerClass) return;
-	APW_AutoEnemySpawner* enemySpawner = GetWorld()->SpawnActor<APW_AutoEnemySpawner>(_autoSpawnerClass);
-	if (enemySpawner)
+	if (APW_AutoEnemySpawner* enemySpawner = GetWorld()->SpawnActor<APW_AutoEnemySpawner>(_autoSpawnerClass))
 	{
 		enemySpawner->SetCharacter(character);
 	}

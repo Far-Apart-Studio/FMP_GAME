@@ -25,6 +25,12 @@ APW_Character::APW_Character(): _itemHolder(nullptr),
 {
 	PrimaryActorTick.bCanEverTick = true;
 	_canLook = true;
+	_canPerformActions = true;
+}
+
+void APW_Character::ToggleActions(bool bCond)
+{
+	_canPerformActions = bCond;
 }
 
 void APW_Character::BeginPlay()
@@ -161,6 +167,8 @@ void APW_Character::SlotFourPressed()
 
 void APW_Character::JumpButtonPressed()
 {
+	if (!_canPerformActions)
+		return;
 	OnJumpButtonPressed.Broadcast();
 }
 
@@ -221,6 +229,9 @@ void APW_Character::LookUpAxisPressed(float value)
 
 void APW_Character::UseButtonPressed()
 {
+	if (!_canPerformActions)
+		return;
+	
 	OnShootButtonPressed.Broadcast();
 }
 

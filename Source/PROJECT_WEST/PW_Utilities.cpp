@@ -70,35 +70,35 @@ TArray<T> PW_Utilities::Duplicate(const TArray<T>& inArray)
 
 inline void PW_Utilities::Log(const FString& inString)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *inString);
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *inString);
 }
 
 inline void PW_Utilities::Log(const FString& inString, const FString& inString2)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *inString, *inString2);
+	//UE_LOG(LogTemp, Warning, TEXT("%s %s"), *inString, *inString2);
 }
 
 inline void PW_Utilities::Log(const FString& inString, const int32 inInt)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s %d"), *inString, inInt);
+	//UE_LOG(LogTemp, Warning, TEXT("%s %d"), *inString, inInt);
 }
 
 inline void PW_Utilities::Log(const FString& inString, const float inFloat)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s %f"), *inString, inFloat);
+	//UE_LOG(LogTemp, Warning, TEXT("%s %f"), *inString, inFloat);
 }
 
 inline void PW_Utilities::Log(const FString& inString, const FVector& inVector)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *inString, *inVector.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("%s %s"), *inString, *inVector.ToString());
 }
 
 inline void PW_Utilities::Log(const FString& inString, const FRotator& inRotator)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *inString, *inRotator.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("%s %s"), *inString, *inRotator.ToString());
 }
 
 inline void PW_Utilities::Log(const FString& inString, const FTransform& inTransform)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *inString, *inTransform.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("%s %s"), *inString, *inTransform.ToString());
 }

@@ -11,8 +11,8 @@ void UPW_CommandRegistry::IncreaseHealth()
 {
 	const APW_Character* playerCharacter = GetPlayerCharacter();
 	
-	if (playerCharacter == nullptr)
-		{ PW_Utilities::Log("PLAYER CHARACTER IS NULL!"); return; }
+	//if (playerCharacter == nullptr)
+		//{ PW_Utilities::Log("PLAYER CHARACTER IS NULL!"); return; }
 	
 }
 

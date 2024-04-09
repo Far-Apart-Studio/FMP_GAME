@@ -87,6 +87,8 @@ private:
 
 	UFUNCTION(Client, Reliable)
 	void ToggleAllCharacterVisibility(bool status);
+	
+	void ToggleCharactersVisibility(bool status);
 
 public:	
 

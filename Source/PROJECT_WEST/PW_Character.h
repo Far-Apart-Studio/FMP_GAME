@@ -55,6 +55,7 @@ private:
 	FTimerHandle _sprintTimerHandle;
 	FTimerDelegate _sprintTimerDelegate;
 	bool _canLook;
+	bool _canPerformActions;
 	
 public:
 	
@@ -130,6 +131,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerLeaveGame();
+	
+	void ToggleActions(bool bCond);
 
 protected:
 
