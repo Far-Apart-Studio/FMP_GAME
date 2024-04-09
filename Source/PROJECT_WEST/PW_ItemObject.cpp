@@ -76,13 +76,19 @@ void APW_ItemObject::StartInteract_Implementation(AActor* owner)
 	const APW_Character* characterController = Cast<APW_Character>(owner);
 
 	if (characterController == nullptr)
-		{ PW_Utilities::Log("ITEM OBJECT: OWNER IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("ITEM OBJECT: OWNER IS NULL!");
+		return;
+	}
 	
 	UActorComponent* actorComponent = characterController->GetComponentByClass(UPW_InventoryHandler::StaticClass());
 	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(actorComponent);
 
 	if (inventoryHandler == nullptr)
-		{ PW_Utilities::Log("ITEM OBJECT: INVENTORY HANDLER IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("ITEM OBJECT: INVENTORY HANDLER IS NULL!");
+		return;
+	}
 	
 	if (characterController->IsLocallyControlled())
 		inventoryHandler->CollectItem(this);
@@ -93,18 +99,27 @@ UPW_InventoryHandler* APW_ItemObject::GetHolderInventory()
 	AActor* ownerActor = GetOwner();
 	
 	if (ownerActor == nullptr)
-		{ PW_Utilities::Log("OWNER IS NULL!"); return nullptr; }
+	{
+		//PW_Utilities::Log("OWNER IS NULL!");
+		return nullptr;
+	}
 	
 	const APW_Character* characterOwner = Cast<APW_Character>(ownerActor);
 	
 	if (characterOwner == nullptr)
-		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return nullptr; }
+	{
+		//PW_Utilities::Log("CHARACTER OWNER IS NULL!");
+		return nullptr;
+	}
 	
 	UActorComponent* actorComponent = characterOwner->GetComponentByClass(UPW_InventoryHandler::StaticClass());
 	UPW_InventoryHandler* inventoryHandler = Cast<UPW_InventoryHandler>(actorComponent);
 
 	if (inventoryHandler == nullptr)
-		{ PW_Utilities::Log("INVENTORY HANDLER IS NULL!"); return nullptr; }
+	{
+		//PW_Utilities::Log("INVENTORY HANDLER IS NULL!");
+		return nullptr;
+	}
 
 	return inventoryHandler;
 }
@@ -112,7 +127,10 @@ UPW_InventoryHandler* APW_ItemObject::GetHolderInventory()
 void APW_ItemObject::EnterHeldState()
 {
 	if (_itemCollisionMesh == nullptr)
-		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("ITEM MESH IS NULL!");
+		return;
+	}
 
 	OnEnterHeldState.Broadcast();
 	
@@ -125,7 +143,10 @@ void APW_ItemObject::EnterHeldState()
 void APW_ItemObject::EnterDroppedState()
 {
 	if (_itemCollisionMesh == nullptr)
-		{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("ITEM MESH IS NULL!");
+		return;
+	}
 
 	OnEnterDroppedState.Broadcast();
 	
@@ -145,7 +166,10 @@ void APW_ItemObject::AttemptAttachToOwner()
 	AActor* ownerActor = GetOwner();
 
 	if (ownerActor == nullptr)
-		{ PW_Utilities::Log("OWNER IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("OWNER IS NULL!");
+		return;
+	}
 
 	if (const APW_Character* characterOwner = Cast<APW_Character>(ownerActor))
 	{
@@ -174,7 +198,10 @@ void APW_ItemObject::SetVisibility(bool isVisible)
 void APW_ItemObject::OnSetVisibility()
 {
 	if (_itemCollisionMesh == nullptr)
-	{ PW_Utilities::Log("ITEM MESH IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("ITEM MESH IS NULL!");
+		return;
+	}
 
 	TArray<USceneComponent*> childMeshes;
 	_itemCollisionMesh->GetChildrenComponents(true, childMeshes);
@@ -225,7 +252,10 @@ void APW_ItemObject::ApplyActionBindings(APW_Character* characterOwner)
 void APW_ItemObject::ClientApplyActionBindings_Implementation(APW_Character* characterOwner)
 {
 	if (characterOwner == nullptr)
-		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("CHARACTER OWNER IS NULL!");
+		return;
+	}
 
 	if (characterOwner->IsLocallyControlled())
 		ApplyObjectActions(characterOwner);
@@ -248,7 +278,10 @@ void APW_ItemObject::RemoveActionBindings(APW_Character* characterOwner)
 void APW_ItemObject::ClientRemoveActionBindings_Implementation(APW_Character* characterOwner)
 {
 	if (characterOwner == nullptr)
-		{ PW_Utilities::Log("CHARACTER OWNER IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("CHARACTER OWNER IS NULL!");
+		return;
+	}
 
 	if (characterOwner->IsLocallyControlled())
 		ClearObjectActions(characterOwner);

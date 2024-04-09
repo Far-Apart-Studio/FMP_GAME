@@ -116,13 +116,16 @@ void UPW_InventoryHandler::LocalChangeSlot(int targetedSlotIndex)
 #pragma region CollectItem
 void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 {
-	if (collectedItem == nullptr)
-		{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
+	//if (collectedItem == nullptr)
+		//{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
 	
 	const EItemObjectState itemState = collectedItem->GetItemState();
 
 	if (itemState != EItemObjectState::EDropped)
-		{ PW_Utilities::Log("ITEM STATE IS NOT DROPPED! : " + collectedItem->GetName()); return; }
+	{
+	//	PW_Utilities::Log("ITEM STATE IS NOT DROPPED! : " + collectedItem->GetName());
+		return;
+	}
 
 	const EItemType itemType = collectedItem->GetItemType();
 
@@ -130,7 +133,10 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 	const bool foundSlot = TryGetSlotIndex(itemType, slotIndex);
 	
 	if (!foundSlot)
-		{ PW_Utilities::Log("NO AVAILABLE SLOT!"); return; }
+	{
+		//PW_Utilities::Log("NO AVAILABLE SLOT!");
+		return;
+	}
 	
 	GetOwner()->HasAuthority() ? LocalCollectItem(slotIndex, collectedItem) : ServerCollectItem(slotIndex, collectedItem);
 }
@@ -138,7 +144,10 @@ void UPW_InventoryHandler::CollectItem(APW_ItemObject* collectedItem)
 void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* collectedItem)
 {
 	if (collectedItem == nullptr)
-		{ PW_Utilities::Log("COLLECTED ITEM IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("COLLECTED ITEM IS NULL!");
+		return;
+	}
 
 	_inventorySlots[slotIndex].SetItem(collectedItem);
 
@@ -147,7 +156,10 @@ void UPW_InventoryHandler::LocalCollectItem(int slotIndex, APW_ItemObject* colle
 	USceneComponent* itemPosition  = _ownerCharacter->GetItemHolder();
 
 	if (itemPosition == nullptr)
-		{PW_Utilities::Log("ITEM POSITION IS NULL!"); return; }
+	{
+		//PW_Utilities::Log("ITEM POSITION IS NULL!");
+		return;
+	}
 	
 	collectedItem->SetOwner(_ownerCharacter);
 	collectedItem->UpdateItemState(EItemObjectState::EHeld);
