@@ -150,7 +150,7 @@ void APW_BountyGameMode::BountySuccessful()
 
 	// Give money to players
 	AddMoney(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward);
-	DEBUG_STRING("Bounty successful. Money Gained: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward));
+	//DEBUG_STRING("Bounty successful. Money Gained: " + FString::FromInt(_gameInstance->GetGameSessionData()._bountyDataEntry._bountyReward));
 }
 
 APW_PlayerController* APW_BountyGameMode::GetAnyPlayerAlive()
