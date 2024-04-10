@@ -26,6 +26,8 @@ APW_Character::APW_Character(): _itemHolder(nullptr),
 	PrimaryActorTick.bCanEverTick = true;
 	_canLook = true;
 	_canPerformActions = true;
+	m_baseTurnRate = 45.f;
+	m_lookSensitivity = 0.05f;
 }
 
 void APW_Character::ToggleActions(bool bCond)
@@ -214,7 +216,7 @@ void APW_Character::LookRightAxisPressed(float value)
 	if (!_canLook)
 		return;
 	
-	AddControllerYawInput(value);
+	AddControllerYawInput(value *  m_lookSensitivity);
 	OnCameraRotationChange.Broadcast();
 }
 
@@ -223,7 +225,7 @@ void APW_Character::LookUpAxisPressed(float value)
 	if (!_canLook)
 		return;
 	
-	AddControllerPitchInput(value);
+	AddControllerPitchInput(value *  m_lookSensitivity);
 	OnCameraRotationChange.Broadcast();
 }
 
