@@ -92,6 +92,7 @@ void APW_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("PrimaryUse", IE_Released, this, &APW_Character::UseButtonReleased);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APW_Character::SprintButtonPressed);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APW_Character::SprintButtonReleased);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APW_Character::DashButtonPressed);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APW_Character::InteractButtonPressed);
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &APW_Character::InteractButtonReleased);
 	PlayerInputComponent->BindAction("Return", IE_Released, this, &APW_Character::ReturnedButtonPressed);
@@ -125,6 +126,11 @@ void APW_Character::SecondaryUseButtonPressed()
 void APW_Character::SecondaryUseButtonReleased()
 {
 	OnAimButtonReleased.Broadcast();
+}
+
+void APW_Character::DashButtonPressed()
+{
+	OnDashButtonPressed.Broadcast();
 }
 
 void APW_Character::InteractButtonReleased()
@@ -177,17 +183,6 @@ void APW_Character::JumpButtonPressed()
 void APW_Character::SprintButtonPressed()
 {
 	OnSprintButtonPressed.Broadcast();
-
-	if (_isPressedSprint)
-		OnDashButtonPressed.Broadcast();
-	
-	_isPressedSprint = true;
-
-	_sprintTimerDelegate.BindLambda([this]()
-		{_isPressedSprint = false; });
-
-	GetWorldTimerManager().SetTimer(_sprintTimerHandle, _sprintTimerDelegate,
-		_sprintDoublePressTime, false);
 }
 
 void APW_Character::SprintButtonReleased()
