@@ -57,9 +57,7 @@ private:
 	class UPW_CharacterMovementComponent* _characterMovementComponent;
 	
 	bool _LeftGame = false;
-	bool _isPressedSprint = false;
-	FTimerHandle _sprintTimerHandle;
-	FTimerDelegate _sprintTimerDelegate;
+	FTimerDelegate _dashTimerDelegate;
 	bool _canLook;
 	bool _canPerformActions;
 	
@@ -165,6 +163,7 @@ public:
 	void ReloadButtonPressed();
 	void SecondaryUseButtonPressed();
 	void SecondaryUseButtonReleased();
+	void DashButtonPressed();
 	void JumpButtonPressed();
 	void UseButtonPressed();
 	void UseButtonReleased();
