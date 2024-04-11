@@ -20,7 +20,7 @@ APW_DebtCollector::APW_DebtCollector()
 
 	_debtMinIncreaseAmount = 100;
 	_debtMaxIncreaseAmount = 500;
-	_isActivated = true;
+	_hasInteracted = false;
 	_debtIncreaseValue = 100;
 }
 
@@ -36,7 +36,7 @@ void APW_DebtCollector::BeginPlay()
 void APW_DebtCollector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(APW_DebtCollector, _isActivated);
+	DOREPLIFETIME(APW_DebtCollector, _hasInteracted);
 	DOREPLIFETIME(APW_DebtCollector, _debtAmount);
 }
 
@@ -73,7 +73,12 @@ void APW_DebtCollector::ServerStartInteract_Implementation(AActor* owner)
 
 void APW_DebtCollector::OnRep_DebtChanged()
 {
-	_onDebtAmountChanged.Broadcast(_debtAmount);
+	OnDebtAmountChanged(_debtAmount);
+}
+
+void APW_DebtCollector::OnRep_OnInteractChanged()
+{
+	FinishedInteraction ();
 }
 
 void APW_DebtCollector::Tick(float DeltaTime)
@@ -91,18 +96,21 @@ void APW_DebtCollector::SetDebtAmount(int32 day)
 {
 	const int32 randomAmount = FMath::RandRange(_debtMinStartAmount, _debtMaxStartAmount);
 	const int32 randomIncrease = FMath::RandRange(_debtMinIncreaseAmount, _debtMaxIncreaseAmount);
-	_debtAmount = randomAmount + ((day - 1) * randomIncrease);
+	const int32 dayInterval = day % 4;
+	
+	_debtAmount = randomAmount + ((dayInterval - 1 ) * randomIncrease);
+	//_debtAmount = randomAmount + ((dayInterval) * randomIncrease);
 	_debtMinIncreaseAmount += _debtIncreaseValue;
 	_debtMaxIncreaseAmount += _debtIncreaseValue;
-	_onDebtAmountChanged.Broadcast(_debtAmount);
+	OnDebtAmountChanged(_debtAmount);
 }
 
 void APW_DebtCollector::HandleBounty(AActor* owner)
 {
-	if (!_isActivated) return;
-	_isActivated = true;
-	APW_LobbyGameMode* lobbyGameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>();
-	if (lobbyGameMode)
+	if (_hasInteracted) return;
+	_hasInteracted = true;
+	FinishedInteraction ();
+	if (APW_LobbyGameMode* lobbyGameMode = GetWorld()->GetAuthGameMode<APW_LobbyGameMode>())
 	{
 		lobbyGameMode->TryPayDebtCollector();
 	}

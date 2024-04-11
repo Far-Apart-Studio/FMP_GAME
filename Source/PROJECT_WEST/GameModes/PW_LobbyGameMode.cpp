@@ -124,7 +124,6 @@ void APW_LobbyGameMode::TryPayDebtCollector()
 	{
 		RemoveMoney(_debtCollector->GetDebtAmount());
 		_bountyBoard->ToggleActivation(true);
-		_debtCollector->OnInteracted(true);
 		_debtCollector->Destroy();
 
 		
@@ -137,7 +136,6 @@ void APW_LobbyGameMode::TryPayDebtCollector()
 	{
 		TriggerPlayersAnnouncement("Not enough money to pay the debt collector", FColor::Red, 5.0f);
 		ResetSessionData();
-		_debtCollector->OnInteracted(false);
 		_debtCollector->Destroy();
 	}
 }
