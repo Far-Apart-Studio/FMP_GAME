@@ -135,6 +135,18 @@ void APW_BountyGameMode::BountyFailed()
 	SetMatchState(MatchState::Cooldown);
 }
 
+void APW_BountyGameMode::UpdateDeadSpecators( APW_PlayerController* playerAlive)
+{
+	for (auto& pair : _spectatingPlayersMap)
+	{
+		if (pair.Value == nullptr || !pair.Value->IsAlive())
+		{
+				pair.Key->SpectatePlayer(playerAlive);
+				pair.Value = playerAlive;
+		}
+	}
+}
+
 void APW_BountyGameMode::OnTimeUp()
 {
 	//DEBUG_STRING( "Time is up" );
@@ -185,7 +197,7 @@ void APW_BountyGameMode::Logout(AController* Exiting)
 void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_PlayerController* VictimController, AController* AttackerController)
 {
 	Super::PlayerEliminated(ElimmedCharacter, VictimController, AttackerController);
-	APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
+	const APW_PlayerState* victimState = VictimController ? Cast<APW_PlayerState>(VictimController->PlayerState) : nullptr;
 	if (ElimmedCharacter)
 	{
 		FNotificationEntry notification;
@@ -193,9 +205,8 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 		notification._playerNameText = victimState ? victimState->GetPlayerName() : "";
 		notification._notificationText = "has been eliminated";
 		TriggerNotification(notification);
-		
-		APW_PlayerController* host = GetAnyPlayerAlive();
-		if(host)
+
+		if(APW_PlayerController* host = GetAnyPlayerAlive())
 		{
 			//DEBUG_STRING( "Player alive"  + host->GetName() );
 			if (VictimController)
@@ -203,6 +214,9 @@ void APW_BountyGameMode::PlayerEliminated(APW_Character* ElimmedCharacter, APW_P
 				VictimController->ClientTogglePlayerInput(false);
 				VictimController->SpectatePlayer(host);
 				VictimController->SpectateModeActivated();
+
+				_spectatingPlayersMap.Add(VictimController, host);
+				UpdateDeadSpecators(host);
 			}
 		}
 		else
