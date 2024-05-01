@@ -25,11 +25,6 @@ void APW_SideObjectiveManager::BeginPlay()
 		InitialiseAllObjectives();
 		//DEBUG_STRING ("Side Objective Manager Initialised Server" );
 	}
-	else
-	{
-		_onSideObjectivesLoaded.Broadcast();
-		//DEBUG_STRING ("Side Objective Manager Initialised Client : Count " + FString::FromInt(_activeObjectives.Num()));
-	}
 }
 
 void APW_SideObjectiveManager::Tick(float DeltaTime)
@@ -43,6 +38,7 @@ void APW_SideObjectiveManager::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APW_SideObjectiveManager, _activeObjectiveEntries);
 	DOREPLIFETIME(APW_SideObjectiveManager, _activeObjectives);
+	DOREPLIFETIME(APW_SideObjectiveManager, _bIsInitialised);
 }
 
 void APW_SideObjectiveManager::InitialiseAllObjectives()
@@ -99,6 +95,8 @@ void APW_SideObjectiveManager::InitialiseAllObjectives()
 	}
 
 	_onSideObjectivesLoaded.Broadcast();
+
+	_bIsInitialised = true;
 }
 
 APW_SideObjective* APW_SideObjectiveManager::InitialiseObjective(const FSideObjectiveEntry& sideObjectiveData)

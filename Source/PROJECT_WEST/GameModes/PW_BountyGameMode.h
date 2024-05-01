@@ -71,6 +71,9 @@ public:
 
 	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
 	class APW_SideObjectiveManager* _sideObjectiveManager;
+	
+	UPROPERTY( VisibleAnywhere, BlueprintReadWrite, Category = "Gameplay",meta = (AllowPrivateAccess = "true") )
+	TMap<APW_PlayerController*, APW_PlayerController*> _spectatingPlayersMap;
 
 	AActor* _bountyPortalEntrance;
 
@@ -149,5 +152,6 @@ private:
 
 	void HandleStateTimer();
 	void BountyFailed();
+	void UpdateDeadSpecators(class APW_PlayerController* PlayerController);
 	APW_PlayerController* GetAnyPlayerAlive();
 };
