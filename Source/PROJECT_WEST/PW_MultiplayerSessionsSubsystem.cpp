@@ -90,6 +90,7 @@ void UPW_MultiplayerSessionsSubsystem::CreateSessionTrigger(int32 numberOfConnec
 	
 	const ULocalPlayer* localPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	const FString& serverName = localPlayer->GetNickname() +  FString::FromInt(FMath::RandRange(0, 99));
+	_createdSessionName = serverName;
 	const FString& sessionStatus = "Open";
 	
 	DEBUG_STRING(serverName);

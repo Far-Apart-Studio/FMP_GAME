@@ -90,10 +90,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ToggleSessionStatus(bool locked);
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Session" )
+	FString _createdSessionName;
 	
 	FString _sessionToDestroyName;
 	FString _serverNameToFind;
 	int32 _numberOfConnectionToCreate;
+
+	UPROPERTY (BlueprintReadWrite)
 	bool _isPublic;
 	
 	TSharedPtr<class FOnlineSessionSearch> _sessionSearch;
